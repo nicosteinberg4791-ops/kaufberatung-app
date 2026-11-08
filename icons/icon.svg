@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Kaufberatung: dunkler Abendraum (Bühnenfarben der Seite), Bildschirm im Fensterlicht, Haken = entschieden -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1219"/>
+      <stop offset="1" stop-color="#05070b"/>
+    </linearGradient>
+    <radialGradient id="licht" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(40 30) scale(420 380)">
+      <stop offset="0" stop-color="#cedef2" stop-opacity=".30"/>
+      <stop offset="1" stop-color="#cedef2" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#g)"/>
+  <rect width="512" height="512" rx="116" fill="url(#licht)"/>
+  <rect x="96" y="146" width="320" height="180" rx="16" fill="#05070b" stroke="#eef0f3" stroke-width="14"/>
+  <path d="M196 238 l38 38 l82 -82" fill="none" stroke="#eef0f3" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M206 372 h100" stroke="#a4adb9" stroke-width="14" stroke-linecap="round"/>
+</svg>
