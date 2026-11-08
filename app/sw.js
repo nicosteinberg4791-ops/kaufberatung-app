@@ -36,7 +36,9 @@ async function netzZuerst(req) {
     if (!r.ok) throw new Error("HTTP " + r.status);
     // Nur gültige Preisdaten ersetzen den letzten verwendbaren Stand (z. B. keine HTML-Fehlerseite mit Status 200)
     const j = await r.clone().json();
-    if (!j || typeof j !== "object" || !j.preise || typeof j.preise !== "object" || Array.isArray(j.preise)) throw new Error("ungültig");
+    const zahlOk = x => typeof x === "number" && isFinite(x) && x > 0 && x < 100000;
+    const eintraege = j && typeof j === "object" && j.preise && typeof j.preise === "object" && !Array.isArray(j.preise) ? Object.values(j.preise) : [];
+    if (!eintraege.length || !eintraege.every(p => p && typeof p === "object" && p.aktuell && zahlOk(p.aktuell.gesamt))) throw new Error("ungültig");
     await c.put("preise.json", r.clone());
     return r;
   } catch (err) {
