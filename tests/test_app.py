@@ -203,7 +203,7 @@ class Preise(unittest.TestCase):
         self.lauf({"zeit": "2026-11-07T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(2000.0)}}}, ziel)
         self.assertEqual(self.meldung.read_text(encoding="utf-8"), "", "erster Tag: kein Tiefstpreis-Treffer")
         p, b = self.lauf({"zeit": "2026-11-08T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1900.0)}}}, ziel)
-        self.assertEqual(self.meldung.read_text(encoding="utf-8"), "TV-Preiswecker: TCL C8L 1.900 € neuer Tiefstpreis")
+        self.assertEqual(self.meldung.read_text(encoding="utf-8"), "TCL C8L 1.900 € neuer Tiefstpreis")
         self.assertTrue(b["meldung"])
         self.assertIn("neuer Tiefstpreis", p["lauf"]["meldung"], "Tiefstpreis-Treffer darf öffentlich sein")
         self.lauf({"zeit": "2026-11-09T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1900.0)}}}, ziel)
@@ -229,6 +229,19 @@ class Preise(unittest.TestCase):
         self.lauf({"zeit": "2026-11-10T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1990.0)}}}, ziel, w)
         self.lauf({"zeit": "2026-11-11T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1940.0)}}}, ziel, w)
         self.assertIn("unter Wunschpreis", self.meldung.read_text(encoding="utf-8"))
+
+    def test_meldung_alle_treffer_ungekuerzt(self):
+        """Codex R1 B1: fünf Modelle mit neuem Tiefstpreis und Wunschpreis-Treffer -> zehn vollständige Zeilen."""
+        ziel = Path(self.tmp.name) / "preise.json"
+        modelle = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f"]
+        w = {m: 1950.5 for m in modelle}
+        self.lauf({"zeit": "2026-11-07T07:00:00+01:00", "modelle": {m: {"sicher": angebot(2000.0)} for m in modelle}}, ziel, w)
+        self.lauf({"zeit": "2026-11-08T07:00:00+01:00", "modelle": {m: {"sicher": angebot(1900.0)} for m in modelle}}, ziel, w)
+        zeilen = self.meldung.read_text(encoding="utf-8").splitlines()
+        self.assertEqual(len(zeilen), 10, zeilen)
+        for kurz in ("LG C6ELB", "LG C69LB", "Samsung S90H", "TCL C8L", "Samsung QN90F"):
+            self.assertIn(f"{kurz} 1.900 € neuer Tiefstpreis", zeilen)
+            self.assertIn(f"{kurz} 1.900 € unter Wunschpreis 1.950,50 €", zeilen)
 
     def test_wunschpreise_ungueltig(self):
         ziel = Path(self.tmp.name) / "preise.json"
@@ -270,6 +283,10 @@ class Preise(unittest.TestCase):
         r = subprocess.run([sys.executable, "-X", "utf8", "-I", str(WURZEL / "werkzeuge" / "preise_aktualisieren.py"),
                             "--abruf", str(a), "--ziel", str(ziel), "--skript", str(self.SKRIPT), "--push"],
                            capture_output=True, text=True, encoding="utf-8")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("--push nur mit dem gh-pages-Arbeitsbaum", r.stderr)
+        r = subprocess.run([sys.executable, "-X", "utf8", "-I", str(WURZEL / "werkzeuge" / "preise_aktualisieren.py"),
+                            "--ziel", str(ziel), "--nur-push"], capture_output=True, text=True, encoding="utf-8")
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("--push nur mit dem gh-pages-Arbeitsbaum", r.stderr)
 
@@ -341,8 +358,17 @@ class Workflow(unittest.TestCase):
         self.assertRegex(self.t, r'(?m)^  schedule:\n    - cron: "\d+ \d+ \* \* \*"')
         self.assertIn("workflow_dispatch:", self.t)
         self.assertRegex(self.t, r"(?m)^permissions:\n  contents: write")
-        self.assertIn("preise_aktualisieren.py --push --meldung", self.t)
         self.assertIn("git worktree add -B gh-pages .veroeffentlichung origin/gh-pages", self.t)
+
+    def test_reihenfolge_versand_vor_push(self):
+        """Codex R1 B2: Secret prüfen -> schreiben -> senden -> erst dann pushen; kein kombiniertes --push."""
+        t = self.t
+        stellen = [t.index('if [ -z "$NTFY_TOPIC" ]'), t.index("preise_aktualisieren.py --meldung"),
+                   t.index("ntfy.sh/$NTFY_TOPIC"), t.index("preise_aktualisieren.py --nur-push")]
+        self.assertEqual(stellen, sorted(stellen))
+        self.assertNotIn("--push ", t.replace("--nur-push", ""))
+        self.assertEqual(t.count("exit 1"), 2, "fehlendes Secret und Totalausfall machen den Lauf rot")
+        self.assertNotIn("continue-on-error", t)
 
     def test_secrets_nur_als_verweis(self):
         self.assertIn("NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}", self.t)
