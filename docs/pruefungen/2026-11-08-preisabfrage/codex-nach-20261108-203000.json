@@ -1,0 +1,21 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "B1 ist geschlossen. B2 bleibt teilweise offen und blockiert die Abnahme.",
+  "befunde": [
+    {
+      "id": "B2",
+      "schwere": "schwer",
+      "titel": "Nicht zugestellte Ereignisse gehen bei Preisänderung weiterhin verloren",
+      "datei": ".github/workflows/preise.yml",
+      "zeile": 71,
+      "beleg": "Jeder Lauf ruft die Preise erneut ab und erzeugt meldung.txt ausschließlich im RUNNER_TEMP. Nach einem Versandfehler wird weder diese Datei noch das Ereignis dauerhaft gespeichert. Überprüfbarer Ablauf anhand preiswecker.py:231–253: Veröffentlichter Preis und Tiefstpreis sind 2.000 €, Wunschpreis 1.950,50 €. Bei 1.900 € entstehen zwei Treffer, deren Versand scheitert. Kostet das Modell beim nächsten Lauf 2.100 €, entstehen gegenüber dem unveränderten veröffentlichten Stand keine Treffer. Beide offenen Ereignisse werden damit nie erneut versandt. test_reihenfolge_versand_vor_push prüft lediglich Textpositionen und enthält keinen Versandfehler mit anschließendem Wiederholungslauf.",
+      "auswirkung": "Die neue Reihenfolge verhindert die Fortschreibung nach fehlgeschlagenem Versand, gewährleistet aber keine erneute Zustellung offener Ereignisse. Die entsprechende Zusage in docs/anleitung-handy.md ist weiterhin unbelegt.",
+      "vorschlag": "Offene Ereignisse vor dem Versand dauerhaft und privat speichern, unabhängig von späteren Abrufen erneut zustellen und erst nach bestätigtem Versand quittieren. Einen Wiederholungstest mit Versandfehler und anschließend gestiegenem Preis ergänzen. Zustellbeschreibung daran anpassen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "B1"
+  ],
+  "pruefgrenzen": "Commit 2938ac9497dfc85c6139aa085d954ab40f374094 stimmt mit HEAD überein. Ausschließlich lesende Quelltext- und Differenzprüfung. Tests konnten mangels installierter Python-Laufzeit nicht ausgeführt werden. Keine Live-Abfragen oder Versandversuche. preiswecker.py ist gegenüber afd9129 unverändert. Ein externer R4-Originalstand wurde nicht verglichen."
+}
