@@ -2,15 +2,34 @@
 """Preiswecker TV (Runde 6): liest die heise-Preisvergleich-Seiten der fünf Fernseher (nur GET, kein Konto,
 kein Formular) und gibt je Modell das günstigste Angebot als JSON aus.
 
-Aufruf:  python -X utf8 -I kaufberatung/build/preiswecker.py            (alle Modelle, JSON auf stdout)
-         python -X utf8 -I kaufberatung/build/preiswecker.py --datei X   (statt Abruf eine gespeicherte Seite auswerten)
+Herkunft: Stand R4 aus Runde 6 (Codex bestanden), übernommen am 08.11.2026; geändert nur die Pfade in diesem Kopf.
 
-Versand: heise nennt die Versandkosten nur als Freitext je Händler. Sicher 0 € ist er nur bei
-„merchant_free_shipping“ oder „GRATISVERSAND“/„versandkostenfrei“ ohne Ausnahme. „Gratisversand ab … Warenwert,
-ausgenommen Speditionsware“ (Fernseher sind Speditionsware) gilt als „unklar“. Ein ausdrücklicher Betrag
-(„Versand € 69,99“, „Spedition € 79,90“) wird addiert. Das Ergebnis trennt deshalb:
+Aufruf:  python -X utf8 -I werkzeuge/preiswecker.py            (alle Modelle, JSON auf stdout)
+         python -X utf8 -I werkzeuge/preiswecker.py --datei X   (statt Abruf eine gespeicherte Seite auswerten)
+
+Versand: heise nennt die Versandkosten nur als Freitext je Händler. Freitext ergibt NIE 0 € (R6-02, Livelauf: 0 von 33
+Angeboten nutzten den Freitextpfad). Sicher 0 € ist der Versand nur bei „merchant_free_shipping“ wahr. Ein
+ausdrücklicher Betrag („Versand € 69,99“, „Spedition € 79,90“) wird addiert; alles andere ist „unklar“ (der Text bleibt
+als versandtext erhalten). Das Ergebnis trennt deshalb:
   sicher  = günstigster Gesamtpreis mit belegtem Versand
   roh     = günstigster Artikelpreis, falls billiger und Versand unklar (nur Hinweis, kein Alarm)
+
+Abgleich:  python -X utf8 -I werkzeuge/preiswecker.py --abgleich <db-Ordner> --aus <Ausgabe> [--anlegen]
+Schreibregel (Versionspin, R6-01): Ohne --anlegen enthält writes.json NIE ein Element ohne if_version. Je Dokument
+(preise/<id>, wecker/lauf) gilt:
+  ok      = lesbar mit ganzzahliger Version -> set mit if_version.
+  fehlt   = in keinem Export enthalten (weder <sammlung>/<id>.json noch Eintrag in <sammlung>.json), Sammlungsexport
+            lesbar oder ganz ohne Export -> OHNE --anlegen: Fehler vermerkt, KEIN Schreibauftrag;
+            MIT --anlegen (ausdrücklicher Erstlauf, db leer): Anlegen ohne if_version.
+  defekt  = Datei vorhanden, aber unlesbar, kein JSON, kein Objekt oder ohne Version (auch unlesbare Sammlungsdatei)
+            -> immer Fehler vermerkt, KEIN Schreibauftrag (auch mit --anlegen).
+Ungepinntes set nur beim Erstlauf (--anlegen). Das Zielsystem (ArtifactData) verweigert jedes Schreiben ohne
+if_version auf ein bereits vorhandenes Dokument; im batch schreibt dann der ganze batch nichts. Ungepinntes set =
+atomares „nur anlegen, falls nicht vorhanden“; bestehende Daten können so nicht überschrieben werden.
+Die tägliche Aufgabe ruft nie --anlegen auf.
+Ein fehlender/defekter Laufexport (wecker/lauf) zählt wie ein Modellfehler: Status „teilweise“ und Text nennt ihn.
+Altdokumente mit falschen Typen (verlauf nicht Liste, meldung nicht Objekt) werden als leer behandelt (Warnung);
+ein Fehler in einem Modell stoppt die anderen nicht.
 Nur Standardbibliothek.
 """
 import html
@@ -66,9 +85,9 @@ def versand(o):
     m = re.search(r"(versand|spedition|lieferung)[^.€]{0,30}" + BETRAG, t, re.I)
     if m and "ab" not in tl[max(0, m.start(2) - 8):m.start(2)]:
         return zahl(m.group(2)), t
-    if o.get("merchant_free_shipping") == 1 or (("gratisversand" in tl or "versandkostenfrei" in tl)
-                                                 and "ausgenommen" not in tl and "gratisversand ab" not in tl):
+    if o.get("merchant_free_shipping") is True or o.get("merchant_free_shipping") == 1:
         return 0.0, t
+    # Freitext (auch „versandkostenfrei“) belegt keinen Versand: unklar
     return None, t
 
 
@@ -126,80 +145,161 @@ def eur(x):
     return t.replace(",", "X").replace(".", ",").replace("X", ".") + " €"
 
 
-def lies_doc(pfad):
-    """Von ArtifactData (out_dir) gespeichertes Dokument lesen: (Felder, Version) – tolerant gegenüber der Hülle."""
-    try:
-        o = json.load(open(pfad, encoding="utf-8"))
-    except (OSError, ValueError):
-        return {}, None
-    if not isinstance(o, dict):
-        return {}, None
-    ver = next((o[k] for k in ("version", "_version", "__version__") if isinstance(o.get(k), int)), None)
+def _felder_version(o):
+    """Aus einem Dokumentobjekt (mit oder ohne Hülle) (Felder, Version oder None) ziehen."""
+    ver = next((o[k] for k in ("version", "_version", "__version__") if isinstance(o.get(k), int) and not isinstance(o.get(k), bool)), None)
     felder = o.get("data") if isinstance(o.get("data"), dict) else o
     felder = {k: v for k, v in felder.items() if k not in ("version", "_version", "__version__", "id", "doc_id", "path")}
     return felder, ver
+
+
+def lies_doc(db_dir, sammlung, doc_id):
+    """Von ArtifactData (out_dir) gespeichertes Dokument lesen: (Felder, Version, Status).
+    Status: "ok" (lesbar mit Version), "fehlt" (in keinem Export, Sammlung lesbar oder ganz ohne Export),
+            "defekt" (Datei da, aber unlesbar/kein JSON/kein Objekt/keine Version, auch defekter Sammlungsexport)."""
+    import os
+    einzel = os.path.join(db_dir, sammlung, doc_id + ".json")
+    if os.path.exists(einzel):
+        try:
+            o = json.load(open(einzel, encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}, None, "defekt"
+        if not isinstance(o, dict):
+            return {}, None, "defekt"
+        felder, ver = _felder_version(o)
+        return (felder, ver, "ok") if ver is not None else ({}, None, "defekt")
+    sammel = os.path.join(db_dir, sammlung + ".json")
+    if os.path.exists(sammel):  # ein Export je Sammlung statt je Dokument (tolerante Lesart)
+        try:
+            c = json.load(open(sammel, encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}, None, "defekt"
+        eintrag = None
+        if isinstance(c, dict):
+            for k in ("docs", "documents", "items", "data"):
+                if isinstance(c.get(k), (dict, list)):
+                    c = c[k]
+                    break
+        if isinstance(c, dict):
+            eintrag = c.get(doc_id)
+        elif isinstance(c, list):
+            eintrag = next((x for x in c if isinstance(x, dict) and doc_id in (x.get("id"), x.get("doc_id"))), None)
+        elif c is not None:
+            return {}, None, "defekt"
+        if eintrag is None:
+            return {}, None, "fehlt"
+        if not isinstance(eintrag, dict):
+            return {}, None, "defekt"
+        felder, ver = _felder_version(eintrag)
+        return (felder, ver, "ok") if ver is not None else ({}, None, "defekt")
+    return {}, None, "fehlt"
 
 
 def zahl_ok(x):
     return isinstance(x, (int, float)) and not isinstance(x, bool) and 0 < x < 100000
 
 
-def abgleich(erg, db_dir, aus_dir):
+def abgleich(erg, db_dir, aus_dir, anlegen=False):
     """Neue Dokumente für preise/<id> und wecker/lauf berechnen, Schreibliste + Meldung ablegen."""
     import os
     os.makedirs(aus_dir, exist_ok=True)
     heute = erg["zeit"][:10]
-    writes, treffer, fehler = [], [], []
+    writes, treffer, fehler, probleme, warnungen = [], [], [], [], []
     for mid in MODELLE:
-        alt, ver = lies_doc(os.path.join(db_dir, "preise", mid + ".json"))
-        wunsch, _ = lies_doc(os.path.join(db_dir, "wunsch", mid + ".json"))
-        r = erg["modelle"].get(mid, {})
-        akt = r.get("sicher")
-        if not akt:
-            fehler.append(KURZ[mid])
-            continue
-        neu = {"name": NAMEN[mid], "heiseUrl": MODELLE[mid],
-               "aktuell": {k: akt[k] for k in ("gesamt", "artikel", "versand", "haendler", "sterne", "lieferung")} | {"zeit": erg["zeit"]}}
-        if r.get("roh"):
-            neu["roh"] = {k: r["roh"][k] for k in ("artikel", "haendler", "sterne")} | {"zeit": erg["zeit"]}
-        g = akt["gesamt"]
-        tief_alt = alt.get("tief") if isinstance(alt.get("tief"), dict) and zahl_ok(alt["tief"].get("gesamt")) else None
-        if tief_alt and tief_alt["gesamt"] <= g:
-            neu["tief"] = tief_alt
-        else:
-            neu["tief"] = {"gesamt": g, "datum": heute, "haendler": akt["haendler"]}
-            if tief_alt:
-                treffer.append(f"{KURZ[mid]} {eur(g)} neuer Tiefstpreis")
-        verlauf = [v for v in alt.get("verlauf", []) if isinstance(v, dict) and v.get("d") != heute and zahl_ok(v.get("g"))]
-        neu["verlauf"] = (verlauf + [{"d": heute, "g": g, "h": akt["haendler"]}])[-60:]
-        wp = wunsch.get("preis")
-        unter = zahl_ok(wp) and g <= wp
-        war_unter = bool((alt.get("meldung") or {}).get("unter_wunsch")) and (alt.get("meldung") or {}).get("wunsch") == wp
-        if unter and not war_unter:
-            treffer.append(f"{KURZ[mid]} {eur(g)} unter Wunschpreis {eur(wp)}")
-        neu["meldung"] = {"unter_wunsch": bool(unter), "wunsch": wp if zahl_ok(wp) else None}
-        datei = os.path.join(aus_dir, f"preise_{mid}.json")
-        json.dump(neu, open(datei, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-        w = {"op": "set", "collection": "preise", "doc_id": mid, "file_path": os.path.abspath(datei)}
-        if ver is not None:
-            w["if_version"] = ver
-        writes.append(w)
-    status = "ok" if not fehler else ("fehler" if len(fehler) == len(MODELLE) else "teilweise")
-    text = "Alle fünf Preise gelesen." if not fehler else "Kein Angebot mit belegtem Versand: " + ", ".join(fehler) + "."
+        try:
+            alt, ver, st = lies_doc(db_dir, "preise", mid)
+            if st == "defekt":
+                # Exportdatei vorhanden, aber unbrauchbar: nicht blind überschreiben, kein Schreibauftrag
+                probleme.append(f"{KURZ[mid]}: db-Export preise/{mid} unlesbar oder ohne Version, nicht geschrieben")
+                continue
+            if st == "fehlt" and not anlegen:
+                probleme.append(f"{KURZ[mid]}: preise/{mid} nicht im db-Export, nicht geschrieben (Erstlauf nur mit --anlegen)")
+                continue
+            wunsch, _, wst = lies_doc(db_dir, "wunsch", mid)
+            if wst == "defekt":
+                warnungen.append(f"{KURZ[mid]}: Wunschpreis-Export unlesbar, Wunschpreis ignoriert")
+            r = erg["modelle"].get(mid, {})
+            akt = r.get("sicher")
+            if not akt:
+                fehler.append(KURZ[mid])
+                continue
+            neu = {"name": NAMEN[mid], "heiseUrl": MODELLE[mid],
+                   "aktuell": {k: akt[k] for k in ("gesamt", "artikel", "versand", "haendler", "sterne", "lieferung")} | {"zeit": erg["zeit"]}}
+            if r.get("roh"):
+                neu["roh"] = {k: r["roh"][k] for k in ("artikel", "haendler", "sterne")} | {"zeit": erg["zeit"]}
+            g = akt["gesamt"]
+            tief_alt = alt.get("tief") if isinstance(alt.get("tief"), dict) and zahl_ok(alt["tief"].get("gesamt")) else None
+            if tief_alt and tief_alt["gesamt"] <= g:
+                neu["tief"] = tief_alt
+            else:
+                neu["tief"] = {"gesamt": g, "datum": heute, "haendler": akt["haendler"]}
+                if tief_alt:
+                    treffer.append(f"{KURZ[mid]} {eur(g)} neuer Tiefstpreis")
+            vl = alt.get("verlauf", [])
+            if not isinstance(vl, list):  # z. B. null oder Text im Altdokument
+                warnungen.append(f"{KURZ[mid]}: verlauf im Altdokument kein Feld vom Typ Liste, als leer behandelt")
+                vl = []
+            verlauf = [v for v in vl if isinstance(v, dict) and v.get("d") != heute and zahl_ok(v.get("g"))]
+            neu["verlauf"] = (verlauf + [{"d": heute, "g": g, "h": akt["haendler"]}])[-60:]
+            wp = wunsch.get("preis")
+            unter = zahl_ok(wp) and g <= wp
+            ma = alt.get("meldung")
+            if ma is not None and not isinstance(ma, dict):
+                warnungen.append(f"{KURZ[mid]}: meldung im Altdokument kein Objekt, als leer behandelt")
+                ma = {}
+            ma = ma or {}
+            war_unter = bool(ma.get("unter_wunsch")) and ma.get("wunsch") == wp
+            if unter and not war_unter:
+                treffer.append(f"{KURZ[mid]} {eur(g)} unter Wunschpreis {eur(wp)}")
+            neu["meldung"] = {"unter_wunsch": bool(unter), "wunsch": wp if zahl_ok(wp) else None}
+            datei = os.path.join(aus_dir, f"preise_{mid}.json")
+            json.dump(neu, open(datei, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+            w = {"op": "set", "collection": "preise", "doc_id": mid, "file_path": os.path.abspath(datei)}
+            # Ungepinntes set nur beim Erstlauf (--anlegen). Das Zielsystem (ArtifactData) verweigert jedes Schreiben ohne
+            # if_version auf ein bereits vorhandenes Dokument; im batch schreibt dann der ganze batch nichts. Ungepinntes set =
+            # atomares „nur anlegen, falls nicht vorhanden“; bestehende Daten können so nicht überschrieben werden.
+            # Die tägliche Aufgabe ruft nie --anlegen auf.
+            if st == "ok":
+                w["if_version"] = ver
+            writes.append(w)
+        except Exception as e:  # ein kaputtes Modell darf die anderen und die Ausgabedateien nicht stoppen
+            probleme.append(f"{KURZ[mid]}: {type(e).__name__}: {str(e)[:100]}")
+    n_ok = len(MODELLE) - len(fehler) - len([x for x in probleme if not x.startswith("wecker/lauf")])
+    lauf_alt, lauf_ver, lst = lies_doc(db_dir, "wecker", "lauf")
+    if lst == "defekt":
+        probleme.append("wecker/lauf: db-Export unlesbar oder ohne Version, nicht geschrieben")
+    elif lst == "fehlt" and not anlegen:
+        probleme.append("wecker/lauf: nicht im db-Export, nicht geschrieben (Erstlauf nur mit --anlegen)")
+    status = "ok" if not (fehler or probleme) else ("fehler" if n_ok == 0 else "teilweise")
+    text = "Alle fünf Preise gelesen." if not (fehler or probleme) else ""
+    if fehler:
+        text += "Kein Angebot mit belegtem Versand: " + ", ".join(fehler) + ". "
+    if probleme:
+        text += "Fehler: " + "; ".join(probleme) + ". "
     if treffer:
-        text += " Treffer: " + "; ".join(treffer) + "."
-    lauf_alt, lauf_ver = lies_doc(os.path.join(db_dir, "wecker", "lauf.json"))
+        text += "Treffer: " + "; ".join(treffer) + "."
+    text = text.strip()
     lauf = {"letzter": erg["zeit"], "status": status, "meldung": text[:300], "bis": ENDE}
     datei = os.path.join(aus_dir, "wecker_lauf.json")
     json.dump(lauf, open(datei, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    w = {"op": "set", "collection": "wecker", "doc_id": "lauf", "file_path": os.path.abspath(datei)}
-    if lauf_ver is not None:
-        w["if_version"] = lauf_ver
-    writes.append(w)
+    if lst == "defekt" or (lst == "fehlt" and not anlegen):
+        pass  # Fehler steht oben schon in probleme (Status/Text), kein Schreibauftrag
+    else:
+        w = {"op": "set", "collection": "wecker", "doc_id": "lauf", "file_path": os.path.abspath(datei)}
+        # Ungepinntes set nur beim Erstlauf (--anlegen). Das Zielsystem (ArtifactData) verweigert jedes Schreiben ohne
+        # if_version auf ein bereits vorhandenes Dokument; im batch schreibt dann der ganze batch nichts. Ungepinntes set =
+        # atomares „nur anlegen, falls nicht vorhanden“; bestehende Daten können so nicht überschrieben werden.
+        # Die tägliche Aufgabe ruft nie --anlegen auf.
+        if lst == "ok":
+            w["if_version"] = lauf_ver
+        writes.append(w)
     json.dump(writes, open(os.path.join(aus_dir, "writes.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     push = ("TV-Preiswecker: " + "; ".join(treffer))[:195] if treffer else ""
     open(os.path.join(aus_dir, "meldung.txt"), "w", encoding="utf-8").write(push)
-    return {"status": status, "treffer": treffer, "push": push, "writes": len(writes), "lauf": text}
+    for x in probleme + warnungen:
+        print("WARNUNG/FEHLER: " + x, file=sys.stderr)
+    return {"status": status, "treffer": treffer, "push": push, "writes": len(writes), "lauf": text,
+            "fehler": probleme, "warnungen": warnungen}
 
 
 def main():
@@ -208,10 +308,12 @@ def main():
     if len(a) == 2 and a[0] == "--datei":
         print(json.dumps(auswerten(open(a[1], encoding="utf-8").read()), ensure_ascii=False, indent=1))
         return
-    if len(a) == 4 and a[0] == "--abgleich" and a[2] == "--aus":
-        # a[1] = Ordner mit den per ArtifactData (out_dir) gespeicherten Dokumenten, a[3] = Ausgabeordner
+    anlegen = "--anlegen" in a
+    rest = [x for x in a if x != "--anlegen"]
+    if len(rest) == 4 and rest[0] == "--abgleich" and rest[2] == "--aus":
+        # rest[1] = Ordner mit den per ArtifactData (out_dir) gespeicherten Dokumenten, rest[3] = Ausgabeordner
         erg = abruf_alle()
-        print(json.dumps(abgleich(erg, a[1], a[3]), ensure_ascii=False, indent=1))
+        print(json.dumps(abgleich(erg, rest[1], rest[3], anlegen), ensure_ascii=False, indent=1))
         return
     print(json.dumps(abruf_alle(), ensure_ascii=False, indent=1))
 
