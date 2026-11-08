@@ -18,7 +18,10 @@ Aufrufe:
   python -X utf8 -I werkzeuge/preise_aktualisieren.py --abruf abruf.json    vorhandenes Abrufergebnis (stdout von preiswecker.py)
   ... --ziel dist/preise.json                                               anderes Ziel (lokaler Test)
   ... --push                                                                im gh-pages-Arbeitsbaum committen und pushen
-  ... --meldung datei.txt                                                   Benachrichtigungstext (leer = keine Meldung)
+  ... --nur-push                                                            vorhandene preise.json im Arbeitsbaum pushen
+  ... --meldung datei.txt                                                   Benachrichtigungstext, ein Treffer je Zeile (leer = keine Meldung)
+Workflow-Reihenfolge (Codex R1 B2): schreiben -> ntfy senden -> erst dann --nur-push. Scheitert der Versand, bleibt der
+alte Stand online und der nächste Lauf erkennt dasselbe Ereignis erneut (mindestens einmal statt höchstens einmal).
   ... --skript <pfad/preiswecker.py>                                        anderes Skript (Tests)
 Exitcode 3, wenn kein einziges Modell gelesen wurde (Status "fehler", z. B. heise gesperrt); preise.json ist dann
 trotzdem geschrieben (alte Preise, Laufstatus "fehler"), damit die App den Fehler zeigt.
@@ -165,6 +168,12 @@ def push(ziel):
     print("gepusht: gh-pages/preise.json")
 
 
+def meldetext(treffer):
+    """Alle Treffer vollständig, eine Zeile je Treffer (Codex R1 B1: der R4-Text "push" ist auf 195 Zeichen gekürzt).
+    Fünf Modelle mit je zwei Treffern ergeben unter 600 Zeichen; ntfy nimmt bis 4096 Byte als Text."""
+    return "\n".join(treffer)
+
+
 def uebersicht(erg):
     """Je Modell nur Angebotszahl oder Fehler (für das öffentliche Log; zeigt z. B. eine heise-Sperre)."""
     return {mid: (r.get("fehler") if r.get("fehler") else f"{r.get('angebote', '?')} Angebote")
@@ -178,21 +187,28 @@ def main():
     a.add_argument("--ziel", default=str(SEITEN / "preise.json"))
     a.add_argument("--skript")
     a.add_argument("--push", action="store_true")
+    a.add_argument("--nur-push", action="store_true",
+                   help="nichts abrufen: die vorhandene preise.json im gh-pages-Arbeitsbaum committen und pushen")
     a.add_argument("--meldung", help="Datei für den Benachrichtigungstext (wird immer geschrieben, leer = keine Meldung)")
     x = a.parse_args()
+    if x.nur_push or x.push:   # vor allem anderen: nur der gh-pages-Arbeitsbaum, nur preise.json
+        ziel = Path(x.ziel)
+        assert ziel.parent.resolve() == SEITEN.resolve() and ziel.name == "preise.json", "--push nur mit dem gh-pages-Arbeitsbaum"
+        arbeitsbaum_pruefen(ziel.parent)
+    if x.nur_push:
+        push(Path(x.ziel))
+        return
     pw, pfad = lade_skript(x.skript)
     wunsch = lies_wunsch(os.environ.get("WUNSCHPREISE", ""), pw.MODELLE)
     erg = json.loads(Path(x.abruf).read_text(encoding="utf-8")) if x.abruf else pw.abruf_alle()
     assert isinstance(erg, dict) and isinstance(erg.get("modelle"), dict) and isinstance(erg.get("zeit"), str), "Abrufergebnis ungültig"
     ziel = Path(x.ziel)
-    if x.push:   # vor dem Schreiben: nur der gh-pages-Arbeitsbaum, nur preise.json
-        assert ziel.parent.resolve() == SEITEN.resolve() and ziel.name == "preise.json", "--push nur mit dem gh-pages-Arbeitsbaum"
-        arbeitsbaum_pruefen(ziel.parent)
     bericht, lauf = aktualisiere(pw, erg, ziel, wunsch)
+    text = meldetext(bericht["treffer"])
     if x.meldung:
-        Path(x.meldung).write_text(bericht["push"], encoding="utf-8", newline="\n")
+        Path(x.meldung).write_text(text, encoding="utf-8", newline="\n")
     print(json.dumps({"skript": str(pfad), "ziel": str(ziel), "status": bericht["status"], "wunschpreise": len(wunsch),
-                      "meldung": bool(bericht["push"]), "modelle": uebersicht(erg), "lauf": lauf["meldung"]},
+                      "meldung": len(bericht["treffer"]), "modelle": uebersicht(erg), "lauf": lauf["meldung"]},
                      ensure_ascii=False))
     if x.push:
         push(ziel)

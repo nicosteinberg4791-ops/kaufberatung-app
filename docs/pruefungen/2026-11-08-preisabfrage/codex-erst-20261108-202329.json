@@ -1,0 +1,30 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Zwei Fehler verletzen das Fertigkriterium „Meldung je Ereignis einmal“: Mehrere Treffer werden abgeschnitten; bei Versandfehlern gehen Ereignisse dauerhaft verloren.",
+  "befunde": [
+    {
+      "id": "B1",
+      "schwere": "schwer",
+      "titel": "Kürzung verwirft vollständige Treffer",
+      "datei": "werkzeuge/preiswecker.py",
+      "zeile": 297,
+      "beleg": "Der Versandtext wird mit [:195] abgeschnitten. Bei fünf Modellen mit jeweils neuem Tiefstpreis 1.900 € und Wunschpreis-Treffer 1.950,50 € entstehen zehn Treffer mit insgesamt 445 Zeichen. Der Versandtext endet bereits bei „Samsung S90H “; die restlichen Ereignisse fehlen. Trotzdem werden die neuen Preise und Tiefstpreise aller Modelle gespeichert.",
+      "auswirkung": "Mehrere gleichzeitig eintretende Ereignisse werden niemals gemeldet. Beim folgenden Lauf mit unveränderten Preisen entstehen dafür keine erneuten Treffer.",
+      "vorschlag": "Alle Treffer vollständig versenden, gegebenenfalls in mehrere Nachrichten aufteilen. Die R4-Datei kann unverändert bleiben, wenn der Adapter den Versandtext aus bericht['treffer'] erzeugt. Einen Test mit Treffern für alle fünf Modelle ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "B2",
+      "schwere": "schwer",
+      "titel": "Preisstand wird vor bestätigtem Versand fortgeschrieben",
+      "datei": ".github/workflows/preise.yml",
+      "zeile": 56,
+      "beleg": "Der Aktualisierungsschritt veröffentlicht über --push bereits den neuen Preisstand (preise_aktualisieren.py:197–198). Erst danach erfolgt der ntfy-Versand in Zeile 76. Fehlt NTFY_TOPIC, endet der Versandschritt sogar erfolgreich ohne Versand (Zeilen 64–66). Auch nach ausgeschöpften curl-Wiederholungen bleibt der neue Preisstand veröffentlicht; meldung.txt liegt nur im temporären Runner-Verzeichnis.",
+      "auswirkung": "Bei fehlendem Secret oder einem ntfy-Ausfall geht das Ereignis dauerhaft verloren. Ein erneuter Workflow-Lauf mit denselben Preisen erzeugt keinen Treffer mehr. Damit ist die zugesagte einmalige Meldung pro Ereignis nicht erfüllt.",
+      "vorschlag": "Eine dauerhafte, private Warteschlange mit bestätigtem Versandstatus vorsehen und offene Ereignisse erneut zustellen. Fehlendes NTFY_TOPIC vor der Verarbeitung prüfen. Einen Test für Versandfehler mit anschließend erfolgreichem Wiederholungslauf ergänzen; Zustellgarantien in der Anleitung entsprechend präzisieren.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Commit afd91296587ff9d3cdf40a68eba438a38e8aa5f3 ausschließlich lesend geprüft. R4-Vergleich gegen 3e910fe:werkzeuge/preiswecker_r4.py zeigt nur Kopfänderungen. Keine Dateien verändert, keine Unteragenten gestartet. Python ist in dieser Umgebung nicht verfügbar (py: „No installed Python found!“); daher keine Python-Tests oder dynamischen Integrationsprüfungen ausgeführt. Kürzungsbeispiel im Arbeitsspeicher mit PowerShell nachvollzogen. GitHub-Läufe, Secrets und tatsächliche ntfy-Zustellung nicht unabhängig überprüft."
+}

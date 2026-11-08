@@ -24,7 +24,7 @@ Wird die Kaufberatung überarbeitet, lädt die App die neue Fassung beim nächst
 
 ## Push-Benachrichtigung über ntfy (einmal einrichten)
 
-Die tägliche Abfrage schickt eine Nachricht über den kostenlosen Dienst ntfy.sh, wenn ein Fernseher einen **neuen Tiefstpreis** erreicht (seit Beginn der Abfrage) oder unter einen **auf GitHub hinterlegten Wunschpreis** fällt. Ein Ereignis wird einmal gemeldet; beim Wunschpreis kommt die nächste Meldung erst, wenn der Preis wieder darüber steigt und erneut fällt.
+Die tägliche Abfrage schickt eine Nachricht über den kostenlosen Dienst ntfy.sh, wenn ein Fernseher einen **neuen Tiefstpreis** erreicht (seit Beginn der Abfrage) oder unter einen **auf GitHub hinterlegten Wunschpreis** fällt. Ein Ereignis wird einmal gemeldet; beim Wunschpreis kommt die nächste Meldung erst, wenn der Preis wieder darüber steigt und erneut fällt. Klappt der Versand an ntfy nicht, werden die Preise an dem Tag nicht fortgeschrieben und der nächste Lauf meldet das Ereignis erneut; selten kann eine Meldung dadurch doppelt kommen.
 
 1. Auf dem Handy die App **„ntfy“** aus dem Google Play Store installieren (kostenlos).
 2. Am PC die Datei `C:\Users\Nico\Documents\Claude\Kaufberatung-App-privat\ntfy-topic.txt` öffnen. Darin steht der **Themenname** (beginnt mit `kb-`, lange Zufallsfolge). Er ist das einzige Kennwort: nicht weitergeben, nicht in Chats kopieren.
