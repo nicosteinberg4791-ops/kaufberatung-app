@@ -11,6 +11,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 WURZEL = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(WURZEL / "werkzeuge"))
@@ -211,6 +212,63 @@ class Preise(unittest.TestCase):
                            capture_output=True, text=True, encoding="utf-8")
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("--push nur mit dem gh-pages-Arbeitsbaum", r.stderr)
+
+
+class PushSchutz(unittest.TestCase):
+    """B2/B3 der Codex-Erstprüfung: Push nur aus eigenem gh-pages-Arbeitsbaum, Commit nur mit preise.json."""
+
+    def setUp(self):
+        import preise_aktualisieren
+        self.pa = preise_aktualisieren
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.repo = Path(self.tmp.name) / "seiten"
+        self.repo.mkdir()
+        self.git("init", "-q", "-b", "gh-pages")
+        self.git("config", "user.name", "Test")
+        self.git("config", "user.email", "test@example.invalid")
+        (self.repo / "preise.json").write_text('{"zeit": "2026-11-07T10:00:00+01:00"}\n', encoding="utf-8")
+        self.git("add", "preise.json")
+        self.git("commit", "-q", "-m", "start")
+
+    def git(self, *a):
+        return subprocess.run(["git", "-C", str(self.repo), *a], check=True, capture_output=True, text=True).stdout
+
+    def test_kein_arbeitsbaum(self):
+        leer = Path(self.tmp.name) / "leer"
+        leer.mkdir()
+        with self.assertRaises(SystemExit):
+            self.pa.arbeitsbaum_pruefen(leer)
+        unter = self.repo / "unter"
+        unter.mkdir()
+        with self.assertRaises(SystemExit):   # Unterordner eines anderen Repos zählt nicht
+            self.pa.arbeitsbaum_pruefen(unter)
+
+    def test_falscher_zweig(self):
+        self.git("checkout", "-q", "-b", "main")
+        with self.assertRaises(SystemExit):
+            self.pa.arbeitsbaum_pruefen(self.repo)
+
+    def test_fremder_index_wird_abgelehnt(self):
+        (self.repo / "privat.txt").write_text("x", encoding="utf-8")
+        self.git("add", "privat.txt")
+        (self.repo / "preise.json").write_text('{"zeit": "2026-11-08T10:00:00+01:00"}\n', encoding="utf-8")
+        with self.assertRaises(SystemExit):
+            self.pa.push(self.repo / "preise.json")
+        self.assertEqual(self.git("rev-list", "--count", "HEAD").strip(), "1", "es darf kein Commit entstehen")
+
+    def test_commit_nur_preise(self):
+        (self.repo / "preise.json").write_text('{"zeit": "2026-11-08T10:00:00+01:00"}\n', encoding="utf-8")
+        (self.repo / "sonst.txt").write_text("nicht gestaged", encoding="utf-8")
+        echt = subprocess.run
+
+        def ohne_push(befehl, *a, **k):   # kein Remote: nur den git push überspringen
+            if "push" in befehl:
+                return subprocess.CompletedProcess(befehl, 0)
+            return echt(befehl, *a, **k)
+        with mock.patch.object(self.pa.subprocess, "run", side_effect=ohne_push):
+            self.pa.push(self.repo / "preise.json")
+        self.assertEqual(self.git("show", "--name-only", "--format=", "HEAD").split(), ["preise.json"])
 
 
 if __name__ == "__main__":

@@ -204,11 +204,12 @@
   function swAnmelden() {
     if (!("serviceWorker" in navigator)) return;
     let neuGeladen = false, gewuenscht = false;
-    // Neu laden bei einem Wechsel der Fassung (Seite war schon gesteuert, z. B. andere Registerkarte hat „Neu laden“ gewählt)
-    // oder wenn hier „Neu laden“ gedrückt wurde; beim ersten Öffnen übernimmt clients.claim() die Seite ohne Neuladen
-    const warGesteuert = !!navigator.serviceWorker.controller;
+    // Erste Übernahme (erster Besuch, clients.claim) ohne Neuladen; jeder spätere Wechsel der Fassung genau einmal neu laden,
+    // auch wenn eine andere Registerkarte „Neu laden“ gewählt hat
+    let gesteuert = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if ((warGesteuert || gewuenscht) && !neuGeladen) { neuGeladen = true; location.reload(); }
+      if (!gesteuert && !gewuenscht) { gesteuert = true; return; }
+      if (!neuGeladen) { neuGeladen = true; location.reload(); }
     });
     navigator.serviceWorker.register("sw.js").then(reg => {
       const melde = w => karte("kbapp-neu", "neu", "Neue Fassung bereit", "Die Kaufberatung wurde aktualisiert.", [

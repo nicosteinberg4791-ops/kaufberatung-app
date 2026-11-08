@@ -65,6 +65,12 @@ const e = {};
 await laden(basis);
 await js(`await navigator.serviceWorker.ready; return 1`); await sleep(1000);
 e.v1 = await js(`return (await caches.keys()).filter(k=>k.startsWith('kb-app-'))`);
+const pj = path.join(dist, "preise.json"), pjAlt = fs.readFileSync(pj);
+fs.writeFileSync(pj, "<html><body>Fehlerseite</body></html>");
+e.b4 = await js(`const r = await fetch('preise.json', {cache:'no-store'}); const t = await r.text();
+  const c = await (await caches.open('kb-daten')).match('preise.json'); const ct = c ? await c.text() : null;
+  let ok = false; try { ok = !!JSON.parse(ct).preise } catch (x) {} return { antwortHtml: t.startsWith('{') ? false : true, cacheGueltig: ok }`);
+fs.writeFileSync(pj, pjAlt);
 fs.appendFileSync(path.join(kopie, "app", "app.css"), "\n/* Teständerung */\n");
 execSync(`python -I "${path.join(kopie, "werkzeuge", "app_bauen.py")}"`);
 await js(`const r = await navigator.serviceWorker.getRegistration(); await r.update(); return 1`);
@@ -72,7 +78,8 @@ for (let i = 0; i < 40; i++) { await sleep(250); if (await js(`return !!document
 e.karte = await js(`const k=document.getElementById('kbapp-neu'); return k ? k.textContent : null`);
 await bild("update-karte.png");
 const t0 = ereignisse.length;
-await js(`document.querySelector('#kbapp-neu .kbapp-haupt').click(); return 1`);
+if (process.argv.includes('--fremd')) await js(`(await navigator.serviceWorker.getRegistration()).waiting.postMessage('jetzt'); return 1`);
+else await js(`document.querySelector('#kbapp-neu .kbapp-haupt').click(); return 1`);
 for (let i = 0; i < 60; i++) { await sleep(200); if (ereignisse.slice(t0).includes("Page.loadEventFired")) break; }
 await sleep(1500);
 e.nachNeuLaden = await js(`return { caches: (await caches.keys()).filter(k=>k.startsWith('kb-app-')), karte: !!document.getElementById('kbapp-neu'),

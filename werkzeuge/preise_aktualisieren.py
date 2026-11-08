@@ -77,13 +77,33 @@ def aktualisiere(pw, erg, ziel):
     return bericht
 
 
+def git_aus(ordner, *a):
+    r = subprocess.run(["git", "-C", str(ordner), *a], capture_output=True, text=True, encoding="utf-8")
+    return r.stdout.strip() if r.returncode == 0 else None
+
+
+def arbeitsbaum_pruefen(ordner, zweig="gh-pages"):
+    """Nur ein eigener Git-Arbeitsbaum genau in `ordner` mit ausgechecktem `zweig` ist erlaubt (sonst SystemExit)."""
+    wurzel = git_aus(ordner, "rev-parse", "--show-toplevel") if Path(ordner).is_dir() else None
+    if not wurzel or Path(wurzel).resolve() != Path(ordner).resolve():
+        raise SystemExit(f"--push: {ordner} ist kein eigener Git-Arbeitsbaum (erst werkzeuge/veroeffentlichen.py ausführen)")
+    kopf = git_aus(ordner, "symbolic-ref", "--short", "HEAD")
+    if kopf != zweig:
+        raise SystemExit(f"--push: im Arbeitsbaum ist {kopf!r} ausgecheckt, erwartet {zweig!r}")
+
+
 def push(ziel):
+    arbeitsbaum_pruefen(ziel.parent)
     git = ["git", "-C", str(ziel.parent)]
-    subprocess.run(git + ["add", ziel.name], check=True)
-    if subprocess.run(git + ["diff", "--cached", "--quiet"]).returncode == 0:
+    fremd = [d for d in (git_aus(ziel.parent, "diff", "--cached", "--name-only") or "").splitlines() if d and d != ziel.name]
+    if fremd:
+        raise SystemExit("--push: im Index liegen fremde Änderungen, nichts committet: " + ", ".join(fremd))
+    subprocess.run(git + ["add", "--", ziel.name], check=True)
+    if subprocess.run(git + ["diff", "--cached", "--quiet", "--", ziel.name]).returncode == 0:
         print("preise.json unverändert, kein Commit")
         return
-    subprocess.run(git + ["commit", "-q", "-m", "Preise " + json.loads(ziel.read_text(encoding="utf-8"))["zeit"][:10]], check=True)
+    subprocess.run(git + ["commit", "-q", "-m", "Preise " + json.loads(ziel.read_text(encoding="utf-8"))["zeit"][:10],
+                          "--", ziel.name], check=True)
     subprocess.run(git + ["push", "-q", "origin", "gh-pages"], check=True)
     print("gepusht: gh-pages/preise.json")
 
@@ -100,10 +120,12 @@ def main():
     erg = json.loads(Path(x.abruf).read_text(encoding="utf-8")) if x.abruf else pw.abruf_alle()
     assert isinstance(erg, dict) and isinstance(erg.get("modelle"), dict) and isinstance(erg.get("zeit"), str), "Abrufergebnis ungültig"
     ziel = Path(x.ziel)
+    if x.push:   # vor dem Schreiben: nur der gh-pages-Arbeitsbaum, nur preise.json
+        assert ziel.parent.resolve() == SEITEN.resolve() and ziel.name == "preise.json", "--push nur mit dem gh-pages-Arbeitsbaum"
+        arbeitsbaum_pruefen(ziel.parent)
     bericht = aktualisiere(pw, erg, ziel)
     print(json.dumps({"skript": str(pfad), "ziel": str(ziel), "status": bericht["status"], "lauf": bericht["lauf"]}, ensure_ascii=False))
     if x.push:
-        assert ziel.parent.resolve() == SEITEN.resolve(), "--push nur mit dem gh-pages-Arbeitsbaum"
         push(ziel)
 
 
