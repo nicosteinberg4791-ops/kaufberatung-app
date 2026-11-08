@@ -39,7 +39,7 @@ jobs:
 
       - name: Repo holen
         if: steps.ende.outputs.aus != '1'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: gh-pages als eigenen Arbeitsbaum einbinden
         if: steps.ende.outputs.aus != '1'
