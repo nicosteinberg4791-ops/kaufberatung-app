@@ -17,6 +17,8 @@ self.addEventListener("activate", e => {
   e.waitUntil((async () => {
     for (const k of await caches.keys()) if (k.startsWith("kb-app-") && k !== APP) await caches.delete(k);
     await self.clients.claim();
+    // Beim ersten Besuch lädt die Seite preise.json noch ohne Worker: einmal selbst holen, damit offline Preise da sind
+    await netzZuerst(new Request("preise.json")).catch(() => {});
   })());
 });
 
@@ -31,8 +33,12 @@ async function netzZuerst(req) {
     const t = setTimeout(() => ctl.abort(), 6000);
     const r = await fetch(req, { cache: "no-store", signal: ctl.signal });
     clearTimeout(t);
-    if (r.ok) { await c.put("preise.json", r.clone()); return r; }
-    throw new Error("HTTP " + r.status);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    // Nur gültige Preisdaten ersetzen den letzten verwendbaren Stand (z. B. keine HTML-Fehlerseite mit Status 200)
+    const j = await r.clone().json();
+    if (!j || typeof j !== "object" || !j.preise || typeof j.preise !== "object" || Array.isArray(j.preise)) throw new Error("ungültig");
+    await c.put("preise.json", r.clone());
+    return r;
   } catch (err) {
     const alt = await c.match("preise.json");
     return alt || new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } });

@@ -1,0 +1,52 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Vier offene Befunde zu Update-Verhalten, Push-Begrenzung und Preis-Cache.",
+  "befunde": [
+    {
+      "id": "B1",
+      "schwere": "schwer",
+      "titel": "Nach erstem Besuch unterbleibt das Neuladen bei Aktivierung durch eine andere Registerkarte",
+      "datei": "app/app.js",
+      "zeile": 209,
+      "beleg": "warGesteuert wird einmalig als Konstante erfasst. Beim ersten Besuch ist es false und bleibt auch nach clients.claim() false. Die lesende Node-VM-Reproduktion ergab nach erster Übernahme und anschließendem controllerchange auf Fassung B jeweils 0 Neuladungen, solange diese Registerkarte keinen eigenen Update-Klick ausführt.",
+      "auswirkung": "Aktiviert eine zweite Registerkarte das Update, bleibt die erste Seite in der alten Fassung unter dem neuen Worker geöffnet. Der neue Worker löscht den alten Cache. Weitere Dateianfragen können durch ignoreSearch in sw.js:58 neue Dateien trotz alter Versionsparameter erhalten.",
+      "vorschlag": "Den Steuerungszustand nach der ersten Übernahme fortschreiben. Die erste Übernahme ohne Neuladen behandeln und jeden nachfolgenden Controllerwechsel genau einmal neu laden. Den Ablauf mit zwei Registerkarten ab dem ersten Besuch prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "B2",
+      "schwere": "schwer",
+      "titel": "Der tägliche Preis-Push committet den gesamten vorhandenen Index",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 86,
+      "beleg": "push() führt zunächst git add für ziel.name aus, prüft anschließend den gesamten Index mit git diff --cached --quiet und verwendet git commit ohne Pfadbegrenzung. Bereits zuvor gestagte Änderungen anderer Dateien werden dadurch Bestandteil desselben Commits.",
+      "auswirkung": "Ein erlaubter täglicher Preis-Push kann zusätzlich ungeprüfte App-Änderungen oder bereits gestagte private Dateien auf dem öffentlichen gh-pages-Zweig veröffentlichen. Auch bei unveränderten Preisen löst ein fremder Indexeintrag einen Commit aus.",
+      "vorschlag": "Vorhandene fremde Indexänderungen zurückweisen oder den Commit ausdrücklich auf preise.json begrenzen. Auch die Änderungsprüfung auf diese Datei beschränken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "B3",
+      "schwere": "schwer",
+      "titel": "Verzeichnisvergleich ersetzt keine Prüfung des gh-pages-Arbeitsbaums",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 106,
+      "beleg": "Die einzige Push-Prüfung vergleicht ziel.parent.resolve() mit SEITEN.resolve(). Git-Arbeitsbaum, Repository-Wurzel und aktueller Zweig werden nicht geprüft. aktualisiere() legt das Zielverzeichnis bereits vorher an. Fehlt der Worktree, findet git -C .veroeffentlichung das übergeordnete Projekt-Repository.",
+      "auswirkung": "Ein Aufruf mit --push vor Einrichtung des Worktrees kann preise.json im Haupt-Repository stagen und auf dessen aktuellem Zweig committen. Der anschließende Push adressiert unabhängig davon den lokalen Zweig gh-pages. Die geforderte Begrenzung auf dessen Arbeitsbaum ist damit verletzt.",
+      "vorschlag": "Vor dem Schreiben und Stagen Repository-Wurzel und symbolischen HEAD prüfen. Nur den vorgesehenen Worktree mit ausgechecktem gh-pages und dem Dateinamen preise.json zulassen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "B4",
+      "schwere": "mittel",
+      "titel": "Ungeprüfte HTTP-200-Antwort verdrängt den letzten verwendbaren Preis-Cache",
+      "datei": "app/sw.js",
+      "zeile": 34,
+      "beleg": "netzZuerst() speichert jede Antwort mit r.ok unmittelbar im Daten-Cache. JSON-Syntax und Datenform werden vorher nicht geprüft. Eine lesende Node-VM-Reproduktion mit einer HTTP-200-HTML-Antwort ersetzte vorhandene gültige Preise. Der anschließende Offline-Aufruf lieferte dieselbe HTML-Antwort aus dem Cache.",
+      "auswirkung": "Eine fehlerhafte erfolgreiche Serverantwort zerstört den verwendbaren Offline-Preisstand. ladePreise() fällt anschließend auf leere Preise zurück, wodurch unter anderem Wunschpreis-Treffer verschwinden.",
+      "vorschlag": "Eine Antwortkopie vor dem Cache-Austausch als JSON lesen und die benötigte Datenstruktur validieren. Bei ungültiger Antwort den bisherigen verwendbaren Cache liefern und erhalten.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Geprüft wurde Commit ea41852065e8c4e72d959502c9a952bc64a25a83. Die betroffenen versionierten Dateien hatten keine lokalen Abweichungen. Ausschließlich lesende Quellprüfung und Node-VM-Reproduktionen. Die Python-Tests konnten mangels installierter Python-Laufzeit nicht ausgeführt werden. Installierbarkeit, reales Browser-Update, Offline-Neuladen und Remote-Veröffentlichung wurden nicht erneut praktisch geprüft. Die vorhandene Inhaltsquelle enthält keine der genannten db-Aufrufe, daher blieb deren Integration mit dem Runde-6-Seitenskript auf den beschriebenen Aufrufvertrag begrenzt."
+}
