@@ -1,0 +1,150 @@
+{
+ "format": 1,
+ "zeit": "2026-11-08T10:50:51+01:00",
+ "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
+ "preise": {
+  "lg_c6elb": {
+   "name": "LG OLED83C6ELB",
+   "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled83c6elb-a3774767.html",
+   "aktuell": {
+    "gesamt": 2779.0,
+    "artikel": 2779.0,
+    "versand": 0.0,
+    "haendler": "computeruniverse.net",
+    "sterne": "2,5 (5.074)",
+    "lieferung": "Lieferzeit 5-7 Werktage",
+    "zeit": "2026-11-08T10:50:51+01:00"
+   },
+   "tief": {
+    "gesamt": 2779.0,
+    "datum": "2026-11-08",
+    "haendler": "computeruniverse.net"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-08",
+     "g": 2779.0,
+     "h": "computeruniverse.net"
+    }
+   ]
+  },
+  "lg_c69lb": {
+   "name": "LG OLED83C69LB",
+   "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled83c69lb-a3773534.html",
+   "aktuell": {
+    "gesamt": 2499.0,
+    "artikel": 2499.0,
+    "versand": 0.0,
+    "haendler": "expert.de",
+    "sterne": "1,8 (143)",
+    "lieferung": "Lieferzeit 4 - 7 Werktage",
+    "zeit": "2026-11-08T10:50:51+01:00"
+   },
+   "tief": {
+    "gesamt": 2499.0,
+    "datum": "2026-11-08",
+    "haendler": "expert.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-08",
+     "g": 2499.0,
+     "h": "expert.de"
+    }
+   ]
+  },
+  "sam_s90h": {
+   "name": "Samsung GQ83S90H",
+   "heiseUrl": "https://preisvergleich.heise.de/samsung-gq8390h-a3805643.html",
+   "aktuell": {
+    "gesamt": 2799.0,
+    "artikel": 2799.0,
+    "versand": 0.0,
+    "haendler": "Amazon.de",
+    "sterne": "2,7 (3.086)",
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-08T10:50:51+01:00"
+   },
+   "tief": {
+    "gesamt": 2799.0,
+    "datum": "2026-11-08",
+    "haendler": "Amazon.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-08",
+     "g": 2799.0,
+     "h": "Amazon.de"
+    }
+   ]
+  },
+  "tcl_c8l": {
+   "name": "TCL 85C8L",
+   "heiseUrl": "https://preisvergleich.heise.de/tcl-85c8l-a3810591.html",
+   "aktuell": {
+    "gesamt": 2369.0,
+    "artikel": 2369.0,
+    "versand": 0.0,
+    "haendler": "alza.de",
+    "sterne": "4,1 (134)",
+    "lieferung": "Lagernd, Lieferzeit 1-3 Werktage",
+    "zeit": "2026-11-08T10:50:51+01:00"
+   },
+   "roh": {
+    "artikel": 2289.0,
+    "haendler": "Mediamarkt.de",
+    "sterne": "2,5 (1.014)",
+    "zeit": "2026-11-08T10:50:51+01:00"
+   },
+   "tief": {
+    "gesamt": 2369.0,
+    "datum": "2026-11-08",
+    "haendler": "alza.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-08",
+     "g": 2369.0,
+     "h": "alza.de"
+    }
+   ]
+  },
+  "sam_qn90f": {
+   "name": "Samsung QE85QN90F",
+   "heiseUrl": "https://preisvergleich.heise.de/samsung-qe85qn90f-a3479298.html",
+   "aktuell": {
+    "gesamt": 2999.0,
+    "artikel": 2999.0,
+    "versand": 0.0,
+    "haendler": "EDV-Service-Stadlauer",
+    "sterne": "keine Bewertung",
+    "lieferung": "3-6 Werktage",
+    "zeit": "2026-11-08T10:50:51+01:00"
+   },
+   "roh": {
+    "artikel": 2899.0,
+    "haendler": "techonly",
+    "sterne": "4,7 (59)",
+    "zeit": "2026-11-08T10:50:51+01:00"
+   },
+   "tief": {
+    "gesamt": 2999.0,
+    "datum": "2026-11-08",
+    "haendler": "EDV-Service-Stadlauer"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-08",
+     "g": 2999.0,
+     "h": "EDV-Service-Stadlauer"
+    }
+   ]
+  }
+ },
+ "lauf": {
+  "letzter": "2026-11-08T10:50:51+01:00",
+  "status": "ok",
+  "meldung": "Alle fünf Preise gelesen.",
+  "bis": "2026-12-01"
+ }
+}

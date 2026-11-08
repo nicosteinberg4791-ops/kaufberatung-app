@@ -1,0 +1,56 @@
+/* App-Hülle: nur Ergänzungen zur Seite, gleiche Tokens (--surface, --ink, --line, --good, --ease-out …).
+   1. Touch: Ziele mindestens 44 px bei grobem Zeiger, ohne das Layout am Rechner zu ändern.
+   2. Hinweiskarten unten (Treffer, neue Fassung) über der Safe-Area. */
+
+@media (pointer: coarse) {
+  .navlinks a { display: inline-flex; align-items: center; min-height: 44px; padding-block: 0; }
+  .segx button, .tabs button, .seg button { min-height: 44px; }
+  .chip, .sg-chips .chip { min-height: 44px; }
+  .brand { display: inline-flex; align-items: center; min-height: 44px; }
+  input[type=range] { height: 44px; }
+  /* ab Runde 6: Entscheiden (Weiter, egal/normal/wichtig, Münze, Mehr zeigen) und Preiswecker (Speichern) */
+  .es-btn, .es-seg3 button, .pw-knopf { min-height: 44px; }
+  .es-link.es-more { display: inline-flex; align-items: center; min-height: 44px; }
+  /* Schrittleiste: Optik bleibt, unsichtbare Trefferfläche auf 44 px (Breite = Spalte, daher keine Überlappung) */
+  .es-dots button::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; transform: translateY(-50%); }
+  :root { --nav-h: 60px; }
+}
+
+/* Standalone: oben schützt die Seite schon per env(safe-area-inset-top); unten Platz für die Gestenleiste */
+@media (display-mode: standalone) {
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+}
+
+.kbapp-stapel {
+  position: fixed; z-index: 40; left: 0; right: 0;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: grid; gap: 10px; justify-items: center; pointer-events: none;
+  padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px));
+}
+.kbapp-karte {
+  pointer-events: auto; width: min(100%, 30rem); display: grid; gap: 6px;
+  padding: 16px 16px 12px; border-radius: var(--r-panel, 20px);
+  background: var(--surface, #fff); color: var(--ink, #0e1218);
+  box-shadow: inset 0 1px 0 var(--edge, transparent), 0 0 0 1px var(--line, #d8dee6), 0 24px 48px -24px rgba(16, 24, 40, .45);
+  transition: opacity 220ms var(--ease-out, ease-out), transform 220ms var(--ease-out, ease-out);
+}
+@starting-style { .kbapp-karte { opacity: 0; transform: translateY(12px); } }
+.kbapp-treffer { box-shadow: inset 0 0 0 2px var(--good, #1d7a45), 0 24px 48px -24px rgba(16, 24, 40, .45); }
+.kbapp-titel { font-weight: 650; font-size: 1.05rem; letter-spacing: -.01em; }
+.kbapp-treffer .kbapp-titel { color: var(--good, #1d7a45); }
+.kbapp-text { font-size: .92rem; line-height: 1.45; color: var(--ink, #0e1218); }
+.kbapp-knoepfe { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.kbapp-knoepfe button, .kbapp-wecker button {
+  min-height: 44px; padding: 0 18px; border-radius: var(--r-ctl, 999px); border: 0; font: inherit; font-size: .92rem; font-weight: 600;
+  transition: transform var(--t-press, 140ms) var(--ease-out, ease-out);
+}
+.kbapp-haupt { background: var(--ctl, #0e1218); color: var(--ctl-ink, #fff); }
+.kbapp-neben { background: var(--seg-bg, #e2e6ec); color: var(--ink, #0e1218); }
+.kbapp-knoepfe button:active, .kbapp-wecker button:active { transform: scale(.97); }
+.kbapp-wecker { display: grid; gap: 10px; justify-items: start; max-width: 46rem; }
+.kbapp-wecker button[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .kbapp-karte { transition: opacity 200ms ease; }
+  @starting-style { .kbapp-karte { opacity: 0; transform: none; } }
+  .kbapp-knoepfe button:active, .kbapp-wecker button:active { transform: none; }
+}
