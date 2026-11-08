@@ -1,0 +1,23 @@
+{
+  "urteil": "bestanden_mit_hinweisen",
+  "zusammenfassung": "B1–B3 geschlossen. B4 ist teilweise behoben, bleibt aber für strukturell ungültige Preiseinträge offen. Keine neuen schweren oder kritischen Fehler festgestellt.",
+  "befunde": [
+    {
+      "id": "B4",
+      "schwere": "mittel",
+      "titel": "Ungültige Preiseinträge verdrängen weiterhin den verwendbaren Cache",
+      "datei": "app/sw.js",
+      "zeile": 39,
+      "beleg": "Die Prüfung verlangt lediglich ein preise-Objekt. Eine lesende Node-VM-Reproduktion mit vorhandenem gültigem Preis und HTTP-200-Antwort {\"preise\":{\"lg_c6elb\":null}} ersetzte den Cache durch diese Antwort. Der anschließende Offline-Aufruf lieferte ebenfalls den null-Eintrag.",
+      "auswirkung": "Eine syntaktisch gültige, aber strukturell defekte Preisdatei entfernt den letzten verwendbaren Preisstand aus dem Offline-Cache; betroffene Preise und Trefferhinweise fehlen danach.",
+      "vorschlag": "Vor dem Cache-Austausch die Preiseinträge einschließlich aktuell.gesamt auf die benötigte Datenform und plausible Zahlen prüfen. Bei ungültigen Einträgen den bisherigen Cache erhalten und zurückgeben.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "B1",
+    "B2",
+    "B3"
+  ],
+  "pruefgrenzen": "Commit 9431ceb62cf60f9703d08b001a357879b18d9f5a geprüft. Ausschließlich lesende Codeprüfung und Node-VM-Reproduktionen; B1 ergab beim ersten Besuch 0, danach genau 1 Neuladung. B2/B3 statisch geprüft. Python ist in dieser Prüfumgebung nicht installiert; keine Python-Tests, echten Browser-, Remote- oder Push-Tests ausgeführt. Keine Dateien geändert."
+}
