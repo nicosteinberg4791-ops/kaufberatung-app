@@ -2,5 +2,6 @@
 
 | ID | Datum | Frage | Auswirkung, wenn offen | entscheidet | Ergebnis |
 |---|---|---|---|---|---|
-| O1 | 08.11.2026 | Geplante Aufgabe `tv-preiswecker` (Runde 6) gibt es noch nicht; sie soll zusätzlich `werkzeuge/preise_aktualisieren.py --abruf <datei> --push` aufrufen | preise.json in der App bleibt auf dem Stand des letzten Handlaufs | Runde-6-Sitzung / Lead | offen |
-| O2 | 08.11.2026 | Läuft die geplante Aufgabe nur, wenn der PC an ist und Claude läuft? Alternative: GitHub Actions (kostenlos bei öffentlichem Repo), ob heise von dort erreichbar ist, ist ungeprüft | Preise können ausbleiben | Nico | offen |
+| O1 | 08.11.2026 | Tägliche Preisabfrage für die App | – | Nico | entschieden 08.11.2026 (über Lead-Sitzung): GitHub Actions (`schedule` täglich morgens + `workflow_dispatch`), committet preise.json nur bei Änderung; lokale geplante Aufgabe entfällt, Runde 6 liest preise.json statt eigener heise-Abfrage. Umsetzung offen |
+| O2 | 08.11.2026 | Hosting und Push | – | Nico | entschieden 08.11.2026: öffentliches Repo („Einfach, öffentlich“), Push über ntfy.sh mit langem Zufalls-Topic nur als Secret `NTFY_TOPIC`. Offen: Wunschpreise für den Workflow (z. B. wunschpreise.json), heise von GitHub-Runnern erreichbar?, Nutzungsbedingungen heise ungeklärt (robots.txt erlaubt Produktseiten), Ende 01.12.2026, 60-Tage-Abschaltung von Zeitplänen |
+| O3 | 08.11.2026 | Anlegen des öffentlichen Repos wurde von der Freigabesperre der Sitzung blockiert (Freigabe kam nur weitergeleitet) | App nicht online | Nico | offen: Nico bestätigt direkt in der Sitzung oder führt `gh repo create` selbst aus |
