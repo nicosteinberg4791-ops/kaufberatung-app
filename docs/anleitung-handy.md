@@ -1,5 +1,3 @@
-> Stand 08.11.2026: Die Adresse ist erst erreichbar, wenn das öffentliche Repo angelegt und Pages eingeschaltet ist.
-
 # Kaufberatung als App auf dem Android-Handy
 
 Adresse: **https://nicosteinberg4791-ops.github.io/kaufberatung-app/**
