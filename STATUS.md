@@ -1,22 +1,22 @@
 # Stand – Kaufberatung-App
 
-Stand: 08.11.2026, ca. 11:00 · Branch `main` (noch kein Commit) · Prüfstufe: selbst geprüft teilweise (Build und Preisabruf laufen; Browser, Offline, Codex offen)
+Stand: 08.11.2026, ca. 12:10 · Branch `main`, Commits `ea41852`, `9431ceb`, `92624ad` + Doku (nur lokal, kein Remote) · Prüfstufe: selbst geprüft + unabhängig geprüft (Codex medium, bestanden mit Hinweisen, Hinweis behoben); von Nico freigegeben: Push (weitergeleitet), Repo noch nicht angelegt
 
 ## Erledigt
 
-- Projekt eingerichtet (Skill `neues-projekt`, Vorlagenversion 2), Git `main`, Hook `.githooks`.
-- Hülle: `app/manifest.webmanifest`, `app/sw.js` (versionierter Cache, preise.json zuerst vom Netz, Schrift-Cache, Periodic Sync, Benachrichtigungsklick), `app/app.js` (Ersatz `window.claude.use`, Treffer-Hinweis, „Neue Fassung“-Karte, Benachrichtigung als Versuch), `app/app.css` (Touch 44 px, Karten).
-- Symbol `app/icons/icon.svg` + maskierbar, PNG 192/512 und apple-touch 180 per `werkzeuge/symbole.py` (Chrome headless + Pillow), angesehen.
-- `werkzeuge/app_bauen.py`: Version 8 übernommen (`quelle/herkunft.json`, 269.444 Bytes, gleich dem lokalen Bau von Version 8), `dist/` gebaut, App `aa36593ad296`.
-- `werkzeuge/preise_aktualisieren.py` nutzt `preiswecker.py` (Kopie in `werkzeuge/`, Original Runde 6); Probelauf 10:50: alle fünf Preise, Werte gleich Runde 6 (TCL 2.369 €, LG 2.779/2.499 €, Samsung 2.799/2.999 €) → `dist/preise.json`.
-- `werkzeuge/veroeffentlichen.py` geschrieben, **ungetestet**.
-- Push-Freigabe Nico (08.11.2026): Repo `kaufberatung-app`, öffentlich, Inhalt wie in AGENTS.md.
+- Hülle `app/` (Manifest, Service Worker, Ersatz `window.claude.use`, Treffer- und Update-Karte, Touch 44 px), Werkzeuge, Inhalt Version 8 unverändert.
+- Tests `tests/test_app.py` (19): Build, Manifest, SW-Dateiliste, Symbole, Inhalt unverändert, Rahmen der Live-Seite, Preisfortschreibung, Push-Schutz. `tests/alle-tests.ps1` → Fehler 0.
+- Browser (Chrome headless über DevTools-Protokoll, `werkzeuge/browserpruefung/*.mjs`; die eingebaute Browser-Leiste der Claude-App lässt keine Service Worker zu): 375 px hell/dunkel ohne Querscrollen, Konsole leer, `getInstallabilityErrors` leer, SW aktiv ab erstem Besuch ohne Doppel-Laden, Offline-Neuladen mit 5 Preisen, Treffer-Karte, Update-Ablauf (Klick und von außen), Preis-Cache übersteht HTML/ungültige Antworten. Mit Runde-6-Inhalt (Kopie in %TEMP%\kbapp-r6): Preiswecker zeigt preise.json („Lauf in Ordnung“), Wunschpreis setzen/löschen, Touch-Ziele ≥ 44 px (Schrittpunkte per unsichtbarer Trefferfläche).
+- Korrekturen dabei: unnötiges Neuladen beim ersten Besuch, Wunschpreis löschen (`preis: null`), Datum deutsch, Touch Runde 6, LF in `.gitattributes`.
+- Codex (`docs/pruefungen/2026-11-08-app-huelle/`): R1 nicht bestanden (B1–B3 schwer, B4 mittel), alle bestätigt und behoben; R2 bestanden mit Hinweisen (B4 Rest), behoben und im Browser belegt.
+- `docs/anleitung-handy.md` geschrieben (Adresse noch nicht online).
 
 ## Offen / blockiert
 
-- O1, O2 siehe docs/offene-punkte.md.
-- Nicht geprüft: Browser 375 px hell/dunkel, Installierbarkeit, Offline-Neuladen, Konsole, Ersatz `window.claude` mit Runde-6-Inhalt, Tests `tests/test_app.py` (noch nicht geschrieben), Codex.
+- **O3:** `gh repo create … --public` von der Freigabesperre der Sitzung blockiert → App nicht online, `veroeffentlichen.py` noch nicht gegen das Remote gelaufen, Live-URL nicht geprüft.
+- O1/O2 (Nicos Entscheidung 08.11.2026): GitHub Actions + ntfy umsetzen, siehe docs/offene-punkte.md.
+- Version 9/10 nachziehen, sobald veröffentlicht (`app_bauen.py --quelle`, dann `browserpruefung/pruefe.mjs`).
 
 ## Nächster Schritt
 
-Prüfen, Codex, veröffentlichen nach Übergabenotiz `side-session-notes/local_2f3f979b…/kaufberatung-app-uebergabe.md`. Fertig, wenn die URL auf GitHub Pages geöffnet und geprüft ist und die Anleitung `docs/anleitung-handy.md` steht.
+Nach Nicos direkter Freigabe: `gh repo create nicosteinberg4791-ops/kaufberatung-app --public --source . --push`, `python -I werkzeuge/veroeffentlichen.py`, Pages auf `gh-pages` einschalten, URL prüfen (`node werkzeuge/browserpruefung/pruefe.mjs <dist> <aus> --url https://nicosteinberg4791-ops.github.io/kaufberatung-app/`). Danach Actions + ntfy (Übergabe im Notizordner).
