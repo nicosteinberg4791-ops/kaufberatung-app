@@ -1,0 +1,5 @@
+# Hook der Vorlage mit LF auschecken: sh bricht sonst bei core.autocrlf=true an CRLF ab
+.githooks/* text eol=lf
+# Alle Textdateien mit LF: Build-Anker und Prüfsumme von quelle/kaufberatung.html hängen an LF
+* text=auto eol=lf
+*.png binary

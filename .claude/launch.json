@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "kb-app", "runtimeExecutable": "python", "runtimeArgs": ["-I", "-m", "http.server", "8790", "--bind", "127.0.0.1", "--directory", "dist"], "port": 8790 }
+  ]
+}
