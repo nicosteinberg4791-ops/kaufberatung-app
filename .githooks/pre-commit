@@ -1,0 +1,5 @@
+#!/bin/sh
+# Git-pre-commit-Hook: Testlauf des Projekts (tests/alle-tests.ps1) mit Laufprotokoll; Fehler brechen den Commit ab.
+# Einrichten (einmal je Klon): git config core.hooksPath .githooks
+# Im Notfall überspringen nur mit Nicos Auftrag: git commit --no-verify
+exec powershell.exe -NoProfile -File tests/alle-tests.ps1 -Hook

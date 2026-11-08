@@ -1,0 +1,59 @@
+# Projektvorlage AI Work Playbook (KERN §7). Projekttypische Einträge ergänzen, Schutzeinträge nicht streichen.
+
+# Geheimnisse: echte Werte nie ins Repo; nur .env.beispiel mit Platzhaltern versionieren
+.env
+.env.*
+!.env.beispiel
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.kdbx
+*.ppk
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+.netrc
+_netrc
+credentials*.json
+secrets*.json
+
+# Lokale Rechte und Einstellungen (persönlich, nicht teilen)
+.claude/settings.local.json
+
+# Build, Abhängigkeiten, Caches
+build/
+dist/
+out/
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+coverage/
+.coverage
+
+# Testlauf (vom Runner tests/alle-tests.ps1 gelesen, nicht versionieren)
+tests/kennzahlen.json
+
+# Logs und Temporäres
+*.log
+*.tmp
+*.bak
+
+# Office- und CAD-Temp (Excel/Word-Sperrdateien, Inventor-Sicherungen)
+~$*
+*.lck
+OldVersions/
+
+# Betriebssystem
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Projekt: gh-pages-Arbeitsbaum (werkzeuge/veroeffentlichen.py)
+.veroeffentlichung/
