@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 08.11.2026, ca. 12:10 · Branch `main`, Commits `ea41852`, `9431ceb`, `92624ad` + Doku (nur lokal, kein Remote) · Prüfstufe: selbst geprüft + unabhängig geprüft (Codex medium, bestanden mit Hinweisen, Hinweis behoben); von Nico freigegeben: Push (weitergeleitet), Repo noch nicht angelegt
+Stand: 08.11.2026, ca. 12:35 · `main` auf github.com/nicosteinberg4791-ops/kaufberatung-app (öffentlich), Pages aus `gh-pages` (App c68a0d42d414) · Prüfstufe: selbst geprüft + unabhängig geprüft (Codex medium, bestanden mit Hinweisen, Hinweis behoben) + von Nico freigegeben (Veröffentlichung, 08.11.2026 direkt in der Sitzung)
 
 ## Erledigt
 
@@ -13,10 +13,10 @@ Stand: 08.11.2026, ca. 12:10 · Branch `main`, Commits `ea41852`, `9431ceb`, `92
 
 ## Offen / blockiert
 
-- **O3:** `gh repo create … --public` von der Freigabesperre der Sitzung blockiert → App nicht online, `veroeffentlichen.py` noch nicht gegen das Remote gelaufen, Live-URL nicht geprüft.
+- Live-URL https://nicosteinberg4791-ops.github.io/kaufberatung-app/ geprüft (Chrome headless, `pruefe.mjs --url`): Manifest/Installierbarkeit ok, SW aktiv, 375 px hell/dunkel ohne Querscrollen, offline 5 Preise. **Offen:** Konsole zeigte Ladefehler der Google-Schrift (ERR_CONNECTION_CLOSED, zeitgleich Netzabbrüche zur GitHub-API) → wiederholen; bleibt er, sw.js `schriftCache` ohne Cache-Treffer prüfen. Nicht auf echtem Android-Handy installiert.
 - O1/O2 (Nicos Entscheidung 08.11.2026): GitHub Actions + ntfy umsetzen, siehe docs/offene-punkte.md.
 - Version 9/10 nachziehen, sobald veröffentlicht (`app_bauen.py --quelle`, dann `browserpruefung/pruefe.mjs`).
 
 ## Nächster Schritt
 
-Nach Nicos direkter Freigabe: `gh repo create nicosteinberg4791-ops/kaufberatung-app --public --source . --push`, `python -I werkzeuge/veroeffentlichen.py`, Pages auf `gh-pages` einschalten, URL prüfen (`node werkzeuge/browserpruefung/pruefe.mjs <dist> <aus> --url https://nicosteinberg4791-ops.github.io/kaufberatung-app/`). Danach Actions + ntfy (Übergabe im Notizordner).
+Schrift-Fehler nachprüfen; GitHub Actions + ntfy, preiswecker_r4 einbinden (Übergabe `side-session-notes/local_e276910c…/kaufberatung-app-uebergabe-2.md`).
