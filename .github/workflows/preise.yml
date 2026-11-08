@@ -1,0 +1,85 @@
+# Tägliche Preisabfrage der Kaufberatung-App (Nicos Entscheidung O1/O2, 08.11.2026).
+# Ruft je Fernseher eine heise-Preisvergleich-Seite ab (werkzeuge/preiswecker.py), schreibt preise.json auf gh-pages
+# (Commit nur bei Änderung) und schickt bei Treffern (neuer Tiefstpreis, Wunschpreis erreicht) eine ntfy-Nachricht.
+# Secrets: NTFY_TOPIC (Pflicht für Push), WUNSCHPREISE (optional, JSON). Werte stehen nie im Repo oder Log.
+# Endet am 01.12.2026 (der Lauf beendet sich danach selbst; Workflow dann deaktivieren).
+name: Preisabfrage
+
+on:
+  schedule:
+    - cron: "23 5 * * *"   # 05:23 UTC = 06:23 MEZ; GitHub startet geplante Läufe oft einige Minuten später
+  workflow_dispatch:
+    inputs:
+      testnachricht:
+        description: "Zusätzlich eine Test-Benachrichtigung über ntfy senden"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # nur für den Push von preise.json auf gh-pages
+
+concurrency:
+  group: preisabfrage
+  cancel-in-progress: false
+
+jobs:
+  preise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TZ: Europe/Berlin
+    steps:
+      - name: Laufzeit prüfen (bis 01.12.2026)
+        id: ende
+        run: |
+          if [ "$(date +%F)" \> "2026-12-01" ]; then
+            echo "Preiswecker beendet (lief bis 01.12.2026), nichts zu tun."
+            echo "aus=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Repo holen
+        if: steps.ende.outputs.aus != '1'
+        uses: actions/checkout@v4
+
+      - name: gh-pages als eigenen Arbeitsbaum einbinden
+        if: steps.ende.outputs.aus != '1'
+        run: |
+          git fetch --no-tags --depth=1 origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
+          git worktree add -B gh-pages .veroeffentlichung origin/gh-pages
+          git -C .veroeffentlichung config user.name "github-actions[bot]"
+          git -C .veroeffentlichung config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Preise abrufen, preise.json schreiben und pushen
+        if: steps.ende.outputs.aus != '1'
+        env:
+          WUNSCHPREISE: ${{ secrets.WUNSCHPREISE }}
+        run: python3 -X utf8 -I werkzeuge/preise_aktualisieren.py --push --meldung "$RUNNER_TEMP/meldung.txt"
+
+      - name: Benachrichtigung über ntfy
+        if: steps.ende.outputs.aus != '1'
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TESTNACHRICHT: ${{ inputs.testnachricht }}
+        run: |
+          if [ -z "$NTFY_TOPIC" ]; then
+            echo "::warning::Secret NTFY_TOPIC fehlt, keine Benachrichtigung"
+            exit 0
+          fi
+          senden() {
+            curl -fsS -o /dev/null --retry 2 \
+              -H "Title: TV-Preiswecker" \
+              -H "Tags: tv" \
+              -H "Click: https://nicosteinberg4791-ops.github.io/kaufberatung-app/" \
+              --data-binary @"$1" "https://ntfy.sh/$NTFY_TOPIC"
+          }
+          if [ -s "$RUNNER_TEMP/meldung.txt" ]; then
+            senden "$RUNNER_TEMP/meldung.txt"
+            echo "Treffer-Benachrichtigung gesendet"
+          else
+            echo "Kein Treffer, keine Benachrichtigung"
+          fi
+          if [ "$TESTNACHRICHT" = "true" ]; then
+            printf 'Test: Benachrichtigungen der Kaufberatung-App kommen an (%s).' "$(date '+%d.%m.%Y %H:%M')" > "$RUNNER_TEMP/test.txt"
+            senden "$RUNNER_TEMP/test.txt"
+            echo "Test-Benachrichtigung gesendet"
+          fi

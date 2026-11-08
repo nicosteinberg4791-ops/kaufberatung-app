@@ -3,6 +3,7 @@
 Rahmen der Live-Seite, preise_aktualisieren mit Testabruf. Nur Standardbibliothek; node nur für die Syntaxprüfung (falls da).
 Aufruf: powershell -File tests/alle-tests.ps1  (oder python -I -m unittest discover -s tests)"""
 import json
+import os
 import re
 import shutil
 import struct
@@ -151,18 +152,23 @@ def angebot(g, h="haendler.de"):
 class Preise(unittest.TestCase):
     SKRIPT = WURZEL / "werkzeuge" / "preiswecker.py"
 
-    def lauf(self, abruf, ziel):
+    def lauf(self, abruf, ziel, wunsch=None, code=0):
         a = Path(self.tmp.name) / "abruf.json"
         a.write_text(json.dumps(abruf, ensure_ascii=False), encoding="utf-8")
+        env = {k: v for k, v in os.environ.items() if k != "WUNSCHPREISE"}
+        if wunsch is not None:
+            env["WUNSCHPREISE"] = wunsch if isinstance(wunsch, str) else json.dumps(wunsch)
         r = subprocess.run([sys.executable, "-X", "utf8", "-I", str(WURZEL / "werkzeuge" / "preise_aktualisieren.py"),
-                            "--abruf", str(a), "--ziel", str(ziel), "--skript", str(self.SKRIPT)],
-                           capture_output=True, text=True, encoding="utf-8")
-        self.assertEqual(r.returncode, 0, r.stderr)
+                            "--abruf", str(a), "--ziel", str(ziel), "--skript", str(self.SKRIPT), "--meldung", str(self.meldung)],
+                           capture_output=True, text=True, encoding="utf-8", env=env)
+        self.assertEqual(r.returncode, code, r.stderr)
+        self.ausgabe = r.stdout + r.stderr
         return json.loads(ziel.read_text(encoding="utf-8")), json.loads(r.stdout.strip().splitlines()[-1])
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
+        self.meldung = Path(self.tmp.name) / "meldung.txt"
 
     def test_fortschreiben(self):
         ziel = Path(self.tmp.name) / "seiten" / "preise.json"
@@ -190,6 +196,60 @@ class Preise(unittest.TestCase):
         # gleicher Tag noch einmal: Verlauf ohne Doppel
         p3, _ = self.lauf(tag2, ziel)
         self.assertEqual(len(p3["preise"]["lg_c6elb"]["verlauf"]), 2)
+        self.assertEqual(self.meldung.read_text(encoding="utf-8"), "", "gleicher Tiefstpreis: keine zweite Meldung")
+
+    def test_meldung_tiefstpreis_einmal(self):
+        ziel = Path(self.tmp.name) / "preise.json"
+        self.lauf({"zeit": "2026-11-07T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(2000.0)}}}, ziel)
+        self.assertEqual(self.meldung.read_text(encoding="utf-8"), "", "erster Tag: kein Tiefstpreis-Treffer")
+        p, b = self.lauf({"zeit": "2026-11-08T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1900.0)}}}, ziel)
+        self.assertEqual(self.meldung.read_text(encoding="utf-8"), "TV-Preiswecker: TCL C8L 1.900 € neuer Tiefstpreis")
+        self.assertTrue(b["meldung"])
+        self.assertIn("neuer Tiefstpreis", p["lauf"]["meldung"], "Tiefstpreis-Treffer darf öffentlich sein")
+        self.lauf({"zeit": "2026-11-09T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1900.0)}}}, ziel)
+        self.assertEqual(self.meldung.read_text(encoding="utf-8"), "")
+
+    def test_wunschpreis_bleibt_privat(self):
+        ziel = Path(self.tmp.name) / "preise.json"
+        w = {"tcl_c8l": 1950.5}
+        self.lauf({"zeit": "2026-11-07T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(2000.0)}}}, ziel, w)
+        self.assertEqual(self.meldung.read_text(encoding="utf-8"), "")
+        p, b = self.lauf({"zeit": "2026-11-08T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1900.0)}}}, ziel, w)
+        m = self.meldung.read_text(encoding="utf-8")
+        self.assertIn("unter Wunschpreis 1.950,50 €", m)
+        self.assertEqual(b["wunschpreise"], 1)
+        for spur in ("1950", "1.950", "Wunschpreis"):
+            self.assertNotIn(spur, ziel.read_text(encoding="utf-8"), "Wunschpreis darf nicht in preise.json")
+            self.assertNotIn(spur, self.ausgabe, "Wunschpreis darf nicht ins (öffentliche) Log")
+        self.assertNotIn("meldung", p["preise"]["tcl_c8l"])
+        # nächster Tag, Preis bleibt unter dem Wunschpreis: keine zweite Meldung
+        self.lauf({"zeit": "2026-11-09T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1920.0)}}}, ziel, w)
+        self.assertEqual(self.meldung.read_text(encoding="utf-8"), "")
+        # wieder darüber und erneut darunter: neue Meldung
+        self.lauf({"zeit": "2026-11-10T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1990.0)}}}, ziel, w)
+        self.lauf({"zeit": "2026-11-11T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1940.0)}}}, ziel, w)
+        self.assertIn("unter Wunschpreis", self.meldung.read_text(encoding="utf-8"))
+
+    def test_wunschpreise_ungueltig(self):
+        ziel = Path(self.tmp.name) / "preise.json"
+        _, b = self.lauf({"zeit": "2026-11-07T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(2000.0)}}},
+                         ziel, '{"tcl_c8l": "teuer", "unbekannt": 777}')
+        self.assertEqual(b["wunschpreise"], 0)
+        self.assertNotIn("777", self.ausgabe, "auch ungültige Werte nie ausgeben")
+        self.lauf({"zeit": "2026-11-08T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(1999.0)}}}, ziel, "kein json 4711")
+        self.assertIn("kein JSON", self.ausgabe)
+        self.assertNotIn("4711", self.ausgabe)
+
+    def test_alles_fehler_exit3_alte_preise_bleiben(self):
+        ziel = Path(self.tmp.name) / "preise.json"
+        p1, _ = self.lauf({"zeit": "2026-11-07T07:00:00+01:00", "modelle": {"tcl_c8l": {"sicher": angebot(2000.0)}}}, ziel)
+        gesperrt = {"zeit": "2026-11-08T07:00:00+01:00",
+                    "modelle": {m: {"fehler": "HTTPError: HTTP Error 403: Forbidden"} for m in ("lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f")}}
+        p2, b = self.lauf(gesperrt, ziel, code=3)
+        self.assertEqual(b["status"], "fehler")
+        self.assertIn("403", b["modelle"]["tcl_c8l"])
+        self.assertEqual(p2["lauf"]["status"], "fehler")
+        self.assertEqual(p2["preise"]["tcl_c8l"], p1["preise"]["tcl_c8l"])
 
     def test_unplausibler_preis_bricht_ab(self):
         ziel = Path(self.tmp.name) / "preise.json"
@@ -269,6 +329,29 @@ class PushSchutz(unittest.TestCase):
         with mock.patch.object(self.pa.subprocess, "run", side_effect=ohne_push):
             self.pa.push(self.repo / "preise.json")
         self.assertEqual(self.git("show", "--name-only", "--format=", "HEAD").split(), ["preise.json"])
+
+
+class Workflow(unittest.TestCase):
+    """Tägliche Preisabfrage in GitHub Actions: Auslöser, Rechte, Secrets nur als Verweis, kein Topic im Klartext."""
+
+    def setUp(self):
+        self.t = (WURZEL / ".github" / "workflows" / "preise.yml").read_text(encoding="utf-8")
+
+    def test_ausloeser_und_rechte(self):
+        self.assertRegex(self.t, r'(?m)^  schedule:\n    - cron: "\d+ \d+ \* \* \*"')
+        self.assertIn("workflow_dispatch:", self.t)
+        self.assertRegex(self.t, r"(?m)^permissions:\n  contents: write")
+        self.assertIn("preise_aktualisieren.py --push --meldung", self.t)
+        self.assertIn("git worktree add -B gh-pages .veroeffentlichung origin/gh-pages", self.t)
+
+    def test_secrets_nur_als_verweis(self):
+        self.assertIn("NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}", self.t)
+        self.assertIn("WUNSCHPREISE: ${{ secrets.WUNSCHPREISE }}", self.t)
+        self.assertEqual(re.findall(r"ntfy\.sh/[^\s\"']+", self.t), ["ntfy.sh/$NTFY_TOPIC"])
+        # Ausdrücke nur als env-Zuweisung (NAME: ${{ ... }}), nie in run-Zeilen (Einschleusen von Befehlen)
+        for zeile in self.t.splitlines():
+            if "${{" in zeile:
+                self.assertRegex(zeile, r"^\s+[A-Z_]+: \$\{\{ [\w.]+ \}\}$", "Ausdruck außerhalb von env")
 
 
 if __name__ == "__main__":
