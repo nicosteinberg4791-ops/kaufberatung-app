@@ -1218,8 +1218,8 @@ html{background:
 .bpane > section + section{padding-top:clamp(56px,8vw,96px)}
 
 /* Kopfzeile am Rechner: fünf Bereiche als Links, aktiver als Pille */
-.navlinks[data-view="tv"]{gap:4px}
-.navlinks[data-view="tv"] a{display:flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;font-size:.88rem}
+.navlinks[data-view]{gap:4px}
+.navlinks[data-view] a{display:flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;font-size:.88rem}
 .navlinks a[aria-current="page"]{color:var(--ink);background:var(--seg-bg);font-weight:600}
 
 /* Umschalter in Vergleich und Preise */
@@ -1306,11 +1306,11 @@ html{background:
 /* ---------- Untere Leiste (Handy) ---------- */
 .bleiste{display:none}
 @media (max-width:760px){
-  :root:root.kb-tv{--nav-h:var(--nav-r1)}
-  .kb-tv .localnav .navlinks[data-view="tv"]{display:none}
-  .kb-tv .navin{grid-template-rows:var(--nav-r1)}
-  .kb-tv body{padding-bottom:calc(var(--bl-h) + 40px + env(safe-area-inset-bottom, 0px))}
-  .kb-tv .bleiste{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:25;
+  :root:root.kb-bl{--nav-h:var(--nav-r1)}
+  .kb-bl .localnav .navlinks[data-view]{display:none}
+  .kb-bl .navin{grid-template-rows:var(--nav-r1)}
+  .kb-bl body{padding-bottom:calc(var(--bl-h) + 40px + env(safe-area-inset-bottom, 0px))}
+  .kb-bl .bleiste{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:25;
     padding:4px max(4px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(4px, env(safe-area-inset-left, 0px));
     background:var(--nav-bg);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
     box-shadow:inset 0 1px 0 var(--line)}
@@ -1322,12 +1322,13 @@ html{background:
   .bleiste a[aria-current="page"] svg{stroke-width:2}
   .bleiste a:active svg{transform:scale(.88)}
   .bleiste a:focus-visible{outline:2px solid var(--ink);outline-offset:-4px;border-radius:12px}
-  .kb-tv .vfoot{display:none}
+  .kb-bl .vfoot{display:none}
   .bseg{width:100%}
   .bseg button{flex:1 1 auto;padding:8px 8px;font-size:.8rem;min-width:0}
   .st-wecker,.st-knopf{max-width:none}
 }
-@media (min-width:761px){ .kb-tv .vfoot{display:none} }
+@media (min-width:761px){ .kb-bl .vfoot{display:none} }
+.bleiste[hidden]{display:none!important}
 @media (prefers-reduced-transparency:reduce){ .bleiste{background:var(--bg)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important} }
 @media (prefers-contrast:more){ .bleiste{background:var(--bg)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:inset 0 1px 0 var(--ink)!important} }
 @media (prefers-reduced-motion:reduce){
@@ -1335,6 +1336,19 @@ html{background:
   .st-knopf:active,.st-wecker:active,.bleiste a:active svg{transform:none}
   .st-det > summary::after,.mehr-liste summary::after{transition:none}
 }
+
+/* ===== Runde 9 (09.11.2026): Staubsauger in fünf Bereichen ===== */
+/* Startbildschirm: Rolle links unter dem Namen (darf umbrechen), Punkte rechts unter dem Preis */
+.sg-start .st-s{text-align:left;white-space:normal;padding-left:19px;line-height:1.35}
+.sg-start .st-k{padding-left:0;text-align:right;white-space:nowrap}
+/* Zeile zum Laufzeit-Rechner: wie die Preiswecker-Zeile, ohne Statuspunkt */
+.st-zeile span{padding-left:2px}
+/* Bühne der Hauptempfehlung in der aufgeklappten Begründung: kein zusätzlicher Abstand nach oben */
+.sg-start .st-det-in > .stage{margin-top:0}
+/* Gewichtssatz über Rangliste und Preis-Leistung (wirkt auf beide) */
+.sg-bar-oben{margin-top:16px}
+.sg-bar-oben > .small:first-child{color:var(--muted)}
+@media (max-width:760px){ .sg-bar-oben{gap:8px 14px} }
 
 </style>
 
@@ -1350,7 +1364,7 @@ html{background:
     <div class="navlinks" data-view="tv">
       <a href="#tv-empfehlung" data-bl="empfehlung">Empfehlung</a><a href="#tv-entscheiden" data-bl="entscheiden">Entscheiden</a><a href="#tv-vergleich" data-bl="vergleich">Vergleich</a><a href="#tv-preise" data-bl="preise">Preise</a><a href="#tv-mehr" data-bl="mehr">Mehr</a>
     </div>
-    <div class="navlinks" data-view="sauger" hidden><a href="#sg-empfehlung">Empfehlung</a><a href="#sg-weg">Entscheiden</a><a href="#sg-rangliste">Rangliste</a><a href="#sg-wert">Preis-Leistung</a><a href="#sg-technik">Technik</a><a href="#sg-nicht">Nicht empfohlen</a><a href="#sg-quellen">Quellen</a></div>
+    <div class="navlinks" data-view="sauger" hidden><a href="#sauger-empfehlung" data-bl="empfehlung">Empfehlung</a><a href="#sauger-entscheiden" data-bl="entscheiden">Entscheiden</a><a href="#sauger-vergleich" data-bl="vergleich">Vergleich</a><a href="#sauger-technik" data-bl="technik">Technik</a><a href="#sauger-mehr" data-bl="mehr">Mehr</a></div>
   </div>
 </nav>
 
@@ -1909,7 +1923,7 @@ html{background:
     </ul>
   </section>
 </details>
-<button type="button" class="mehr-v" id="mehr-version" aria-haspopup="dialog" aria-controls="vdialog"><span><b>Versionsverlauf</b><small>Version 17 vom 09.11.2026</small></span><em class="chev" aria-hidden="true">›</em></button>
+<button type="button" class="mehr-v" id="mehr-version" aria-haspopup="dialog" aria-controls="vdialog"><span><b>Versionsverlauf</b><small>Version 18 vom 09.11.2026</small></span><em class="chev" aria-hidden="true">›</em></button>
 </div>
   <footer>Noten aus dem TV-Benchmark Version 2.1 vom 07.11.2026, unabhängig geprüft durch Codex. Preisverlauf, Mehrwert-Faktor und Kosten aus Version 3 vom selben Tag. Technikvergleiche aus Runde 4 vom 08.11.2026, Herstellerdaten mit Quelle je Zahl. Entscheidungswerkzeug, neue Modelle und Preiswecker aus Runde 6 vom 08.11.2026.</footer>
 </div>
@@ -1918,22 +1932,14 @@ html{background:
 
 <main class="view" id="view-sauger" role="tabpanel" aria-labelledby="tab-sauger" tabindex="-1" hidden>
 <div class="wrap">
-  <!-- Runde 5: Staubsauger-Kaufguide. Zahlen kommen aus #sauger-daten (bauen.py), keine handgetippten Werte -->
-  <header class="hero" id="sg-top">
-    <h1>Welcher Akkusauger ersetzt den AEG?</h1>
-    <div class="herofoot">
-      <p class="lead">Ersatz für euren AEG Animal 6000 (Bodensauger mit Kabel und Beutel). 38 Konfigurationen nach derselben Methode bewertet, die sechs bestplatzierten mit nachgeprüftem Preis.</p>
-      <dl class="facts">
-        <div><dt>Recherchestand</dt><dd>07.11.2026, Preise 08.11.2026</dd></div>
-        <div><dt>Methode</dt><dd>12 Kriterien, zwei Gewichtssätze (Nico | Haushalt), Punkte mit Basis Test, Datenblatt oder Schätzung</dd></div>
-        <div><dt>Prüfung</dt><dd>Kaufguide von Codex geprüft (Lauf 7, bestanden mit Hinweisen)</dd></div>
-      </dl>
-    </div>
-  </header>
-
-  <!-- Hauptempfehlung: das eine laute Element dieses Reiters -->
-  <section id="sg-empfehlung" aria-labelledby="h-sg-emp">
-    <header class="sh"><h2 id="h-sg-emp">Kauft das Bosch-Paket: beste Wertung, zwei Akkus, 522,99 €</h2></header>
+<div class="bereich" id="sauger-empfehlung" data-b="empfehlung" aria-label="Empfehlung">
+  <section id="sg-empfehlung" class="start sg-start" aria-labelledby="h-sg-emp">
+    <header class="sh st-kopf" id="sg-top"><h1 class="st-frage">Welcher Akkusauger ersetzt den AEG?</h1><h2 id="h-sg-emp">Kauft das Bosch-Paket: beste Wertung, zwei Akkus, 522,99 €</h2></header>
+    <ol class="st-liste" aria-label="Empfohlene Pakete nach Punkten"><li><span class="st-n"><i class="sw" style="--c:var(--sam)"></i>Bosch Unlimited 10 + Mini-Turbo-Düse</span><span class="st-p n">522,99 €</span><span class="st-s">Hauptempfehlung</span><span class="st-k"><b>67,9</b> Punkte</span></li><li><span class="st-n"><i class="sw" style="--c:var(--lg)"></i>Dyson V16 Piston Animal + Zweitakku</span><span class="st-p n">693,50 €</span><span class="st-s">Alternative Tierhaare/Haarwicklung</span><span class="st-k"><b>66,3</b> Punkte</span></li><li><span class="st-n"><i class="sw" style="--c:var(--tcl)"></i>Dyson V15 Detect Absolute</span><span class="st-p n">539 €</span><span class="st-s">Alternative Teppich-Saugkraft und Gewicht</span><span class="st-k"><b>64,8</b> Punkte</span></li><li><span class="st-n"><i class="sw" style="--c:var(--neutral)"></i>Shark Stratos IZ420EUT</span><span class="st-p n">420,04 €</span><span class="st-s">Alternative günstiger</span><span class="st-k"><b>63,2</b> Punkte</span></li></ol>
+    <p class="small st-hin">Die vier empfohlenen Pakete, Punkte Gewichtssatz Nico, Preise vom 08.11.2026. Alle sechs mit Haushalt-Wertung unter Vergleich.</p>
+    <div class="st-aktion"><a class="st-wecker st-zeile" href="#sg-pane-laufzeit"><span><b>Laufzeit-Rechner</b><small>Fläche, Teppich und Turbo selbst einstellen</small></span><em aria-hidden="true">›</em></a>
+    <a class="st-knopf" href="#sauger-entscheiden">Jetzt entscheiden</a></div>
+    <details class="st-det" id="sg-details"><summary>Begründung und Details</summary><div class="st-det-in">
     <div class="stage sg-hero">
       <div class="beam" aria-hidden="true"></div>
       <div class="sg-hgrid">
@@ -1956,9 +1962,16 @@ html{background:
         <div><h4 class="sg-mini">Vor dem Kauf</h4><p id="sg-kauf"></p></div>
       </div>
     </div>
+    </div></details>
+    <div class="st-fuss"><p class="lead">Ersatz für euren AEG Animal 6000 (Bodensauger mit Kabel und Beutel). 38 Konfigurationen nach derselben Methode bewertet, die sechs bestplatzierten mit nachgeprüftem Preis.</p>
+      <dl class="facts">
+        <div><dt>Recherchestand</dt><dd>07.11.2026, Preise 08.11.2026</dd></div>
+        <div><dt>Methode</dt><dd>12 Kriterien, zwei Gewichtssätze (Nico | Haushalt), Punkte mit Basis Test, Datenblatt oder Schätzung</dd></div>
+        <div><dt>Prüfung</dt><dd>Kaufguide von Codex geprüft (Lauf 7, bestanden mit Hinweisen)</dd></div>
+      </dl></div>
   </section>
-
-  <!-- Entscheidungsweg: vier Klick-Fragen, Antworten wirken nur auf die Hervorhebung -->
+</div>
+<div class="bereich" id="sauger-entscheiden" data-b="entscheiden" aria-label="Entscheiden" hidden>
   <section id="sg-weg" aria-labelledby="h-sg-weg">
     <header class="sh">
       <h2 id="h-sg-weg">Vier Fragen zeigen, welches Modell zu euch passt</h2>
@@ -1970,14 +1983,10 @@ html{background:
     </div>
     <p class="verdict" id="sg-rat"></p>
   </section>
-
-  <!-- Rangliste der sechs nachgeprüften Pakete -->
-  <section id="sg-rangliste" aria-labelledby="h-sg-rang">
-    <header class="sh">
-      <h2 id="h-sg-rang">Bosch-Paket, Dyson V16 und Gen5detect liegen gleichauf, das Bosch-Paket ist am günstigsten</h2>
-      <p class="lead">Die sechs bestplatzierten Pakete mit am 08.11.2026 nachgeprüftem Preis. Unter 3 Punkten Abstand gilt „gleichauf“: Die Methode kann so kleine Unterschiede nicht belastbar trennen.</p>
-    </header>
-    <div class="sg-bar">
+</div>
+<div class="bereich" id="sauger-vergleich" data-b="vergleich" aria-label="Vergleich" hidden>
+<div class="segx bseg" role="tablist" aria-label="Vergleich Staubsauger"><i class="thumb" aria-hidden="true"></i><button type="button" role="tab" id="bt-sg-rangliste" aria-controls="sg-p-rangliste" aria-selected="true">Rangliste</button><button type="button" role="tab" id="bt-sg-wert" aria-controls="sg-p-wert" aria-selected="false" tabindex="-1">Preis-Leistung</button></div>
+    <div class="sg-bar sg-bar-oben"><span class="small">Gewichtssatz</span>
       <div class="segx" id="sg-satz" role="group" aria-label="Gewichtssatz">
         <i class="thumb" aria-hidden="true"></i>
         <button type="button" data-k="n" aria-pressed="true">Nico</button>
@@ -1985,13 +1994,19 @@ html{background:
       </div>
       <p class="small" id="sg-satz-say"></p>
     </div>
+<div class="bpane" id="sg-p-rangliste" role="tabpanel" aria-labelledby="bt-sg-rangliste">
+  <section id="sg-rangliste" aria-labelledby="h-sg-rang">
+    <header class="sh">
+      <h2 id="h-sg-rang">Bosch-Paket, Dyson V16 und Gen5detect liegen gleichauf, das Bosch-Paket ist am günstigsten</h2>
+      <p class="lead">Die sechs bestplatzierten Pakete mit am 08.11.2026 nachgeprüftem Preis. Unter 3 Punkten Abstand gilt „gleichauf“: Die Methode kann so kleine Unterschiede nicht belastbar trennen.</p>
+    </header>
     <div class="panel"><div class="ranks" id="sg-ranks"></div>
       <div class="axis" id="sg-axis" aria-hidden="true"></div>
     </div>
     <p class="note">Gleiche Technik wie das Bosch-Paket, aber teurer: Nr. 4 und 5 (siehe „Geprüft, nicht empfohlen“). Dreame Z40 Station hätte 65,0 / 65,8 Punkte, ist aber nicht lieferbar und ohne deutschen Preis.</p>
   </section>
-
-  <!-- Preis-Leistung -->
+</div>
+<div class="bpane" id="sg-p-wert" role="tabpanel" aria-labelledby="bt-sg-wert" hidden>
   <section id="sg-wert" aria-labelledby="h-sg-wert">
     <header class="sh">
       <h2 id="h-sg-wert">Je Euro bringt das Bosch-Paket am meisten gegenüber eurem AEG</h2>
@@ -2000,8 +2015,9 @@ html{background:
     <div class="panel"><div class="lanes sg-lanes" id="sg-lanes"></div></div>
     <p class="note" id="sg-wert-note"></p>
   </section>
-
-  <!-- Technikvergleiche S1–S8 -->
+</div>
+</div>
+<div class="bereich" id="sauger-technik" data-b="technik" aria-label="Technik" hidden>
   <section id="sg-technik" aria-labelledby="h-sg-tk">
     <header class="sh">
       <h2 id="h-sg-tk">Was die sechs in der Hand und im Alltag unterscheidet</h2>
@@ -2051,8 +2067,10 @@ html{background:
       <div class="sg-pane" id="sg-pane-zubehoer" data-t="zubehoer" role="tabpanel" aria-labelledby="sgt-zubehoer" hidden></div>
     </div>
   </section>
-
-  <!-- Geprüft, nicht empfohlen -->
+</div>
+<div class="bereich bereich-mehr" id="sauger-mehr" data-b="mehr" aria-label="Mehr" hidden>
+<div class="mehr-liste">
+<details id="mehr-sg-nicht"><summary><span><b>Nicht empfohlen</b><small>Geprüft, nicht empfohlen</small></span></summary>
   <section id="sg-nicht" aria-labelledby="h-sg-nicht">
     <header class="sh">
       <h2 id="h-sg-nicht">Geprüft, nicht empfohlen</h2>
@@ -2064,24 +2082,29 @@ html{background:
       <tbody id="sg-nicht-rows"></tbody>
     </table></div>
   </section>
-
-  <!-- Lücken -->
+</details>
+<details id="mehr-sg-luecken"><summary><span><b>Was nicht belegt ist</b></span></summary>
   <section id="sg-luecken" aria-labelledby="h-sg-lue">
     <header class="sh"><h2 id="h-sg-lue">Was nicht belegt ist</h2></header>
     <ol class="unc" id="sg-luecken-liste"></ol>
   </section>
-
+</details>
+<details id="mehr-sg-quellen"><summary><span><b>Quellen</b></span></summary>
   <section id="sg-quellen" aria-labelledby="h-sg-q">
     <header class="sh"><h2 id="h-sg-q">Quellen</h2></header>
     <ul class="src" id="sg-quellen-liste"></ul>
   </section>
-
+</details>
+<button type="button" class="mehr-v" id="sg-mehr-version" aria-haspopup="dialog" aria-controls="vdialog"><span><b>Versionsverlauf</b><small>Version 18 vom 09.11.2026</small></span><em class="chev" aria-hidden="true">›</em></button>
+</div>
   <footer>Staubsauger-Reiter Runde 5 vom 08.11.2026. Noten aus dem Kaufguide (Methode unverändert), Preise der sechs bestplatzierten Pakete am 08.11.2026 nachgeprüft, Technikdaten mit Quelle je Zahl. Bisheriger Vergleich: <a href="https://claude.ai/artifact/Sr3qUsamTSbjqbsfDSuo1s" target="_blank" rel="noopener">Staubsauger-Vergleich</a>.</footer>
+</div>
 </div>
 </main>
 
-<nav class="bleiste" id="bleiste" aria-label="Bereiche Fernseher"><a href="#tv-empfehlung" data-bl="empfehlung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Empfehlung</span></a><a href="#tv-entscheiden" data-bl="entscheiden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5 8h14M7 8l-3 6h6zM17 8l-3 6h6z"/></svg><span>Entscheiden</span></a><a href="#tv-vergleich" data-bl="vergleich"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M12 5v12"/></svg><span>Vergleich</span></a><a href="#tv-preise" data-bl="preise"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l5-5 4 3 7-7"/></svg><span>Preise</span></a><a href="#tv-mehr" data-bl="mehr"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg><span>Mehr</span></a></nav>
-<div class="wrap vfoot"><button type="button" class="vchip" id="vchip" aria-haspopup="dialog" aria-controls="vdialog"><span class="vn">Version 17</span><span>09.11.2026</span><span class="vnew">Neu</span><span class="vq">Was ist neu?</span></button></div>
+<nav class="bleiste" id="bleiste" data-view="tv" aria-label="Bereiche Fernseher"><a href="#tv-empfehlung" data-bl="empfehlung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Empfehlung</span></a><a href="#tv-entscheiden" data-bl="entscheiden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5 8h14M7 8l-3 6h6zM17 8l-3 6h6z"/></svg><span>Entscheiden</span></a><a href="#tv-vergleich" data-bl="vergleich"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M12 5v12"/></svg><span>Vergleich</span></a><a href="#tv-preise" data-bl="preise"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l5-5 4 3 7-7"/></svg><span>Preise</span></a><a href="#tv-mehr" data-bl="mehr"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg><span>Mehr</span></a></nav>
+<nav class="bleiste" id="bleiste-sauger" data-view="sauger" aria-label="Bereiche Staubsauger" hidden><a href="#sauger-empfehlung" data-bl="empfehlung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Empfehlung</span></a><a href="#sauger-entscheiden" data-bl="entscheiden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5 8h14M7 8l-3 6h6zM17 8l-3 6h6z"/></svg><span>Entscheiden</span></a><a href="#sauger-vergleich" data-bl="vergleich"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M12 5v12"/></svg><span>Vergleich</span></a><a href="#sauger-technik" data-bl="technik"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Technik</span></a><a href="#sauger-mehr" data-bl="mehr"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg><span>Mehr</span></a></nav>
+<div class="wrap vfoot"><button type="button" class="vchip" id="vchip" aria-haspopup="dialog" aria-controls="vdialog"><span class="vn">Version 18</span><span>09.11.2026</span><span class="vnew">Neu</span><span class="vq">Was ist neu?</span></button></div>
 <dialog class="vd" id="vdialog" aria-labelledby="vd-t"><div class="vd-head"><h2 id="vd-t">Versionsverlauf</h2><button type="button" class="vd-x" aria-label="Schließen">×</button></div><div class="vd-body"><p class="vd-neu" hidden></p><ol class="vd-list"></ol><p class="vd-app" hidden></p></div></dialog>
 
 <script>
@@ -2803,90 +2826,101 @@ html{background:
 (() => {
   "use strict";
   // Runde 8: Fernseher in fünf Bereichen (Empfehlung, Entscheiden, Vergleich, Preise, Mehr).
-  // Der Router in technik.js ruft kbBereiche.oeffne(ziel) auf; hier nur Sichtbarkeit, Umschalter und Startbildschirm.
+  // Runde 9: Staubsauger ebenso (Empfehlung, Entscheiden, Vergleich, Technik, Mehr) – gleiche Logik je Ansicht.
+  // Der Router in technik.js ruft kbBereicheAlle[ansicht].oeffne(ziel) auf; hier nur Sichtbarkeit, Umschalter und Startbildschirm.
   const $ = id => document.getElementById(id);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)");
   const EASE = "cubic-bezier(0.23,1,0.32,1)";
-  const view = $("view-tv");
-  if (!view) return;
-  const BS = [...view.querySelectorAll(".bereich")];
-  const LINKS = [...document.querySelectorAll("a[data-bl]")];
-  let akt = BS.find(b => !b.hidden) || BS[0];
-  const pos = {};
 
   function daumen(seg) {
-    const t = seg.querySelector(".thumb"), b = seg.querySelector('[aria-selected="true"]');
+    const t = seg.querySelector(".thumb"), b = seg.querySelector('[aria-selected="true"],button[aria-pressed="true"]');
     if (!t || !b || !seg.offsetWidth) return;
     t.style.width = b.offsetWidth + "px";
     t.style.transform = `translateX(${b.offsetLeft}px)`;
     if (!seg.classList.contains("ready")) requestAnimationFrame(() => seg.classList.add("ready"));
   }
   function blende(el) { if (!reduce.matches) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: EASE }); }
-  // Nach dem Sichtbarwerden: Daumen messen, Grafiken neu zeichnen (sie messen ihre Breite erst, wenn sie sichtbar sind)
-  function nachZeigen(el) {
-    el.querySelectorAll(".segx").forEach(daumen);
-    if (window.__tvTechnik && window.__tvTechnik.redraw) window.__tvTechnik.redraw();
-    dispatchEvent(new Event("resize"));
-  }
-  function markiere() {
-    LINKS.forEach(a => { if (a.dataset.bl === akt.dataset.b) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
-  }
-  function zeigeBereich(B) {
-    if (B === akt && !B.hidden) return false;
-    if (akt && !akt.hidden) pos[akt.id] = scrollY;
-    BS.forEach(x => { x.hidden = x !== B; });
-    akt = B; markiere(); blende(B); nachZeigen(B);
-    return true;
-  }
-  function zeigePane(P) {
-    if (!P.hidden) return false;
-    const B = P.closest(".bereich"), seg = B.querySelector(".bseg");
-    B.querySelectorAll(".bpane").forEach(x => { x.hidden = x !== P; });
-    seg.querySelectorAll('[role="tab"]').forEach(b => { const an = b.getAttribute("aria-controls") === P.id; b.setAttribute("aria-selected", String(an)); b.tabIndex = an ? 0 : -1; });
-    daumen(seg); blende(P); nachZeigen(P);
-    return true;
-  }
-  // Ziel sichtbar machen: Bereich, Umschalter, aufgeklappte Liste, Schritt im Werkzeug.
-  // Rückgabe: wechsel (etwas wurde eingeblendet), ziel (Scrollziel, null = an den Anfang), y (gemerkte Position beim Zurückkehren)
-  function oeffne(ziel) {
-    if (!ziel) { nachZeigen(akt); return { wechsel: false, ziel: null, y: null }; }
-    const B = ziel.closest(".bereich");
-    if (!B) return { wechsel: false, ziel, y: null };
-    const war = B === akt && !B.hidden;
-    let w = zeigeBereich(B);
-    const P = ziel.closest(".bpane");
-    if (P && zeigePane(P)) w = true;
-    for (let d = ziel.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) if (!d.open) { d.open = true; w = true; }
-    const st = ziel.closest(".es-step");
-    if (st && window.__kbStufe && !st.classList.contains("is-cur")) { window.__kbStufe(+st.dataset.i); w = true; }
-    const oben = ziel === B || ziel === P;
-    return { wechsel: w, ziel: oben ? null : ziel, y: ziel === B && !war && pos[B.id] != null ? pos[B.id] : null };
-  }
 
-  // Umschalter (Vergleich, Preise): Reiterliste mit Pfeiltasten, Adresse ohne Sprung nachführen
-  view.querySelectorAll(".bseg").forEach(seg => {
-    const bs = [...seg.querySelectorAll('[role="tab"]')];
-    const waehle = b => { const P = $(b.getAttribute("aria-controls")); if (zeigePane(P)) history.replaceState(null, "", "#" + P.id); };
-    seg.addEventListener("click", e => { const b = e.target.closest('[role="tab"]'); if (b) waehle(b); });
-    seg.addEventListener("keydown", e => {
-      const i = bs.indexOf(document.activeElement); if (i < 0) return;
-      const j = { ArrowRight: (i + 1) % bs.length, ArrowLeft: (i - 1 + bs.length) % bs.length, Home: 0, End: bs.length - 1 }[e.key];
-      if (j === undefined) return;
-      e.preventDefault(); bs[j].focus(); waehle(bs[j]);
+  // view: <main class="view">; zeichne: Grafiken der Ansicht neu zeichnen (sie messen ihre Breite erst, wenn sie sichtbar sind)
+  function aufbauen(view, zeichne) {
+    const BS = [...view.querySelectorAll(".bereich")];
+    if (!BS.length) return null;
+    const ids = new Set(BS.map(b => "#" + b.id));
+    const LINKS = [...document.querySelectorAll("a[data-bl]")].filter(a => ids.has(a.getAttribute("href")));
+    let akt = BS.find(b => !b.hidden) || BS[0];
+    const pos = {};
+
+    function nachZeigen(el) {
+      el.querySelectorAll(".segx").forEach(daumen);
+      if (zeichne) zeichne();
+      dispatchEvent(new Event("resize"));
+    }
+    function markiere() {
+      LINKS.forEach(a => { if (a.dataset.bl === akt.dataset.b) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    }
+    function zeigeBereich(B) {
+      if (B === akt && !B.hidden) return false;
+      if (akt && !akt.hidden) pos[akt.id] = scrollY;
+      BS.forEach(x => { x.hidden = x !== B; });
+      akt = B; markiere(); blende(B); nachZeigen(B);
+      return true;
+    }
+    function zeigePane(P) {
+      if (!P.hidden) return false;
+      const B = P.closest(".bereich"), seg = B.querySelector(".bseg");
+      B.querySelectorAll(".bpane").forEach(x => { x.hidden = x !== P; });
+      seg.querySelectorAll('[role="tab"]').forEach(b => { const an = b.getAttribute("aria-controls") === P.id; b.setAttribute("aria-selected", String(an)); b.tabIndex = an ? 0 : -1; });
+      daumen(seg); blende(P); nachZeigen(P);
+      return true;
+    }
+    // Ziel sichtbar machen: Bereich, Umschalter, aufgeklappte Liste, Schritt im Werkzeug.
+    // Rückgabe: wechsel (etwas wurde eingeblendet), ziel (Scrollziel, null = an den Anfang), y (gemerkte Position beim Zurückkehren)
+    function oeffne(ziel) {
+      if (!ziel) { nachZeigen(akt); return { wechsel: false, ziel: null, y: null }; }
+      const B = ziel.closest(".bereich");
+      if (!B || !view.contains(B)) return { wechsel: false, ziel, y: null };
+      const war = B === akt && !B.hidden;
+      let w = zeigeBereich(B);
+      const P = ziel.closest(".bpane");
+      if (P && zeigePane(P)) w = true;
+      // Ziel in einer Liste zum Aufklappen: immer selbst scrollen. Chrome klappt <details> beim Sprung schon vor
+      // dem hashchange-Ereignis auf; ohne diese Regel hielte der Router den Sprung für erledigt (Ziel blieb weiter unten).
+      if (ziel.closest("details")) w = true;
+      for (let d = ziel.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) if (!d.open) d.open = true;
+      const st = ziel.closest(".es-step");
+      if (st && window.__kbStufe && !st.classList.contains("is-cur")) { window.__kbStufe(+st.dataset.i); w = true; }
+      const oben = ziel === B || ziel === P;
+      return { wechsel: w, ziel: oben ? null : ziel, y: ziel === B && !war && pos[B.id] != null ? pos[B.id] : null };
+    }
+
+    // Umschalter (Vergleich, Preise): Reiterliste mit Pfeiltasten, Adresse ohne Sprung nachführen
+    view.querySelectorAll(".bseg").forEach(seg => {
+      const bs = [...seg.querySelectorAll('[role="tab"]')];
+      const waehle = b => { const P = $(b.getAttribute("aria-controls")); if (zeigePane(P)) history.replaceState(null, "", "#" + P.id); };
+      seg.addEventListener("click", e => { const b = e.target.closest('[role="tab"]'); if (b) waehle(b); });
+      seg.addEventListener("keydown", e => {
+        const i = bs.indexOf(document.activeElement); if (i < 0) return;
+        const j = { ArrowRight: (i + 1) % bs.length, ArrowLeft: (i - 1 + bs.length) % bs.length, Home: 0, End: bs.length - 1 }[e.key];
+        if (j === undefined) return;
+        e.preventDefault(); bs[j].focus(); waehle(bs[j]);
+      });
     });
-  });
-  // Erneutes Tippen auf den aktiven Bereich: an den Anfang (wie bei Apps üblich)
-  LINKS.forEach(a => a.addEventListener("click", e => {
-    if (location.hash === a.hash) { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduce.matches ? "auto" : "smooth" }); }
-  }));
-  // Versionsverlauf aus der Liste „Mehr“ öffnet dasselbe Blatt wie der Knopf unten
-  const mv = $("mehr-version");
-  if (mv) mv.addEventListener("click", () => { const k = $("vchip"); if (k) k.click(); });
-  // Am Rechner ist die Begründung im Startbildschirm offen, auf dem Handy zu
-  const det = $("fazit-details");
-  if (det && matchMedia("(min-width: 1000px)").matches) det.open = true;
+    // Erneutes Tippen auf den aktiven Bereich: an den Anfang (wie bei Apps üblich)
+    LINKS.forEach(a => a.addEventListener("click", e => {
+      if (location.hash === a.hash) { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduce.matches ? "auto" : "smooth" }); }
+    }));
+    // Versionsverlauf aus der Liste „Mehr“ öffnet dasselbe Blatt wie der Knopf unten
+    view.querySelectorAll(".mehr-v").forEach(mv => mv.addEventListener("click", () => { const k = $("vchip"); if (k) k.click(); }));
+    // Am Rechner ist die Begründung im Startbildschirm offen, auf dem Handy zu
+    if (matchMedia("(min-width: 1000px)").matches) view.querySelectorAll(".st-det").forEach(d => { d.open = true; });
+    markiere();
+    return { oeffne, aktiv: () => akt.dataset.b };
+  }
 
-  // Preiswecker-Zeile im Startbildschirm: spiegelt die erste Statuszeile aus Preise › Wecker (nur Text, keine eigene Logik)
+  const tv = $("view-tv") ? aufbauen($("view-tv"), () => { if (window.__tvTechnik && window.__tvTechnik.redraw) window.__tvTechnik.redraw(); }) : null;
+  const sauger = $("view-sauger") ? aufbauen($("view-sauger"), () => { if (window.kbSauger && window.kbSauger.redraw) window.kbSauger.redraw(); }) : null;
+
+  // Preiswecker-Zeile im Startbildschirm (Fernseher): spiegelt die erste Statuszeile aus Preise › Wecker (nur Text, keine eigene Logik)
   const quelle = $("pw-status"), w1 = $("st-w1"), w2 = $("st-w2"), zeile = $("st-wecker");
   function spiegel() {
     if (!quelle || !w2) return;
@@ -2898,9 +2932,9 @@ html{background:
   if (quelle && "MutationObserver" in window) new MutationObserver(spiegel).observe(quelle, { childList: true, subtree: true, characterData: true });
   spiegel();
   if (w1) w1.textContent = "Preiswecker";
-  markiere();
 
-  window.kbBereiche = { oeffne, aktiv: () => akt.dataset.b };
+  window.kbBereiche = tv;                       // bisherige Schnittstelle (Fernseher)
+  window.kbBereicheAlle = { tv, sauger };       // Runde 9: je Ansicht
 })();
 </script>
 <script type="application/json" id="technik-daten">{"_hinweis":"Technikdaten TV-Reiter (T1–T6). Jede Zahl als {\"v\": Wert, \"q\": Quellenschlüssel}; Lücken als {\"luecke\": Text}. Belege: kaufberatung/recherche/tv-technik.md, tv-oberflaechen.md, TV-Benchmark.md. Abruf 07.11.2026. Prüfung: kaufberatung/build/pruefe_technik.py","quellen":{"lg-spec":{"titel":"LG.de, OLED83C6ELB, alle Spezifikationen","url":"https://www.lg.com/de/tvs-und-soundbars/oled-evo/oled83c6elb/","art":"Hersteller"},"sam-spec":{"titel":"Samsung.de, GQ83S90HAEXZG, Spezifikationen","url":"https://www.samsung.com/de/tvs/oled-tv/s90h-83-inch-4k-smart-tv-gq83s90haexzg/","art":"Hersteller"},"tcl-spec":{"titel":"TCL Österreich, 85C8L, Spezifikationen","url":"https://www.tcl.com/at/de/tvs/85c8l","art":"Hersteller"},"sony-spec":{"titel":"Sony.de, KD-65XH9005, Spezifikationen","url":"https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs-android-/kd-65xh9005/specifications","art":"Hersteller"},"alternate-sam":{"titel":"Alternate, Samsung GQ-83S90H (Händlerangabe HDMI 2.1)","url":"https://www.alternate.de/Samsung/GQ-83S90H-Vision-AI-Smart-OLED-Fernseher/html/product/100211470","art":"Händler"},"tftcentral":{"titel":"TFTCentral, Primary RGB Tandem 2.0 in 77″/83″ C6","url":"https://tftcentral.co.uk/news/lg-bring-primary-rgb-tandem-2-0-woled-panels-to-some-of-their-g6-and-c6-tv-range","art":"Fachpresse"},"notebookcheck-s90h":{"titel":"Notebookcheck, Samsung S90H wohl mit WOLED (nur Suchtreffer)","url":"https://www.notebookcheck.com/Erste-Tests-Samsung-S90H-wohl-mit-WOLED-statt-QD-OLED-Panel.1265812.0.html","art":"Fachpresse"},"rtings-qm8l":{"titel":"RTINGS, TCL QM8L (US-Modell)","url":"https://www.rtings.com/tv/reviews/tcl/qm8l","art":"Test"},"er-xh90":{"titel":"Expert Reviews, Sony XH90 (am 75″ getestet)","url":"https://www.expertreviews.co.uk/technology/tvs-home-cinema/sony-xh90xh92-review","art":"Test"},"bericht":{"titel":"TV-Benchmark Version 2.1/3 (Bericht dieser Kaufberatung)","url":"#quellen","art":"Bericht"},"wiki-viewing":{"titel":"Wikipedia, Optimum HDTV viewing distance","url":"https://en.wikipedia.org/wiki/Optimum_HDTV_viewing_distance","art":"Sekundärquelle"},"itu-2020":{"titel":"ITU-R BT.2020 (UHDTV 3840 × 2160)","url":"https://www.itu.int/rec/R-REC-BT.2020","art":"Norm"},"eprel-tcl":{"titel":"EPREL TCL 85C8LX1 (2538281)","url":"https://eprel.ec.europa.eu/screen/product/electronicdisplays/2538281","art":"EU-Datenbank"},"eprel-lg":{"titel":"EPREL LG OLED83C6ELB (2616424)","url":"https://eprel.ec.europa.eu/screen/product/electronicdisplays/2616424","art":"EU-Datenbank"},"eprel-sam":{"titel":"EPREL Samsung GQ83S90HAE (2571344)","url":"https://eprel.ec.europa.eu/screen/product/electronicdisplays/2571344","art":"EU-Datenbank"},"bdew":{"titel":"BDEW-Strompreisanalyse Oktober 2026","url":"https://www.bdew.de/media/documents/BDEW_Strompreisanalyse_102026_1.pdf","art":"Verband"},"zambullo":{"titel":"zambullo.de, Unterschiede der LG-C6-Varianten","url":"https://www.zambullo.de/fernseher/unterschiede-lg-tv-oled-c6-aus-2026-c67-vs-c68-vs-c69-vs-c6e-vs-c6h-vs-c6s-was-unterscheidet-die-tv-modelle.html","art":"Fachseite"},"lg-webos":{"titel":"LG.de, webOS Smart TV","url":"https://www.lg.com/de/webos-smart-tv/webos","art":"Hersteller"},"sam-highlights":{"titel":"Samsung.de, Smart TV Highlights","url":"https://www.samsung.com/de/tvs/smart-tv/highlights/","art":"Hersteller"},"google-tv-hilfe":{"titel":"Google-TV-Hilfe, Startbildschirm","url":"https://support.google.com/googletv/answer/10267283?hl=en","art":"Hersteller"},"sony-haep2":{"titel":"Sony-Hilfe haep2 (Zuordnung zum XH9005 nur indirekt)","url":"https://helpguide.sony.net/tv/haep2/v1/de/print.html","art":"Hersteller"}},"sitz":{"spanne_m":[{"v":2.5,"q":"bericht"},{"v":3.2,"q":"bericht"}],"smpte_grad":{"v":30,"q":"wiki-viewing","hinweis":"oft zitierte SMPTE-Empfehlung; laut Wikipedia gibt es dazu keine direkte SMPTE-Veröffentlichung"},"thx_grad":{"v":40,"q":"wiki-viewing"},"bogenminute":{"v":1,"q":"wiki-viewing","hinweis":"Grenze der Detailerkennung bei normaler Sehschärfe"},"pixel_breite":{"v":3840,"q":"itu-2020"},"pixel_hoehe":{"v":2160,"q":"itu-2020"}},"modelle":[{"id":"sony","name":"Sony KD-65XH9005","kurz":"Sony XH9005","c":"var(--sony)","zoll":{"v":65,"q":"sony-spec"},"breite_mm":{"v":1450,"q":"sony-spec","ca":true},"hoehe_mm":{"v":833,"q":"sony-spec","ca":true},"tiefe_mm":{"v":70,"q":"sony-spec","ca":true},"hoehe_fuss_mm":{"v":903,"q":"sony-spec","ca":true},"tiefe_fuss_mm":{"v":338,"q":"sony-spec","ca":true},"kg":{"v":22.2,"q":"sony-spec","ca":true},"kg_fuss":{"v":23.2,"q":"sony-spec","ca":true},"vesa":[{"v":300,"q":"sony-spec"},{"v":300,"q":"sony-spec"}],"fuss_art":"zwei Füße außen","fuss_breite_mm":{"v":1128,"q":"sony-spec","ca":true,"hinweis":"Standfußbreite, Abstand der Außenkanten"},"fuss_tiefe_mm":{"luecke":"Fußtiefe einzeln nicht angegeben"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":false},{"nr":2,"k21":false},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"er-xh90","status21":"unsicher","hinweis21":"HDMI 3 und 4 = 2.1, am 75″ getestet","earc":{"v":3,"q":"er-xh90","status":"unsicher","hinweis":"eARC nur an HDMI 3, am 75″ getestet; Sony-Datenblatt nennt nur ARC"}},"panel":{"typ":"VA-LCD, Full-Array","zonen":{"v":32,"q":"er-xh90","ca":true,"hinweis":"am 75″ getestet, für 65″ nicht belegt"}},"strom":{"luecke":"Kein EPREL-Wert in den Quellen dieser Kaufberatung"},"os":{"name":"Android TV","q":"sony-spec","version":{"luecke":"Version nennt Sony nicht"}}},{"id":"tcl","name":"TCL 85C8L","kurz":"TCL 85C8L","c":"var(--tcl)","zoll":{"v":85,"q":"tcl-spec"},"breite_mm":{"v":1880,"q":"tcl-spec"},"hoehe_mm":{"v":1073,"q":"tcl-spec","hinweis":"Herstellerseite beschriftet B × H × T, nennt aber B × T × H; umsortiert"},"tiefe_mm":{"v":53,"q":"tcl-spec"},"hoehe_fuss_mm":{"v":1112,"q":"tcl-spec"},"tiefe_fuss_mm":{"v":379,"q":"tcl-spec"},"kg":{"v":38.9,"q":"tcl-spec"},"kg_fuss":{"v":41.6,"q":"tcl-spec"},"vesa":[{"v":600,"q":"tcl-spec"},{"v":500,"q":"tcl-spec"}],"fuss_art":"Mittelfuß","fuss_breite_mm":{"v":410,"q":"tcl-spec"},"fuss_tiefe_mm":{"v":379,"q":"tcl-spec"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":true},{"nr":2,"k21":true},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"tcl-spec","status21":"belegt","hinweis21":"4 × HDMI 2.1","earc":{"v":1,"q":"rtings-qm8l","status":"unsicher","hinweis":"TCL nennt eARC ohne Buchse; HDMI 1 laut RTINGS am US-Modell QM8L"}},"panel":{"typ":"SQD-Mini-LED, LCD","zonen":{"v":3200,"q":"tcl-spec","hinweis":"Herstellerwert; Händler nennen abweichende Zahlen"}},"strom":{"sdr_w":{"v":123,"q":"eprel-tcl"},"hdr_w":{"v":500,"q":"eprel-tcl"}},"os":{"name":"Google TV","q":"tcl-spec","version":{"luecke":"Version nicht angegeben"}}},{"id":"lg","name":"LG OLED83C6ELB","kurz":"LG 83C6","c":"var(--lg)","zoll":{"v":83,"q":"lg-spec"},"breite_mm":{"v":1842,"q":"lg-spec"},"hoehe_mm":{"v":1055,"q":"lg-spec"},"tiefe_mm":{"v":52.9,"q":"lg-spec"},"hoehe_fuss_mm":{"v":1096,"q":"lg-spec","hinweis":"Fuß zweistufig: 1.096 oder 1.144 mm"},"hoehe_fuss2_mm":{"v":1144,"q":"lg-spec"},"tiefe_fuss_mm":{"v":297,"q":"lg-spec"},"kg":{"v":28.3,"q":"lg-spec"},"kg_fuss":{"v":33,"q":"lg-spec"},"vesa":[{"v":400,"q":"lg-spec"},{"v":400,"q":"lg-spec"}],"fuss_art":"Mittelfuß","fuss_breite_mm":{"v":460,"q":"lg-spec"},"fuss_tiefe_mm":{"v":297,"q":"lg-spec"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":true},{"nr":2,"k21":true},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"lg-spec","status21":"belegt","hinweis21":"4 × 4K 120 Hz wie in HDMI 2.1 spezifiziert","earc":{"v":2,"q":"lg-spec","status":"belegt","hinweis":"eARC an HDMI 2"}},"panel":{"typ":"OLED, Primary RGB Tandem","q":"tftcentral","hinweis":"laut TFTCentral für 77″/83″ C6H; Gleichheit mit dem EU-Modell nicht belegt; Zahl der Lagen nicht belegt"},"strom":{"sdr_w":{"v":98,"q":"eprel-lg"},"hdr_w":{"v":292,"q":"eprel-lg"}},"os":{"name":"webOS 26","q":"lg-spec","hinweis":"Datenblatt webOS 26, Bildtext derselben Seite webOS 25"}},{"id":"sam","name":"Samsung GQ83S90HAE","kurz":"Samsung S90H","c":"var(--sam)","zoll":{"v":83,"q":"sam-spec"},"breite_mm":{"v":1851,"q":"sam-spec"},"hoehe_mm":{"v":1062.8,"q":"sam-spec"},"tiefe_mm":{"v":44.9,"q":"sam-spec"},"hoehe_fuss_mm":{"v":1133.7,"q":"sam-spec"},"tiefe_fuss_mm":{"v":359,"q":"sam-spec"},"kg":{"v":37.6,"q":"sam-spec"},"kg_fuss":{"v":39.4,"q":"sam-spec"},"vesa":[{"v":400,"q":"sam-spec"},{"v":300,"q":"sam-spec"}],"fuss_art":"Mittelfuß","fuss_breite_mm":{"v":366,"q":"sam-spec"},"fuss_tiefe_mm":{"v":359,"q":"sam-spec"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":true},{"nr":2,"k21":true},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"alternate-sam","status21":"unsicher","hinweis21":"Samsung nennt nur „HDMI: 4“; 4 × HDMI 2.1 laut Händler","earc":{"v":3,"q":"bericht","status":"unsicher","hinweis":"Samsung nennt eARC ohne Buchse; HDMI 3 laut Tom's Guide, nicht bestätigt"}},"panel":{"typ":"OLED, Paneltyp offen","q":"notebookcheck-s90h","hinweis":"Samsung nennt nur „OLED“; Tests deuten auf WOLED, Tandem nicht belegt"},"strom":{"sdr_w":{"v":128,"q":"eprel-sam"},"hdr_w":{"v":372,"q":"eprel-sam"}},"os":{"name":"Tizen (One UI Tizen)","q":"sam-spec","version":{"luecke":"Versionsnummer nicht genannt"}}}],"strom":{"stunden":{"v":4,"q":"bericht"},"hdr_anteil":{"v":0.2,"q":"bericht"},"ct_kwh":{"v":37.3,"q":"bdew"},"jahre":6,"erwartet_jahr_eur":{"tcl":108,"lg":74,"sam":96},"erwartet_6j_eur":{"tcl":648,"lg":447,"sam":578}}}</script>
@@ -2965,14 +2999,17 @@ html{background:
   if (location.hash && "scrollRestoration" in history) history.scrollRestoration = "manual";
   const tabs = $("tabs");
   let cur = null, via = null;
+  const bereicheVon = k => (window.kbBereicheAlle && window.kbBereicheAlle[k]) || (k === "tv" && window.kbBereiche) || null;
   function showView(k, anim) {
     if (cur === k) return false;
     VIEWS.forEach(x => {
       $("view-" + x).hidden = x !== k;
       document.querySelector(`.navlinks[data-view="${x}"]`).hidden = x !== k;
+      const bl = document.querySelector(`.bleiste[data-view="${x}"]`); if (bl) bl.hidden = x !== k; // Runde 9: Leiste je Gerät
     });
     selectTab(tabs, k); cur = k;
     document.documentElement.classList.toggle("kb-tv", k === "tv"); // Runde 8: Fernseher mit unterer Leiste
+    document.documentElement.classList.toggle("kb-bl", !!bereicheVon(k)); // Runde 9: jede Ansicht mit Bereichen hat die Leiste
     kopfSync();
     const v = $("view-" + k);
     if (anim && !reduce.matches) v.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: EASE });
@@ -2993,10 +3030,11 @@ html{background:
       if (v) { view = v.id.slice(5); target = el; }
     }
     const changed = showView(view, anim);
-    // Runde 8: Fernseher in Bereichen – Bereich, Umschalter, Liste oder Schritt des Ziels einblenden
+    // Runde 8/9: Ansicht in Bereichen – Bereich, Umschalter, Liste oder Schritt des Ziels einblenden
     let bw = false;
-    if (view === "tv" && window.kbBereiche) {
-      const b = window.kbBereiche.oeffne(target);
+    const BR = bereicheVon(view);
+    if (BR) {
+      const b = BR.oeffne(target);
       bw = b.wechsel; target = b.ziel;
       if (b.y != null) { window.scrollTo({ top: b.y, behavior: "instant" }); return; }
     }
@@ -3359,7 +3397,7 @@ html{background:
   }
   ["touchstart", "wheel", "pointerdown"].forEach(e => addEventListener(e, gleitStop, { passive: true, capture: true }));
   function spy() {
-    if (cur === "tv") return; // Runde 8: Bereiche markiert bereiche.js
+    if (bereicheVon(cur)) return; // Runde 8/9: Bereiche markiert bereiche.js
     const box = aktBox(); if (!box || !spyLinks.length) return;
     const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 80;
     // Sprungziele landen bei scroll-padding plus scroll-margin des Abschnitts; so weit darf die Oberkante höchstens abweichen
@@ -3379,7 +3417,7 @@ html{background:
   }
   function kompakt() {
     const y = scrollY, d = y - lastY;
-    if (!mobilNav.matches || cur === "tv") { navEl.classList.remove("kompakt"); lastY = y; return; } // Fernseher: einzeilige Kopfzeile bleibt stehen
+    if (!mobilNav.matches || bereicheVon(cur)) { navEl.classList.remove("kompakt"); lastY = y; return; } // Ansicht mit Bereichen: einzeilige Kopfzeile bleibt stehen
     if (y < 120) { navEl.classList.remove("kompakt"); lastY = y; return; } // oben immer volle Kopfzeile
     if (Math.abs(d) < 6) return;
     lastY = y;
@@ -4940,7 +4978,7 @@ html{background:
   dbStart();
 })();
 </script>
-<script type="application/json" id="versionen-daten">{"aktuell":17,"eintraege":[{"von":16,"bis":17,"datum":"09.11.2026","text":"Kleine Korrektur beim Entscheiden: Sind in deinem gespeicherten Stand Kriterien außerhalb der ersten drei anders gewichtet, klappt die Waage jetzt auch nach dem Laden aus deinem Konto alle Kriterien auf."},{"von":15,"bis":15,"datum":"09.11.2026","text":"Fernseher aufgeräumt: fünf Bereiche statt einer langen Seite, am Handy unten als Leiste. Beim Öffnen steht die Empfehlung, Entscheiden geht Schritt für Schritt. Dazu das Glas-Logo in der Kopfzeile und im dunklen Modus ein ruhiger Sternenhimmel."},{"von":14,"bis":14,"datum":"09.11.2026","text":"Neu: der Versionsverlauf. Unten steht, welche Version du gerade siehst; antippen zeigt, was sich wann geändert hat. Beim nächsten Besuch markiert „Neu“, was seit deinem letzten Besuch dazugekommen ist."},{"von":13,"bis":13,"datum":"09.11.2026","text":"Kopfzeile am Handy in zwei Stufen: oben Fernseher/Staubsauger, darunter die Abschnitte. Die Abschnittslinks werden nicht mehr rechts abgeschnitten, der aktive Abschnitt ist markiert."},{"von":12,"bis":12,"datum":"09.11.2026","zwischenstand":true,"text":"Zwischenstand der neuen Kopfzeile, zwei Minuten später durch Version 13 ersetzt. Keine eigene Änderung für dich."},{"von":11,"bis":11,"datum":"09.11.2026","text":"Beim Preiswecker steht jetzt: Er prüft täglich gegen 6:30 Uhr, bis einschließlich 01.12.2026."},{"von":10,"bis":10,"datum":"08.11.2026","text":"Staubsauger Nr. 38 ergänzt: Samsung VS80F28EFP/WD, geprüft und nicht empfohlen (Rang 27 von 38, 504,99 € belegt)."},{"von":9,"bis":9,"datum":"08.11.2026","text":"Fernseher-Reiter Runde 6: Werkzeug „Entscheiden“ mit deinen Gewichten, zwei neue Modelle (Samsung QE85QN90F und Hisense 85UR9DS, beide geprüft und nicht empfohlen), Kleingedrucktes und der Preiswecker."},{"von":8,"bis":8,"datum":"08.11.2026","text":"Zwei Reiter: Fernseher und neu der Staubsauger-Kaufguide. Im Fernseher-Reiter kommen die Technikvergleiche dazu (Sitzabstand, Wand und Maße, Anschlüsse, Panel, Strom, Bedienung)."},{"von":7,"bis":7,"datum":"08.11.2026","zwischenstand":true,"text":"Zwischenstand vor Version 8. Was genau darin neu war, ist nicht einzeln festgehalten."},{"von":6,"bis":6,"datum":"07.11.2026","text":"Preisteil im Fernseher-Vergleich: Preisverlauf mit Tiefstpreisen, Mehrwert je 1.000 € und Kosten. Die Noten blieben unverändert."},{"von":1,"bis":5,"datum":"07.11.2026","text":"Erste Fassungen des Fernseher-Vergleichs mit Noten für die Modelle. Die einzelnen Stände sind nicht festgehalten, deshalb hier zusammengefasst."}]}</script>
+<script type="application/json" id="versionen-daten">{"aktuell":18,"eintraege":[{"von":18,"bis":18,"datum":"09.11.2026","text":"Staubsauger aufgeräumt wie der Fernseher: fünf Bereiche statt einer langen Seite, am Handy unten als Leiste. Beim Öffnen stehen Empfehlung und die vier empfohlenen Pakete, die Begründung klappt auf. Dazu springen Links in die Listen unter „Mehr“ jetzt zuverlässig an die richtige Stelle."},{"von":16,"bis":17,"datum":"09.11.2026","text":"Kleine Korrektur beim Entscheiden: Sind in deinem gespeicherten Stand Kriterien außerhalb der ersten drei anders gewichtet, klappt die Waage jetzt auch nach dem Laden aus deinem Konto alle Kriterien auf."},{"von":15,"bis":15,"datum":"09.11.2026","text":"Fernseher aufgeräumt: fünf Bereiche statt einer langen Seite, am Handy unten als Leiste. Beim Öffnen steht die Empfehlung, Entscheiden geht Schritt für Schritt. Dazu das Glas-Logo in der Kopfzeile und im dunklen Modus ein ruhiger Sternenhimmel."},{"von":14,"bis":14,"datum":"09.11.2026","text":"Neu: der Versionsverlauf. Unten steht, welche Version du gerade siehst; antippen zeigt, was sich wann geändert hat. Beim nächsten Besuch markiert „Neu“, was seit deinem letzten Besuch dazugekommen ist."},{"von":13,"bis":13,"datum":"09.11.2026","text":"Kopfzeile am Handy in zwei Stufen: oben Fernseher/Staubsauger, darunter die Abschnitte. Die Abschnittslinks werden nicht mehr rechts abgeschnitten, der aktive Abschnitt ist markiert."},{"von":12,"bis":12,"datum":"09.11.2026","zwischenstand":true,"text":"Zwischenstand der neuen Kopfzeile, zwei Minuten später durch Version 13 ersetzt. Keine eigene Änderung für dich."},{"von":11,"bis":11,"datum":"09.11.2026","text":"Beim Preiswecker steht jetzt: Er prüft täglich gegen 6:30 Uhr, bis einschließlich 01.12.2026."},{"von":10,"bis":10,"datum":"08.11.2026","text":"Staubsauger Nr. 38 ergänzt: Samsung VS80F28EFP/WD, geprüft und nicht empfohlen (Rang 27 von 38, 504,99 € belegt)."},{"von":9,"bis":9,"datum":"08.11.2026","text":"Fernseher-Reiter Runde 6: Werkzeug „Entscheiden“ mit deinen Gewichten, zwei neue Modelle (Samsung QE85QN90F und Hisense 85UR9DS, beide geprüft und nicht empfohlen), Kleingedrucktes und der Preiswecker."},{"von":8,"bis":8,"datum":"08.11.2026","text":"Zwei Reiter: Fernseher und neu der Staubsauger-Kaufguide. Im Fernseher-Reiter kommen die Technikvergleiche dazu (Sitzabstand, Wand und Maße, Anschlüsse, Panel, Strom, Bedienung)."},{"von":7,"bis":7,"datum":"08.11.2026","zwischenstand":true,"text":"Zwischenstand vor Version 8. Was genau darin neu war, ist nicht einzeln festgehalten."},{"von":6,"bis":6,"datum":"07.11.2026","text":"Preisteil im Fernseher-Vergleich: Preisverlauf mit Tiefstpreisen, Mehrwert je 1.000 € und Kosten. Die Noten blieben unverändert."},{"von":1,"bis":5,"datum":"07.11.2026","text":"Erste Fassungen des Fernseher-Vergleichs mit Noten für die Modelle. Die einzelnen Stände sind nicht festgehalten, deshalb hier zusammengefasst."}]}</script>
 <script>
 /* Versionsverlauf (V14): liest #versionen-daten, füllt das Blatt, merkt die zuletzt gesehene Version (localStorage, try/catch). */
 (function(){
