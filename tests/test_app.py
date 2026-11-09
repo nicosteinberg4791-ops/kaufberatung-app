@@ -390,6 +390,17 @@ class Workflow(unittest.TestCase):
         self.assertIn("VAPID_PRIVAT: ${{ secrets.VAPID_PRIVAT }}", t)
         self.assertIn('if [ "$rc" = 4 ]; then echo "ungueltig=1" >> "$GITHUB_OUTPUT"; elif [ "$rc" != 0 ]; then exit "$rc"; fi', t)
         self.assertIn("webpush.mjs --oeffentlich", t)
+        # Codex B3: Treffer und Test mit eigener Art, damit der Test keinen Treffer verdrängt
+        self.assertIn('--art "$3"', t)
+        self.assertIn('"TV-Preiswecker" treffer', t)
+        self.assertIn('"Kaufberatung: Test" test', t)
+
+    def test_anleitung_ohne_zustellungszusage(self):
+        """Codex B1: keine feste Zustellzeit und keine Zuverlässigkeitszusage in der Anleitung."""
+        a = (WURZEL / "docs" / "anleitung-handy.md").read_text(encoding="utf-8")
+        for verboten in ("ein bis zwei Minuten", "Damit es zuverlässig ankommt"):
+            self.assertNotIn(verboten, a)
+        self.assertIn("Eine Zustellung ist nicht garantiert", a)
 
 
 class WebPush(unittest.TestCase):
@@ -410,6 +421,9 @@ class WebPush(unittest.TestCase):
         roh = base64.urlsafe_b64decode(k[0] + "=" * (-len(k[0]) % 4))
         self.assertEqual((len(roh), roh[0]), (65, 4), "unkomprimierter P-256-Punkt")
         self.assertIn("userVisibleOnly: true", js)
+        # Codex B2: lokales Abo ist keine fertige Einrichtung; Secret und Testlauf bleiben im Status genannt
+        self.assertNotIn("Push ist auf diesem Handy eingerichtet", js)
+        self.assertIn("Dieses Handy ist für Push angemeldet. Meldungen kommen erst, wenn der Einrichtungscode als Secret PUSH_ABO", js)
         # Passt der private Schlüssel (nur auf Nicos Rechner, außerhalb des Repos) zum öffentlichen in der App?
         privat = WURZEL.parent / "Kaufberatung-App-privat" / "vapid-privat.json"
         if not privat.exists():

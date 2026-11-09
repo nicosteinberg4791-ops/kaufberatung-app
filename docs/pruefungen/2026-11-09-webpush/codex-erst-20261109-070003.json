@@ -1,0 +1,41 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Drei Befunde: unbelegte Zustellungszusagen, vorzeitige Erfolgsmeldung der Einrichtung und Verdrängung von Preistreffern durch Testnachrichten.",
+  "befunde": [
+    {
+      "id": "B1",
+      "schwere": "schwer",
+      "titel": "Anleitung verspricht unbelegt Zustellungszeit und Zuverlässigkeit",
+      "datei": "docs/anleitung-handy.md",
+      "zeile": 32,
+      "beleg": "„Nach ein bis zwei Minuten kommt …“ verspricht einen festen Zustellungszeitraum. Zeile 34 stellt mit „Damit es zuverlässig ankommt“ Zuverlässigkeit nach Änderung der Android-Einstellungen in Aussicht. Laut Prüfauftrag wurde noch kein echter Push-Dienst getestet; der Workflow durchläuft zudem erst Preisabruf und ntfy, bevor Web Push startet.",
+      "auswirkung": "Das Fertigkriterium „ohne unbelegte Zusagen“ und die harte Projektregel zu belegbaren Benachrichtigungsversprechen sind verletzt. Verzögerungen oder Ausfälle können trotz Befolgen der Anleitung auftreten.",
+      "vorschlag": "Den Test als erwartete, zeitlich nicht garantierte Zustellung beschreiben. Android-Einstellungen als mögliche Hilfe formulieren und verbleibende Zustellungsgrenzen ausdrücklich nennen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "B2",
+      "schwere": "mittel",
+      "titel": "Lokales Abo wird bereits als abgeschlossene Push-Einrichtung angezeigt",
+      "datei": "app/app.js",
+      "zeile": 179,
+      "beleg": "zeichne() entscheidet ausschließlich anhand von pushAbo(false), meldet dann „Push ist auf diesem Handy eingerichtet“ und kündigt Benachrichtigungen an. Eine Ausführung mit nachgestelltem vorhandenem Abo, ohne gespeichertes GitHub-Secret, reproduziert genau diesen Status; nach erneutem Öffnen bleibt der Einrichtungscode verborgen.",
+      "auswirkung": "Wer nach dem Abonnieren die Einrichtung unterbricht, erhält beim nächsten Öffnen eine Erfolgsmeldung, obwohl PUSH_ABO fehlen oder veraltet sein kann und der Workflow deshalb nichts zustellt.",
+      "vorschlag": "Den Status auf das nachweisbare lokale Abo beschränken und weiterhin auf das Speichern beziehungsweise Aktualisieren von PUSH_ABO und den Zustellungstest hinweisen. Diesen unterbrochenen Einrichtungsablauf testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "B3",
+      "schwere": "mittel",
+      "titel": "Testnachricht ersetzt die unmittelbar vorherige Treffermeldung",
+      "datei": "app/sw.js",
+      "zeile": 115,
+      "beleg": "Alle Push-Nachrichten erhalten tag: \"kb-push\". Der Workflow sendet bei Treffer plus aktiviertem Test zuerst „TV-Preiswecker“, danach „Kaufberatung: Test“. Beide Push-Handler-Aufrufe wurden im Speicher ausgeführt und verwenden denselben Tag. Benachrichtigungen derselben Herkunft mit gleichem Tag ersetzen einander gemäß [Notifications Standard](https://notifications.spec.whatwg.org/#showing-a-notification).",
+      "auswirkung": "Die Testnachricht kann den eigentlichen Preistreffer aus der Benachrichtigungsanzeige verdrängen. Der Workflow veröffentlicht anschließend den neuen Preisstand, sodass dieser Treffer beim nächsten Lauf nicht erneut gemeldet wird.",
+      "vorschlag": "Test- und Treffernachrichten mit unterschiedlichen, kontrolliert vergebenen Tags anzeigen. Einen Verhaltenstest für Treffer plus Testnachricht ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Commit 2c84d413bea8ab08534553379817d35e3e2694e9 und unveränderte betroffene Arbeitsdateien geprüft. Ausschließlich lesend gearbeitet. 17 ausgewählte Node-Tests ohne Dateischreibzugriffe sowie --selbsttest bestanden; zusätzliche App-/Service-Worker-Gegenproben nur im Speicher. Abgleich mit RFC 8291/8292 durchgeführt. Gesamtsuite wegen ihrer Schreibzugriffe nicht ausgeführt. Kein echter FCM-Versand, Android-Browsertest oder Actions-Lauf; Bash-/GITHUB_OUTPUT-Verhalten nur statisch geprüft. Keine privaten Schlüsseldateien oder vorhandenen Prüfausgaben gelesen."
+}

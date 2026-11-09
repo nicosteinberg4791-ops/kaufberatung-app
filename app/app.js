@@ -176,7 +176,8 @@
         b.textContent = abo ? "Einrichtungscode zeigen" : "Push einrichten";
         zst.textContent = Notification.permission === "denied"
           ? "Benachrichtigungen sind für diese App gesperrt (Android-Einstellungen → Apps → Chrome bzw. Kaufberatung → Benachrichtigungen)."
-          : abo ? "Push ist auf diesem Handy eingerichtet. Neuer Tiefstpreis oder Wunschpreis aus der täglichen Abfrage kommt als Benachrichtigung."
+          : abo ? "Dieses Handy ist für Push angemeldet. Meldungen kommen erst, wenn der Einrichtungscode als Secret PUSH_ABO auf GitHub " +
+            "gespeichert ist (nach jeder Neuanmeldung erneuern); prüfen mit einem Testlauf (siehe Anleitung)."
           : "Push: Die tägliche Abfrage meldet neue Tiefstpreise direkt als Benachrichtigung der Kaufberatung (einmal einrichten).";
       };
       b.addEventListener("click", async () => {

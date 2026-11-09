@@ -121,17 +121,17 @@ jobs:
           # 4 = Abo ungültig (404/410): Preise trotzdem veröffentlichen, Lauf am Ende rot; jeder andere Fehler bricht ab
           senden() {
             rc=0
-            node werkzeuge/webpush.mjs --senden --datei "$1" --titel "$2" || rc=$?
+            node werkzeuge/webpush.mjs --senden --datei "$1" --titel "$2" --art "$3" || rc=$?
             if [ "$rc" = 4 ]; then echo "ungueltig=1" >> "$GITHUB_OUTPUT"; elif [ "$rc" != 0 ]; then exit "$rc"; fi
           }
           if [ -s "$RUNNER_TEMP/meldung.txt" ]; then
-            senden "$RUNNER_TEMP/meldung.txt" "TV-Preiswecker"
+            senden "$RUNNER_TEMP/meldung.txt" "TV-Preiswecker" treffer
           else
             echo "Kein Treffer, kein Web Push"
           fi
           if [ "$TESTNACHRICHT" = "true" ]; then
             printf 'Test: Push der Kaufberatung-App kommt an (%s).' "$(date '+%d.%m.%Y %H:%M')" > "$RUNNER_TEMP/test-push.txt"
-            senden "$RUNNER_TEMP/test-push.txt" "Kaufberatung: Test"
+            senden "$RUNNER_TEMP/test-push.txt" "Kaufberatung: Test" test
           fi
 
       - name: preise.json auf gh-pages pushen (erst nach erfolgreichem Versand)

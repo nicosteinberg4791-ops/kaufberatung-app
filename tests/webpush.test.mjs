@@ -399,3 +399,66 @@ test("--selbsttest: Exit 0", () => {
   assert.equal(r.code, 0, r.out);
   assert.ok(!/FEHLER/.test(r.out));
 });
+
+// ---- Codex B3: Art der Nachricht; Test verdrängt keinen Treffer -------------------
+function cliAsync(args, env) {
+  return new Promise((res) => {
+    import("node:child_process").then(({ execFile }) =>
+      execFile(process.execPath, [SKRIPT, ...args], { env: { ...process.env, ...env } },
+        (err, so, se) => res({ code: err ? err.code : 0, out: so + se })));
+  });
+}
+
+test("CLI --art: Standard treffer, test wird mitgeschickt, unbekannte Art = Exit 5", async () => {
+  const dir = tempOrdner();
+  const jwk = neuerVapid();
+  const srv = await starteServer([201]);
+  try {
+    const datei = path.join(dir, "text.txt");
+    fs.writeFileSync(datei, "Preis gefallen");
+    const { abo, ua, auth } = neuesAbo(`http://127.0.0.1:${srv.port}/pfad-art`);
+    const env = { PUSH_ABO: JSON.stringify(abo), VAPID_PRIVAT: JSON.stringify(jwk) };
+    assert.equal((await cliAsync(["--senden", "--datei", datei], env)).code, 0);
+    assert.equal((await cliAsync(["--senden", "--datei", datei, "--titel", "T", "--art", "test"], env)).code, 0);
+    const r = await cliAsync(["--senden", "--datei", datei, "--art", "alles"], env);
+    assert.equal(r.code, 5, r.out);
+    assert.equal(srv.aufrufe.length, 2, "unbekannte Art wird nicht gesendet");
+    const arten = srv.aufrufe.map((a) => JSON.parse(entschluesseln(a.body, ua, auth).toString("utf8")).art);
+    assert.deepEqual(arten, ["treffer", "test"]);
+  } finally { await srv.schliessen(); fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("Service Worker: Treffer bleiben einzeln stehen, nur Tests ersetzen einander; Ziel bleibt in der App", async () => {
+  const vm = await import("node:vm");
+  const quelle = fs.readFileSync(path.join(PROJEKT, "app", "sw.js"), "utf8")
+    .replace('"__VERSION__"', '"test"').replace("__DATEIEN__", "[]");
+  const handler = {}, gezeigt = [];
+  const kontext = {
+    self: {
+      addEventListener: (typ, f) => { handler[typ] = f; },
+      registration: { scope: "https://beispiel.invalid/app/", showNotification: async (t, o) => { gezeigt.push([t, o]); } },
+    },
+    caches: {}, fetch: async () => { throw new Error("kein Netz"); }, console, URL, Response: class {},
+  };
+  vm.createContext(kontext);
+  vm.runInContext(quelle, kontext);
+  const pushe = async (daten) => {
+    let warte = null;
+    handler.push({ data: daten === null ? null : { json: () => JSON.parse(daten), text: () => daten }, waitUntil: (p) => { warte = p; } });
+    assert.ok(warte, "showNotification muss in waitUntil laufen");
+    await warte;
+  };
+  await pushe(JSON.stringify({ titel: "TV-Preiswecker", text: "A", ziel: "./#preiswecker", art: "treffer" }));
+  await pushe(JSON.stringify({ titel: "TV-Preiswecker", text: "B", ziel: "./#preiswecker", art: "treffer" }));
+  await pushe(JSON.stringify({ titel: "Kaufberatung: Test", text: "T", ziel: "./#preiswecker", art: "test" }));
+  await pushe(JSON.stringify({ titel: "X", text: "Y", ziel: "https://fremd.invalid/" }));
+  await pushe("kein json");
+  await pushe(null);
+  assert.equal(gezeigt.length, 6, "jede Push-Nachricht zeigt eine Benachrichtigung");
+  assert.equal(gezeigt[0][1].tag, undefined);
+  assert.equal(gezeigt[1][1].tag, undefined, "zweiter Treffer ersetzt den ersten nicht");
+  assert.equal(gezeigt[2][1].tag, "kb-push-test");
+  assert.equal(gezeigt[3][1].data.ziel, "./#preiswecker", "fremdes Ziel wird verworfen");
+  assert.equal(gezeigt[4][1].body, "kein json");
+  assert.equal(gezeigt[5][0], "Kaufberatung");
+});
