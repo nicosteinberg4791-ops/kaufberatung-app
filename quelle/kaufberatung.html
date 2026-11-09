@@ -1185,18 +1185,170 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
   .vchip:active,.vd-x:active{transform:none}
 }
 
+/* ===== Runde 8 (09.11.2026): Fernseher in fünf Bereichen, Logo in der Kopfzeile, Himmel im Hintergrund =====
+   Gleiche Tokens wie bisher. Türkis/Lila aus dem Glas-Icon nur im Himmel, nicht in der Bedienung. */
+:root{
+  --kb-schein-t:rgba(63,224,214,.10);   /* Türkis aus dem Glas-Icon */
+  --kb-schein-l:rgba(157,116,255,.09);  /* Lila aus dem Glas-Icon */
+  --bl-h:58px}
+
+/* Hintergrund: Seite trägt die Farbe, Körper ist durchsichtig, damit der Himmel (dunkel) bzw. der Schein (hell) sichtbar wird */
+html{background:var(--bg)}
+body{background:transparent}
+.himmel{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;display:none}
+/* Hell: kein bewegter Himmel (Tageslicht-Thema), nur ein ruhiger, stehender Schein in den Icon-Farben am Seitenanfang */
+html{background:
+  radial-gradient(70rem 32rem at -10% -8%, var(--kb-schein-t), transparent 70%),
+  radial-gradient(60rem 30rem at 110% -4%, var(--kb-schein-l), transparent 70%),
+  var(--bg);background-repeat:no-repeat}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){background:var(--bg)}
+  :root:not([data-theme="light"]) .himmel{display:block}
+}
+:root[data-theme="dark"]{background:var(--bg)}
+:root[data-theme="dark"] .himmel{display:block}
+
+/* Logo links neben dem Namen, Ecken wie das Startbildschirm-Symbol, kein Rahmen, kein Leuchten */
+.localnav .brand{display:inline-flex;align-items:center;gap:9px}
+.brand img{width:26px;height:26px;border-radius:23%;display:block;flex:none}
+
+/* Bereiche: nur einer sichtbar */
+.bereich{display:block}
+.bereich > section:first-child,.bpane > section:first-child{padding-top:clamp(28px,4.5vw,56px)}
+.bpane > section + section{padding-top:clamp(56px,8vw,96px)}
+
+/* Kopfzeile am Rechner: fünf Bereiche als Links, aktiver als Pille */
+.navlinks[data-view="tv"]{gap:4px}
+.navlinks[data-view="tv"] a{display:flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;font-size:.88rem}
+.navlinks a[aria-current="page"]{color:var(--ink);background:var(--seg-bg);font-weight:600}
+
+/* Umschalter in Vergleich und Preise */
+.bseg{display:flex;width:max-content;max-width:100%;margin-top:clamp(20px,3vw,32px)}
+.bseg button{padding:8px 18px;font-size:.88rem}
+
+/* ---------- Empfehlung (Startbildschirm) ---------- */
+.start{display:grid;grid-template-columns:minmax(0,1fr);gap:0;max-width:none}
+.start .st-kopf{gap:10px;margin-bottom:22px;max-width:40rem}
+.st-frage{font-size:.92rem;font-weight:520;letter-spacing:0;line-height:1.35;color:var(--muted)}
+.start h2{font-size:clamp(1.65rem,4vw,2.75rem)}
+.st-liste,.st-wecker,.st-knopf,.st-hin{max-width:40rem}
+.st-liste{list-style:none;margin:0;padding:0;box-shadow:inset 0 1px 0 var(--line)}
+.st-liste li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 14px;padding:14px 0;box-shadow:inset 0 -1px 0 var(--line)}
+.st-n{display:flex;align-items:center;gap:9px;font-weight:620;letter-spacing:-.01em;min-width:0}
+.st-p{font-weight:650;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.st-k{font-size:.86rem;color:var(--muted);padding-left:19px}
+.st-k b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.st-s{font-size:.86rem;color:var(--muted);text-align:right;white-space:nowrap}
+.st-hin{margin-top:10px}
+.st-wecker{display:flex;align-items:center;gap:12px;margin-top:18px;padding:12px 14px;min-height:56px;border-radius:14px;
+  background:var(--surface);box-shadow:inset 0 1px 0 var(--edge),0 1px 3px var(--shadow);color:var(--ink);text-decoration:none;
+  transition:transform var(--t-press) var(--ease-out)}
+.st-wecker > i{width:8px;height:8px;border-radius:50%;background:var(--neutral);flex:none}
+.st-wecker[data-art="ok"] > i{background:var(--good)}
+.st-wecker[data-art="warn"] > i{background:var(--warn)}
+.st-wecker[data-art="bad"] > i{background:var(--bad)}
+.st-wecker span{flex:1;min-width:0;display:grid;gap:1px;font-size:.92rem;font-weight:560}
+.st-wecker small{font-size:.8rem;color:var(--muted);font-weight:400}
+.st-wecker em,.mehr-liste .chev{font-style:normal;color:var(--muted);font-size:1.25rem;line-height:1;flex:none}
+.st-knopf{display:flex;justify-content:center;align-items:center;min-height:50px;margin-top:14px;padding:12px 20px;border-radius:14px;
+  background:var(--ctl);color:var(--ctl-ink);font-weight:620;font-size:1rem;text-decoration:none;
+  transition:transform var(--t-press) var(--ease-out)}
+.st-knopf:active,.st-wecker:active{transform:scale(.98)}
+.st-det{margin-top:clamp(36px,5vw,56px)}
+.st-det > summary{display:flex;align-items:center;gap:10px;min-height:48px;cursor:pointer;list-style:none;font-weight:600;max-width:40rem;
+  box-shadow:inset 0 1px 0 var(--line),inset 0 -1px 0 var(--line)}
+.st-det > summary::-webkit-details-marker{display:none}
+.st-det > summary::after,.mehr-liste summary::after{content:"";width:8px;height:8px;margin-left:auto;margin-right:4px;flex:none;
+  border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px);
+  transition:transform var(--t-swap) var(--ease-out)}
+.st-det[open] > summary::after,.mehr-liste details[open] > summary::after{transform:rotate(225deg) translate(-2px,-2px)}
+.st-det-in{display:grid;gap:28px;padding-top:24px}
+.st-fuss{margin-top:clamp(36px,5vw,56px);display:grid;gap:12px;max-width:46rem}
+.st-fuss .lead{font-size:.95rem}
+.st-fuss .facts{font-size:.82rem}
+
+/* Rechner: Antwort links, Preiswecker und Knopf rechts daneben, Begründung darunter über die ganze Breite */
+@media (min-width:1000px){
+  .start{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);column-gap:clamp(40px,5vw,72px);align-items:start}
+  .start > .st-kopf{grid-column:1/-1;max-width:48rem}
+  .st-liste{grid-column:1;grid-row:2}
+  .st-hin{grid-column:1;grid-row:3}
+  .st-aktion{grid-column:2;grid-row:2}
+  .st-aktion .st-wecker{margin-top:0}
+  .st-det,.st-fuss{grid-column:1/-1}
+  .st-liste,.st-wecker,.st-knopf,.st-hin{max-width:none}
+}
+
+/* ---------- Mehr: Liste zum Aufklappen ---------- */
+.mehr-liste{margin-top:clamp(20px,3vw,32px);box-shadow:inset 0 1px 0 var(--line)}
+.mehr-liste > details,.mehr-liste > .mehr-v{box-shadow:inset 0 -1px 0 var(--line)}
+.mehr-liste summary,.mehr-v{display:flex;align-items:center;gap:12px;min-height:60px;padding:12px 0;cursor:pointer;list-style:none}
+.mehr-liste summary::-webkit-details-marker{display:none}
+.mehr-liste summary span,.mehr-v span{display:grid;gap:2px;min-width:0}
+.mehr-liste summary b,.mehr-v b{font-weight:600;font-size:1rem}
+.mehr-liste summary small,.mehr-v small{font-size:.84rem;color:var(--muted)}
+.mehr-v{width:100%;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left}
+.mehr-v .chev{margin-left:auto;margin-right:2px}
+.mehr-liste details > section{padding:8px 0 36px}
+.mehr-liste details > section > .sh > h2{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bereich-mehr > footer{margin-top:36px}
+
+/* ---------- Entscheiden: ein Schritt nach dem anderen ---------- */
+.es-steps.is-einzeln > .es-step:not(.is-cur){display:none}
+.es-steps.is-einzeln > .es-step{box-shadow:none;padding-top:0}
+.es-lauf{margin-bottom:14px}
+.es-lauf p{font-size:.84rem;color:var(--muted)}
+.es-next{gap:10px;flex-wrap:wrap}
+.es-zurueck{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--line)}
+.es-wrows:not(.is-alle) > .es-wrow:nth-child(n+4){display:none}
+.es-walle{margin-top:10px}
+
+/* ---------- Untere Leiste (Handy) ---------- */
+.bleiste{display:none}
+@media (max-width:760px){
+  :root:root.kb-tv{--nav-h:var(--nav-r1)}
+  .kb-tv .localnav .navlinks[data-view="tv"]{display:none}
+  .kb-tv .navin{grid-template-rows:var(--nav-r1)}
+  .kb-tv body{padding-bottom:calc(var(--bl-h) + 40px + env(safe-area-inset-bottom, 0px))}
+  .kb-tv .bleiste{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:25;
+    padding:4px max(4px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(4px, env(safe-area-inset-left, 0px));
+    background:var(--nav-bg);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+    box-shadow:inset 0 1px 0 var(--line)}
+  .bleiste a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:var(--bl-h);
+    color:var(--muted);text-decoration:none;font-size:.69rem;font-weight:560;letter-spacing:.01em;-webkit-tap-highlight-color:transparent}
+  .bleiste svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+    transition:transform var(--t-press) var(--ease-out)}
+  .bleiste a[aria-current="page"]{color:var(--ink)}
+  .bleiste a[aria-current="page"] svg{stroke-width:2}
+  .bleiste a:active svg{transform:scale(.88)}
+  .bleiste a:focus-visible{outline:2px solid var(--ink);outline-offset:-4px;border-radius:12px}
+  .kb-tv .vfoot{display:none}
+  .bseg{width:100%}
+  .bseg button{flex:1 1 auto;padding:8px 8px;font-size:.8rem;min-width:0}
+  .st-wecker,.st-knopf{max-width:none}
+}
+@media (min-width:761px){ .kb-tv .vfoot{display:none} }
+@media (prefers-reduced-transparency:reduce){ .bleiste{background:var(--bg)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important} }
+@media (prefers-contrast:more){ .bleiste{background:var(--bg)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:inset 0 1px 0 var(--ink)!important} }
+@media (prefers-reduced-motion:reduce){
+  .st-knopf,.st-wecker,.bleiste svg{transition:none}
+  .st-knopf:active,.st-wecker:active,.bleiste a:active svg{transform:none}
+  .st-det > summary::after,.mehr-liste summary::after{transition:none}
+}
+
 </style>
 
+<canvas class="himmel" id="himmel" aria-hidden="true"></canvas>
 <nav class="localnav" aria-label="Kaufberatung">
   <div class="navin">
-    <a class="brand" href="#tv">Kaufberatung</a>
+    <a class="brand" href="#tv"><img src="data:image/png;base64,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" alt="" width="26" height="26">Kaufberatung</a>
     <div class="segx tabs" id="tabs" role="tablist" aria-label="Gerät">
       <i class="thumb" aria-hidden="true"></i>
       <button type="button" role="tab" id="tab-tv" data-k="tv" aria-controls="view-tv" aria-selected="true">Fernseher</button>
       <button type="button" role="tab" id="tab-sauger" data-k="sauger" aria-controls="view-sauger" aria-selected="false" tabindex="-1">Staubsauger</button>
     </div>
     <div class="navlinks" data-view="tv">
-      <a href="#fazit">Fazit</a><a href="#entscheiden">Entscheiden</a><a href="#gewichtung">Prioritäten</a><a href="#kriterien">Kriterien</a><a href="#spiegelungen">Spiegelungen</a><a href="#referenz">Sony</a><a href="#technik">Technik</a><a href="#aufpreis">Preise</a><a href="#verlauf">Verlauf</a><a href="#preiswecker">Wecker</a><a href="#mehrwert">Mehrwert</a><a href="#kosten">Kosten</a><a href="#quellen">Quellen</a>
+      <a href="#tv-empfehlung" data-bl="empfehlung">Empfehlung</a><a href="#tv-entscheiden" data-bl="entscheiden">Entscheiden</a><a href="#tv-vergleich" data-bl="vergleich">Vergleich</a><a href="#tv-preise" data-bl="preise">Preise</a><a href="#tv-mehr" data-bl="mehr">Mehr</a>
     </div>
     <div class="navlinks" data-view="sauger" hidden><a href="#sg-empfehlung">Empfehlung</a><a href="#sg-weg">Entscheiden</a><a href="#sg-rangliste">Rangliste</a><a href="#sg-wert">Preis-Leistung</a><a href="#sg-technik">Technik</a><a href="#sg-nicht">Nicht empfohlen</a><a href="#sg-quellen">Quellen</a></div>
   </div>
@@ -1204,21 +1356,14 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
 
 <main class="view" id="view-tv" role="tabpanel" aria-labelledby="tab-tv" tabindex="-1">
 <div class="wrap">
-  <header class="hero" id="top">
-    <h1>Welcher Fernseher ersetzt den Sony?</h1>
-    <div class="herofoot">
-      <p class="lead">Drei Kandidaten um 83 Zoll gegen euren Sony KD-65XH9005. Die Regler zeigen, wie sich die Rangfolge mit euren Prioritäten verschiebt.</p>
-      <dl class="facts">
-        <div><dt>Recherchestand</dt><dd>07.11.2026</dd></div>
-        <div><dt>Benchmark</dt><dd>Noten Version 2.1, von Codex geprüft; Preisteil Version 3</dd></div>
-        <div><dt>Preise</dt><dd>inkl. Lieferung, heise-Preisvergleich, ca. 18:15–18:25 Uhr</dd></div>
-      </dl>
-    </div>
-  </header>
-
-  <!-- Fazit: feste Berichtswerte, die Regler ändern hier nichts -->
-  <section id="fazit" aria-labelledby="h-fazit">
-    <header class="sh"><h2 id="h-fazit">Zwei OLEDs gleichauf, der TCL ist 580 bis 600 € günstiger</h2></header>
+<div class="bereich" id="tv-empfehlung" data-b="empfehlung" aria-label="Empfehlung">
+  <section id="fazit" class="start" aria-labelledby="h-fazit">
+    <header class="sh st-kopf" id="top"><h1 class="st-frage">Welcher Fernseher ersetzt den Sony?</h1><h2 id="h-fazit">Zwei OLEDs gleichauf, der TCL ist 580 bis 600 € günstiger</h2></header>
+    <ol class="st-liste" aria-label="Kandidaten nach Punkten"><li><span class="st-n"><i class="sw" style="--c:var(--lg)"></i>LG OLED83C6</span><span class="st-p n">2.779 €</span><span class="st-k"><b>83,4</b> Punkte</span><span class="st-s">83″ OLED, RGB-Tandem</span></li><li><span class="st-n"><i class="sw" style="--c:var(--sam)"></i>Samsung GQ83S90H</span><span class="st-p n">2.799 €</span><span class="st-k"><b>82,4</b> Punkte</span><span class="st-s">83″ OLED, matt</span></li><li><span class="st-n"><i class="sw" style="--c:var(--tcl)"></i>TCL 85C8L</span><span class="st-p n">2.199 €</span><span class="st-k"><b>76,0</b> Punkte</span><span class="st-s">85″ Mini-LED</span></li></ol>
+    <p class="small st-hin">Punkte und Preise aus dem Fazit vom 07.11.2026; aktuelle Preise unter Preise, Wecker.</p>
+    <div class="st-aktion"><a class="st-wecker" id="st-wecker" href="#preiswecker"><i aria-hidden="true"></i><span><b id="st-w1">Preiswecker</b><small id="st-w2"></small></span><em aria-hidden="true">›</em></a>
+    <a class="st-knopf" href="#tv-entscheiden">Jetzt entscheiden</a></div>
+    <details class="st-det" id="fazit-details"><summary>Begründung und Details</summary><div class="st-det-in">
     <div class="compare">
       <article class="model" style="--c:var(--sam)">
         <div class="size" aria-hidden="true"><i class="panelv" style="--w:97.65%"><b>83″</b></i><i class="ghost"><b>65″</b></i></div>
@@ -1257,16 +1402,24 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       <p>LG und Samsung trennt ein Punkt, die Spannen überlappen fast vollständig. Entscheidend sind zwei Fragen: Wie sehr stören euch Spiegelbilder der Fenster tagsüber, und würdet ihr Dolby Vision (UHD-Blu-ray, Netflix) vermissen? Euer Sony kommt im Bericht auf <span class="n">49,8</span>.</p>
       <p class="small">Günstiger beim LG: Die Expert-Variante OLED83C69LB ist laut zambullo.de bildgleich (anderer Vertrieb, Fernbedienung ohne Zifferntasten) und kostet am Abend weiterhin ab 2.678,90 € inkl. Versand (rund 100 € unter dem C6ELB mit 2.779 €) bei expert.de (Händlerbewertung 1,8 von 5) bzw. 2.788,90 € bei Gamingoase.de (4,7 von 5). testbericht.de nannte am Morgen 2.539 € für den OLED83C67LA bei MediaMarkt/Saturn, nicht bestätigt. Cashback nicht eingerechnet. Preise vor Black Friday erneut prüfen, siehe <a href="#verlauf">Preisverlauf</a>.</p>
     </div>
+    </div></details>
+    <div class="st-fuss"><p class="lead">Drei Kandidaten um 83 Zoll gegen euren Sony KD-65XH9005. Die Regler zeigen, wie sich die Rangfolge mit euren Prioritäten verschiebt.</p>
+      <dl class="facts">
+        <div><dt>Recherchestand</dt><dd>07.11.2026</dd></div>
+        <div><dt>Benchmark</dt><dd>Noten Version 2.1, von Codex geprüft; Preisteil Version 3</dd></div>
+        <div><dt>Preise</dt><dd>inkl. Lieferung, heise-Preisvergleich, ca. 18:15–18:25 Uhr</dd></div>
+      </dl></div>
   </section>
-
-  <!-- Runde 6: Entscheiden (geführtes Werkzeug, Aufbau durch entscheid.js, Daten aus #entscheid-daten) -->
+</div>
+<div class="bereich" id="tv-entscheiden" data-b="entscheiden" aria-label="Entscheiden" hidden>
   <section id="entscheiden" aria-labelledby="h-ent">
     <header class="sh">
       <h2 id="h-ent">Auf dem Papier gleichauf: eure Antworten entscheiden</h2>
       <p class="lead">LG und Samsung trennt ein Punkt, der TCL liegt sechs bis sieben Punkte dahinter. Sechs kurze Schritte zeigen, was das für euren Abend heißt. Jede Eingabe rechnet sofort neu.</p>
     </header>
+    <div class="es-lauf" id="es-lauf"><p id="es-lauf-t"></p></div>
     <div class="es-layout" id="es-layout">
-      <ol class="es-steps" id="es-steps">
+      <ol class="es-steps is-einzeln" id="es-steps">
         <li class="es-step" id="es-s1" data-i="0" aria-labelledby="es-t1">
           <div class="es-sh"><span class="es-no" aria-hidden="true">1</span><h3 id="es-t1" tabindex="-1">Ein Abend damit</h3><span class="es-done" hidden>erledigt</span></div>
           <p class="small es-intro">Vier Abende im Wohnzimmer. Stellt ein, wie oft sie bei euch vorkommen. Die Gewichte der betroffenen Kriterien folgen.</p>
@@ -1277,30 +1430,31 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
           <div class="es-sh"><span class="es-no" aria-hidden="true">2</span><h3 id="es-t2" tabindex="-1">Die Waage: LG oder Samsung</h3><span class="es-done" hidden>erledigt</span></div>
           <p class="small es-intro">Acht Kriterien trennen LG und Samsung um mindestens 3 Punkte. Sagt, wie wichtig euch jedes ist. Die Waage zeigt, wohin es kippt.</p>
           <div class="es-body" id="es-b2"></div>
-          <div class="es-next"><button type="button" class="es-btn sec es-weiter" data-i="1">Weiter</button></div>
+          <div class="es-next"><button type="button" class="es-btn es-zurueck" data-i="1">Zurück</button><button type="button" class="es-btn sec es-weiter" data-i="1">Weiter</button></div>
         </li>
         <li class="es-step" id="es-s3" data-i="2" aria-labelledby="es-t3">
           <div class="es-sh"><span class="es-no" aria-hidden="true">3</span><h3 id="es-t3" tabindex="-1">Was der Aufpreis zum TCL bedeutet</h3><span class="es-done" hidden>erledigt</span></div>
           <p class="small es-intro">Was kostet der Sprung vom TCL zu einem OLED, nach Strom, pro Jahr und pro Abend? Die Preise könnt ihr verschieben, ohne dass sich der Preiswecker ändert.</p>
           <div class="es-body" id="es-b3"></div>
-          <div class="es-next"><button type="button" class="es-btn sec es-weiter" data-i="2">Weiter</button></div>
+          <div class="es-next"><button type="button" class="es-btn es-zurueck" data-i="2">Zurück</button><button type="button" class="es-btn sec es-weiter" data-i="2">Weiter</button></div>
         </li>
         <li class="es-step" id="es-s4" data-i="3" aria-labelledby="es-t4">
           <div class="es-sh"><span class="es-no" aria-hidden="true">4</span><h3 id="es-t4" tabindex="-1">Reue-Test</h3><span class="es-done" hidden>erledigt</span></div>
           <p class="small es-intro">Drei Sätze, noch ohne Modellnamen. Erst nach eurer Wahl seht ihr, wer dahintersteht.</p>
           <div class="es-body" id="es-b4"></div>
-          <div class="es-next"><button type="button" class="es-btn sec es-weiter" data-i="3">Weiter</button></div>
+          <div class="es-next"><button type="button" class="es-btn es-zurueck" data-i="3">Zurück</button><button type="button" class="es-btn sec es-weiter" data-i="3">Weiter</button></div>
         </li>
         <li class="es-step" id="es-s5" data-i="4" aria-labelledby="es-t5">
           <div class="es-sh"><span class="es-no" aria-hidden="true">5</span><h3 id="es-t5" tabindex="-1">Münzwurf</h3><span class="es-done" hidden>erledigt</span></div>
           <p class="small es-intro">Eine Münze zwischen LG und Samsung. Achtet nicht auf die Seite, sondern darauf, wie sich das Ergebnis anfühlt.</p>
           <div class="es-body" id="es-b5"></div>
-          <div class="es-next"><button type="button" class="es-btn sec es-weiter" data-i="4">Weiter</button></div>
+          <div class="es-next"><button type="button" class="es-btn es-zurueck" data-i="4">Zurück</button><button type="button" class="es-btn sec es-weiter" data-i="4">Weiter</button></div>
         </li>
         <li class="es-step" id="es-s6" data-i="5" aria-labelledby="es-t6">
           <div class="es-sh"><span class="es-no" aria-hidden="true">6</span><h3 id="es-t6" tabindex="-1">Eure Ergebniskarte</h3><span class="es-done" hidden>erledigt</span></div>
           <p class="small es-intro">Alles aus den Schritten 1 bis 5 in einer Karte. Sie rechnet mit, wenn ihr weiter oben etwas ändert.</p>
           <div class="es-body" id="es-b6"></div>
+          <div class="es-next"><button type="button" class="es-btn es-zurueck" data-i="5">Zurück</button></div>
         </li>
       </ol>
       <aside class="es-stand panel" id="es-stand" aria-label="Ergebnisstand"></aside>
@@ -1318,8 +1472,10 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       </div>
     </details>
   </section>
-
-  <!-- Gewichtung -->
+</div>
+<div class="bereich" id="tv-vergleich" data-b="vergleich" aria-label="Vergleich" hidden>
+<div class="segx bseg" role="tablist" aria-label="Vergleich"><i class="thumb" aria-hidden="true"></i><button type="button" role="tab" id="bt-kriterien" aria-controls="tv-p-kriterien" aria-selected="true">Kriterien</button><button type="button" role="tab" id="bt-spiegelungen" aria-controls="tv-p-spiegelungen" aria-selected="false" tabindex="-1">Spiegelungen</button><button type="button" role="tab" id="bt-sony" aria-controls="tv-p-sony" aria-selected="false" tabindex="-1">Sony</button><button type="button" role="tab" id="bt-technik" aria-controls="tv-p-technik" aria-selected="false" tabindex="-1">Technik</button></div>
+<div class="bpane" id="tv-p-kriterien" role="tabpanel" aria-labelledby="bt-kriterien">
   <section id="gewichtung" aria-labelledby="h-gew">
     <header class="sh">
       <h2 id="h-gew">Eure Prioritäten verschieben</h2>
@@ -1345,8 +1501,6 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       </div>
     </div>
   </section>
-
-  <!-- Kriterien -->
   <section id="kriterien" aria-labelledby="h-krit">
     <header class="sh">
       <h2 id="h-krit">Woher die Punkte kommen</h2>
@@ -1359,8 +1513,8 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
     <div id="crits"></div>
     <p class="note">Punkte sind Nutzwert für euch, keine Laborprozente. [E] = begründete Einschätzung; ohne Klammerwert ist keine Spanne angegeben. Für keinen Kandidaten gibt es einen vollständigen Messtest genau in 83/85 Zoll und EU-Variante; RTINGS testet US-Modelle (TCL QM8L 65″, LG C6H 77″, Samsung S90H 65″/77″). TCL nach dem EU-Test von Expert Reviews angehoben: Schwarz 78→82, Farben 65→80, Bewegung 55→60, Blickwinkel 50→55, Gaming 72→75.</p>
   </section>
-
-  <!-- Spiegelungen -->
+</div>
+<div class="bpane" id="tv-p-spiegelungen" role="tabpanel" aria-labelledby="bt-spiegelungen" hidden>
   <section id="spiegelungen" aria-labelledby="h-sp">
     <header class="sh">
       <h2 id="h-sp">Fenster gegenüber: matt gegen glänzend</h2>
@@ -1390,8 +1544,8 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       <dt>Filme ohnehin verdunkelt</dt><dd>Tagsüber eher nebenbei: LG. Ein Foto vom Sitzplatz bei Tageslicht würde das schärfen.</dd>
     </dl>
   </section>
-
-  <!-- Sony Referenz -->
+</div>
+<div class="bpane" id="tv-p-sony" role="tabpanel" aria-labelledby="bt-sony" hidden>
   <section id="referenz" aria-labelledby="h-ref">
     <header class="sh">
       <h2 id="h-ref">Was sich gegenüber dem Sony ändert</h2>
@@ -1419,8 +1573,8 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
         </ul></div>
     </div>
   </section>
-
-  <!-- Runde 4: Technik im Vergleich (Herstellerdaten, Quelle je Zahl, Lücken gestrichelt) -->
+</div>
+<div class="bpane" id="tv-p-technik" role="tabpanel" aria-labelledby="bt-technik" hidden>
   <section id="technik" aria-labelledby="h-tk">
     <header class="sh">
       <h2 id="h-tk">Wie die drei in euer Wohnzimmer passen</h2>
@@ -1536,52 +1690,11 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       </div>
     </div>
   </section>
-
-  <!-- Runde 6: Kleingedrucktes (Tabelle aus entscheid.json, Lücken gestrichelt) -->
-  <section id="kleingedruckt" aria-labelledby="h-kg">
-    <header class="sh">
-      <h2 id="h-kg">Das Kleingedruckte: was belegt ist und was nicht</h2>
-      <p class="lead">Formate, Anschlüsse, Ton, Updates und Garantie der drei Kandidaten. Jede Angabe hat ihre Quelle. Was wir nicht belegen konnten, steht gestrichelt als Lücke da.</p>
-    </header>
-    <div class="tablewrap kg-wrap">
-      <table class="kg-tab" id="kg-tab"></table>
-    </div>
-    <p class="small kg-note">RTINGS-Messzahlen (cd/m², Spiegelung in %, Input Lag in ms) sind ohne Mitgliedschaft nicht frei lesbar; deshalb fehlen sie hier.</p>
-  </section>
-
-  <!-- Aufpreis -->
-  <section id="aufpreis" aria-labelledby="h-auf">
-    <header class="sh">
-      <h2 id="h-auf">Was jeder Schritt kostet</h2>
-      <p class="lead">Gesamtpreise in Euro inklusive Lieferung, Stand 07.11.2026 ca. 18:15–18:25 Uhr, Achse von 1.900 bis 3.000 €.</p>
-    </header>
-    <div class="panel"><div class="pricebar" id="pricebar"></div></div>
-    <div class="steps">
-      <div class="step">
-        <div class="ft"><span>von TCL 85C7K / 85C7L</span><b>auf TCL 85C8L</b></div>
-        <div class="plus">+200 €<small>85C7K: 1.999 €, alza.de</small></div>
-        <div><p>3.200 statt 1.568 (C7K) bzw. 1.624 (C7L) Zonen, 4 statt 2 HDMI 2.1. Eure vier Geräte passen auch mit 2× HDMI 2.1, dann ohne 4K/120-Reserve. 85C7L ~1.999 € bei MediaMarkt/Saturn, nicht selbst geprüft.</p><p class="ok">Wenn TCL, dann eher C8L. C7K/C7L in 85″ ohne belastbaren Test, nicht bewertet.</p></div>
-      </div>
-      <div class="step">
-        <div class="ft"><span>von TCL 85C8L</span><b>auf Samsung GQ83S90H</b></div>
-        <div class="plus">+600 €<small>+27 %</small></div>
-        <div><p>Schwarz ohne Blooming auch seitlich, bessere Bewegung, beste Entspiegelung. Dafür 2″ kleiner, weniger HDR-Spitze, kein Dolby Vision.</p><p class="ok">Lohnt, wenn Spiegelungen und Seitenplätze zählen. 6,4 Punkte Abstand, Spannen überlappen.</p></div>
-      </div>
-      <div class="step">
-        <div class="ft"><span>von TCL 85C8L</span><b>auf LG OLED83C6</b></div>
-        <div class="plus">+580 €<small>+26 %</small></div>
-        <div><p>Perfektes Schwarz, beste Farben und Verarbeitung, Bewegung, Blickwinkel. Spiegelungen nicht besser.</p><p class="ok">Lohnt bei euren Prioritäten 1–2, aber nur 7,4 Punkte Abstand.</p></div>
-      </div>
-      <div class="step">
-        <div class="ft"><span>von Samsung S90H</span><b>auf LG C6</b></div>
-        <div class="plus">−20 €<small>LG günstiger</small></div>
-        <div><p>Bessere Farben, HDR, Verarbeitung und Dolby Vision gegen deutlich mehr Spiegelungen.</p><p class="ok">Geschmackssache. Preislich praktisch gleich: LG 2.779 €, Samsung 2.799 €, beide versandfrei.</p></div>
-      </div>
-    </div>
-    <p class="small">Über ca. 3.000 € (z. B. LG G-Serie, TCL X11L) bringt euch für eure Prioritäten nichts, das den Aufpreis klar rechtfertigt [E]. Der TCL passt, wenn euch ~590 € weniger wichtiger sind als Bewegungsschärfe, Blickwinkel und Filmtreue. Über sechs Jahre holen die OLEDs davon rund 70 bis 200 € über den Stromverbrauch wieder herein, siehe <a href="#kosten">Kosten</a>.</p>
-  </section>
-
-  <!-- V3: Preisverlauf -->
+</div>
+</div>
+<div class="bereich" id="tv-preise" data-b="preise" aria-label="Preise" hidden>
+<div class="segx bseg" role="tablist" aria-label="Preise"><i class="thumb" aria-hidden="true"></i><button type="button" role="tab" id="bt-verlauf" aria-controls="tv-p-verlauf" aria-selected="true">Verlauf</button><button type="button" role="tab" id="bt-wecker" aria-controls="tv-p-wecker" aria-selected="false" tabindex="-1">Wecker</button><button type="button" role="tab" id="bt-mehrwert" aria-controls="tv-p-mehrwert" aria-selected="false" tabindex="-1">Mehrwert</button><button type="button" role="tab" id="bt-kosten" aria-controls="tv-p-kosten" aria-selected="false" tabindex="-1">Kosten</button></div>
+<div class="bpane" id="tv-p-verlauf" role="tabpanel" aria-labelledby="bt-verlauf">
   <section id="verlauf" aria-labelledby="h-verl">
     <header class="sh">
       <h2 id="h-verl">Acht Wochen Preise: Samsung fällt, LG und TCL pendeln</h2>
@@ -1596,8 +1709,8 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
     </div>
     <p class="small" style="max-width:46rem">Kaufzeitpunkt: grün höchstens 3 % über dem Tief der acht Wochen, gelb darüber, aber höchstens auf dem Median, rot über dem Median. Trend: Steigung einer Ausgleichsgeraden über die 56 Tageswerte. Beides beschreibt die Vergangenheit und ist keine Vorhersage für Black Friday. Quelle: heise-Preisvergleich, Reiter „Preisentwicklung“ (Daten der Schnittstelle price_history), abgerufen 07.11.2026, 18:15–18:25 Uhr.</p>
   </section>
-
-  <!-- Runde 6: Preiswecker (heise täglich; db-Daten nur über textContent, Wunschpreis nur für den Eigentümer) -->
+</div>
+<div class="bpane" id="tv-p-wecker" role="tabpanel" aria-labelledby="bt-wecker" hidden>
   <section id="preiswecker" aria-labelledby="h-pw">
     <header class="sh">
       <h2 id="h-pw">Preiswecker: jeden Morgen bei heise nachgesehen</h2>
@@ -1607,8 +1720,8 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
     <div class="panel pw-liste" id="pw-liste"></div>
     <p class="small pw-note" id="pw-note">Gesamtpreis = Artikelpreis plus Versand beim günstigsten Händler. Die Sterne sind heise-Händlerbewertungen (Anzahl der Bewertungen in Klammern); niedrige Sterne heißen: vor dem Kauf den Händler prüfen.</p>
   </section>
-
-  <!-- V3: Mehrwert je 1.000 € -->
+</div>
+<div class="bpane" id="tv-p-mehrwert" role="tabpanel" aria-labelledby="bt-mehrwert" hidden>
   <section id="mehrwert" aria-labelledby="h-mw">
     <header class="sh">
       <h2 id="h-mw">Mehrwert je 1.000&nbsp;€: praktisch ein Patt</h2>
@@ -1640,8 +1753,38 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       <dt>Grenzen</dt><dd>Zwei Fernseher mit gleichem Faktor können sehr verschieden sein, deshalb bleibt die Note vorn. Größe (85″ statt 83″) zählt in keiner der beiden Zahlen. Strom, Händler und Garantie stecken nicht im Faktor, siehe <a href="#kosten">Kosten</a>.</dd>
     </dl>
   </section>
-
-  <!-- V3: Kosten über sechs Jahre, Händler, Garantie -->
+</div>
+<div class="bpane" id="tv-p-kosten" role="tabpanel" aria-labelledby="bt-kosten" hidden>
+  <section id="aufpreis" aria-labelledby="h-auf">
+    <header class="sh">
+      <h2 id="h-auf">Was jeder Schritt kostet</h2>
+      <p class="lead">Gesamtpreise in Euro inklusive Lieferung, Stand 07.11.2026 ca. 18:15–18:25 Uhr, Achse von 1.900 bis 3.000 €.</p>
+    </header>
+    <div class="panel"><div class="pricebar" id="pricebar"></div></div>
+    <div class="steps">
+      <div class="step">
+        <div class="ft"><span>von TCL 85C7K / 85C7L</span><b>auf TCL 85C8L</b></div>
+        <div class="plus">+200 €<small>85C7K: 1.999 €, alza.de</small></div>
+        <div><p>3.200 statt 1.568 (C7K) bzw. 1.624 (C7L) Zonen, 4 statt 2 HDMI 2.1. Eure vier Geräte passen auch mit 2× HDMI 2.1, dann ohne 4K/120-Reserve. 85C7L ~1.999 € bei MediaMarkt/Saturn, nicht selbst geprüft.</p><p class="ok">Wenn TCL, dann eher C8L. C7K/C7L in 85″ ohne belastbaren Test, nicht bewertet.</p></div>
+      </div>
+      <div class="step">
+        <div class="ft"><span>von TCL 85C8L</span><b>auf Samsung GQ83S90H</b></div>
+        <div class="plus">+600 €<small>+27 %</small></div>
+        <div><p>Schwarz ohne Blooming auch seitlich, bessere Bewegung, beste Entspiegelung. Dafür 2″ kleiner, weniger HDR-Spitze, kein Dolby Vision.</p><p class="ok">Lohnt, wenn Spiegelungen und Seitenplätze zählen. 6,4 Punkte Abstand, Spannen überlappen.</p></div>
+      </div>
+      <div class="step">
+        <div class="ft"><span>von TCL 85C8L</span><b>auf LG OLED83C6</b></div>
+        <div class="plus">+580 €<small>+26 %</small></div>
+        <div><p>Perfektes Schwarz, beste Farben und Verarbeitung, Bewegung, Blickwinkel. Spiegelungen nicht besser.</p><p class="ok">Lohnt bei euren Prioritäten 1–2, aber nur 7,4 Punkte Abstand.</p></div>
+      </div>
+      <div class="step">
+        <div class="ft"><span>von Samsung S90H</span><b>auf LG C6</b></div>
+        <div class="plus">−20 €<small>LG günstiger</small></div>
+        <div><p>Bessere Farben, HDR, Verarbeitung und Dolby Vision gegen deutlich mehr Spiegelungen.</p><p class="ok">Geschmackssache. Preislich praktisch gleich: LG 2.779 €, Samsung 2.799 €, beide versandfrei.</p></div>
+      </div>
+    </div>
+    <p class="small">Über ca. 3.000 € (z. B. LG G-Serie, TCL X11L) bringt euch für eure Prioritäten nichts, das den Aufpreis klar rechtfertigt [E]. Der TCL passt, wenn euch ~590 € weniger wichtiger sind als Bewegungsschärfe, Blickwinkel und Filmtreue. Über sechs Jahre holen die OLEDs davon rund 70 bis 200 € über den Stromverbrauch wieder herein, siehe <a href="#kosten">Kosten</a>.</p>
+  </section>
   <section id="kosten" aria-labelledby="h-kost">
     <header class="sh">
       <h2 id="h-kost">Was sie über sechs Jahre kosten</h2>
@@ -1684,8 +1827,11 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       <dt>Einbrennen (OLED)</dt><dd>Für die 2026er Fernseher in Deutschland liegt kein Herstellerbeleg vor, ob Einbrennen von der Garantie gedeckt ist. Offen.</dd>
     </dl>
   </section>
-
-  <!-- Runde 6: Zwei neue 85-Zöller geprüft (Karten aus entscheid.json, Skala 40 bis 100 wie die Rangliste) -->
+</div>
+</div>
+<div class="bereich bereich-mehr" id="tv-mehr" data-b="mehr" aria-label="Mehr" hidden>
+<div class="mehr-liste">
+<details id="mehr-neugeprueft"><summary><span><b>Neu geprüft</b><small>Zwei neue 85-Zöller geprüft: keiner überholt</small></span></summary>
   <section id="neugeprueft" aria-labelledby="h-ng">
     <header class="sh">
       <h2 id="h-ng">Zwei neue 85-Zöller geprüft: keiner überholt</h2>
@@ -1697,8 +1843,8 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       <table class="ng-weitere" id="ng-weitere" aria-labelledby="ng-weitere-h"></table>
     </div>
   </section>
-
-  <!-- Ausgeschieden -->
+</details>
+<details id="mehr-ausgeschieden"><summary><span><b>Aussortiert</b><small>Geprüft und aussortiert</small></span></summary>
   <section id="ausgeschieden" aria-labelledby="h-aus">
     <header class="sh"><h2 id="h-aus">Geprüft und aussortiert</h2></header>
     <div class="tablewrap">
@@ -1716,8 +1862,8 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       </table>
     </div>
   </section>
-
-  <!-- Unsicherheiten -->
+</details>
+<details id="mehr-unsicher"><summary><span><b>Was noch nicht belegt ist</b></span></summary>
   <section id="unsicher" aria-labelledby="h-uns">
     <header class="sh"><h2 id="h-uns">Was noch nicht belegt ist</h2></header>
     <ol class="unc">
@@ -1731,8 +1877,20 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       <li>Sony XH9005: Endstand VRR (EU-Firmware) und 65″-Zonenzahl nicht belegt.</li>
     </ol>
   </section>
-
-  <!-- Quellen -->
+</details>
+<details id="mehr-kleingedruckt"><summary><span><b>Kleingedrucktes</b><small>Das Kleingedruckte: was belegt ist und was nicht</small></span></summary>
+  <section id="kleingedruckt" aria-labelledby="h-kg">
+    <header class="sh">
+      <h2 id="h-kg">Das Kleingedruckte: was belegt ist und was nicht</h2>
+      <p class="lead">Formate, Anschlüsse, Ton, Updates und Garantie der drei Kandidaten. Jede Angabe hat ihre Quelle. Was wir nicht belegen konnten, steht gestrichelt als Lücke da.</p>
+    </header>
+    <div class="tablewrap kg-wrap">
+      <table class="kg-tab" id="kg-tab"></table>
+    </div>
+    <p class="small kg-note">RTINGS-Messzahlen (cd/m², Spiegelung in %, Input Lag in ms) sind ohne Mitgliedschaft nicht frei lesbar; deshalb fehlen sie hier.</p>
+  </section>
+</details>
+<details id="mehr-quellen"><summary><span><b>Quellen</b></span></summary>
   <section id="quellen" aria-labelledby="h-q">
     <header class="sh"><h2 id="h-q">Quellen</h2><p class="small">Recherchestand 07.11.2026.</p></header>
     <ul class="src">
@@ -1750,8 +1908,11 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       <li><b>Preise, nicht selbst geprüft</b><span><a href="https://preisvergleich.heise.de/tcl-85c7l-a3792803.html" target="_blank" rel="noopener">TCL 85C7L</a>, <a href="https://www.billiger.de/products/5262364474-samsung-gq85qn90f-85-neo-qled-4k-vision-ai-smart-tv-qn90f" target="_blank" rel="noopener">Samsung GQ85QN90F</a>, <a href="https://www.testbericht.de/produkte/lg-oled83c67la-83-zoll" target="_blank" rel="noopener">LG OLED83C67LA</a></span></li>
     </ul>
   </section>
-
+</details>
+<button type="button" class="mehr-v" id="mehr-version" aria-haspopup="dialog" aria-controls="vdialog"><span><b>Versionsverlauf</b><small>Version 17 vom 09.11.2026</small></span><em class="chev" aria-hidden="true">›</em></button>
+</div>
   <footer>Noten aus dem TV-Benchmark Version 2.1 vom 07.11.2026, unabhängig geprüft durch Codex. Preisverlauf, Mehrwert-Faktor und Kosten aus Version 3 vom selben Tag. Technikvergleiche aus Runde 4 vom 08.11.2026, Herstellerdaten mit Quelle je Zahl. Entscheidungswerkzeug, neue Modelle und Preiswecker aus Runde 6 vom 08.11.2026.</footer>
+</div>
 </div>
 </main>
 
@@ -1919,7 +2080,8 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
 </div>
 </main>
 
-<div class="wrap vfoot"><button type="button" class="vchip" id="vchip" aria-haspopup="dialog" aria-controls="vdialog"><span class="vn">Version 14</span><span>09.11.2026</span><span class="vnew">Neu</span><span class="vq">Was ist neu?</span></button></div>
+<nav class="bleiste" id="bleiste" aria-label="Bereiche Fernseher"><a href="#tv-empfehlung" data-bl="empfehlung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Empfehlung</span></a><a href="#tv-entscheiden" data-bl="entscheiden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5 8h14M7 8l-3 6h6zM17 8l-3 6h6z"/></svg><span>Entscheiden</span></a><a href="#tv-vergleich" data-bl="vergleich"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M12 5v12"/></svg><span>Vergleich</span></a><a href="#tv-preise" data-bl="preise"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l5-5 4 3 7-7"/></svg><span>Preise</span></a><a href="#tv-mehr" data-bl="mehr"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg><span>Mehr</span></a></nav>
+<div class="wrap vfoot"><button type="button" class="vchip" id="vchip" aria-haspopup="dialog" aria-controls="vdialog"><span class="vn">Version 17</span><span>09.11.2026</span><span class="vnew">Neu</span><span class="vq">Was ist neu?</span></button></div>
 <dialog class="vd" id="vdialog" aria-labelledby="vd-t"><div class="vd-head"><h2 id="vd-t">Versionsverlauf</h2><button type="button" class="vd-x" aria-label="Schließen">×</button></div><div class="vd-body"><p class="vd-neu" hidden></p><ol class="vd-list"></ol><p class="vd-app" hidden></p></div></dialog>
 
 <script>
@@ -2637,6 +2799,110 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
   window.kbSauger = { pick: k => pick(k, false), calc: (nr, akkus, turbo) => calc(M[nr].rechner, akkus, turbo), redraw: () => { thumb(satzSeg); thumb(tabs); thumb($("sg-ak")); } };
 })();
 </script>
+<script>
+(() => {
+  "use strict";
+  // Runde 8: Fernseher in fünf Bereichen (Empfehlung, Entscheiden, Vergleich, Preise, Mehr).
+  // Der Router in technik.js ruft kbBereiche.oeffne(ziel) auf; hier nur Sichtbarkeit, Umschalter und Startbildschirm.
+  const $ = id => document.getElementById(id);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  const EASE = "cubic-bezier(0.23,1,0.32,1)";
+  const view = $("view-tv");
+  if (!view) return;
+  const BS = [...view.querySelectorAll(".bereich")];
+  const LINKS = [...document.querySelectorAll("a[data-bl]")];
+  let akt = BS.find(b => !b.hidden) || BS[0];
+  const pos = {};
+
+  function daumen(seg) {
+    const t = seg.querySelector(".thumb"), b = seg.querySelector('[aria-selected="true"]');
+    if (!t || !b || !seg.offsetWidth) return;
+    t.style.width = b.offsetWidth + "px";
+    t.style.transform = `translateX(${b.offsetLeft}px)`;
+    if (!seg.classList.contains("ready")) requestAnimationFrame(() => seg.classList.add("ready"));
+  }
+  function blende(el) { if (!reduce.matches) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: EASE }); }
+  // Nach dem Sichtbarwerden: Daumen messen, Grafiken neu zeichnen (sie messen ihre Breite erst, wenn sie sichtbar sind)
+  function nachZeigen(el) {
+    el.querySelectorAll(".segx").forEach(daumen);
+    if (window.__tvTechnik && window.__tvTechnik.redraw) window.__tvTechnik.redraw();
+    dispatchEvent(new Event("resize"));
+  }
+  function markiere() {
+    LINKS.forEach(a => { if (a.dataset.bl === akt.dataset.b) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  }
+  function zeigeBereich(B) {
+    if (B === akt && !B.hidden) return false;
+    if (akt && !akt.hidden) pos[akt.id] = scrollY;
+    BS.forEach(x => { x.hidden = x !== B; });
+    akt = B; markiere(); blende(B); nachZeigen(B);
+    return true;
+  }
+  function zeigePane(P) {
+    if (!P.hidden) return false;
+    const B = P.closest(".bereich"), seg = B.querySelector(".bseg");
+    B.querySelectorAll(".bpane").forEach(x => { x.hidden = x !== P; });
+    seg.querySelectorAll('[role="tab"]').forEach(b => { const an = b.getAttribute("aria-controls") === P.id; b.setAttribute("aria-selected", String(an)); b.tabIndex = an ? 0 : -1; });
+    daumen(seg); blende(P); nachZeigen(P);
+    return true;
+  }
+  // Ziel sichtbar machen: Bereich, Umschalter, aufgeklappte Liste, Schritt im Werkzeug.
+  // Rückgabe: wechsel (etwas wurde eingeblendet), ziel (Scrollziel, null = an den Anfang), y (gemerkte Position beim Zurückkehren)
+  function oeffne(ziel) {
+    if (!ziel) { nachZeigen(akt); return { wechsel: false, ziel: null, y: null }; }
+    const B = ziel.closest(".bereich");
+    if (!B) return { wechsel: false, ziel, y: null };
+    const war = B === akt && !B.hidden;
+    let w = zeigeBereich(B);
+    const P = ziel.closest(".bpane");
+    if (P && zeigePane(P)) w = true;
+    for (let d = ziel.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) if (!d.open) { d.open = true; w = true; }
+    const st = ziel.closest(".es-step");
+    if (st && window.__kbStufe && !st.classList.contains("is-cur")) { window.__kbStufe(+st.dataset.i); w = true; }
+    const oben = ziel === B || ziel === P;
+    return { wechsel: w, ziel: oben ? null : ziel, y: ziel === B && !war && pos[B.id] != null ? pos[B.id] : null };
+  }
+
+  // Umschalter (Vergleich, Preise): Reiterliste mit Pfeiltasten, Adresse ohne Sprung nachführen
+  view.querySelectorAll(".bseg").forEach(seg => {
+    const bs = [...seg.querySelectorAll('[role="tab"]')];
+    const waehle = b => { const P = $(b.getAttribute("aria-controls")); if (zeigePane(P)) history.replaceState(null, "", "#" + P.id); };
+    seg.addEventListener("click", e => { const b = e.target.closest('[role="tab"]'); if (b) waehle(b); });
+    seg.addEventListener("keydown", e => {
+      const i = bs.indexOf(document.activeElement); if (i < 0) return;
+      const j = { ArrowRight: (i + 1) % bs.length, ArrowLeft: (i - 1 + bs.length) % bs.length, Home: 0, End: bs.length - 1 }[e.key];
+      if (j === undefined) return;
+      e.preventDefault(); bs[j].focus(); waehle(bs[j]);
+    });
+  });
+  // Erneutes Tippen auf den aktiven Bereich: an den Anfang (wie bei Apps üblich)
+  LINKS.forEach(a => a.addEventListener("click", e => {
+    if (location.hash === a.hash) { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduce.matches ? "auto" : "smooth" }); }
+  }));
+  // Versionsverlauf aus der Liste „Mehr“ öffnet dasselbe Blatt wie der Knopf unten
+  const mv = $("mehr-version");
+  if (mv) mv.addEventListener("click", () => { const k = $("vchip"); if (k) k.click(); });
+  // Am Rechner ist die Begründung im Startbildschirm offen, auf dem Handy zu
+  const det = $("fazit-details");
+  if (det && matchMedia("(min-width: 1000px)").matches) det.open = true;
+
+  // Preiswecker-Zeile im Startbildschirm: spiegelt die erste Statuszeile aus Preise › Wecker (nur Text, keine eigene Logik)
+  const quelle = $("pw-status"), w1 = $("st-w1"), w2 = $("st-w2"), zeile = $("st-wecker");
+  function spiegel() {
+    if (!quelle || !w2) return;
+    const s1 = quelle.querySelector(".pw-s1"), p = quelle.querySelector(".pw-pille");
+    const art = p ? (p.classList.contains("pw-ok") ? "ok" : p.classList.contains("pw-warn") ? "warn" : p.classList.contains("pw-bad") ? "bad" : "") : "";
+    zeile.dataset.art = art;
+    w2.textContent = s1 ? s1.textContent.trim() : "Status noch nicht geladen.";
+  }
+  if (quelle && "MutationObserver" in window) new MutationObserver(spiegel).observe(quelle, { childList: true, subtree: true, characterData: true });
+  spiegel();
+  if (w1) w1.textContent = "Preiswecker";
+  markiere();
+
+  window.kbBereiche = { oeffne, aktiv: () => akt.dataset.b };
+})();
+</script>
 <script type="application/json" id="technik-daten">{"_hinweis":"Technikdaten TV-Reiter (T1–T6). Jede Zahl als {\"v\": Wert, \"q\": Quellenschlüssel}; Lücken als {\"luecke\": Text}. Belege: kaufberatung/recherche/tv-technik.md, tv-oberflaechen.md, TV-Benchmark.md. Abruf 07.11.2026. Prüfung: kaufberatung/build/pruefe_technik.py","quellen":{"lg-spec":{"titel":"LG.de, OLED83C6ELB, alle Spezifikationen","url":"https://www.lg.com/de/tvs-und-soundbars/oled-evo/oled83c6elb/","art":"Hersteller"},"sam-spec":{"titel":"Samsung.de, GQ83S90HAEXZG, Spezifikationen","url":"https://www.samsung.com/de/tvs/oled-tv/s90h-83-inch-4k-smart-tv-gq83s90haexzg/","art":"Hersteller"},"tcl-spec":{"titel":"TCL Österreich, 85C8L, Spezifikationen","url":"https://www.tcl.com/at/de/tvs/85c8l","art":"Hersteller"},"sony-spec":{"titel":"Sony.de, KD-65XH9005, Spezifikationen","url":"https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs-android-/kd-65xh9005/specifications","art":"Hersteller"},"alternate-sam":{"titel":"Alternate, Samsung GQ-83S90H (Händlerangabe HDMI 2.1)","url":"https://www.alternate.de/Samsung/GQ-83S90H-Vision-AI-Smart-OLED-Fernseher/html/product/100211470","art":"Händler"},"tftcentral":{"titel":"TFTCentral, Primary RGB Tandem 2.0 in 77″/83″ C6","url":"https://tftcentral.co.uk/news/lg-bring-primary-rgb-tandem-2-0-woled-panels-to-some-of-their-g6-and-c6-tv-range","art":"Fachpresse"},"notebookcheck-s90h":{"titel":"Notebookcheck, Samsung S90H wohl mit WOLED (nur Suchtreffer)","url":"https://www.notebookcheck.com/Erste-Tests-Samsung-S90H-wohl-mit-WOLED-statt-QD-OLED-Panel.1265812.0.html","art":"Fachpresse"},"rtings-qm8l":{"titel":"RTINGS, TCL QM8L (US-Modell)","url":"https://www.rtings.com/tv/reviews/tcl/qm8l","art":"Test"},"er-xh90":{"titel":"Expert Reviews, Sony XH90 (am 75″ getestet)","url":"https://www.expertreviews.co.uk/technology/tvs-home-cinema/sony-xh90xh92-review","art":"Test"},"bericht":{"titel":"TV-Benchmark Version 2.1/3 (Bericht dieser Kaufberatung)","url":"#quellen","art":"Bericht"},"wiki-viewing":{"titel":"Wikipedia, Optimum HDTV viewing distance","url":"https://en.wikipedia.org/wiki/Optimum_HDTV_viewing_distance","art":"Sekundärquelle"},"itu-2020":{"titel":"ITU-R BT.2020 (UHDTV 3840 × 2160)","url":"https://www.itu.int/rec/R-REC-BT.2020","art":"Norm"},"eprel-tcl":{"titel":"EPREL TCL 85C8LX1 (2538281)","url":"https://eprel.ec.europa.eu/screen/product/electronicdisplays/2538281","art":"EU-Datenbank"},"eprel-lg":{"titel":"EPREL LG OLED83C6ELB (2616424)","url":"https://eprel.ec.europa.eu/screen/product/electronicdisplays/2616424","art":"EU-Datenbank"},"eprel-sam":{"titel":"EPREL Samsung GQ83S90HAE (2571344)","url":"https://eprel.ec.europa.eu/screen/product/electronicdisplays/2571344","art":"EU-Datenbank"},"bdew":{"titel":"BDEW-Strompreisanalyse Oktober 2026","url":"https://www.bdew.de/media/documents/BDEW_Strompreisanalyse_102026_1.pdf","art":"Verband"},"zambullo":{"titel":"zambullo.de, Unterschiede der LG-C6-Varianten","url":"https://www.zambullo.de/fernseher/unterschiede-lg-tv-oled-c6-aus-2026-c67-vs-c68-vs-c69-vs-c6e-vs-c6h-vs-c6s-was-unterscheidet-die-tv-modelle.html","art":"Fachseite"},"lg-webos":{"titel":"LG.de, webOS Smart TV","url":"https://www.lg.com/de/webos-smart-tv/webos","art":"Hersteller"},"sam-highlights":{"titel":"Samsung.de, Smart TV Highlights","url":"https://www.samsung.com/de/tvs/smart-tv/highlights/","art":"Hersteller"},"google-tv-hilfe":{"titel":"Google-TV-Hilfe, Startbildschirm","url":"https://support.google.com/googletv/answer/10267283?hl=en","art":"Hersteller"},"sony-haep2":{"titel":"Sony-Hilfe haep2 (Zuordnung zum XH9005 nur indirekt)","url":"https://helpguide.sony.net/tv/haep2/v1/de/print.html","art":"Hersteller"}},"sitz":{"spanne_m":[{"v":2.5,"q":"bericht"},{"v":3.2,"q":"bericht"}],"smpte_grad":{"v":30,"q":"wiki-viewing","hinweis":"oft zitierte SMPTE-Empfehlung; laut Wikipedia gibt es dazu keine direkte SMPTE-Veröffentlichung"},"thx_grad":{"v":40,"q":"wiki-viewing"},"bogenminute":{"v":1,"q":"wiki-viewing","hinweis":"Grenze der Detailerkennung bei normaler Sehschärfe"},"pixel_breite":{"v":3840,"q":"itu-2020"},"pixel_hoehe":{"v":2160,"q":"itu-2020"}},"modelle":[{"id":"sony","name":"Sony KD-65XH9005","kurz":"Sony XH9005","c":"var(--sony)","zoll":{"v":65,"q":"sony-spec"},"breite_mm":{"v":1450,"q":"sony-spec","ca":true},"hoehe_mm":{"v":833,"q":"sony-spec","ca":true},"tiefe_mm":{"v":70,"q":"sony-spec","ca":true},"hoehe_fuss_mm":{"v":903,"q":"sony-spec","ca":true},"tiefe_fuss_mm":{"v":338,"q":"sony-spec","ca":true},"kg":{"v":22.2,"q":"sony-spec","ca":true},"kg_fuss":{"v":23.2,"q":"sony-spec","ca":true},"vesa":[{"v":300,"q":"sony-spec"},{"v":300,"q":"sony-spec"}],"fuss_art":"zwei Füße außen","fuss_breite_mm":{"v":1128,"q":"sony-spec","ca":true,"hinweis":"Standfußbreite, Abstand der Außenkanten"},"fuss_tiefe_mm":{"luecke":"Fußtiefe einzeln nicht angegeben"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":false},{"nr":2,"k21":false},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"er-xh90","status21":"unsicher","hinweis21":"HDMI 3 und 4 = 2.1, am 75″ getestet","earc":{"v":3,"q":"er-xh90","status":"unsicher","hinweis":"eARC nur an HDMI 3, am 75″ getestet; Sony-Datenblatt nennt nur ARC"}},"panel":{"typ":"VA-LCD, Full-Array","zonen":{"v":32,"q":"er-xh90","ca":true,"hinweis":"am 75″ getestet, für 65″ nicht belegt"}},"strom":{"luecke":"Kein EPREL-Wert in den Quellen dieser Kaufberatung"},"os":{"name":"Android TV","q":"sony-spec","version":{"luecke":"Version nennt Sony nicht"}}},{"id":"tcl","name":"TCL 85C8L","kurz":"TCL 85C8L","c":"var(--tcl)","zoll":{"v":85,"q":"tcl-spec"},"breite_mm":{"v":1880,"q":"tcl-spec"},"hoehe_mm":{"v":1073,"q":"tcl-spec","hinweis":"Herstellerseite beschriftet B × H × T, nennt aber B × T × H; umsortiert"},"tiefe_mm":{"v":53,"q":"tcl-spec"},"hoehe_fuss_mm":{"v":1112,"q":"tcl-spec"},"tiefe_fuss_mm":{"v":379,"q":"tcl-spec"},"kg":{"v":38.9,"q":"tcl-spec"},"kg_fuss":{"v":41.6,"q":"tcl-spec"},"vesa":[{"v":600,"q":"tcl-spec"},{"v":500,"q":"tcl-spec"}],"fuss_art":"Mittelfuß","fuss_breite_mm":{"v":410,"q":"tcl-spec"},"fuss_tiefe_mm":{"v":379,"q":"tcl-spec"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":true},{"nr":2,"k21":true},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"tcl-spec","status21":"belegt","hinweis21":"4 × HDMI 2.1","earc":{"v":1,"q":"rtings-qm8l","status":"unsicher","hinweis":"TCL nennt eARC ohne Buchse; HDMI 1 laut RTINGS am US-Modell QM8L"}},"panel":{"typ":"SQD-Mini-LED, LCD","zonen":{"v":3200,"q":"tcl-spec","hinweis":"Herstellerwert; Händler nennen abweichende Zahlen"}},"strom":{"sdr_w":{"v":123,"q":"eprel-tcl"},"hdr_w":{"v":500,"q":"eprel-tcl"}},"os":{"name":"Google TV","q":"tcl-spec","version":{"luecke":"Version nicht angegeben"}}},{"id":"lg","name":"LG OLED83C6ELB","kurz":"LG 83C6","c":"var(--lg)","zoll":{"v":83,"q":"lg-spec"},"breite_mm":{"v":1842,"q":"lg-spec"},"hoehe_mm":{"v":1055,"q":"lg-spec"},"tiefe_mm":{"v":52.9,"q":"lg-spec"},"hoehe_fuss_mm":{"v":1096,"q":"lg-spec","hinweis":"Fuß zweistufig: 1.096 oder 1.144 mm"},"hoehe_fuss2_mm":{"v":1144,"q":"lg-spec"},"tiefe_fuss_mm":{"v":297,"q":"lg-spec"},"kg":{"v":28.3,"q":"lg-spec"},"kg_fuss":{"v":33,"q":"lg-spec"},"vesa":[{"v":400,"q":"lg-spec"},{"v":400,"q":"lg-spec"}],"fuss_art":"Mittelfuß","fuss_breite_mm":{"v":460,"q":"lg-spec"},"fuss_tiefe_mm":{"v":297,"q":"lg-spec"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":true},{"nr":2,"k21":true},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"lg-spec","status21":"belegt","hinweis21":"4 × 4K 120 Hz wie in HDMI 2.1 spezifiziert","earc":{"v":2,"q":"lg-spec","status":"belegt","hinweis":"eARC an HDMI 2"}},"panel":{"typ":"OLED, Primary RGB Tandem","q":"tftcentral","hinweis":"laut TFTCentral für 77″/83″ C6H; Gleichheit mit dem EU-Modell nicht belegt; Zahl der Lagen nicht belegt"},"strom":{"sdr_w":{"v":98,"q":"eprel-lg"},"hdr_w":{"v":292,"q":"eprel-lg"}},"os":{"name":"webOS 26","q":"lg-spec","hinweis":"Datenblatt webOS 26, Bildtext derselben Seite webOS 25"}},{"id":"sam","name":"Samsung GQ83S90HAE","kurz":"Samsung S90H","c":"var(--sam)","zoll":{"v":83,"q":"sam-spec"},"breite_mm":{"v":1851,"q":"sam-spec"},"hoehe_mm":{"v":1062.8,"q":"sam-spec"},"tiefe_mm":{"v":44.9,"q":"sam-spec"},"hoehe_fuss_mm":{"v":1133.7,"q":"sam-spec"},"tiefe_fuss_mm":{"v":359,"q":"sam-spec"},"kg":{"v":37.6,"q":"sam-spec"},"kg_fuss":{"v":39.4,"q":"sam-spec"},"vesa":[{"v":400,"q":"sam-spec"},{"v":300,"q":"sam-spec"}],"fuss_art":"Mittelfuß","fuss_breite_mm":{"v":366,"q":"sam-spec"},"fuss_tiefe_mm":{"v":359,"q":"sam-spec"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":true},{"nr":2,"k21":true},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"alternate-sam","status21":"unsicher","hinweis21":"Samsung nennt nur „HDMI: 4“; 4 × HDMI 2.1 laut Händler","earc":{"v":3,"q":"bericht","status":"unsicher","hinweis":"Samsung nennt eARC ohne Buchse; HDMI 3 laut Tom's Guide, nicht bestätigt"}},"panel":{"typ":"OLED, Paneltyp offen","q":"notebookcheck-s90h","hinweis":"Samsung nennt nur „OLED“; Tests deuten auf WOLED, Tandem nicht belegt"},"strom":{"sdr_w":{"v":128,"q":"eprel-sam"},"hdr_w":{"v":372,"q":"eprel-sam"}},"os":{"name":"Tizen (One UI Tizen)","q":"sam-spec","version":{"luecke":"Versionsnummer nicht genannt"}}}],"strom":{"stunden":{"v":4,"q":"bericht"},"hdr_anteil":{"v":0.2,"q":"bericht"},"ct_kwh":{"v":37.3,"q":"bdew"},"jahre":6,"erwartet_jahr_eur":{"tcl":108,"lg":74,"sam":96},"erwartet_6j_eur":{"tcl":648,"lg":447,"sam":578}}}</script>
 <script>
 (() => {
@@ -2706,6 +2972,7 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       document.querySelector(`.navlinks[data-view="${x}"]`).hidden = x !== k;
     });
     selectTab(tabs, k); cur = k;
+    document.documentElement.classList.toggle("kb-tv", k === "tv"); // Runde 8: Fernseher mit unterer Leiste
     kopfSync();
     const v = $("view-" + k);
     if (anim && !reduce.matches) v.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: EASE });
@@ -2726,6 +2993,13 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       if (v) { view = v.id.slice(5); target = el; }
     }
     const changed = showView(view, anim);
+    // Runde 8: Fernseher in Bereichen – Bereich, Umschalter, Liste oder Schritt des Ziels einblenden
+    let bw = false;
+    if (view === "tv" && window.kbBereiche) {
+      const b = window.kbBereiche.oeffne(target);
+      bw = b.wechsel; target = b.ziel;
+      if (b.y != null) { window.scrollTo({ top: b.y, behavior: "instant" }); return; }
+    }
     // Ziel liegt in einem Technikthema (oder ist es selbst): dieses Thema vor dem Scrollen zeigen
     const tp = target && target.closest(".tk-pane");
     const sp = target && target.closest(".sg-pane"); // Runde 5: Staubsauger-Themen
@@ -2733,7 +3007,7 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
     const pane = !!tp || !!sp;
     if (tp) { pickTheme(tp.id.slice(8), false); if (tp === target) target = $("technik"); }
     // Sprung innerhalb der sichtbaren Ansicht erledigt der Browser selbst (weich)
-    if (target && !first && !changed && !pane) return;
+    if (target && !first && !changed && !pane && !bw) return;
     const go = () => {
       if (target) target.scrollIntoView({ block: "start", behavior: "instant" });
       else if (!first || VIEWS.includes(h)) window.scrollTo({ top: 0, behavior: "instant" });
@@ -3085,6 +3359,7 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
   }
   ["touchstart", "wheel", "pointerdown"].forEach(e => addEventListener(e, gleitStop, { passive: true, capture: true }));
   function spy() {
+    if (cur === "tv") return; // Runde 8: Bereiche markiert bereiche.js
     const box = aktBox(); if (!box || !spyLinks.length) return;
     const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 80;
     // Sprungziele landen bei scroll-padding plus scroll-margin des Abschnitts; so weit darf die Oberkante höchstens abweichen
@@ -3104,7 +3379,7 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
   }
   function kompakt() {
     const y = scrollY, d = y - lastY;
-    if (!mobilNav.matches) { navEl.classList.remove("kompakt"); lastY = y; return; }
+    if (!mobilNav.matches || cur === "tv") { navEl.classList.remove("kompakt"); lastY = y; return; } // Fernseher: einzeilige Kopfzeile bleibt stehen
     if (y < 120) { navEl.classList.remove("kompakt"); lastY = y; return; } // oben immer volle Kopfzeile
     if (Math.abs(d) < 6) return;
     lastY = y;
@@ -3127,7 +3402,7 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
 
   drawSitz(); drawWand(); drawHdmi(); drawStrom();
   route(true);
-  window.__tvTechnik = { assign: id => assign(byId[id]), angle: (id, d) => angle(byId[id], d), merge: id => merge(byId[id]), route }; // für die Skriptprüfung
+  window.__tvTechnik = { assign: id => assign(byId[id]), angle: (id, d) => angle(byId[id], d), merge: id => merge(byId[id]), route, redraw }; // für die Skriptprüfung
 })();
 </script>
 <script type="application/json" id="entscheid-daten">{"stand":"2026-11-08","hinweis":"Kriterien, Gewichte und Punkte von Sony/TCL/LG/Samsung = quelle/tv.html (TV-Benchmark §3, Version 2.1, von Codex geprüft). qn90f/hisense = Lead-Bewertung 08.11.2026 nach derselben Methode aus Textbelegen (RTINGS-Messzahlen nicht frei lesbar).","kriterien":[{"id":"schwarz","b":"kino","n":"Schwarz, dunkle Details, Blooming","w":12,"g":10,"p":{"sony":[45,40,50],"tcl":[82,78,85],"lg":[98,96,99],"sam":[96,94,98],"qn90f":[82,76,86],"hisense":[75,68,80]}},{"id":"hdr","b":"kino","n":"HDR (Highlights und helle Szenen)","w":10,"g":9,"p":{"sony":[40,35,45],"tcl":[92,88,95],"lg":[82,78,88],"sam":[70,65,75],"qn90f":[88,82,93],"hisense":[90,85,94]}},{"id":"farbe","b":"kino","n":"Farbtreue / Farbvolumen","w":7,"g":6,"p":{"sony":[55,50,60],"tcl":[80,65,85],"lg":[92,88,95],"sam":[78,72,82],"qn90f":[78,70,84],"hisense":[78,68,85]}},{"id":"bewegung","b":"kino","n":"Bewegung Film / Sport","w":6,"g":5,"p":{"sony":[55,50,60],"tcl":[60,55,65],"lg":[82,78,85],"sam":[82,78,85],"qn90f":[65,55,72],"hisense":[60,55,66]}},{"id":"upscaling","b":"alltag","n":"Upscaling HD und schwache Streams","w":10,"g":9,"p":{"sony":[75,65,80],"tcl":[80,75,85],"lg":[92,88,95],"sam":[82,78,85],"qn90f":[82,76,86],"hisense":[82,75,88]}},{"id":"bedienung","b":"alltag","n":"Bedientempo / Software","w":10,"g":9,"p":{"sony":[25,20,30],"tcl":[70,60,75],"lg":[82,75,85],"sam":[75,70,82],"qn90f":[74,68,80],"hisense":[68,55,75]}},{"id":"blickwinkel","b":"alltag","n":"Blickwinkel (eine Person ~30°)","w":5,"g":4,"p":{"sony":[35,30,40],"tcl":[55,50,60],"lg":[85,80,88],"sam":[88,85,90],"qn90f":[65,58,72],"hisense":[45,40,52]}},{"id":"spiegel","b":"spiegel","n":"Direkte Fenster-/Lampenspiegelungen","w":12,"g":18,"p":{"sony":[50,40,55],"tcl":[50,45,60],"lg":[50,45,55],"sam":[88,82,92],"qn90f":[88,82,92],"hisense":[72,50,85]}},{"id":"raumlicht","b":"spiegel","n":"Bildkontrast bei Raumlicht","w":8,"g":12,"p":{"sony":[50,45,55],"tcl":[85,80,88],"lg":[85,80,88],"sam":[75,70,80],"qn90f":[88,82,92],"hisense":[84,72,90]}},{"id":"gaming","b":"gaming","n":"Lag, Reaktion, VRR, 4K/120, Bild im Spielemodus","w":10,"g":9,"p":{"sony":[50,40,55],"tcl":[75,65,80],"lg":[92,88,95],"sam":[90,86,93],"qn90f":[82,75,88],"hisense":[78,70,84]}},{"id":"anschluesse","b":"gaming","n":"Anschlüsse (eARC + PS5 + Switch 2 + UHD-Player)","w":5,"g":4,"p":{"sony":[50],"tcl":[95],"lg":[95],"sam":[95],"qn90f":[95],"hisense":[35]}},{"id":"formate","b":"sonst","n":"Formate (Dolby Vision, HDR10+, DTS)","w":3,"g":3,"p":{"sony":[65],"tcl":[100],"lg":[75],"sam":[55],"qn90f":[55],"hisense":[90,80,100]}},{"id":"einbrennen","b":"sonst","n":"Einbrennrobustheit","w":2,"g":2,"p":{"sony":[100],"tcl":[100],"lg":[70,60,80],"sam":[70,60,80],"qn90f":[100],"hisense":[100]}}],"bloecke":{"kino":"Kinobild","alltag":"Alltag","spiegel":"Spiegelungen","gaming":"Gaming","sonst":"Sonstiges"},"noten_bericht":{"sony":49.8,"tcl":76.0,"lg":83.4,"sam":82.4},"stufen":[{"id":0,"n":"nie","m":0},{"id":1,"n":"selten","m":0.5},{"id":2,"n":"manchmal","m":1,"bericht":true},{"id":3,"n":"oft","m":1.5},{"id":4,"n":"fast immer","m":2}],"regler":[{"id":"hell","n":"Helles Tageslicht beim Schauen","szene":"sonne","wirkt":["spiegel","raumlicht"]},{"id":"spiel","n":"PS5 spielen","szene":"ps5","wirkt":["gaming","anschluesse"]},{"id":"film","n":"Filmabend, verdunkelt","szene":"film","wirkt":["schwarz","hdr","farbe"]},{"id":"sport","n":"Fußball und schnelle Bilder","szene":"fussball","wirkt":["bewegung"]}],"waage_faktoren":[{"id":0,"n":"egal","f":0},{"id":1,"n":"normal","f":1},{"id":2,"n":"wichtig","f":2}],"gleichauf_punkte":3,"mehrwert_patt":1.2,"mehrwert_hinweis":"TV-Benchmark §6b: Notenabstand ~3 Punkte entspricht bei 2.200–2.800 € etwa 1,1–1,4 Mehrwertpunkten; hier 1,2 als Grenze für ein Signal.","modelle":{"lg":{"name":"LG OLED83C6","kurz":"LG","farbe":"--lg"},"sam":{"name":"Samsung GQ83S90H","kurz":"Samsung","farbe":"--sam"},"tcl":{"name":"TCL 85C8L","kurz":"TCL","farbe":"--tcl"},"sony":{"name":"Sony KD-65XH9005","kurz":"Sony","farbe":"--sony"}},"preise_heute":{"zeit":"08.11.2026, 10:19 Uhr","hinweis":"heise-Preisvergleich, Gesamtpreis = Artikel + belegter Versand (Händlerangabe auf heise, ausgewertet mit build/preiswecker.py); Händlerbewertung = heise-Sterne (Anzahl). Angebote mit unklarem Speditionsversand zählen nicht als Gesamtpreis.","liste":{"lg_c6elb":{"modell":"lg","name":"LG OLED83C6ELB","heise_id":3774767,"url":"https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled83c6elb-a3774767.html","gesamt":2779.0,"artikel":2779.0,"versand":0,"haendler":"computeruniverse.net / Cyberport.de","sterne":"2,5 (5.074) / 2,4 (6.136)","lieferung":"5–7 Werktage","weitere":"Alternate 2.779 € + 69,99 € = 2.848,99 € (4,7 Sterne)"},"lg_c69lb":{"modell":"lg","name":"LG OLED83C69LB (bildgleiche Expert-Variante)","heise_id":3773534,"url":"https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled83c69lb-a3773534.html","gesamt":2499.0,"artikel":2499.0,"versand":0,"haendler":"expert.de","sterne":"1,8 (143)","lieferung":"4–7 Werktage","weitere":"Gamingoase.de 2.709 € + 79,90 € = 2.788,90 € (4,7 Sterne)"},"sam_s90h":{"modell":"sam","name":"Samsung GQ83S90H","heise_id":3805643,"url":"https://preisvergleich.heise.de/samsung-gq8390h-a3805643.html","gesamt":2799.0,"artikel":2799.0,"versand":0,"haendler":"Amazon.de","sterne":"2,7 (3.086)","lieferung":"lagernd","weitere":"Mediamarkt.de/Saturn.de 2.799 € Artikelpreis, Speditionsversand unklar; Alternate 3.012,99 € inkl. Versand"},"tcl_c8l":{"modell":"tcl","name":"TCL 85C8L","heise_id":3810591,"url":"https://preisvergleich.heise.de/tcl-85c8l-a3810591.html","gesamt":2369.0,"artikel":2369.0,"versand":0,"haendler":"alza.de (Sitz CZ)","sterne":"4,1 (134)","lieferung":"lagernd, 1–3 Werktage","weitere":"Mediamarkt.de/Saturn.de 2.289 € Artikelpreis; Versand laut heise nur „Gratisversand ab 69 € Warenwert, ausgenommen Speditionsware“, für den Fernseher also nicht belegt"},"sam_qn90f":{"modell":"qn90f","name":"Samsung QE85QN90F (2025)","heise_id":3479298,"url":"https://preisvergleich.heise.de/samsung-qe85qn90f-a3479298.html","gesamt":2999.0,"artikel":2999.0,"versand":0,"haendler":"EDV-Service-Stadlauer (DE)","sterne":"keine Bewertung","lieferung":"3–6 Werktage","weitere":"techonly (AT) 2.899 € + Versand ab 9,90 € (Betrag unklar), 4,7 Sterne; Modellbezeichnung bei EDV-Service widersprüchlich"}}},"preise_bericht":{"zeit":"07.11.2026, ca. 18:15–18:25 Uhr (Bericht Version 3)","tcl":2199,"lg":2779,"sam":2799,"v21_tcl":2369},"strom6":{"tcl":648,"lg":447,"sam":578,"q":"bericht","hinweis":"TV-Benchmark §6c (EPREL-Normwerte, 4 h/Tag, 20 % HDR, 37,3 ct/kWh)"},"reue":{"lg":{"satz":"Tagsüber steht das Fenster als klares Spiegelbild im Schirm, vor allem in dunklen Szenen.","q":["rtings-c6h","expert-c6"]},"sam":{"satz":"Kein Dolby Vision, weniger HDR-Spitze als der LG, und bei Raumlicht wirkt Schwarz leicht angehoben.","q":["rtings-s90h","bericht"]},"tcl":{"satz":"Wer seitlich sitzt (~30°), sieht Lichthöfe um helle Objekte, und schnelle Bewegung wirkt laut US-Test unschärfer.","q":["expert-c8l","rtings-qm8l"]}},"szenen":{"sonne":{"titel":"Sonnennachmittag","text":"Fenster gegenüber, Sonne im Raum. Matt (Samsung) streut das Fenster zum Schleier, glänzend (LG, TCL) zeigt es als Bild; der helle TCL überstrahlt es in hellen Szenen etwas.","kriterium":"spiegel"},"ps5":{"titel":"PS5-Abend","text":"Alle drei haben 4× HDMI 2.1 mit 4K/120. Input Lag in Millisekunden ist nur für den TCL in 85″ belegt (netzwelt, ca. 17 ms, Bedingung nicht genannt).","kriterium":"gaming"},"film":{"titel":"Filmnacht","text":"Mond am schwarzen Himmel. OLED: kein Lichthof. TCL: frontal kaum, ab ~30° seitlich deutlicher (Expert Reviews, 65″).","kriterium":"schwarz"},"fussball":{"titel":"Fußball","text":"Der Ball zieht eine Schliere, je schwächer die Bewegungswertung: LG und Samsung 82, TCL 60 (US-Test: langsame Pixelreaktion).","kriterium":"bewegung"}},"ps5":{"lg":{"hdmi21":4,"hz":165,"vrr":"VRR, FreeSync Premium, G-Sync compatible","lag":null,"q":"lg-spec"},"sam":{"hdmi21":4,"hz":165,"vrr":"VRR, FreeSync Premium Pro, G-Sync compatible","lag":null,"q":"sam-de"},"tcl":{"hdmi21":4,"hz":144,"vrr":null,"lag":"ca. 17 ms (85″, Bedingung nicht genannt)","q":"netzwelt"}},"neu":{"qn90f":{"name":"Samsung QE85QN90F (2025, 85″ Mini-LED, matt)","note":81.1,"spanne":[75.1,85.6],"gegenprobe":81.9,"preis":2999.0,"preis_text":"2.999 € versandfrei bei EDV-Service-Stadlauer (DE, ohne Bewertung, Modellbezeichnung widersprüchlich); techonly (AT) 2.899 € + Versand ab 9,90 €, Betrag unklar","mehrwert":10.4,"urteil":"geprüft, nicht empfohlen","grund":"Qualität im Rahmen der OLEDs (81,1, gleichauf), aber teuerster Kandidat mit der dünnsten Beleglage: Vorjahresmodell, nur zwei Angebote (AT bzw. unbewertet), nur ein US-Test an 75″, kein Dolby Vision. Mehrwert 10,4 je 1.000 € liegt 1,7 unter dem LG.","kipppunkt":"Gleicher Mehrwert wie der LG C6ELB (2.779 €) bei höchstens rund 2.590 € inkl. Versand bei einem verlässlichen DE-Händler.","belege":["rtings-qn90f","heise-qn90f"],"begruendung":{"schwarz":"RTINGS: great black levels, minimales Blooming; im Spielemodus schlechtere Zonenübergänge [T, 75″]","hdr":"RTINGS: extremely bright, HDR-Spitze excellent; Zahlen nicht frei lesbar [T]","farbe":"HDR sehr farbig, Genauigkeit gut; SDR mittelmäßig [T]","bewegung":"Farbartefakte bei schneller Action [T]; Reaktionszeit nicht belegt, daher breite Spanne","upscaling":"Upscaling impressive, Rauschreduktion okay [T]","bedienung":"Tizen wie S90H, Vorjahr; Update-Zusage für das Modell nicht belegt [E]","blickwinkel":"decent, especially for an LED TV [T]","spiegel":"mattes Coating, handles direct reflections amazingly well [T], wie S90H","raumlicht":"sehr hell und matt [T, E]","gaming":"niedrige Latenz, 4K/165, alle VRR-Formate, Schwarz im Spielemodus schlechter [T]","anschluesse":"4× HDMI 2.1 [B]","formate":"kein Dolby Vision, kein DTS, HDR10+ ja [T], wie S90H","einbrennen":"LCD [T]"}},"hisense":{"name":"Hisense 85UR9DS (2026, 85″ RGB-Mini-LED)","note":73.9,"spanne":[64.6,80.4],"gegenprobe":74.7,"preis":2499.0,"preis_text":"2.499 € expert.de (1,8 Sterne), 2.589 € Mediamarkt/Saturn, je versandfrei","mehrwert":9.6,"urteil":"geprüft, nicht empfohlen","grund":"Unter dem TCL (73,9 gegen 76,0) und teurer; nur 3× HDMI 2.1 für eure vier Geräte (eARC-Soundbar, PS5, Switch 2, UHD-Player), Blickwinkel mittelmäßig, kein 85″-Einzeltest; Oberfläche widersprüchlich belegt (RTINGS US glänzend, vier EU-Tests matt).","kipppunkt":null,"belege":["rtings-ur9","hifi-ur9","netzwelt-ur9","choose-ur9","expert-ur9","heise-ur9"],"begruendung":{"schwarz":"1.320 Zonen in 85″ (TCL 3.200); Blooming größte Schwäche (netzwelt 65″), dunkle Szenen bisweilen flau (hifi.de 65″); RTINGS: 85″ wahrscheinlich etwas schlechterer Kontrast [T]","hdr":"2.600–3.500 nits Spitze, Vollbild 886 cd/m² (netzwelt) [T]; HDR10 schwächer abgestimmt (Expert Reviews)","farbe":"Farbvolumen fantastisch, ab Werk ungenau, Color Crosstalk (RTINGS); Filmmaker dE 1,54 (hifi.de) [T]","bewegung":"RTINGS decent, Blur in dunklen Szenen, Farbartefakte [T], wie TCL","upscaling":"RTINGS great, DVDs extrem gut [T]","bedienung":"VIDAA in der EU, netzwelt schnell; Update-Jahre nicht belegt [T, O], daher breite Spanne","blickwinkel":"RTINGS mediocre, choose.tv −66 % bei 45° [T]","spiegel":"Widerspruch: RTINGS US glänzend mediocre, EU-Tests matt, hifi.de 0,35 % [T], daher Spanne 50–85","raumlicht":"sehr hell, tageslichttauglich (EU-Tests) [T]","gaming":"4K bis 180 Hz auf 3 Ports, VRR, 6–10 ms bei 120 Hz; hohe CAD [T]","anschluesse":"3× HDMI 2.1 für 4 Geräte: ein Gerät braucht Umschalter oder Durchschleifen (nicht belegt), daher unter dem Sony (50)","formate":"DV, HDR10+, HLG [B]; DTS nicht ausdrücklich belegt, daher 90 (80–100)","einbrennen":"LCD [T]"}}},"kleingedruckt":[{"n":"Dolby Vision","lg":{"v":"ja","q":"lg-spec"},"sam":{"luecke":"nicht belegt, beworben werden HDR10+ und HDR10+ Advanced"},"tcl":{"v":"ja laut Test (65″ UK); TCL SE: DV 2.0 per künftigem Update","q":"expert-c8l","unsicher":true}},{"n":"HDR10+","lg":{"luecke":"auf der LG-DE-Seite nicht genannt"},"sam":{"v":"ja (HDR10+, HDR10+ Advanced)","q":"sam-de"},"tcl":{"v":"ja (Test 65″ UK)","q":"expert-c8l"}},{"n":"HLG","lg":{"v":"ja","q":"lg-spec"},"sam":{"luecke":"im Textauszug nicht genannt"},"tcl":{"v":"ja (Test 65″ UK)","q":"expert-c8l"}},{"n":"Dolby Atmos","lg":{"v":"ja","q":"lg-spec"},"sam":{"v":"ja","q":"sam-de"},"tcl":{"v":"ja (netzwelt 85″)","q":"netzwelt"}},{"n":"DTS","lg":{"luecke":"nicht in der Codec-Liste"},"sam":{"luecke":"nicht belegt (Bericht: kein DTS)"},"tcl":{"luecke":"nicht belegt"}},{"n":"eARC","lg":{"v":"HDMI 2","q":"lg-spec"},"sam":{"luecke":"Port nicht belegt"},"tcl":{"v":"ein Port, Nummer nicht belegt","q":"netzwelt"}},{"n":"HDMI 2.1 mit 4K/120","lg":{"v":"4, bis 165 Hz","q":"lg-spec"},"sam":{"v":"4, bis 165 Hz","q":"sam-de"},"tcl":{"v":"4, bis 144 Hz","q":"netzwelt"}},{"n":"VRR-Formate","lg":{"v":"VRR, FreeSync Premium, G-Sync compatible","q":"lg-spec"},"sam":{"v":"VRR, FreeSync Premium Pro, G-Sync compatible","q":"sam-de"},"tcl":{"luecke":"FreeSync/G-Sync nicht belegt"}},{"n":"Input Lag","lg":{"luecke":"RTINGS-Messwert nicht frei lesbar"},"sam":{"luecke":"RTINGS-Messwert nicht frei lesbar"},"tcl":{"v":"ca. 17 ms (85″, Bedingung nicht genannt)","q":"netzwelt"}},{"n":"Helligkeit und Abdunkeln (ABL)","lg":{"v":"helle Spitzlichter, großflächig deutliches Abdunkeln (RTINGS 77″); cd/m² nicht frei lesbar","q":"rtings-c6h","unsicher":true},"sam":{"v":"HDR gut, aggressives Abdunkeln (RTINGS 65″); cd/m² nicht frei lesbar","q":"rtings-s90h","unsicher":true},"tcl":{"v":"3.350 cd/m² Spitze (netzwelt 85″); Vollbild 517 cd/m² (Expert Reviews 65″)","q":"netzwelt"}},{"n":"Ton","lg":{"v":"40 W, 2.2 Kanäle","q":"lg-spec"},"sam":{"luecke":"Leistung und Kanäle nicht belegt (OTS Lite virtuell)"},"tcl":{"v":"2.1.2 von Bang & Olufsen (65″ UK); Leistung nicht belegt","q":"expert-c8l"}},{"n":"Software-Updates","lg":{"v":"bis zu 5 Jahre webOS Re:New","q":"lg-de"},"sam":{"v":"bis zu 7 Jahre Tizen-Upgrades","q":"sam-de"},"tcl":{"v":"keine OS-Zusage; EPREL 8 Jahre Firmware, aber für 85C8K","q":"eprel-tcl","unsicher":true}},{"n":"Herstellergarantie DE","lg":{"luecke":"Dauer nicht genannt; EPREL 1 Jahr gegen heise 2 Jahre"},"sam":{"v":"2 Jahre","q":"sam-garantie"},"tcl":{"v":"2 Jahre (EPREL-Mindestlaufzeit, 85C8K)","q":"eprel-tcl"}},{"n":"Einbrennen in der Garantie (O4)","lg":{"luecke":"für Fernseher nicht belegt (nur OLED-Monitore, 24 Monate)"},"sam":{"luecke":"nicht genannt; Ausschluss normaler Verschleiß"},"tcl":{"v":"entfällt (LCD)","q":"bericht"}}],"nicht_empfohlen":[{"n":"Sony Bravia 6 OLED 83″","preis":"ab 2.222 €","grund":"glänzend, Spiegelungen schon bei mäßigem Licht störend, mäßige HDR-Helligkeit","q":"rtings-bravia6"},{"n":"Samsung S85H OLED 83″","preis":"ab 2.299 €","grund":"Beschichtung hilft kaum gegen Spiegelungen, kein Dolby Vision, dunkler als S90H","q":"rtings-s85h"},{"n":"LG OLED B5/B6 83″","preis":"ab 2.259 € / 2.644 €","grund":"einfacheres WOLED-Panel, schwächer als C6, Direktspiegelungen störend (B6-Test nicht gelesen)","q":"rtings-b5"},{"n":"Samsung QN80H/QN83H 85″","preis":"2.499 €","grund":"glänzend, kein Dolby Vision, schmaler Blickwinkel, HDR nur decent","q":"rtings-qn80h"},{"n":"LG Mini RGB evo 86″","preis":"2.290–2.902 €","grund":"Seitenlicht mit nur 6 Zonen, Lichthöfe, Blickwinkel −71 % bei 45°","q":"choose-mrgb"},{"n":"Samsung The Frame Pro 85″","preis":"ab 3.199 €","grund":"enttäuschendes Schwarz, hohe Latenz, über Budget","q":"rtings-framepro"},{"n":"Samsung QN90H 85″ (2026)","preis":"nicht bei heise","grund":"keine DE-Angebote, kein Test","q":null}],"quellen":{"bericht":{"titel":"TV-Benchmark (Bericht Version 3, 07.11.2026)","url":"#fazit"},"rtings-c6h":{"titel":"RTINGS LG C6H (77″)","url":"https://www.rtings.com/tv/reviews/lg/c6h-oled"},"expert-c6":{"titel":"Expert Reviews LG C6 Primary RGB Tandem (77″)","url":"https://www.expertreviews.co.uk/technology/tvs-home-cinema/lg-c6-oled-primary-rgb-tandem-review"},"rtings-s90h":{"titel":"RTINGS Samsung S90H (65″)","url":"https://www.rtings.com/tv/reviews/samsung/s90h-oled"},"rtings-qm8l":{"titel":"RTINGS TCL QM8L (US, 65″)","url":"https://www.rtings.com/tv/reviews/tcl/qm8l"},"expert-c8l":{"titel":"Expert Reviews TCL C8L (65″, UK)","url":"https://www.expertreviews.co.uk/technology/tvs-home-cinema/tcl-c8l-review"},"netzwelt":{"titel":"netzwelt Testbericht TCL 85C8L (85″)","url":"https://www.netzwelt.de/tcl-85c8l/testbericht.html"},"lg-spec":{"titel":"LG OLED83C6ELB Produktseite DE","url":"https://www.lg.com/de/tvs-und-soundbars/oled-evo/oled83c6elb/"},"lg-de":{"titel":"LG OLED83C6ELB Produktseite DE (webOS Re:New)","url":"https://www.lg.com/de/tvs-und-soundbars/oled-evo/oled83c6elb/"},"sam-de":{"titel":"Samsung GQ83S90HAEXZG Produktseite DE","url":"https://www.samsung.com/de/tvs/oled-tv/s90h-83-inch-4k-smart-tv-gq83s90haexzg/"},"sam-garantie":{"titel":"Samsung Bedingungen erweiterte Garantie TV (PDF, 14.05.2025)","url":"https://images.samsung.com/is/content/samsung/assets/de/garantiebedingungen_tv.pdf"},"eprel-tcl":{"titel":"EPREL-Datenblatt TCL 85C8K (Nr. 2360817)","url":"https://eprel.ec.europa.eu/fiches/electronicdisplays/Fiche_2360817_DE.pdf"},"lg-presse-burnin":{"titel":"LG Pressemitteilung Burn-in-Garantie OLED-Monitore (19.09.2023)","url":"https://www.lg.com/de/newsroom/230919_LG_Press-Release_Burn-In-1/"},"rtings-qn90f":{"titel":"RTINGS Samsung QN90F (75″, 02.05.2025)","url":"https://www.rtings.com/tv/reviews/samsung/qn90f"},"heise-qn90f":{"titel":"heise Samsung QE85QN90F","url":"https://preisvergleich.heise.de/samsung-qe85qn90f-a3479298.html"},"rtings-ur9":{"titel":"RTINGS Hisense UR9 (US, 65″)","url":"https://www.rtings.com/tv/reviews/hisense/ur9sg"},"hifi-ur9":{"titel":"hifi.de Hisense UR9 (65″)","url":"https://hifi.de/test/hisense-ur9-test-277931"},"netzwelt-ur9":{"titel":"netzwelt Hisense 65UR9DS","url":"https://www.netzwelt.de/fernseher/hisense-ur9ds-65ur9ds-testbericht.html"},"choose-ur9":{"titel":"choose.tv Hisense UR9S (65/75/85″)","url":"https://www.choose.tv/de/fernseher/tests/hisense/hisense-ur9s_AIH/85"},"expert-ur9":{"titel":"Expert Reviews Hisense UR9S (65″)","url":"https://www.expertreviews.co.uk/technology/tvs-home-cinema/hisense-ur9s-review"},"heise-ur9":{"titel":"heise Hisense 85UR9DS","url":"https://preisvergleich.heise.de/hisense-85ur9ds-a3773651.html"},"rtings-bravia6":{"titel":"RTINGS Sony Bravia 6 OLED","url":"https://www.rtings.com/tv/reviews/sony/bravia-6-oled"},"rtings-s85h":{"titel":"RTINGS Samsung S85H","url":"https://www.rtings.com/tv/reviews/samsung/s85h-oled"},"rtings-b5":{"titel":"RTINGS LG B5 (Suchtreffer)","url":"https://www.rtings.com/tv/reviews/lg/b5-oled"},"rtings-qn80h":{"titel":"RTINGS Samsung QN80H","url":"https://www.rtings.com/tv/reviews/samsung/qn80h"},"choose-mrgb":{"titel":"choose.tv LG MRGB85","url":"https://www.choose.tv/us/tv/reviews/lg/lg-mrgb85b_AJG"},"rtings-framepro":{"titel":"RTINGS Samsung The Frame Pro 2026","url":"https://www.rtings.com/tv/reviews/samsung/the-frame-pro-2026"}}}</script>
@@ -4094,6 +4369,7 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
         dbLetzt = JSON.stringify(z);
         lsSchreiben(JSON.stringify({ v: 1, t: tLokal, s: z }));
         aktualisiere(true);
+        walleBeiBedarf();
       } else if (tLokal) {
         dbPlan();   // lokal neuer: nach oben ziehen
       }
@@ -4200,7 +4476,9 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       + `<g id="es-beam"><rect class="es-beam" x="100" y="66" width="440" height="8" rx="4"/><circle class="es-end" style="--c:var(--lg)" cx="100" cy="70" r="8"/><circle class="es-end" style="--c:var(--sam)" cx="540" cy="70" r="8"/></g>`
       + `<circle class="es-pivot" cx="320" cy="70" r="11"/>`
       + pan("es-pl", "lg", M.lg.name) + pan("es-pr", "sam", M.sam.name) + `</svg>`
-      + `<p class="es-delta" id="es-delta"></p><div class="es-wrows">${rows}</div><ul class="es-sr" id="es-wsr"></ul></div>`;
+      + `<p class="es-delta" id="es-delta"></p><div class="es-wrows" id="es-wrows">${rows}</div>`
+      + (FK.length > 3 ? `<button type="button" class="es-link es-walle" id="es-walle" data-act="walle" aria-expanded="false" aria-controls="es-wrows">Alle Kriterien (${FK.length})</button>` : "")
+      + `<ul class="es-sr" id="es-wsr"></ul></div>`;
     WG.beam = $("es-beam"); WG.pl = $("es-pl"); WG.pr = $("es-pr");
   }
   function zeichneBalken() {
@@ -4544,10 +4822,23 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
   }
 
   // ---- Bedienung
+  // Runde 8: ein Schritt nach dem anderen; Fortschritt oben
+  const STUFEN = [...document.querySelectorAll("#es-steps > .es-step")];
+  function zeigeStufe(i) {
+    i = Math.max(0, Math.min(STUFEN.length - 1, i));
+    STUFEN.forEach((s, k) => s.classList.toggle("is-cur", k === i));
+    const lauf = $("es-lauf");
+    if (lauf) {
+      $("es-lauf-t").textContent = `Schritt ${i + 1} von ${STUFEN.length}`;
+    }
+  }
+  window.__kbStufe = zeigeStufe;
   function geheZu(i) {
     const el = $("es-s" + (i + 1));
     if (!el) return;
-    el.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: "start" });
+    zeigeStufe(i);
+    const oben = $("es-lauf") || el;
+    if (oben.getBoundingClientRect().top < 0) oben.scrollIntoView({ behavior: "auto", block: "start" });
     const h = el.querySelector("h3");
     if (h) h.focus({ preventScroll: true });
   }
@@ -4582,6 +4873,12 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
       }
       case "weiter": markiere(+el.dataset.i); geaendert(); geheZu(+el.dataset.i + 1); return;
       case "dot": geheZu(+el.dataset.i); return;
+      case "walle": {
+        const an = $("es-wrows").classList.toggle("is-alle");
+        el.setAttribute("aria-expanded", String(an));
+        el.textContent = an ? "Weniger Kriterien" : `Alle Kriterien (${FK.length})`;
+        return;
+      }
       case "mehr": {
         const st = $("es-stand"), offen = st.classList.toggle("is-open");
         el.setAttribute("aria-expanded", String(offen));
@@ -4601,9 +4898,10 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
   setModus(lsGeht ? "lokal" : "keine");
   const root = $("entscheiden");
   root.addEventListener("click", e => {
-    const el = e.target.closest("[data-act],.es-weiter");
+    const el = e.target.closest("[data-act],.es-weiter,.es-zurueck");
     if (!el || !root.contains(el)) return;
     if (el.classList.contains("es-weiter")) { aktion("weiter", el); return; }
+    if (el.classList.contains("es-zurueck")) { geheZu(+el.dataset.i - 1); return; }
     aktion(el.dataset.act, el);
   });
   root.addEventListener("input", e => {
@@ -4628,11 +4926,21 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
   coinWinkel = z.muenze.seite === "sam" ? 180 : 0;
   $("es-coin").style.transform = `rotateY(${coinWinkel}deg)`;
   aktualisiere(false);
+  // Startschritt: Sprungziel im Werkzeug, sonst Schritt 1. Waage aufgeklappt, wenn ein ausgeblendetes Kriterium nicht auf „normal“ steht
+  let startStufe = 0;
+  try { const ziel = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1))); const st = ziel && ziel.closest && ziel.closest(".es-step"); if (st) startStufe = +st.dataset.i; } catch (e) { startStufe = 0; }
+  zeigeStufe(startStufe);
+  // Waage aufklappen, wenn ein ausgeblendetes Kriterium nicht auf „normal“ steht; nur öffnen, nie zuklappen (auch nach Kontoübernahme)
+  function walleBeiBedarf() {
+    const b = $("es-walle"), w = $("es-wrows");
+    if (b && w && !w.classList.contains("is-alle") && FK.slice(3).some(k => z.f[k.id] !== 1)) aktion("walle", b);
+  }
+  walleBeiBedarf();
   WG.theta = WG.target; zeichneBalken();
   dbStart();
 })();
 </script>
-<script type="application/json" id="versionen-daten">{"aktuell":14,"eintraege":[{"von":14,"bis":14,"datum":"09.11.2026","text":"Neu: der Versionsverlauf. Unten steht, welche Version du gerade siehst; antippen zeigt, was sich wann geändert hat. Beim nächsten Besuch markiert „Neu“, was seit deinem letzten Besuch dazugekommen ist."},{"von":13,"bis":13,"datum":"09.11.2026","text":"Kopfzeile am Handy in zwei Stufen: oben Fernseher/Staubsauger, darunter die Abschnitte. Die Abschnittslinks werden nicht mehr rechts abgeschnitten, der aktive Abschnitt ist markiert."},{"von":12,"bis":12,"datum":"09.11.2026","zwischenstand":true,"text":"Zwischenstand der neuen Kopfzeile, zwei Minuten später durch Version 13 ersetzt. Keine eigene Änderung für dich."},{"von":11,"bis":11,"datum":"09.11.2026","text":"Beim Preiswecker steht jetzt: Er prüft täglich gegen 6:30 Uhr, bis einschließlich 01.12.2026."},{"von":10,"bis":10,"datum":"08.11.2026","text":"Staubsauger Nr. 38 ergänzt: Samsung VS80F28EFP/WD, geprüft und nicht empfohlen (Rang 27 von 38, 504,99 € belegt)."},{"von":9,"bis":9,"datum":"08.11.2026","text":"Fernseher-Reiter Runde 6: Werkzeug „Entscheiden“ mit deinen Gewichten, zwei neue Modelle (Samsung QE85QN90F und Hisense 85UR9DS, beide geprüft und nicht empfohlen), Kleingedrucktes und der Preiswecker."},{"von":8,"bis":8,"datum":"08.11.2026","text":"Zwei Reiter: Fernseher und neu der Staubsauger-Kaufguide. Im Fernseher-Reiter kommen die Technikvergleiche dazu (Sitzabstand, Wand und Maße, Anschlüsse, Panel, Strom, Bedienung)."},{"von":7,"bis":7,"datum":"08.11.2026","zwischenstand":true,"text":"Zwischenstand vor Version 8. Was genau darin neu war, ist nicht einzeln festgehalten."},{"von":6,"bis":6,"datum":"07.11.2026","text":"Preisteil im Fernseher-Vergleich: Preisverlauf mit Tiefstpreisen, Mehrwert je 1.000 € und Kosten. Die Noten blieben unverändert."},{"von":1,"bis":5,"datum":"07.11.2026","text":"Erste Fassungen des Fernseher-Vergleichs mit Noten für die Modelle. Die einzelnen Stände sind nicht festgehalten, deshalb hier zusammengefasst."}]}</script>
+<script type="application/json" id="versionen-daten">{"aktuell":17,"eintraege":[{"von":16,"bis":17,"datum":"09.11.2026","text":"Kleine Korrektur beim Entscheiden: Sind in deinem gespeicherten Stand Kriterien außerhalb der ersten drei anders gewichtet, klappt die Waage jetzt auch nach dem Laden aus deinem Konto alle Kriterien auf."},{"von":15,"bis":15,"datum":"09.11.2026","text":"Fernseher aufgeräumt: fünf Bereiche statt einer langen Seite, am Handy unten als Leiste. Beim Öffnen steht die Empfehlung, Entscheiden geht Schritt für Schritt. Dazu das Glas-Logo in der Kopfzeile und im dunklen Modus ein ruhiger Sternenhimmel."},{"von":14,"bis":14,"datum":"09.11.2026","text":"Neu: der Versionsverlauf. Unten steht, welche Version du gerade siehst; antippen zeigt, was sich wann geändert hat. Beim nächsten Besuch markiert „Neu“, was seit deinem letzten Besuch dazugekommen ist."},{"von":13,"bis":13,"datum":"09.11.2026","text":"Kopfzeile am Handy in zwei Stufen: oben Fernseher/Staubsauger, darunter die Abschnitte. Die Abschnittslinks werden nicht mehr rechts abgeschnitten, der aktive Abschnitt ist markiert."},{"von":12,"bis":12,"datum":"09.11.2026","zwischenstand":true,"text":"Zwischenstand der neuen Kopfzeile, zwei Minuten später durch Version 13 ersetzt. Keine eigene Änderung für dich."},{"von":11,"bis":11,"datum":"09.11.2026","text":"Beim Preiswecker steht jetzt: Er prüft täglich gegen 6:30 Uhr, bis einschließlich 01.12.2026."},{"von":10,"bis":10,"datum":"08.11.2026","text":"Staubsauger Nr. 38 ergänzt: Samsung VS80F28EFP/WD, geprüft und nicht empfohlen (Rang 27 von 38, 504,99 € belegt)."},{"von":9,"bis":9,"datum":"08.11.2026","text":"Fernseher-Reiter Runde 6: Werkzeug „Entscheiden“ mit deinen Gewichten, zwei neue Modelle (Samsung QE85QN90F und Hisense 85UR9DS, beide geprüft und nicht empfohlen), Kleingedrucktes und der Preiswecker."},{"von":8,"bis":8,"datum":"08.11.2026","text":"Zwei Reiter: Fernseher und neu der Staubsauger-Kaufguide. Im Fernseher-Reiter kommen die Technikvergleiche dazu (Sitzabstand, Wand und Maße, Anschlüsse, Panel, Strom, Bedienung)."},{"von":7,"bis":7,"datum":"08.11.2026","zwischenstand":true,"text":"Zwischenstand vor Version 8. Was genau darin neu war, ist nicht einzeln festgehalten."},{"von":6,"bis":6,"datum":"07.11.2026","text":"Preisteil im Fernseher-Vergleich: Preisverlauf mit Tiefstpreisen, Mehrwert je 1.000 € und Kosten. Die Noten blieben unverändert."},{"von":1,"bis":5,"datum":"07.11.2026","text":"Erste Fassungen des Fernseher-Vergleichs mit Noten für die Modelle. Die einzelnen Stände sind nicht festgehalten, deshalb hier zusammengefasst."}]}</script>
 <script>
 /* Versionsverlauf (V14): liest #versionen-daten, füllt das Blatt, merkt die zuletzt gesehene Version (localStorage, try/catch). */
 (function(){
@@ -4673,5 +4981,93 @@ html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
   function zu(){ if(dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
   dlg.querySelector('.vd-x').addEventListener('click',zu);
   dlg.addEventListener('click',function(ev){ if(ev.target===dlg) zu(); });   // Tipp auf den Hintergrund
+})();
+</script>
+<script>
+(() => {
+  "use strict";
+  // Runde 8: Hintergrund „Horizont mit Nebel“ (von Nico gewählt, Vorlage design/skizze/hintergrund-vorlage.html, erster Eintrag).
+  // Nur im dunklen Thema, fest hinter dem Inhalt. Rund 30 Bilder pro Sekunde, Pause bei verdecktem Tab,
+  // „Bewegung reduzieren“ = stehendes Bild. Nebel in viertel Auflösung (weich), Sterne und Lichtkante scharf.
+  const c = document.getElementById("himmel");
+  if (!c || !c.getContext) return;
+  const g = c.getContext("2d");
+  const T = [63, 224, 214], L = [157, 116, 255], W = [220, 232, 250];
+  const rgba = (f, a) => `rgba(${f[0]},${f[1]},${f[2]},${a})`;
+  const mqDunkel = matchMedia("(prefers-color-scheme: dark)");
+  const mqRuhig = matchMedia("(prefers-reduced-motion: reduce)");
+  const dunkel = () => { const t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : mqDunkel.matches; };
+
+  let w = 0, h = 0, d = 1, sterne = [];
+  const neb = document.createElement("canvas"), gn = neb.getContext("2d");
+  const NS = 4; // Nebel in viertel Auflösung, beim Hochskalieren geglättet
+  function zufall(s) { return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+  function groesse() {
+    w = innerWidth; h = innerHeight; d = Math.min(2, devicePixelRatio || 1);
+    c.width = Math.round(w * d); c.height = Math.round(h * d);
+    neb.width = Math.max(1, Math.round(w / NS)); neb.height = Math.max(1, Math.round(h / NS));
+    const z = zufall(7), n = Math.round(110 * Math.max(1, (w * h) / (340 * 700)) ** .5);
+    sterne = Array.from({ length: n }, () => ({ x: z() * w * 2, y: z() * h * 2, r: .3 + z(), p: z() * 6.28, f: .3 + z() * .7 }));
+  }
+  function fleck(k, x, y, r, f, a) {
+    const v = k.createRadialGradient(x, y, 0, x, y, r);
+    v.addColorStop(0, rgba(f, a)); v.addColorStop(1, rgba(f, 0));
+    k.fillStyle = v; k.fillRect(0, 0, w, h); // Fläche in CSS-Pixeln (beide Zeichenflächen sind so skaliert)
+  }
+  // Planetenrand: auf breiten Schirmen größerer Radius, Oberkante bleibt bei 77 % der Höhe
+  const planet = () => { const R = Math.max(h * .78, w * .62); return { cx: w / 2, cy: h * .77 + R, R }; };
+  function zeichne(t) {
+    // Nebel (in viertel Auflösung)
+    const s = 1 / NS;
+    gn.setTransform(s, 0, 0, s, 0, 0);
+    gn.fillStyle = "#000"; gn.fillRect(0, 0, w, h);
+    const b = Math.min(w, h * .6); // Nebelgröße wie am Handy, auch auf breiten Schirmen
+    fleck(gn, w * (.12 + .07 * Math.sin(t / 23)), h * (.55 + .05 * Math.cos(t / 29)), b * .95, T, .13 + .03 * Math.sin(t / 11));
+    fleck(gn, w * (.92 + .06 * Math.cos(t / 31)), h * (.3 + .06 * Math.sin(t / 37)), b * .9, L, .16 + .03 * Math.cos(t / 13));
+    fleck(gn, w * (.5 + .1 * Math.sin(t / 41)), h * (.12 + .03 * Math.cos(t / 19)), b * .6, L, .06);
+    fleck(gn, w / 2, h * .86, Math.max(b, w * .5) * .9, L, .18 + .03 * Math.sin(t / 8));
+    fleck(gn, w * .3, h * .8, b * .6, T, .08);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+    g.drawImage(neb, 0, 0, c.width, c.height);
+    g.setTransform(d, 0, 0, d, 0, 0);
+    // Sterne, drehen sich kaum merklich um einen Punkt unter dem Horizont
+    g.save(); g.translate(w / 2, h * 1.35); g.rotate(t / 400);
+    for (const st of sterne) { g.fillStyle = rgba(W, .3 * st.f * (.8 + .2 * Math.sin(t + st.p))); g.fillRect(st.x - w, st.y - h * 1.4, st.r, st.r); }
+    g.restore();
+    // Planet mit feiner Lichtkante
+    const { cx, cy, R } = planet();
+    g.beginPath(); g.arc(cx, cy, R, 0, 6.2832); g.fillStyle = "#020306"; g.fill();
+    const k = g.createLinearGradient(0, 0, w, 0);
+    k.addColorStop(0, rgba(T, 0)); k.addColorStop(.35, rgba(T, .55)); k.addColorStop(.6, rgba(W, .6)); k.addColorStop(.8, rgba(L, .5)); k.addColorStop(1, rgba(L, 0));
+    g.save(); g.filter = "blur(3px)"; g.beginPath(); g.arc(cx, cy, R, Math.PI * 1.1, Math.PI * 1.9); g.strokeStyle = k; g.lineWidth = 3; g.stroke(); g.restore();
+    g.beginPath(); g.arc(cx, cy, R, Math.PI * 1.1, Math.PI * 1.9); g.strokeStyle = k; g.lineWidth = 1; g.stroke();
+  }
+
+  const start = performance.now();
+  let letzt = 0, lauf = 0;
+  function bild(jetzt) {
+    lauf = 0;
+    if (!aktiv()) return;
+    lauf = requestAnimationFrame(bild);
+    if (jetzt - letzt < 33) return; // rund 30 Bilder pro Sekunde
+    letzt = jetzt;
+    zeichne((jetzt - start) / 1000);
+  }
+  const aktiv = () => dunkel() && !document.hidden;
+  // Zustand neu bewerten: laufen, stehen (reduzierte Bewegung) oder ruhen (hell, verdeckt)
+  function steuere() {
+    if (!aktiv()) { cancelAnimationFrame(lauf); lauf = 0; return; }
+    if (mqRuhig.matches) { cancelAnimationFrame(lauf); lauf = 0; zeichne(20); return; }
+    if (!lauf) { letzt = 0; lauf = requestAnimationFrame(bild); }
+  }
+  let rz = 0;
+  addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (innerWidth !== w || Math.abs(innerHeight - h) > 150) { /* Adressleiste am Handy: kleine Höhenänderung nicht neu aufbauen */ groesse(); if (aktiv()) zeichne(mqRuhig.matches ? 20 : (performance.now() - start) / 1000); } }, 120); });
+  document.addEventListener("visibilitychange", steuere);
+  [mqDunkel, mqRuhig].forEach(m => m.addEventListener ? m.addEventListener("change", steuere) : m.addListener(steuere));
+  new MutationObserver(steuere).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  groesse();
+  steuere();
+  window.__kbHimmel = { laeuft: () => !!lauf, zeichne };
 })();
 </script>
