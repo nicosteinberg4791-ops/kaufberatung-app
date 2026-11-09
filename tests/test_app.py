@@ -296,6 +296,13 @@ class PushSchutz(unittest.TestCase):
     """B2/B3 der Codex-Erstprüfung: Push nur aus eigenem gh-pages-Arbeitsbaum, Commit nur mit preise.json."""
 
     def setUp(self):
+        # Bei "git commit -a" setzt Git GIT_INDEX_FILE & Co. auf den Hook; eigene Git-Aufrufe der Tests
+        # (auch die im Prüfling) würden sonst den falschen Index treffen -> GIT_* für diesen Test entfernen.
+        umgebung = mock.patch.dict(os.environ)
+        umgebung.start()
+        self.addCleanup(umgebung.stop)
+        for k in [k for k in os.environ if k.startswith("GIT_")]:
+            del os.environ[k]
         import preise_aktualisieren
         self.pa = preise_aktualisieren
         self.tmp = tempfile.TemporaryDirectory()
