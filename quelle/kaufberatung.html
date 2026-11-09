@@ -1350,21 +1350,124 @@ html{background:
 .sg-bar-oben > .small:first-child{color:var(--muted)}
 @media (max-width:760px){ .sg-bar-oben{gap:8px 14px} }
 
+/* ===== Air Fryer (09.11.2026): vier Bereiche, gleiche Tokens wie Fernseher und Staubsauger, keine neuen Farben =====
+   Geräteteilung der vorhandenen Farben: Turbo Tower = --sam, Medion = --tcl, R901 = --lg, übrige = --neutral.
+   Zeichensprache: Punkt = belegte Zahl, gestrichelt = Spanne bzw. nicht belegt (wie .gap im übrigen Seitenteil). */
+#view-airfryer section[id]{scroll-margin-top:calc(var(--nav-h) + 16px)}
+#view-airfryer section > *{min-width:0}
+
+/* Startbildschirm: Rolle links unter dem Namen, Punkte rechts unter dem Preis (wie Staubsauger) */
+.af-start .st-s{text-align:left;white-space:normal;padding-left:19px;line-height:1.35}
+.af-start .st-k{padding-left:0;text-align:right;white-space:nowrap}
+
+/* Wahlhilfe statt Werkzeug: drei Fälle, je eine Antwort */
+.af-wahl{margin-top:18px;padding:14px 16px 12px;border-radius:14px;background:var(--surface);
+  box-shadow:inset 0 1px 0 var(--edge),0 1px 3px var(--shadow);display:grid;gap:8px;max-width:40rem}
+.af-wahl-t{font-weight:600;font-size:.95rem}
+.af-wahl dl{margin:0;display:grid}
+.af-wahl dl > div{display:grid;gap:2px;padding:9px 0;box-shadow:inset 0 1px 0 var(--line)}
+.af-wahl dt{font-size:.82rem;color:var(--muted)}
+.af-wahl dd{margin:0;display:flex;align-items:center;gap:8px;font-weight:580;font-size:.93rem}
+.af-wahl > .small{font-size:.78rem;line-height:1.4}
+@media (min-width:1000px){
+  .st-aktion .af-wahl{margin-top:0;max-width:none}
+  /* Wahlhilfe ist höher als die Liste: rechts über Liste und Hinweis laufen lassen, Hinweis bleibt direkt unter der Liste */
+  .af-start{grid-template-rows:auto auto 1fr auto auto}
+  .af-start > .st-aktion{grid-row:2 / span 2}
+  .af-start > .st-hin{align-self:start}
+}
+@media (max-width:760px){ .af-wahl{max-width:none} }
+
+/* Begründung: drei Geräte nebeneinander, Farbkante oben statt Kartenrahmen */
+.af-kands{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(28px,3.4vw,44px)}
+.af-kand{display:grid;gap:8px;align-content:start;min-width:0;padding-top:16px;box-shadow:inset 0 2px 0 var(--c)}
+.af-kand > *{min-width:0}
+.af-kand h3{display:flex;align-items:center;gap:8px;font-size:1.15rem}
+.af-kand .score{margin-top:2px}
+.af-kand .score .n{font-size:clamp(2.2rem,4vw,3.1rem)}
+.af-kand .price{margin-top:4px}
+.af-mini{font-size:.84rem;font-weight:600;color:var(--muted);margin-top:8px}
+.af-gruende{margin:0;padding-left:1.1em;display:grid;gap:6px;font-size:.92rem;line-height:1.45}
+.af-kand > p:not([class]){font-size:.92rem;line-height:1.45}
+.af-vorl{font-size:.86rem;line-height:1.45;color:var(--muted);padding:10px 12px;border-radius:10px;border:1px dashed var(--gap-line);margin-top:4px}
+@media (max-width:999px){ .af-kands{grid-template-columns:minmax(0,1fr)} }
+
+/* Spannen-Diagramm (Punkte, Punkte je Euro) und Volumen-Balken */
+.af-fig{margin:0;display:grid;gap:12px;max-width:60rem}
+.af-fig figcaption{font-size:.8rem;color:var(--muted);line-height:1.45}
+.af-spanne,.af-kap{list-style:none;margin:0;padding:0;box-shadow:inset 0 1px 0 var(--line)}
+.af-r,.af-k,.af-achse{display:grid;grid-template-columns:minmax(0,15rem) minmax(0,1fr) 6.5rem;gap:4px 18px;align-items:center;
+  padding:11px 0;box-shadow:inset 0 -1px 0 var(--line)}
+.af-achse{box-shadow:none;padding:6px 0 0}
+.af-rn{display:grid;gap:1px;min-width:0}
+.af-rn b{font-weight:600;font-size:.94rem;letter-spacing:-.005em}
+.af-rn small{font-size:.78rem;color:var(--muted);line-height:1.35}
+.af-rv{text-align:right;font-weight:620;font-variant-numeric:tabular-nums;white-space:nowrap}
+.af-rt,.af-kt{position:relative;height:20px;min-width:0}
+.af-r .af-rt::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;border-radius:2px;background:var(--track)}
+.af-r .af-rt i{position:absolute;top:50%;left:var(--a);width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--c)}
+.af-r.is-band .af-rt i{width:calc(var(--b) - var(--a));min-width:12px;height:14px;margin:-7px 0 0 0;border-radius:7px;box-sizing:border-box;
+  background:color-mix(in srgb,var(--c) 20%,transparent);border:1.5px dashed var(--c)}
+.af-r.is-offen .af-rt::before{background:repeating-linear-gradient(90deg,var(--track) 0 4px,transparent 4px 9px)}
+.af-r.is-offen .af-rv{color:var(--muted);font-weight:500}
+.af-achse .af-rt{display:flex;justify-content:space-between;height:auto}
+.af-achse em{font-style:normal;font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.af-kt{background:linear-gradient(var(--track),var(--track)) left center/100% 8px no-repeat}
+.af-kt i{position:absolute;left:0;top:50%;height:8px;margin-top:-4px;width:var(--w);border-radius:0 4px 4px 0;background:var(--c)}
+.af-kap .af-kt::before,.af-kap .af-kt::after{content:"";position:absolute;z-index:1;top:-11px;bottom:-11px;width:0}
+.af-kap .af-kt::before{left:var(--m1);border-left:1.5px dashed var(--muted)}
+.af-kap .af-kt::after{left:var(--m2);border-left:1.5px solid var(--ink)}
+@media (max-width:760px){
+  .af-r,.af-k,.af-achse{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}
+  .af-rn{grid-row:1;grid-column:1}
+  .af-rv{grid-row:1;grid-column:2;align-self:start}
+  .af-rt,.af-kt{grid-row:2;grid-column:1/-1}
+  .af-achse > span:not(.af-rt){display:none}
+  .af-achse > .af-rt{grid-row:1}
+  .af-kap .af-kt::before,.af-kap .af-kt::after{top:-4px;bottom:-11px}
+}
+
+/* Tabellen: Namen dürfen umbrechen, Zahlen rechts */
+.af-tab td:first-child{white-space:normal;min-width:9rem}
+.af-tab .num{text-align:right;white-space:nowrap}
+.af-tab td small{display:block;font-size:.78rem;color:var(--muted);font-weight:450;white-space:normal}
+.af-tab caption{caption-side:bottom;text-align:left;padding-top:10px;line-height:1.45}
+
+/* Werteliste */
+.af-kv{grid-template-columns:minmax(0,12rem) minmax(0,1fr);max-width:52rem}
+@media (max-width:560px){
+  .af-kv{grid-template-columns:minmax(0,1fr)}
+  .af-kv dt{padding-bottom:0}
+  .af-kv dd{box-shadow:none;padding-top:3px}
+}
+
+/* Untere Leiste: vier Bereiche */
+@media (max-width:760px){ .kb-bl .bleiste[data-view="airfryer"]{grid-template-columns:repeat(4,minmax(0,1fr))} }
+
+/* Drei Reiter: bis 1000 px (Handy, Tablet) zeigt die Marke nur das Glas-Logo, damit Fernseher, Staubsauger und Air Fryer ganz in die Kopfzeile passen.
+   Der Name bleibt für Screenreader lesbar. */
+@media (max-width:1000px){
+  .brand-t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+  .localnav .brand{gap:0}
+}
+
 </style>
 
 <canvas class="himmel" id="himmel" aria-hidden="true"></canvas>
 <nav class="localnav" aria-label="Kaufberatung">
   <div class="navin">
-    <a class="brand" href="#tv"><img src="data:image/png;base64,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" alt="" width="26" height="26">Kaufberatung</a>
+    <a class="brand" href="#tv"><img src="data:image/png;base64,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" alt="" width="26" height="26"><span class="brand-t">Kaufberatung</span></a>
     <div class="segx tabs" id="tabs" role="tablist" aria-label="Gerät">
       <i class="thumb" aria-hidden="true"></i>
       <button type="button" role="tab" id="tab-tv" data-k="tv" aria-controls="view-tv" aria-selected="true">Fernseher</button>
       <button type="button" role="tab" id="tab-sauger" data-k="sauger" aria-controls="view-sauger" aria-selected="false" tabindex="-1">Staubsauger</button>
+      <button type="button" role="tab" id="tab-airfryer" data-k="airfryer" aria-controls="view-airfryer" aria-selected="false" tabindex="-1">Air Fryer</button>
     </div>
     <div class="navlinks" data-view="tv">
       <a href="#tv-empfehlung" data-bl="empfehlung">Empfehlung</a><a href="#tv-entscheiden" data-bl="entscheiden">Entscheiden</a><a href="#tv-vergleich" data-bl="vergleich">Vergleich</a><a href="#tv-preise" data-bl="preise">Preise</a><a href="#tv-mehr" data-bl="mehr">Mehr</a>
     </div>
     <div class="navlinks" data-view="sauger" hidden><a href="#sauger-empfehlung" data-bl="empfehlung">Empfehlung</a><a href="#sauger-entscheiden" data-bl="entscheiden">Entscheiden</a><a href="#sauger-vergleich" data-bl="vergleich">Vergleich</a><a href="#sauger-technik" data-bl="technik">Technik</a><a href="#sauger-mehr" data-bl="mehr">Mehr</a></div>
+    <div class="navlinks" data-view="airfryer" hidden><a href="#airfryer-empfehlung" data-bl="empfehlung">Empfehlung</a><a href="#airfryer-vergleich" data-bl="vergleich">Vergleich</a><a href="#airfryer-preise" data-bl="preise">Preise</a><a href="#airfryer-mehr" data-bl="mehr">Mehr</a></div>
   </div>
 </nav>
 
@@ -1923,7 +2026,7 @@ html{background:
     </ul>
   </section>
 </details>
-<button type="button" class="mehr-v" id="mehr-version" aria-haspopup="dialog" aria-controls="vdialog"><span><b>Versionsverlauf</b><small>Version 18 vom 09.11.2026</small></span><em class="chev" aria-hidden="true">›</em></button>
+<button type="button" class="mehr-v" id="mehr-version" aria-haspopup="dialog" aria-controls="vdialog"><span><b>Versionsverlauf</b><small>Version 19 vom 09.11.2026</small></span><em class="chev" aria-hidden="true">›</em></button>
 </div>
   <footer>Noten aus dem TV-Benchmark Version 2.1 vom 07.11.2026, unabhängig geprüft durch Codex. Preisverlauf, Mehrwert-Faktor und Kosten aus Version 3 vom selben Tag. Technikvergleiche aus Runde 4 vom 08.11.2026, Herstellerdaten mit Quelle je Zahl. Entscheidungswerkzeug, neue Modelle und Preiswecker aus Runde 6 vom 08.11.2026.</footer>
 </div>
@@ -2095,16 +2198,283 @@ html{background:
     <ul class="src" id="sg-quellen-liste"></ul>
   </section>
 </details>
-<button type="button" class="mehr-v" id="sg-mehr-version" aria-haspopup="dialog" aria-controls="vdialog"><span><b>Versionsverlauf</b><small>Version 18 vom 09.11.2026</small></span><em class="chev" aria-hidden="true">›</em></button>
+<button type="button" class="mehr-v" id="sg-mehr-version" aria-haspopup="dialog" aria-controls="vdialog"><span><b>Versionsverlauf</b><small>Version 19 vom 09.11.2026</small></span><em class="chev" aria-hidden="true">›</em></button>
 </div>
   <footer>Staubsauger-Reiter Runde 5 vom 08.11.2026. Noten aus dem Kaufguide (Methode unverändert), Preise der sechs bestplatzierten Pakete am 08.11.2026 nachgeprüft, Technikdaten mit Quelle je Zahl. Bisheriger Vergleich: <a href="https://claude.ai/artifact/Sr3qUsamTSbjqbsfDSuo1s" target="_blank" rel="noopener">Staubsauger-Vergleich</a>.</footer>
 </div>
 </div>
 </main>
 
+<main class="view" id="view-airfryer" role="tabpanel" aria-labelledby="tab-airfryer" tabindex="-1" hidden>
+<div class="wrap">
+<!-- Air-Fryer-Reiter (09.11.2026). Einzige Belegbasis: Bericht „Air Fryer mit zwei Körben“ (airfryer/reports). Keine Zahl ohne den Bericht. -->
+<div class="bereich" id="airfryer-empfehlung" data-b="empfehlung" aria-label="Empfehlung">
+  <section id="af-empfehlung" class="start af-start" aria-labelledby="h-af-emp">
+    <header class="sh st-kopf" id="af-top"><h1 class="st-frage">Welche Heißluftfritteuse mit zwei Körben für 5–6 Personen?</h1><h2 id="h-af-emp">Kauft die Cosori Turbo Tower Pro Smart. Wer sparen will, nimmt vorläufig die Medion P20 XXL Twin.</h2></header>
+    <ol class="st-liste" aria-label="Empfohlene Geräte"><li><span class="st-n"><i class="sw" style="--c:var(--sam)"></i>Cosori Turbo Tower Pro Smart</span><span class="st-p n">279,99 €</span><span class="st-s">Oberklasse-Sieger</span><span class="st-k"><b>7,2</b> Punkte</span></li><li><span class="st-n"><i class="sw" style="--c:var(--tcl)"></i>Medion P20 XXL Twin</span><span class="st-p n">79,95–ca. 90 €</span><span class="st-s">Preis-Leistung, vorläufig</span><span class="st-k"><b>5,2–6,4</b> Punkte</span></li><li><span class="st-n"><i class="sw" style="--c:var(--lg)"></i>Cosori Dual Basket R901</span><span class="st-p n">119,00 €</span><span class="st-s">Alternative mit Zahlennote</span><span class="st-k"><b>6,0</b> Punkte</span></li></ol>
+    <p class="small st-hin">Punkte 0–10 aus Warentest-Noten. Die Medion ist nur vorläufig vorn: Note „gut“ ohne Zahl aus einer Sekundärquelle, Preis ohne belegten Händler. Preise großteils aus einem Affiliate-Tracker.</p>
+    <div class="st-aktion">
+      <div class="af-wahl" aria-label="Welches passt zu euch?">
+        <p class="af-wahl-t">Welches passt zu euch?</p>
+        <dl>
+          <div><dt>Sechs Personen, möglichst ein Durchgang</dt><dd><i class="sw" style="--c:var(--sam)"></i>Turbo Tower Pro Smart, 10,8 l</dd></div>
+          <div><dt>Möglichst wenig ausgeben</dt><dd><i class="sw" style="--c:var(--tcl)"></i>Medion, vorläufig, Händler offen</dd></div>
+          <div><dt>Lieber eine belegte Zahlennote</dt><dd><i class="sw" style="--c:var(--lg)"></i>Cosori R901, 2,3 aus 01/2025, 119,00 €</dd></div>
+        </dl>
+        <p class="small">Ab 10 l mit Reserve für 6 Personen ist eine eigene Ableitung des Berichts, keine Herstellerangabe.</p>
+      </div>
+      <a class="st-knopf" href="#airfryer-vergleich">Alle Geräte vergleichen</a>
+    </div>
+    <details class="st-det" id="af-details"><summary>Begründung und Details</summary><div class="st-det-in">
+      <div class="af-kands">
+        <article class="af-kand" style="--c:var(--sam)">
+          <p><span class="tag front">Oberklasse-Sieger</span></p>
+          <h3><i class="sw"></i>Cosori Turbo Tower Pro Smart</h3>
+          <p class="small">CAF-DC123S-DDER, 10,8 l in zwei gestapelten Kammern</p>
+          <p class="score"><span class="n">7,2</span><span class="u">von 10 Punkten</span></p>
+          <p class="price"><span class="n">279,99 €</span><small>Amazon, COSORI-Shop; Tracker-Stand 08.11.2026 (<a href="https://www.smarthomeassistent.de/heissluftfritteusen/cosori-turbo-tower-pro-smart/" target="_blank" rel="noopener">smarthomeassistent</a>, sekundär). Ab 259 € bei OTTO laut Snippet.</small></p>
+          <h4 class="af-mini">Warum</h4>
+          <ul class="af-gruende">
+            <li>Beste belegte Note im neuesten Test: Warentest 09/2026 „gut“ (2,2), Testsieger der Zwei-Raum-Geräte (<a href="https://www.heidelberg24.de/verbraucher/test-heissluftfritteuse-bester-airfryer-ninja-stiftung-warentest-93983005.html" target="_blank" rel="noopener">heidelberg24</a>, <a href="https://produkte-im-test.de/heissluftfritteusen-test-stiftung-warentest/" target="_blank" rel="noopener">produkte-im-test</a>, beide sekundär).</li>
+            <li>10,8 l, volle 10 Kapazitätspunkte. Größer sind nur Caso (14 l) und AEG (11 l), die nicht besser benotet sein können.</li>
+            <li>Höchste belegte Punktzahl. Selbst mit Zubereitungsnote 2,6 wie R901 und DZ400 läge sie noch bei 6,3 (eigene Rechnung).</li>
+          </ul>
+          <h4 class="af-mini">Schwäche</h4>
+          <p>Nur die Gesamtnote ist bekannt; Teilnoten für Zubereitung, Handhabung und Reinigung, PFAS und Geräusch fehlen. Im Bestfall ziehen AEG AAFD11B und Caso DuoChef 3186 gleich (7,2), übertreffen können sie sie nicht. Ein Leserkommentar (Anekdote) nennt Rückstände im Korbgriff.</p>
+        </article>
+        <article class="af-kand" style="--c:var(--tcl)">
+          <p><span class="tag front">Preis-Leistung, vorläufig</span></p>
+          <h3><i class="sw"></i>Medion P20 XXL Twin</h3>
+          <p class="small">MD11760, zwei Körbe mit zusammen 8,7 l (laut Händlerlistings)</p>
+          <p class="score"><span class="n">5,2–6,4</span><span class="u">Punkte (Spanne)</span></p>
+          <p class="price"><span class="n">79,95 € bis ca. 90 €</span><small>79,95 € laut produkte-im-test, Händler nicht genannt; ca. 90 € Geizhals-Mittel Nov. 2026 laut test.de-Tabelle. Kein belegter Händler.</small></p>
+          <h4 class="af-mini">Warum</h4>
+          <ul class="af-gruende">
+            <li>Höchster Wert je Euro: 0,058–0,080 Punkte je Euro, in der ganzen Spanne über R901 (0,050), Caso (höchstens 0,050) und AEG (höchstens 0,040).</li>
+            <li>Warentest 09/2026 „gut“ und als „Preistipp Zwei-Raum“ bezeichnet (<a href="https://produkte-im-test.de/heissluftfritteusen-test-stiftung-warentest/" target="_blank" rel="noopener">produkte-im-test</a>, sekundär). In der <a href="https://www.test.de/Heissluftfritteusen-im-Test-5115675-tabelle/" target="_blank" rel="noopener">test.de-Tabelle</a> steht sie mit Preis, die Noten sind gesperrt.</li>
+            <li>Sichtfenster und Sync-Finish laut Händlerlisting (<a href="https://www.alternate.de/Medion/Doppel-Heissluftfritteuse-Life-P20-MD11760-XXL/html/product/100200348" target="_blank" rel="noopener">Alternate</a>).</li>
+          </ul>
+          <h4 class="af-mini">Schwäche</h4>
+          <p>Keine Zahlennote: „gut“ heißt 1,6–2,5, als Zwei-Raum-Gerät höchstens so gut wie der Testsieger, also 2,2–2,5. Nur eine Sekundärquelle mit teils inkonsistenten Angaben. Ein Portal nennt mittelmäßige Verarbeitung und laute Betriebsgeräusche (Nutzerurteil, <a href="https://www.bluepick.de/heissluftfritteusen/27z4sdw/medion-life-p20-xxl-twin" target="_blank" rel="noopener">bluepick</a>). Bei 6 Personen vermutlich zwei Durchgänge (Ableitung).</p>
+          <p class="af-vorl">Vorläufig, weil Russell Hobbs SatisFry Dual 27680-56 („gut“), Ninja DZ400EU (2,4) und Panasonic NF-BC1000KXE (2,4) ohne belegten Preis offen bleiben. Der Sieg gilt nur gegenüber den preislich bewertbaren Geräten. Eine Freischaltung auf test.de (laut Notizen 5,90 €) würde ihn bestätigen oder kippen.</p>
+        </article>
+        <article class="af-kand" style="--c:var(--lg)">
+          <p><span class="tag front">Alternative mit Zahlennote</span></p>
+          <h3><i class="sw"></i>Cosori Dual Basket R901</h3>
+          <p class="small">CAF-R901-AEU, 8,5 l (2 × 4,25 l), zwei Schubladen</p>
+          <p class="score"><span class="n">6,0</span><span class="u">von 10 Punkten</span></p>
+          <p class="price"><span class="n">119,00 €</span><small>Lidl, nur online; Tracker-Stand 09.11.2026 (<a href="https://www.discounto.de/Angebot/Cosori-Heissluftfritteuse-CAF-R901-AEU-2x-4-25-l-10018150/" target="_blank" rel="noopener">discounto</a>, sekundär). Snippets nennen 123,90 € und 139 €.</small></p>
+          <h4 class="af-mini">Warum</h4>
+          <ul class="af-gruende">
+            <li>Warentest 01/2025 „gut“ (2,3), damals einziges Zweikorbgerät: Handhabung 1,9, Sicherheit 1,3, Umwelt 1,9 (<a href="https://www.lecker.de/heissluftfritteusen-bei-stiftung-warentest-diese-vier-airfryer-sind-testsieger-131232.html" target="_blank" rel="noopener">lecker.de</a>, bestätigt von <a href="https://www.t-online.de/ratgeber/id_85026186/die-besten-heissluftfritteusen-fuer-knusprige-pommes-philips-airfryer-und-co-im-vergleich.html" target="_blank" rel="noopener">t-online</a>).</li>
+            <li>0,050 Punkte je Euro; nur die Medion liegt in ihrer ganzen Spanne darüber.</li>
+            <li>Strom ca. 28 €/Jahr.</li>
+          </ul>
+          <h4 class="af-mini">Schwäche</h4>
+          <p>Zubereitung nur „befriedigend“ (2,6); die Note ist älter als 09/2026.</p>
+        </article>
+      </div>
+    </div></details>
+    <div class="st-fuss">
+      <p class="lead">Benchmark für eine Familie mit 5–6 Personen: zwei Körbe, alle Gerichte, leicht zu reinigen; Oberklasse und Preis-Leistung getrennt. Im Rahmen 300–400 € liegt kein belegt gutes Gerät, Oberklasse heißt hier „bestes Gerät“.</p>
+      <dl class="facts">
+        <div><dt>Recherchestand</dt><dd>09.11.2026, Preise vom 08.11.2026 und 09.11.2026</dd></div>
+        <div><dt>Methode</dt><dd>Punkte 0–10 nur aus Stiftung Warentest (2025/2026) und vergleichbaren Laboren, acht Kriterien gewichtet</dd></div>
+      </dl>
+    </div>
+  </section>
+</div>
+
+<div class="bereich" id="airfryer-vergleich" data-b="vergleich" aria-label="Vergleich" hidden>
+<div class="segx bseg" role="tablist" aria-label="Vergleich Air Fryer"><i class="thumb" aria-hidden="true"></i><button type="button" role="tab" id="bt-af-punkte" aria-controls="af-p-punkte" aria-selected="true">Punkte</button><button type="button" role="tab" id="bt-af-kapazitaet" aria-controls="af-p-kapazitaet" aria-selected="false" tabindex="-1">Kapazität</button><button type="button" role="tab" id="bt-af-reinigung" aria-controls="af-p-reinigung" aria-selected="false" tabindex="-1">Reinigung</button><button type="button" role="tab" id="bt-af-methode" aria-controls="af-p-methode" aria-selected="false" tabindex="-1">Methode</button></div>
+<div class="bpane" id="af-p-punkte" role="tabpanel" aria-labelledby="bt-af-punkte">
+  <section id="af-punkte" aria-labelledby="h-af-punkte">
+    <header class="sh">
+      <h2 id="h-af-punkte">Die Turbo Tower Pro Smart liegt vorn oder im Bestfall gleichauf</h2>
+      <p class="lead">Zehn Geräte mit zwei Garräumen, Punkte 0–10 aus Warentest-Noten. Ein Punkt steht für eine belegte Zahlennote, ein gestrichelter Balken für die Spanne einer Note „gut“ ohne Zahl.</p>
+    </header>
+    <figure class="af-fig">
+      <ol class="af-spanne" aria-label="Punkte je Gerät"><li class="af-r" style="--c:var(--sam);--a:80.00%;--b:80.00%"><span class="af-rn"><b>Turbo Tower Pro Smart</b><small>Testsieger, 2,2 (09/2026)</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">7,2</span></li><li class="af-r is-band" style="--c:var(--neutral);--a:50.00%;--b:80.00%"><span class="af-rn"><b>AEG AAFD11B</b><small>„gut“ ohne Zahl</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">6,0–7,2</span></li><li class="af-r is-band" style="--c:var(--neutral);--a:50.00%;--b:80.00%"><span class="af-rn"><b>Caso DuoChef 3186</b><small>„gut“ ohne Zahl</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">6,0–7,2</span></li><li class="af-r is-band" style="--c:var(--neutral);--a:40.00%;--b:70.00%"><span class="af-rn"><b>Russell Hobbs 27680-56</b><small>„gut“ ohne Zahl</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">5,6–6,8</span></li><li class="af-r" style="--c:var(--lg);--a:50.00%;--b:50.00%"><span class="af-rn"><b>Cosori R901</b><small>2,3 (01/2025)</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">6,0</span></li><li class="af-r is-band" style="--c:var(--tcl);--a:30.00%;--b:60.00%"><span class="af-rn"><b>Medion MD11760</b><small>„gut“ ohne Zahl, Preistipp</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">5,2–6,4</span></li><li class="af-r" style="--c:var(--neutral);--a:37.50%;--b:37.50%"><span class="af-rn"><b>Ninja DZ400EU</b><small>2,4, Kapazität angenommen</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">5,5</span></li><li class="af-r" style="--c:var(--neutral);--a:37.50%;--b:37.50%"><span class="af-rn"><b>Panasonic NF-BC1000KXE</b><small>2,4, Kapazität offen</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">5,5</span></li><li class="af-r" style="--c:var(--neutral);--a:25.00%;--b:25.00%"><span class="af-rn"><b>Ninja AF400EU</b><small>2,7 (01/2025), ersetzt</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">5,0</span></li><li class="af-r" style="--c:var(--neutral);--a:15.00%;--b:15.00%"><span class="af-rn"><b>Ninja SL400EU</b><small>2,8, nicht „gut“</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">4,6</span></li><li class="af-achse" aria-hidden="true"><span></span><span class="af-rt"><em>4</em><em>8 Punkte</em></span><span></span></li></ol>
+      <figcaption>Achse 4 bis 8 Punkte. Spanne „gut“ ohne Zahl: Note 1,6–2,5; für Geräte der Tabelle 09/2026 begrenzt der Testsieger (2,2) das Band nach oben.</figcaption>
+    </figure>
+    <p class="verdict">Sie bleibt Sieger, weil sie als Testsieger die höchste belegte Note hat. Die Stellvertreter-Logik begünstigt sie leicht (die Gesamtnote enthält Sicherheit und Umwelt); der Vorsprung vor der R901 bleibt, solange ihre Zubereitungsnote besser als ca. 2,7 ist.</p>
+    <div class="tablewrap"><table class="af-tab">
+      <caption class="small">Teilwerte je Kriterium mit Gewicht in Prozent. ≈ = Gesamtnote als Stellvertreter, – = nicht belegt. Alle Summen im Bericht per Python nachgerechnet.</caption>
+      <thead><tr><th>Gerät</th><th class="num">Garergebnis 35</th><th class="num">Kapazität 15</th><th class="num">Reinigung 15</th><th class="num">Bedienung 10</th><th class="num">Verbrauch 5</th><th class="num">Belegdichte</th><th class="num">Punkte</th></tr></thead>
+      <tbody>
+        <tr><td>Turbo Tower Pro Smart</td><td class="num">≈6,5</td><td class="num">10</td><td class="num">≈6,5</td><td class="num">≈6,5</td><td class="num">–</td><td class="num">75 %</td><td class="num"><b>7,2</b></td></tr>
+        <tr><td>AEG AAFD11B</td><td class="num">≈5,0–6,5</td><td class="num">10</td><td class="num">≈5,0–6,5</td><td class="num">≈5,0–6,5</td><td class="num">–</td><td class="num">75 %</td><td class="num">6,0–7,2</td></tr>
+        <tr><td>Caso DuoChef 3186</td><td class="num">≈5,0–6,5</td><td class="num">10</td><td class="num">≈5,0–6,5</td><td class="num">≈5,0–6,5</td><td class="num">–</td><td class="num">75 %</td><td class="num">6,0–7,2</td></tr>
+        <tr><td>Russell Hobbs 27680-56</td><td class="num">≈5,0–6,5</td><td class="num">8</td><td class="num">≈5,0–6,5</td><td class="num">≈5,0–6,5</td><td class="num">–</td><td class="num">75 %</td><td class="num">5,6–6,8</td></tr>
+        <tr><td>Cosori R901</td><td class="num">4,5</td><td class="num">6</td><td class="num">≈8,0</td><td class="num">8,0</td><td class="num">6,0</td><td class="num">80 %</td><td class="num"><b>6,0</b> (5,97)</td></tr>
+        <tr><td>Medion MD11760</td><td class="num">≈5,0–6,5</td><td class="num">6</td><td class="num">≈5,0–6,5</td><td class="num">≈5,0–6,5</td><td class="num">–</td><td class="num">75 %</td><td class="num">5,2–6,4</td></tr>
+        <tr><td>Ninja DZ400EU</td><td class="num">4,5</td><td class="num">8 (angenommen)</td><td class="num">≈5,5</td><td class="num">≈5,5</td><td class="num">–</td><td class="num">75 %</td><td class="num">5,5</td></tr>
+        <tr><td>Panasonic NF-BC1000KXE</td><td class="num">≈5,5</td><td class="num">–</td><td class="num">≈5,5</td><td class="num">≈5,5</td><td class="num">–</td><td class="num">60 %</td><td class="num">5,5 (Kapazität offen)</td></tr>
+        <tr><td>Ninja AF400EU (ersetzt)</td><td class="num">≈4,0</td><td class="num">8</td><td class="num">≈4,0</td><td class="num">≈4,0</td><td class="num">8,0</td><td class="num">80 %</td><td class="num">5,0</td></tr>
+        <tr><td>Ninja SL400EU</td><td class="num">≈3,5</td><td class="num">8</td><td class="num">≈3,5</td><td class="num">≈3,5</td><td class="num">8,0</td><td class="num">80 %</td><td class="num">4,6</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</div>
+<div class="bpane" id="af-p-kapazitaet" role="tabpanel" aria-labelledby="bt-af-kapazitaet" hidden>
+  <section id="af-kapazitaet" aria-labelledby="h-af-kap">
+    <header class="sh">
+      <h2 id="h-af-kap">Für sechs Personen in einem Durchgang ab 10 l</h2>
+      <p class="lead">Eine Liter-pro-Person-Regel von Warentest oder Verbraucherzentrale gibt es nicht. Die Grenze ist eine eigene Ableitung des Berichts: ab 8 l siegfähig, ab 10 l mit Reserve für 6 Personen.</p>
+    </header>
+    <figure class="af-fig">
+      <ol class="af-kap" aria-label="Volumen je Gerät" style="--m1:67.14%;--m2:71.43%"><li class="af-k" style="--c:var(--neutral);--w:100.00%"><span class="af-rn"><b>Caso DuoChef 3186</b><small>„gut“ ohne Zahl</small></span><span class="af-kt" aria-hidden="true"><i></i></span><span class="af-rv n">14 l</span></li><li class="af-k" style="--c:var(--neutral);--w:78.57%"><span class="af-rn"><b>AEG AAFD11B</b><small>„gut“ ohne Zahl</small></span><span class="af-kt" aria-hidden="true"><i></i></span><span class="af-rv n">11 l</span></li><li class="af-k" style="--c:var(--sam);--w:77.14%"><span class="af-rn"><b>Turbo Tower Pro Smart</b><small>gestapelt</small></span><span class="af-kt" aria-hidden="true"><i></i></span><span class="af-rv n">10,8 l</span></li><li class="af-k" style="--c:var(--neutral);--w:74.29%"><span class="af-rn"><b>Ninja AF500EU</b><small>ohne unabhängige Note, Trennwand</small></span><span class="af-kt" aria-hidden="true"><i></i></span><span class="af-rv n">10,4 l</span></li><li class="af-k" style="--c:var(--neutral);--w:67.86%"><span class="af-rn"><b>Ninja DZ400EU</b><small>angenommen</small></span><span class="af-kt" aria-hidden="true"><i></i></span><span class="af-rv n">9,5 l</span></li><li class="af-k" style="--c:var(--neutral);--w:64.29%"><span class="af-rn"><b>Russell Hobbs 27680-56</b><small>„gut“ ohne Zahl</small></span><span class="af-kt" aria-hidden="true"><i></i></span><span class="af-rv n">9 l</span></li><li class="af-k" style="--c:var(--tcl);--w:62.14%"><span class="af-rn"><b>Medion MD11760</b><small>laut Händlerlistings</small></span><span class="af-kt" aria-hidden="true"><i></i></span><span class="af-rv n">8,7 l</span></li><li class="af-k" style="--c:var(--lg);--w:60.71%"><span class="af-rn"><b>Cosori R901</b><small>Angabe schwankt</small></span><span class="af-kt" aria-hidden="true"><i></i></span><span class="af-rv n">8,5 l</span></li><li class="af-achse" aria-hidden="true"><span></span><span class="af-rt"><em>0</em><em>14 l</em></span><span></span></li></ol>
+      <figcaption>Achse 0 bis 14 l. Gestrichelte Linie: 9,4 l, Warentest-Schnitt der Zwei-Raum-Geräte. Durchgezogene Linie: 10 l, ab hier Reserve für 6 Personen (Ableitung).</figcaption>
+    </figure>
+    <dl class="kv af-kv">
+      <dt>Warentest</dt><dd>Zwei-Raum-Geräte fassen im Schnitt 9,4 l, Ein-Raum 7,2 l; Testportion war zwei Drittel des Korbvolumens<small><a href="https://www.test.de/news/Stiftung-Warentest-prueft-Heissluftfritteusen-Endgegner-fuer-viele-Airfryer-Die-grosse-Pommes-Portion-6262264-0/" target="_blank" rel="noopener">test.de</a></small></dd>
+      <dt>Which?</dt><dd>Bei 7,4 bis 9,5 l nur 2,1 bis 2,3 kg Pommes-Höchstmenge<small><a href="https://www.which.co.uk/reviews/air-fryers/article/best-dual-air-fryer-am6QL1l58eZN" target="_blank" rel="noopener">Which? Best dual</a></small></dd>
+      <dt>Ganzes Hähnchen</dt><dd>Für die Sieger nicht belegt<small>Philips NA352 bis 1,5 kg im 6-l-Korb (Philips DE), Ninja AF500 ca. 1,4 kg (Portal)</small></dd>
+      <dt>Herstellerangaben</dt><dd>Tefal EY942 „8–10 Personen“, Ninja AF400 „3–5“, AF500 „8+“ (Portal), Philips keine<small>Ein Ratgeber (kein Institut) empfiehlt ab 6 l für größere Familien (homeandsmart)</small></dd>
+    </dl>
+    <p class="small">R901 (8,5 l) und Medion (8,7 l) bedeuten bei 6 Personen vermutlich zwei Durchgänge (Ableitung). Die Medion-Kapazität stammt aus Händlerlistings; die R901-Volumenangabe schwankt (2 × 4,25 l gegen „8,5 l je Korb“).</p>
+  </section>
+</div>
+<div class="bpane" id="af-p-reinigung" role="tabpanel" aria-labelledby="bt-af-reinigung" hidden>
+  <section id="af-reinigung" aria-labelledby="h-af-rein">
+    <header class="sh">
+      <h2 id="h-af-rein">Bei der Reinigung ist zwischen den Siegern nichts belastbar zu unterscheiden</h2>
+      <p class="lead">Warentest bewertet die Reinigung in der Handhabung, diese Teilnoten sind gesperrt. Öffentlich ist nur die Handhabung der R901 mit 1,9.</p>
+    </header>
+    <dl class="kv af-kv">
+      <dt>Spülmaschinenfest belegt</dt><dd>Philips NA352 und NA555, Tefal EY942, Ninja AF500 und AF400UK<small>Philips DE, Tænk, Which?</small></dd>
+      <dt>Für die Sieger</dt><dd>Turbo Tower Pro Smart, R901 und Medion: Die Notizen nennen es nicht<small>Medion: ILAG-Beschichtung laut Baur-Listing</small></dd>
+      <dt>Beschichtung</dt><dd>AF500 nutzt PTFE; Warentest hat 09/2026 erstmals PFAS gemessen, Ergebnisse gesperrt</dd>
+      <dt>Dampf</dt><dd>Philips NA555 reinigt mit Dampf und braucht Entkalken</dd>
+      <dt>ETM-Hinweise</dt><dd>Caso „besonders bequem“, Russell Hobbs „schnell“<small>Nebeninfo, nicht gewertet</small></dd>
+      <dt>Anekdote</dt><dd>Ein Leserkommentar nennt bei Cosori Rückstände im Korbgriff<small><a href="https://www.test.de/news/Heissluftfritteusen-Test-der-Stiftung-Warentest-Airfryer-werden-immer-besser-6335940-0/" target="_blank" rel="noopener">test.de News</a></small></dd>
+    </dl>
+  </section>
+</div>
+<div class="bpane" id="af-p-methode" role="tabpanel" aria-labelledby="bt-af-methode" hidden>
+  <section id="af-methode" aria-labelledby="h-af-meth">
+    <header class="sh">
+      <h2 id="h-af-meth">Punkte nur aus Laborurteilen</h2>
+      <p class="lead">Die Punkte stammen ausschließlich aus Stiftung Warentest (2025/2026) und vergleichbaren Laboren. Neuere Warentest-Noten ersetzen ältere. Portal- und Affiliate-Noten fließen nicht ein.</p>
+    </header>
+    <dl class="kv af-kv">
+      <dt>Garergebnis 35 %</dt><dd>Pommes/Snacks 10, Fleisch/Fisch 10, Gemüse/Beilagen 7, Backen 8<small>Zubereitungs-Teilnote, wo vorhanden (R901 und DZ400 2,6 → 4,5), sonst Gesamtnote als Stellvertreter; einzelne Gerichtsarten für kein Gerät belegt</small></dd>
+      <dt>Kapazität 15 %</dt><dd>unter 8 l = 3, 8 bis unter 9 l = 6, 9 bis unter 10 l = 8, ab 10 l = 10</dd>
+      <dt>Reinigung 15 %</dt><dd>Handhabungs-Teilnote, wo vorhanden (R901 1,9 → 8,0), sonst Gesamtnote</dd>
+      <dt>Bedienung 10 %</dt><dd>wie Reinigung</dd>
+      <dt>Beschichtung/PFAS 8 %</dt><dd>nicht belegt</dd>
+      <dt>Zuverlässigkeit 7 %</dt><dd>nicht belegt</dd>
+      <dt>Lautstärke 5 %</dt><dd>nicht belegt</dd>
+      <dt>Verbrauch 5 %</dt><dd>Jahreskosten 20 € = 10 bis 40 € = 0 (eigene Skala; R901 28 € = 6,0)</dd>
+    </dl>
+    <p class="small">Warentest-Note linear: 1,5 → 10, 3,5 → 0. Gesamtpunkte = gewichtetes Mittel über die belegten Kriterien. Band „gut“ ohne Zahl: Note 1,6–2,5, also 5,0–9,5 Punkte; für Geräte der Tabelle 09/2026 auf 5,0–6,5 begrenzt.</p>
+    <p class="small">ETM-Noten (nur über testsieger.de gesehen, Originale nicht geprüft) liegen für alle Dual-Geräte eng bei 1,3–1,5 und sind nicht vergleichbar skaliert; sie fließen nicht ein. Cosori Turbo Tower Pro und R901 kommen in der ETM-Liste nicht vor.</p>
+  </section>
+</div>
+</div>
+
+<div class="bereich" id="airfryer-preise" data-b="preise" aria-label="Preise" hidden>
+<div class="segx bseg" role="tablist" aria-label="Preise Air Fryer"><i class="thumb" aria-hidden="true"></i><button type="button" role="tab" id="bt-af-wert" aria-controls="af-p-wert" aria-selected="true">Preis-Leistung</button><button type="button" role="tab" id="bt-af-liste" aria-controls="af-p-liste" aria-selected="false" tabindex="-1">Preise</button></div>
+<div class="bpane" id="af-p-wert" role="tabpanel" aria-labelledby="bt-af-wert">
+  <section id="af-wert" aria-labelledby="h-af-wert">
+    <header class="sh">
+      <h2 id="h-af-wert">Je Euro liegt die Medion vorläufig vorn, in ihrer ganzen Spanne</h2>
+      <p class="lead">Punkte geteilt durch Preis. Nur die Medion übertrifft die R901 im gesamten Intervall; die Caso erreicht sie im Bestfall höchstens (0,0500 gegenüber 0,0502).</p>
+      <p class="af-vorl">Der Sieg gilt nur gegenüber den preislich bewertbaren Geräten. Russell Hobbs 27680-56, Ninja DZ400EU und Panasonic NF-BC1000KXE bleiben ohne belegten Preis offen.</p>
+    </header>
+    <figure class="af-fig">
+      <ol class="af-spanne" aria-label="Punkte je Euro"><li class="af-r is-band" style="--c:var(--tcl);--a:54.29%;--b:85.71%"><span class="af-rn"><b>Medion MD11760</b><small>5,2–6,4 Punkte, 79,95–90 €</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">0,058–0,080</span></li><li class="af-r" style="--c:var(--lg);--a:42.86%;--b:42.86%"><span class="af-rn"><b>Cosori R901</b><small>5,97 Punkte, 119 €</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">0,050</span></li><li class="af-r is-band" style="--c:var(--neutral);--a:31.43%;--b:42.86%"><span class="af-rn"><b>Caso DuoChef 3186</b><small>ca. 144 €</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">0,042–0,050</span></li><li class="af-r is-band" style="--c:var(--neutral);--a:18.57%;--b:28.57%"><span class="af-rn"><b>AEG AAFD11B</b><small>ca. 180 €</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">0,033–0,040</span></li><li class="af-r" style="--c:var(--sam);--a:8.57%;--b:8.57%"><span class="af-rn"><b>Turbo Tower Pro Smart</b><small>7,2 Punkte, 279,99 €</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">0,026</span></li><li class="af-r" style="--c:var(--neutral);--a:8.57%;--b:8.57%"><span class="af-rn"><b>Ninja DZ400EU</b><small>nur Hinweispreis</small></span><span class="af-rt" aria-hidden="true"><i></i></span><span class="af-rv n">0,026</span></li><li class="af-r is-offen" style="--c:var(--neutral)"><span class="af-rn"><b>Russell Hobbs 27680-56</b><small>kein Modellpreis</small></span><span class="af-rt" aria-hidden="true"></span><span class="af-rv">offen</span></li><li class="af-achse" aria-hidden="true"><span></span><span class="af-rt"><em>0,02</em><em>0,09</em></span><span></span></li></ol>
+      <figcaption>Punkt: fester Wert. Gestrichelt: Spanne aus Punkte-Spanne oder Preisspanne. Ohne Modellpreis bleibt die Zeile offen.</figcaption>
+    </figure>
+    <p class="small">Medion: 5,2–6,4 Punkte bei 90–79,95 €. Caso: ca. 144 € (test.de-Mittel). AEG: ca. 180 € (test.de-Mittel). Ninja DZ400EU nur mit Hinweispreis des Vorgängers AF400EU (215,43 €). Russell Hobbs 27680-56 mangels Modellpreis offen.</p>
+  </section>
+</div>
+<div class="bpane" id="af-p-liste" role="tabpanel" aria-labelledby="bt-af-liste" hidden>
+  <section id="af-preise" aria-labelledby="h-af-preise">
+    <header class="sh">
+      <h2 id="h-af-preise">Preise vom 08.11.2026 und 09.11.2026, meist aus einem Tracker</h2>
+      <p class="lead">geizhals, idealo, billiger.de, ninjakitchen.de, cosori.com/de, mediamarkt.at und kaufland waren nicht abrufbar. Fast alle Preise stammen aus dem automatisch erzeugten Affiliate-Tracker smarthomeassistent.de (sekundär); der Amazon-Händlerstatus ist nicht ersichtlich.</p>
+    </header>
+    <div class="tablewrap"><table class="af-tab">
+      <thead><tr><th>Gerät</th><th class="num">Preis</th><th>Händler</th><th>Stand</th><th>Versand</th><th>Quellenart</th></tr></thead>
+      <tbody>
+        <tr><td>Turbo Tower Pro Smart</td><td class="num"><b>279,99 €</b><small>OTTO ab 259 €</small></td><td>Amazon, COSORI-Shop</td><td>08.11.2026</td><td>nicht belegt</td><td>sekundär</td></tr>
+        <tr><td>Cosori R901</td><td class="num"><b>119,00 €</b><small>Snippets 123,90 / 139 €</small></td><td>Lidl, nur online</td><td>09.11.2026</td><td>nicht belegt</td><td>sekundär</td></tr>
+        <tr><td>Medion MD11760</td><td class="num"><b>79,95 €</b><small>ca. 90 €</small></td><td>produkte-im-test (kein Händler) / Geizhals-Mittel laut test.de</td><td>nicht belegt / Nov. 2026</td><td>nicht belegt</td><td>sekundär</td></tr>
+        <tr><td>Caso DuoChef 3186</td><td class="num">ca. 144 €</td><td>test.de-Mittel</td><td>02.09.2026</td><td>nicht belegt</td><td>sekundär (Snippet)</td></tr>
+        <tr><td>AEG AAFD11B</td><td class="num">ca. 180 €</td><td>test.de-Mittel</td><td>01.07.2026</td><td>nicht belegt</td><td>sekundär (Snippet)</td></tr>
+        <tr><td>Russell Hobbs 27680-56</td><td class="num">offen<small>27681-56: 128 € Amazon, anderes Modell</small></td><td>–</td><td>09.11.2026</td><td>nicht belegt</td><td>–</td></tr>
+        <tr><td>Ninja DZ400EU</td><td class="num">nicht gefunden<small>AF400EU: 215,43 € Amazon</small></td><td>–</td><td>09.11.2026</td><td>nicht belegt</td><td>Hinweis</td></tr>
+        <tr><td>Ninja AF500EU</td><td class="num">153,53 €</td><td>Galaxus</td><td>09.11.2026</td><td>kostenlos</td><td>sekundär</td></tr>
+        <tr><td>Philips NA352 / NA555</td><td class="num">99,99 € / 199,99 €</td><td>philips.de</td><td>09.11.2026</td><td>frei ab 40 €</td><td>primär</td></tr>
+        <tr><td>Tefal EY942</td><td class="num">123,99 €</td><td>expert-technomarkt.de</td><td>09.11.2026</td><td>„gratis“, Verfügbarkeit unklar</td><td>primär</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">Abruf 09.11.2026, ca. 12:35–13:15 Uhr. Für die Air Fryer läuft kein Preiswecker.</p>
+  </section>
+</div>
+</div>
+
+<div class="bereich bereich-mehr" id="airfryer-mehr" data-b="mehr" aria-label="Mehr" hidden>
+<div class="mehr-liste">
+<details id="mehr-af-kandidaten"><summary><span><b>Alle Kandidaten</b><small>Geprüfte Geräte und Ausschlussgründe</small></span></summary>
+  <section id="af-kandidaten" aria-labelledby="h-af-kand">
+    <header class="sh"><h2 id="h-af-kand">Alle Kandidaten</h2>
+      <p class="small">Ausdrücklich ausgeschlossen (Einkammergeräte): Cosori Dual Blaze, Philips 5000 Steam NA547, Ninja Crispi Pro AS101 (Warentest „befriedigend“ laut Sekundärquelle), Ninja MAX PRO AF180. Als nicht klassisch zweikörbig ausgeschlossen: Philips Megabasket NA565 und Tefal Flex EY922 (laut ETM teilbare Einzelgarräume).</p></header>
+    <div class="tablewrap"><table class="af-tab">
+      <thead><tr><th>Kandidat</th><th class="num">Volumen</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Cosori Turbo Tower Pro Smart</td><td class="num">10,8 l</td><td>Sieger Oberklasse, 2,2 (09/2026), gestapelt</td></tr>
+        <tr><td>Cosori R901</td><td class="num">8,5 l</td><td>Alternative mit Zahlennote, 2,3 (01/2025), zwei Schubladen</td></tr>
+        <tr><td>Medion P20 XXL Twin</td><td class="num">8,7 l</td><td>Sieger Preis-Leistung (vorläufig), „gut“ ohne Zahl (09/2026, Preistipp)</td></tr>
+        <tr><td>Caso AirFry DuoChef 3186</td><td class="num">14 l</td><td>„gut“ ohne Zahl, ca. 144 €, Preis-Leistung höchstens 0,050</td></tr>
+        <tr><td>AEG AAFD11B</td><td class="num">11 l</td><td>„gut“ ohne Zahl, ca. 180 €, Preis-Leistung höchstens 0,040</td></tr>
+        <tr><td>Russell Hobbs SatisFry Dual Basket 9 L, 27680-56</td><td class="num">9 l</td><td>„gut“ ohne Zahl; Preis des getesteten Modells offen</td></tr>
+        <tr><td>Ninja DZ400EU (Nachfolger AF400EU)</td><td class="num">9,5 l (angenommen)</td><td>„gut“ 2,4, Zubereitung 2,6 (09/2026, Sekundärquelle); Garraumzahl in den Notizen widersprüchlich; kein Preis gefunden</td></tr>
+        <tr><td>Panasonic NF-BC1000KXE</td><td class="num">nicht belegt</td><td>„gut“ 2,4; weder Volumen noch Preis belegt</td></tr>
+        <tr><td>Ninja AF400EU</td><td class="num">9,5 l</td><td>Vorgänger, 2,7 (01/2025), durch DZ400EU ersetzt, nicht „gut“</td></tr>
+        <tr><td>Ninja Double Stack SL400EU; Philips NA462/70</td><td class="num">9,5 / 10 l</td><td>2,8 bzw. 2,8, nicht „gut“</td></tr>
+        <tr><td>Philips NA352, NA555; Tefal EY942</td><td class="num">9 / 9 / 11 l</td><td>keine zugängliche Labornote</td></tr>
+        <tr><td>Ninja AF300EU, Instant Vortex Plus Dual, Crispi DualZone DD102EUIV2</td><td class="num">je 7,6 l</td><td>unter 8 l, keine „gut“-Note</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small"><b>Starke Alternative ohne unabhängige Note: Ninja FlexDrawer AF500EU.</b> 10,4 l (2 × 5,2 l mit Trennwand), 153,53 € bei Galaxus (Tracker, 09.11.2026), Korb und Einsatz spülmaschinenfest, Hähnchen bis ca. 1,4 kg; aber PTFE und eine Trennwand, die die Hitze laut Expert Reviews nicht vollständig trennt. Konsument testete ihn, die Note ist gesperrt. Kein Sieger.</p>
+  </section>
+</details>
+<details id="mehr-af-luecken"><summary><span><b>Was nicht belegt ist</b><small>Lücken und Unsicherheiten</small></span></summary>
+  <section id="af-luecken" aria-labelledby="h-af-lue">
+    <header class="sh"><h2 id="h-af-lue">Was nicht belegt ist</h2></header>
+    <ol class="unc">
+      <li>Alle Warentest-Noten 09/2026 sind nur über Sekundärquellen belegt; Zahlennoten fehlen für AEG, Caso, Russell Hobbs und Medion, Teilnoten für alle. Eine Freischaltung auf test.de (laut Notizen 5,90 €) würde den vorläufigen Preis-Leistungs-Sieger bestätigen oder kippen.</li>
+      <li>Reinigung, PFAS und Geräusch sind unabhängig nicht belegt. Frei zugängliche dB-Werte aus Labormessungen gibt es keine; der einzige Wert ist eine Portalmessung beim Ninja SL451EU (54–56,9 dB bei 1 m), kein Labor und nicht gewertet.</li>
+      <li>Preise sind überwiegend Trackerwerte; DZ400EU und Russell Hobbs 27680-56 ohne Modellpreis, Panasonic ohne Volumen und Preis.</li>
+      <li>Medion: Kapazität (8,7 l) aus Händlerlistings, Leistung widersprüchlich (2.400 gegenüber 2.600 W).</li>
+      <li>R901: steht laut einer Notiz in der Tabelle 09/2026, laut einer anderen nicht; eine Neubewertung wäre unsichtbar. Die Volumenangabe schwankt (2 × 4,25 l gegen „8,5 l je Korb“).</li>
+      <li>DZ400EU als Nachfolger und sein Volumen sind aus Portalangaben abgeleitet. Which?, RTINGS, Konsument/VKI und Tænk sind gesperrt.</li>
+      <li>Rückrufe (PowerXL, Haden, Tower) betreffen keinen Kandidaten (<a href="https://www.cpsc.gov/Recalls/2024/Empower-Brands-Recalls-Power-XL-Dual-Basket-Air-Fryers-Due-to-Burn-Hazard" target="_blank" rel="noopener">CPSC</a>, <a href="https://www.gov.uk/product-safety-alerts-reports-recalls/product-recall-tower-air-fryers-2503-0044" target="_blank" rel="noopener">OPSS Tower</a>); der EU Safety Gate wurde nicht abgefragt.</li>
+    </ol>
+  </section>
+</details>
+<details id="mehr-af-quellen"><summary><span><b>Quellen</b></span></summary>
+  <section id="af-quellen" aria-labelledby="h-af-q">
+    <header class="sh"><h2 id="h-af-q">Quellen</h2><p class="small">Recherchestand 09.11.2026.</p></header>
+    <ul class="src">
+      <li><b>Primär</b><span><a href="https://www.test.de/Heissluftfritteusen-im-Test-5115675-0/" target="_blank" rel="noopener">test.de Hauptseite</a>, <a href="https://www.test.de/news/Heissluftfritteusen-Test-der-Stiftung-Warentest-Airfryer-werden-immer-besser-6335940-0/" target="_blank" rel="noopener">test.de News 09/2026</a>, <a href="https://www.test.de/Heissluftfritteusen-im-Test-5115675-tabelle/" target="_blank" rel="noopener">test.de Tabelle</a>, <a href="https://www.home-appliances.philips/de/de/p/NA352_00" target="_blank" rel="noopener">Philips NA352</a>, <a href="https://www.home-appliances.philips/de/de/p/NA555_00" target="_blank" rel="noopener">Philips NA555</a>, <a href="https://www.tefal.ie/p/1510002648" target="_blank" rel="noopener">tefal.ie</a>, <a href="https://www.which.co.uk/reviews/air-fryers/ninja-foodi-max-dual-zone-af400uk-rt" target="_blank" rel="noopener">Which? AF400UK</a>, <a href="https://www.which.co.uk/reviews/air-fryers/article/best-dual-air-fryer-am6QL1l58eZN" target="_blank" rel="noopener">Which? Best dual</a>, <a href="https://taenk.dk/test/airfryer/philips-5000-series-na55509" target="_blank" rel="noopener">Tænk NA555</a>, <a href="https://www.expert-technomarkt.de/Fritteusen/Tefal-EY942HE0-Easy-Fry-Dual-XXL-Doppel-Hei%C3%9Fluftfritteuse-11-l-2020-W-Grau-Grau.36463014838.html" target="_blank" rel="noopener">expert-technomarkt</a>, <a href="https://www.alternate.de/Medion/Doppel-Heissluftfritteuse-Life-P20-MD11760-XXL/html/product/100200348" target="_blank" rel="noopener">Alternate Medion</a>, <a href="https://www.cpsc.gov/Recalls/2024/Empower-Brands-Recalls-Power-XL-Dual-Basket-Air-Fryers-Due-to-Burn-Hazard" target="_blank" rel="noopener">CPSC</a>, <a href="https://www.gov.uk/product-safety-alerts-reports-recalls/product-recall-tower-air-fryers-2503-0044" target="_blank" rel="noopener">OPSS Tower</a></span></li>
+      <li><b>Sekundär</b><span><a href="https://www.heidelberg24.de/verbraucher/test-heissluftfritteuse-bester-airfryer-ninja-stiftung-warentest-93983005.html" target="_blank" rel="noopener">heidelberg24</a>, <a href="https://produkte-im-test.de/heissluftfritteusen-test-stiftung-warentest/" target="_blank" rel="noopener">produkte-im-test</a>, <a href="https://www.lecker.de/heissluftfritteusen-bei-stiftung-warentest-diese-vier-airfryer-sind-testsieger-131232.html" target="_blank" rel="noopener">lecker.de</a>, <a href="https://www.t-online.de/ratgeber/id_85026186/die-besten-heissluftfritteusen-fuer-knusprige-pommes-philips-airfryer-und-co-im-vergleich.html" target="_blank" rel="noopener">t-online</a>, <a href="https://www.testsieger.de/heissluftfritteusen/vergleichstest/1f174807-e567-6f64-8e5f-bc2411fe4266-heissluftfritteusen-mit-doppelkorb-wer-erringt-den-ersten-platz-bei-etm-testmagazin.html" target="_blank" rel="noopener">testsieger.de ETM</a>, <a href="https://www.testsieger.de/heissluftfritteusen/5CCV101SQ3VGR-medion-p20-xxl-heissluftfritteuse-mit-2-kammern-87-liter-2600-watt-doppelkammer-9-automatikprogramme-2-schubladen-sichtfenster-dualer-airfryer-dual-cook-und-sync-finish-funktion.html" target="_blank" rel="noopener">testsieger.de Medion</a>, <a href="https://www.bluepick.de/heissluftfritteusen/27z4sdw/medion-life-p20-xxl-twin" target="_blank" rel="noopener">bluepick Medion</a>, <a href="https://www.expertreviews.co.uk/air-fryers/ninja-foodi-flexdrawer-dual-air-fryer-af500uk-review" target="_blank" rel="noopener">Expert Reviews AF500</a>, <a href="https://www.homeandsmart.de/heissluftfritteuse-stiftung-warentest" target="_blank" rel="noopener">homeandsmart</a>, <a href="https://www.smarthomeassistent.de/heissluftfritteusen/cosori-turbo-tower-pro-smart/" target="_blank" rel="noopener">smarthomeassistent Turbo Tower</a>, <a href="https://www.smarthomeassistent.de/heissluftfritteusen/ninja-foodi-flexdrawer-af500eu/" target="_blank" rel="noopener">smarthomeassistent AF500</a>, <a href="https://www.smarthomeassistent.de/heissluftfritteusen/vergleich/ninja-crispi-dualzone-vs-ninja-double-stack-xl/" target="_blank" rel="noopener">smarthomeassistent SL451</a>, <a href="https://www.discounto.de/Angebot/Cosori-Heissluftfritteuse-CAF-R901-AEU-2x-4-25-l-10018150/" target="_blank" rel="noopener">discounto R901</a></span></li>
+    </ul>
+  </section>
+</details>
+<button type="button" class="mehr-v" id="af-mehr-version" aria-haspopup="dialog" aria-controls="vdialog"><span><b>Versionsverlauf</b><small>Version 19 vom 09.11.2026</small></span><em class="chev" aria-hidden="true">›</em></button>
+</div>
+<footer>Air-Fryer-Reiter vom 09.11.2026. Inhalte aus dem Benchmark „Air Fryer mit zwei Körben“ (Stand 09.11.2026). Noten 09/2026 nur über Sekundärquellen, Preise überwiegend aus einem Tracker.</footer>
+</div>
+</div>
+</main>
+
 <nav class="bleiste" id="bleiste" data-view="tv" aria-label="Bereiche Fernseher"><a href="#tv-empfehlung" data-bl="empfehlung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Empfehlung</span></a><a href="#tv-entscheiden" data-bl="entscheiden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5 8h14M7 8l-3 6h6zM17 8l-3 6h6z"/></svg><span>Entscheiden</span></a><a href="#tv-vergleich" data-bl="vergleich"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M12 5v12"/></svg><span>Vergleich</span></a><a href="#tv-preise" data-bl="preise"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l5-5 4 3 7-7"/></svg><span>Preise</span></a><a href="#tv-mehr" data-bl="mehr"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg><span>Mehr</span></a></nav>
 <nav class="bleiste" id="bleiste-sauger" data-view="sauger" aria-label="Bereiche Staubsauger" hidden><a href="#sauger-empfehlung" data-bl="empfehlung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Empfehlung</span></a><a href="#sauger-entscheiden" data-bl="entscheiden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5 8h14M7 8l-3 6h6zM17 8l-3 6h6z"/></svg><span>Entscheiden</span></a><a href="#sauger-vergleich" data-bl="vergleich"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M12 5v12"/></svg><span>Vergleich</span></a><a href="#sauger-technik" data-bl="technik"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Technik</span></a><a href="#sauger-mehr" data-bl="mehr"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg><span>Mehr</span></a></nav>
-<div class="wrap vfoot"><button type="button" class="vchip" id="vchip" aria-haspopup="dialog" aria-controls="vdialog"><span class="vn">Version 18</span><span>09.11.2026</span><span class="vnew">Neu</span><span class="vq">Was ist neu?</span></button></div>
+<nav class="bleiste" id="bleiste-airfryer" data-view="airfryer" aria-label="Bereiche Air Fryer" hidden><a href="#airfryer-empfehlung" data-bl="empfehlung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Empfehlung</span></a><a href="#airfryer-vergleich" data-bl="vergleich"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M12 5v12"/></svg><span>Vergleich</span></a><a href="#airfryer-preise" data-bl="preise"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l5-5 4 3 7-7"/></svg><span>Preise</span></a><a href="#airfryer-mehr" data-bl="mehr"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg><span>Mehr</span></a></nav>
+<div class="wrap vfoot"><button type="button" class="vchip" id="vchip" aria-haspopup="dialog" aria-controls="vdialog"><span class="vn">Version 19</span><span>09.11.2026</span><span class="vnew">Neu</span><span class="vq">Was ist neu?</span></button></div>
 <dialog class="vd" id="vdialog" aria-labelledby="vd-t"><div class="vd-head"><h2 id="vd-t">Versionsverlauf</h2><button type="button" class="vd-x" aria-label="Schließen">×</button></div><div class="vd-body"><p class="vd-neu" hidden></p><ol class="vd-list"></ol><p class="vd-app" hidden></p></div></dialog>
 
 <script>
@@ -2918,6 +3288,7 @@ html{background:
   }
 
   const tv = $("view-tv") ? aufbauen($("view-tv"), () => { if (window.__tvTechnik && window.__tvTechnik.redraw) window.__tvTechnik.redraw(); }) : null;
+  const airfryer = $("view-airfryer") ? aufbauen($("view-airfryer"), null) : null; // Air Fryer: keine Grafiken zum Neuzeichnen
   const sauger = $("view-sauger") ? aufbauen($("view-sauger"), () => { if (window.kbSauger && window.kbSauger.redraw) window.kbSauger.redraw(); }) : null;
 
   // Preiswecker-Zeile im Startbildschirm (Fernseher): spiegelt die erste Statuszeile aus Preise › Wecker (nur Text, keine eigene Logik)
@@ -2934,7 +3305,7 @@ html{background:
   if (w1) w1.textContent = "Preiswecker";
 
   window.kbBereiche = tv;                       // bisherige Schnittstelle (Fernseher)
-  window.kbBereicheAlle = { tv, sauger };       // Runde 9: je Ansicht
+  window.kbBereicheAlle = { tv, sauger, airfryer }; // Runde 9: je Ansicht; Air Fryer 09.11.2026
 })();
 </script>
 <script type="application/json" id="technik-daten">{"_hinweis":"Technikdaten TV-Reiter (T1–T6). Jede Zahl als {\"v\": Wert, \"q\": Quellenschlüssel}; Lücken als {\"luecke\": Text}. Belege: kaufberatung/recherche/tv-technik.md, tv-oberflaechen.md, TV-Benchmark.md. Abruf 07.11.2026. Prüfung: kaufberatung/build/pruefe_technik.py","quellen":{"lg-spec":{"titel":"LG.de, OLED83C6ELB, alle Spezifikationen","url":"https://www.lg.com/de/tvs-und-soundbars/oled-evo/oled83c6elb/","art":"Hersteller"},"sam-spec":{"titel":"Samsung.de, GQ83S90HAEXZG, Spezifikationen","url":"https://www.samsung.com/de/tvs/oled-tv/s90h-83-inch-4k-smart-tv-gq83s90haexzg/","art":"Hersteller"},"tcl-spec":{"titel":"TCL Österreich, 85C8L, Spezifikationen","url":"https://www.tcl.com/at/de/tvs/85c8l","art":"Hersteller"},"sony-spec":{"titel":"Sony.de, KD-65XH9005, Spezifikationen","url":"https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs-android-/kd-65xh9005/specifications","art":"Hersteller"},"alternate-sam":{"titel":"Alternate, Samsung GQ-83S90H (Händlerangabe HDMI 2.1)","url":"https://www.alternate.de/Samsung/GQ-83S90H-Vision-AI-Smart-OLED-Fernseher/html/product/100211470","art":"Händler"},"tftcentral":{"titel":"TFTCentral, Primary RGB Tandem 2.0 in 77″/83″ C6","url":"https://tftcentral.co.uk/news/lg-bring-primary-rgb-tandem-2-0-woled-panels-to-some-of-their-g6-and-c6-tv-range","art":"Fachpresse"},"notebookcheck-s90h":{"titel":"Notebookcheck, Samsung S90H wohl mit WOLED (nur Suchtreffer)","url":"https://www.notebookcheck.com/Erste-Tests-Samsung-S90H-wohl-mit-WOLED-statt-QD-OLED-Panel.1265812.0.html","art":"Fachpresse"},"rtings-qm8l":{"titel":"RTINGS, TCL QM8L (US-Modell)","url":"https://www.rtings.com/tv/reviews/tcl/qm8l","art":"Test"},"er-xh90":{"titel":"Expert Reviews, Sony XH90 (am 75″ getestet)","url":"https://www.expertreviews.co.uk/technology/tvs-home-cinema/sony-xh90xh92-review","art":"Test"},"bericht":{"titel":"TV-Benchmark Version 2.1/3 (Bericht dieser Kaufberatung)","url":"#quellen","art":"Bericht"},"wiki-viewing":{"titel":"Wikipedia, Optimum HDTV viewing distance","url":"https://en.wikipedia.org/wiki/Optimum_HDTV_viewing_distance","art":"Sekundärquelle"},"itu-2020":{"titel":"ITU-R BT.2020 (UHDTV 3840 × 2160)","url":"https://www.itu.int/rec/R-REC-BT.2020","art":"Norm"},"eprel-tcl":{"titel":"EPREL TCL 85C8LX1 (2538281)","url":"https://eprel.ec.europa.eu/screen/product/electronicdisplays/2538281","art":"EU-Datenbank"},"eprel-lg":{"titel":"EPREL LG OLED83C6ELB (2616424)","url":"https://eprel.ec.europa.eu/screen/product/electronicdisplays/2616424","art":"EU-Datenbank"},"eprel-sam":{"titel":"EPREL Samsung GQ83S90HAE (2571344)","url":"https://eprel.ec.europa.eu/screen/product/electronicdisplays/2571344","art":"EU-Datenbank"},"bdew":{"titel":"BDEW-Strompreisanalyse Oktober 2026","url":"https://www.bdew.de/media/documents/BDEW_Strompreisanalyse_102026_1.pdf","art":"Verband"},"zambullo":{"titel":"zambullo.de, Unterschiede der LG-C6-Varianten","url":"https://www.zambullo.de/fernseher/unterschiede-lg-tv-oled-c6-aus-2026-c67-vs-c68-vs-c69-vs-c6e-vs-c6h-vs-c6s-was-unterscheidet-die-tv-modelle.html","art":"Fachseite"},"lg-webos":{"titel":"LG.de, webOS Smart TV","url":"https://www.lg.com/de/webos-smart-tv/webos","art":"Hersteller"},"sam-highlights":{"titel":"Samsung.de, Smart TV Highlights","url":"https://www.samsung.com/de/tvs/smart-tv/highlights/","art":"Hersteller"},"google-tv-hilfe":{"titel":"Google-TV-Hilfe, Startbildschirm","url":"https://support.google.com/googletv/answer/10267283?hl=en","art":"Hersteller"},"sony-haep2":{"titel":"Sony-Hilfe haep2 (Zuordnung zum XH9005 nur indirekt)","url":"https://helpguide.sony.net/tv/haep2/v1/de/print.html","art":"Hersteller"}},"sitz":{"spanne_m":[{"v":2.5,"q":"bericht"},{"v":3.2,"q":"bericht"}],"smpte_grad":{"v":30,"q":"wiki-viewing","hinweis":"oft zitierte SMPTE-Empfehlung; laut Wikipedia gibt es dazu keine direkte SMPTE-Veröffentlichung"},"thx_grad":{"v":40,"q":"wiki-viewing"},"bogenminute":{"v":1,"q":"wiki-viewing","hinweis":"Grenze der Detailerkennung bei normaler Sehschärfe"},"pixel_breite":{"v":3840,"q":"itu-2020"},"pixel_hoehe":{"v":2160,"q":"itu-2020"}},"modelle":[{"id":"sony","name":"Sony KD-65XH9005","kurz":"Sony XH9005","c":"var(--sony)","zoll":{"v":65,"q":"sony-spec"},"breite_mm":{"v":1450,"q":"sony-spec","ca":true},"hoehe_mm":{"v":833,"q":"sony-spec","ca":true},"tiefe_mm":{"v":70,"q":"sony-spec","ca":true},"hoehe_fuss_mm":{"v":903,"q":"sony-spec","ca":true},"tiefe_fuss_mm":{"v":338,"q":"sony-spec","ca":true},"kg":{"v":22.2,"q":"sony-spec","ca":true},"kg_fuss":{"v":23.2,"q":"sony-spec","ca":true},"vesa":[{"v":300,"q":"sony-spec"},{"v":300,"q":"sony-spec"}],"fuss_art":"zwei Füße außen","fuss_breite_mm":{"v":1128,"q":"sony-spec","ca":true,"hinweis":"Standfußbreite, Abstand der Außenkanten"},"fuss_tiefe_mm":{"luecke":"Fußtiefe einzeln nicht angegeben"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":false},{"nr":2,"k21":false},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"er-xh90","status21":"unsicher","hinweis21":"HDMI 3 und 4 = 2.1, am 75″ getestet","earc":{"v":3,"q":"er-xh90","status":"unsicher","hinweis":"eARC nur an HDMI 3, am 75″ getestet; Sony-Datenblatt nennt nur ARC"}},"panel":{"typ":"VA-LCD, Full-Array","zonen":{"v":32,"q":"er-xh90","ca":true,"hinweis":"am 75″ getestet, für 65″ nicht belegt"}},"strom":{"luecke":"Kein EPREL-Wert in den Quellen dieser Kaufberatung"},"os":{"name":"Android TV","q":"sony-spec","version":{"luecke":"Version nennt Sony nicht"}}},{"id":"tcl","name":"TCL 85C8L","kurz":"TCL 85C8L","c":"var(--tcl)","zoll":{"v":85,"q":"tcl-spec"},"breite_mm":{"v":1880,"q":"tcl-spec"},"hoehe_mm":{"v":1073,"q":"tcl-spec","hinweis":"Herstellerseite beschriftet B × H × T, nennt aber B × T × H; umsortiert"},"tiefe_mm":{"v":53,"q":"tcl-spec"},"hoehe_fuss_mm":{"v":1112,"q":"tcl-spec"},"tiefe_fuss_mm":{"v":379,"q":"tcl-spec"},"kg":{"v":38.9,"q":"tcl-spec"},"kg_fuss":{"v":41.6,"q":"tcl-spec"},"vesa":[{"v":600,"q":"tcl-spec"},{"v":500,"q":"tcl-spec"}],"fuss_art":"Mittelfuß","fuss_breite_mm":{"v":410,"q":"tcl-spec"},"fuss_tiefe_mm":{"v":379,"q":"tcl-spec"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":true},{"nr":2,"k21":true},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"tcl-spec","status21":"belegt","hinweis21":"4 × HDMI 2.1","earc":{"v":1,"q":"rtings-qm8l","status":"unsicher","hinweis":"TCL nennt eARC ohne Buchse; HDMI 1 laut RTINGS am US-Modell QM8L"}},"panel":{"typ":"SQD-Mini-LED, LCD","zonen":{"v":3200,"q":"tcl-spec","hinweis":"Herstellerwert; Händler nennen abweichende Zahlen"}},"strom":{"sdr_w":{"v":123,"q":"eprel-tcl"},"hdr_w":{"v":500,"q":"eprel-tcl"}},"os":{"name":"Google TV","q":"tcl-spec","version":{"luecke":"Version nicht angegeben"}}},{"id":"lg","name":"LG OLED83C6ELB","kurz":"LG 83C6","c":"var(--lg)","zoll":{"v":83,"q":"lg-spec"},"breite_mm":{"v":1842,"q":"lg-spec"},"hoehe_mm":{"v":1055,"q":"lg-spec"},"tiefe_mm":{"v":52.9,"q":"lg-spec"},"hoehe_fuss_mm":{"v":1096,"q":"lg-spec","hinweis":"Fuß zweistufig: 1.096 oder 1.144 mm"},"hoehe_fuss2_mm":{"v":1144,"q":"lg-spec"},"tiefe_fuss_mm":{"v":297,"q":"lg-spec"},"kg":{"v":28.3,"q":"lg-spec"},"kg_fuss":{"v":33,"q":"lg-spec"},"vesa":[{"v":400,"q":"lg-spec"},{"v":400,"q":"lg-spec"}],"fuss_art":"Mittelfuß","fuss_breite_mm":{"v":460,"q":"lg-spec"},"fuss_tiefe_mm":{"v":297,"q":"lg-spec"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":true},{"nr":2,"k21":true},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"lg-spec","status21":"belegt","hinweis21":"4 × 4K 120 Hz wie in HDMI 2.1 spezifiziert","earc":{"v":2,"q":"lg-spec","status":"belegt","hinweis":"eARC an HDMI 2"}},"panel":{"typ":"OLED, Primary RGB Tandem","q":"tftcentral","hinweis":"laut TFTCentral für 77″/83″ C6H; Gleichheit mit dem EU-Modell nicht belegt; Zahl der Lagen nicht belegt"},"strom":{"sdr_w":{"v":98,"q":"eprel-lg"},"hdr_w":{"v":292,"q":"eprel-lg"}},"os":{"name":"webOS 26","q":"lg-spec","hinweis":"Datenblatt webOS 26, Bildtext derselben Seite webOS 25"}},{"id":"sam","name":"Samsung GQ83S90HAE","kurz":"Samsung S90H","c":"var(--sam)","zoll":{"v":83,"q":"sam-spec"},"breite_mm":{"v":1851,"q":"sam-spec"},"hoehe_mm":{"v":1062.8,"q":"sam-spec"},"tiefe_mm":{"v":44.9,"q":"sam-spec"},"hoehe_fuss_mm":{"v":1133.7,"q":"sam-spec"},"tiefe_fuss_mm":{"v":359,"q":"sam-spec"},"kg":{"v":37.6,"q":"sam-spec"},"kg_fuss":{"v":39.4,"q":"sam-spec"},"vesa":[{"v":400,"q":"sam-spec"},{"v":300,"q":"sam-spec"}],"fuss_art":"Mittelfuß","fuss_breite_mm":{"v":366,"q":"sam-spec"},"fuss_tiefe_mm":{"v":359,"q":"sam-spec"},"schraube":{"luecke":"Schraubengröße nicht angegeben"},"hdmi":{"ports":[{"nr":1,"k21":true},{"nr":2,"k21":true},{"nr":3,"k21":true},{"nr":4,"k21":true}],"q21":"alternate-sam","status21":"unsicher","hinweis21":"Samsung nennt nur „HDMI: 4“; 4 × HDMI 2.1 laut Händler","earc":{"v":3,"q":"bericht","status":"unsicher","hinweis":"Samsung nennt eARC ohne Buchse; HDMI 3 laut Tom's Guide, nicht bestätigt"}},"panel":{"typ":"OLED, Paneltyp offen","q":"notebookcheck-s90h","hinweis":"Samsung nennt nur „OLED“; Tests deuten auf WOLED, Tandem nicht belegt"},"strom":{"sdr_w":{"v":128,"q":"eprel-sam"},"hdr_w":{"v":372,"q":"eprel-sam"}},"os":{"name":"Tizen (One UI Tizen)","q":"sam-spec","version":{"luecke":"Versionsnummer nicht genannt"}}}],"strom":{"stunden":{"v":4,"q":"bericht"},"hdr_anteil":{"v":0.2,"q":"bericht"},"ct_kwh":{"v":37.3,"q":"bdew"},"jahre":6,"erwartet_jahr_eur":{"tcl":108,"lg":74,"sam":96},"erwartet_6j_eur":{"tcl":648,"lg":447,"sam":578}}}</script>
@@ -2994,7 +3365,7 @@ html{background:
   const setFill = inp => inp.style.setProperty("--fill", ((inp.value - inp.min) / (inp.max - inp.min) * 100) + "%");
 
   // ---------- Router: Hash = Reiter (tv, sauger) oder Element-ID in einer Ansicht ----------
-  const VIEWS = ["tv", "sauger"];
+  const VIEWS = ["tv", "sauger", "airfryer"]; // Air Fryer (09.11.2026)
   // Mit Hash scrollt der Router selbst; sonst stellt der Browser die alte Position wieder her
   if (location.hash && "scrollRestoration" in history) history.scrollRestoration = "manual";
   const tabs = $("tabs");
@@ -4978,7 +5349,7 @@ html{background:
   dbStart();
 })();
 </script>
-<script type="application/json" id="versionen-daten">{"aktuell":18,"eintraege":[{"von":18,"bis":18,"datum":"09.11.2026","text":"Staubsauger aufgeräumt wie der Fernseher: fünf Bereiche statt einer langen Seite, am Handy unten als Leiste. Beim Öffnen stehen Empfehlung und die vier empfohlenen Pakete, die Begründung klappt auf. Dazu springen Links in die Listen unter „Mehr“ jetzt zuverlässig an die richtige Stelle."},{"von":16,"bis":17,"datum":"09.11.2026","text":"Kleine Korrektur beim Entscheiden: Sind in deinem gespeicherten Stand Kriterien außerhalb der ersten drei anders gewichtet, klappt die Waage jetzt auch nach dem Laden aus deinem Konto alle Kriterien auf."},{"von":15,"bis":15,"datum":"09.11.2026","text":"Fernseher aufgeräumt: fünf Bereiche statt einer langen Seite, am Handy unten als Leiste. Beim Öffnen steht die Empfehlung, Entscheiden geht Schritt für Schritt. Dazu das Glas-Logo in der Kopfzeile und im dunklen Modus ein ruhiger Sternenhimmel."},{"von":14,"bis":14,"datum":"09.11.2026","text":"Neu: der Versionsverlauf. Unten steht, welche Version du gerade siehst; antippen zeigt, was sich wann geändert hat. Beim nächsten Besuch markiert „Neu“, was seit deinem letzten Besuch dazugekommen ist."},{"von":13,"bis":13,"datum":"09.11.2026","text":"Kopfzeile am Handy in zwei Stufen: oben Fernseher/Staubsauger, darunter die Abschnitte. Die Abschnittslinks werden nicht mehr rechts abgeschnitten, der aktive Abschnitt ist markiert."},{"von":12,"bis":12,"datum":"09.11.2026","zwischenstand":true,"text":"Zwischenstand der neuen Kopfzeile, zwei Minuten später durch Version 13 ersetzt. Keine eigene Änderung für dich."},{"von":11,"bis":11,"datum":"09.11.2026","text":"Beim Preiswecker steht jetzt: Er prüft täglich gegen 6:30 Uhr, bis einschließlich 01.12.2026."},{"von":10,"bis":10,"datum":"08.11.2026","text":"Staubsauger Nr. 38 ergänzt: Samsung VS80F28EFP/WD, geprüft und nicht empfohlen (Rang 27 von 38, 504,99 € belegt)."},{"von":9,"bis":9,"datum":"08.11.2026","text":"Fernseher-Reiter Runde 6: Werkzeug „Entscheiden“ mit deinen Gewichten, zwei neue Modelle (Samsung QE85QN90F und Hisense 85UR9DS, beide geprüft und nicht empfohlen), Kleingedrucktes und der Preiswecker."},{"von":8,"bis":8,"datum":"08.11.2026","text":"Zwei Reiter: Fernseher und neu der Staubsauger-Kaufguide. Im Fernseher-Reiter kommen die Technikvergleiche dazu (Sitzabstand, Wand und Maße, Anschlüsse, Panel, Strom, Bedienung)."},{"von":7,"bis":7,"datum":"08.11.2026","zwischenstand":true,"text":"Zwischenstand vor Version 8. Was genau darin neu war, ist nicht einzeln festgehalten."},{"von":6,"bis":6,"datum":"07.11.2026","text":"Preisteil im Fernseher-Vergleich: Preisverlauf mit Tiefstpreisen, Mehrwert je 1.000 € und Kosten. Die Noten blieben unverändert."},{"von":1,"bis":5,"datum":"07.11.2026","text":"Erste Fassungen des Fernseher-Vergleichs mit Noten für die Modelle. Die einzelnen Stände sind nicht festgehalten, deshalb hier zusammengefasst."}]}</script>
+<script type="application/json" id="versionen-daten">{"aktuell":19,"eintraege":[{"von":19,"bis":19,"datum":"09.11.2026","text":"Neuer Reiter Air Fryer: Heißluftfritteusen mit zwei Körben für 5–6 Personen. Oberklasse-Sieger ist die Cosori Turbo Tower Pro Smart, vorläufiger Preis-Leistungs-Sieger die Medion P20 XXL Twin, Alternative die Cosori R901. Vier Bereiche: Empfehlung, Vergleich, Preise, Mehr."},{"von":18,"bis":18,"datum":"09.11.2026","text":"Staubsauger aufgeräumt wie der Fernseher: fünf Bereiche statt einer langen Seite, am Handy unten als Leiste. Beim Öffnen stehen Empfehlung und die vier empfohlenen Pakete, die Begründung klappt auf. Dazu springen Links in die Listen unter „Mehr“ jetzt zuverlässig an die richtige Stelle."},{"von":16,"bis":17,"datum":"09.11.2026","text":"Kleine Korrektur beim Entscheiden: Sind in deinem gespeicherten Stand Kriterien außerhalb der ersten drei anders gewichtet, klappt die Waage jetzt auch nach dem Laden aus deinem Konto alle Kriterien auf."},{"von":15,"bis":15,"datum":"09.11.2026","text":"Fernseher aufgeräumt: fünf Bereiche statt einer langen Seite, am Handy unten als Leiste. Beim Öffnen steht die Empfehlung, Entscheiden geht Schritt für Schritt. Dazu das Glas-Logo in der Kopfzeile und im dunklen Modus ein ruhiger Sternenhimmel."},{"von":14,"bis":14,"datum":"09.11.2026","text":"Neu: der Versionsverlauf. Unten steht, welche Version du gerade siehst; antippen zeigt, was sich wann geändert hat. Beim nächsten Besuch markiert „Neu“, was seit deinem letzten Besuch dazugekommen ist."},{"von":13,"bis":13,"datum":"09.11.2026","text":"Kopfzeile am Handy in zwei Stufen: oben Fernseher/Staubsauger, darunter die Abschnitte. Die Abschnittslinks werden nicht mehr rechts abgeschnitten, der aktive Abschnitt ist markiert."},{"von":12,"bis":12,"datum":"09.11.2026","zwischenstand":true,"text":"Zwischenstand der neuen Kopfzeile, zwei Minuten später durch Version 13 ersetzt. Keine eigene Änderung für dich."},{"von":11,"bis":11,"datum":"09.11.2026","text":"Beim Preiswecker steht jetzt: Er prüft täglich gegen 6:30 Uhr, bis einschließlich 01.12.2026."},{"von":10,"bis":10,"datum":"08.11.2026","text":"Staubsauger Nr. 38 ergänzt: Samsung VS80F28EFP/WD, geprüft und nicht empfohlen (Rang 27 von 38, 504,99 € belegt)."},{"von":9,"bis":9,"datum":"08.11.2026","text":"Fernseher-Reiter Runde 6: Werkzeug „Entscheiden“ mit deinen Gewichten, zwei neue Modelle (Samsung QE85QN90F und Hisense 85UR9DS, beide geprüft und nicht empfohlen), Kleingedrucktes und der Preiswecker."},{"von":8,"bis":8,"datum":"08.11.2026","text":"Zwei Reiter: Fernseher und neu der Staubsauger-Kaufguide. Im Fernseher-Reiter kommen die Technikvergleiche dazu (Sitzabstand, Wand und Maße, Anschlüsse, Panel, Strom, Bedienung)."},{"von":7,"bis":7,"datum":"08.11.2026","zwischenstand":true,"text":"Zwischenstand vor Version 8. Was genau darin neu war, ist nicht einzeln festgehalten."},{"von":6,"bis":6,"datum":"07.11.2026","text":"Preisteil im Fernseher-Vergleich: Preisverlauf mit Tiefstpreisen, Mehrwert je 1.000 € und Kosten. Die Noten blieben unverändert."},{"von":1,"bis":5,"datum":"07.11.2026","text":"Erste Fassungen des Fernseher-Vergleichs mit Noten für die Modelle. Die einzelnen Stände sind nicht festgehalten, deshalb hier zusammengefasst."}]}</script>
 <script>
 /* Versionsverlauf (V14): liest #versionen-daten, füllt das Blatt, merkt die zuletzt gesehene Version (localStorage, try/catch). */
 (function(){
