@@ -21,9 +21,14 @@ def rendere(svg, png):
     with tempfile.TemporaryDirectory() as tmp:
         subprocess.run([str(exe), "--headless=new", "--disable-gpu", "--hide-scrollbars", f"--user-data-dir={tmp}",
                         "--default-background-color=00000000", "--window-size=512,512",
+                        f"--force-device-scale-factor={FAKTOR}",
                         f"--screenshot={png}", svg.as_uri()], check=True, capture_output=True, timeout=60)
     with Image.open(png) as im:
-        assert im.size == (512, 512), f"{png.name}: {im.size}"
+        assert im.size == (512 * FAKTOR, 512 * FAKTOR), f"{png.name}: {im.size}"
+
+
+# Doppelte Auflösung rendern und erst danach verkleinern: sauberere Kanten und Verläufe (Schärfe auf dem Handy)
+FAKTOR = 2
 
 
 def main():
@@ -32,7 +37,7 @@ def main():
         rendere(svg, gross)
         with Image.open(gross) as im:
             im = im.convert("RGBA")
-            im.save(gross, optimize=True)
+            im.resize((512, 512), Image.LANCZOS).save(gross, optimize=True)
             im.resize((192, 192), Image.LANCZOS).save(ICONS / f"{name}-192.png", optimize=True)
             if name == "icon-maskable":
                 im.resize((180, 180), Image.LANCZOS).convert("RGB").save(ICONS / "apple-touch-icon.png", optimize=True)
