@@ -1,0 +1,19 @@
+{
+  "urteil": "bestanden_mit_hinweisen",
+  "zusammenfassung": "Kein Funktionsfehler im geprüften Stand festgestellt. Eine relevante Testlücke betrifft die modellabhängigen Preisgrenzen.",
+  "befunde": [
+    {
+      "id": "B1",
+      "schwere": "mittel",
+      "titel": "Tests sichern die Grenzzuordnung im täglichen Abruf nicht ab",
+      "datei": "tests/test_app.py",
+      "zeile": 484,
+      "beleg": "test_preisgrenze_je_modell übergibt ausschließlich GRENZEN[\"af_medion_p20\"] direkt an auswerten(). Die Grenzen von TT und R901 sowie deren Verwendung durch abruf_alle() werden nicht geprüft. test_fortschreiben speist bereits ausgewertete sicher-Angebote ein und umgeht diesen Pfad ebenfalls. Fehlende TT/R901-Grenzen oder der Rückbau des auswerten-Aufrufs in abruf_alle() auf die alte Einargument-Signatur würden diese Tests daher nicht erkennen. Auch Medion-Grenzen von beispielsweise 13–4999 erfüllen sämtliche vorhandenen Preisassertionen.",
+      "auswirkung": "Eine Regression könnte günstige Air-Fryer-Angebote im täglichen Abruf verwerfen oder unzulässige Preise akzeptieren, während die neuen Tests weiterhin bestehen.",
+      "vorschlag": "Alle drei Air-Fryer-Zuordnungen und die exakten Grenzwerte einschließlich knapp außerhalb liegender Preise prüfen. Zusätzlich die Grenzübergabe durch abruf_alle() absichern; die Prüfung echter heise-Seiten weiterhin als Livelauf durchführen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "HEAD entspricht a13d5513d452f2f2b65e97bf176d978297b1dc6d. Ausschließlich lesend geprüft. Alte auswerten-Signatur und TV-Standardgrenzen bleiben im Code erhalten; Abruf und Abgleich isolieren Modellfehler. Keine feste Modellzahl in den geprüften Verarbeitungspfaden von preise_aktualisieren.py, Workflow, sw.js und webpush.mjs gefunden. Artifact-Filter aus quelle/kaufberatung.html mit Node ausgeführt: acht Eingabedokumente ergeben ausschließlich fünf TV-Ids. JavaScript-Syntaxprüfung und git diff --check bestanden. Python-Tests und heise-Livelauf konnten mangels verfügbarem Python-Interpreter nicht unabhängig ausgeführt werden; die angegebene Selbstprüfung wurde nicht bestätigt."
+}
