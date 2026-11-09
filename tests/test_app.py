@@ -175,6 +175,8 @@ class Preise(unittest.TestCase):
         ziel = Path(self.tmp.name) / "seiten" / "preise.json"
         modelle = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f"]
         af = {"af_cosori_tt": 249.0, "af_medion_p20": 79.95, "af_cosori_r901": 119.0}   # Air Fryer seit 09.11.2026 im Wecker
+        af.update({"af_caso_3186": 137.09, "af_aeg_aafd11b": 169.0, "af_rh_27680": 124.3, "af_ninja_dz400": 135.9,
+                   "af_tefal_ey942": 124.59, "af_gastroback_42586": 132.42, "af_ninja_af500": 169.0})   # ab V21 alle Top 10
         tag1 = {"zeit": "2026-11-07T10:00:00+01:00", "modelle": {m: {"sicher": angebot(2000.0 + i)} for i, m in enumerate(modelle)}}
         tag1["modelle"].update({m: {"sicher": angebot(p)} for m, p in af.items()})
         modelle = modelle + list(af)
@@ -465,7 +467,16 @@ class AirFryerImWecker(unittest.TestCase):
         cls.pw = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cls.pw)
 
-    AF = ["af_cosori_tt", "af_medion_p20", "af_cosori_r901"]
+    # Ab V21 alle zehn Modelle der Air Fryer Top 10 (Nico 09.11.2026 „für alle modelle preiswecker“)
+    AF = ["af_cosori_tt", "af_medion_p20", "af_cosori_r901", "af_caso_3186", "af_aeg_aafd11b", "af_rh_27680",
+          "af_ninja_dz400", "af_tefal_ey942", "af_gastroback_42586", "af_ninja_af500"]
+    TV = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f"]
+
+    def test_genau_zehn_air_fryer_und_fuenf_fernseher(self):
+        """Grenzen werden aus dem Präfix af_ abgeleitet: kein Fernseher darf die Air-Fryer-Grenze bekommen."""
+        self.assertEqual(list(self.pw.MODELLE), self.TV + self.AF)
+        self.assertEqual(sorted(self.pw.GRENZEN), sorted(self.AF))
+        self.assertEqual(len(set(self.pw.MODELLE.values())), 15, "jede heise-Seite nur einmal")
 
     @staticmethod
     def seite(*preise):
@@ -492,7 +503,7 @@ class AirFryerImWecker(unittest.TestCase):
         self.assertEqual(self.pw.auswerten(self.seite(2000))["angebote"], 1)
 
     def test_grenzen_exakt_und_abruf_alle(self):
-        """Codex R1 B1: alle drei Grenzen exakt (Rand drin, knapp außerhalb draußen) und Übergabe durch abruf_alle()."""
+        """Codex R1 B1: alle Air-Fryer-Grenzen exakt (Rand drin, knapp außerhalb draußen) und Übergabe durch abruf_alle()."""
         for m in self.AF:
             self.assertEqual(self.pw.GRENZEN[m], (30, 1000))
             g = self.pw.GRENZEN[m]
