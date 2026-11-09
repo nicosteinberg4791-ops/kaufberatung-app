@@ -174,7 +174,10 @@ class Preise(unittest.TestCase):
     def test_fortschreiben(self):
         ziel = Path(self.tmp.name) / "seiten" / "preise.json"
         modelle = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f"]
+        af = {"af_cosori_tt": 249.0, "af_medion_p20": 79.95, "af_cosori_r901": 119.0}   # Air Fryer seit 09.11.2026 im Wecker
         tag1 = {"zeit": "2026-11-07T10:00:00+01:00", "modelle": {m: {"sicher": angebot(2000.0 + i)} for i, m in enumerate(modelle)}}
+        tag1["modelle"].update({m: {"sicher": angebot(p)} for m, p in af.items()})
+        modelle = modelle + list(af)
         p1, b1 = self.lauf(tag1, ziel)
         self.assertEqual(b1["status"], "ok")
         self.assertEqual(set(p1["preise"]), set(modelle))
@@ -182,7 +185,9 @@ class Preise(unittest.TestCase):
         # Tag 2: LG C6ELB teurer (Tiefstpreis bleibt), TCL billiger (neuer Tiefstpreis), Samsung QN90F ohne belegtes Angebot
         tag2 = {"zeit": "2026-11-08T10:00:00+01:00", "modelle": {
             "lg_c6elb": {"sicher": angebot(2100.0)}, "lg_c69lb": {"sicher": angebot(2001.0)},
-            "sam_s90h": {"sicher": angebot(2002.0)}, "tcl_c8l": {"sicher": angebot(1900.0, "billig.de")}, "sam_qn90f": {}}}
+            "sam_s90h": {"sicher": angebot(2002.0)}, "tcl_c8l": {"sicher": angebot(1900.0, "billig.de")}, "sam_qn90f": {},
+            "af_cosori_tt": {"sicher": angebot(239.0, "saturn")}, "af_medion_p20": {"sicher": angebot(79.95)},
+            "af_cosori_r901": {"sicher": angebot(119.0)}}}
         p2, b2 = self.lauf(tag2, ziel)
         self.assertEqual(b2["status"], "teilweise")
         lg = p2["preise"]["lg_c6elb"]
@@ -192,6 +197,9 @@ class Preise(unittest.TestCase):
         tcl = p2["preise"]["tcl_c8l"]
         self.assertEqual(tcl["tief"], {"gesamt": 1900.0, "datum": "2026-11-08", "haendler": "billig.de"})
         self.assertEqual(p2["preise"]["sam_qn90f"], p1["preise"]["sam_qn90f"], "ohne Angebot bleibt der alte Stand")
+        tt = p2["preise"]["af_cosori_tt"]
+        self.assertEqual(tt["tief"], {"gesamt": 239.0, "datum": "2026-11-08", "haendler": "saturn"})
+        self.assertEqual(p2["preise"]["af_medion_p20"]["name"], "Medion P20 XXL Twin")
         for d in p2["preise"].values():
             self.assertNotIn("meldung", d, "Wunschpreis-Abgleich gehört aufs Handy")
         # gleicher Tag noch einmal: Verlauf ohne Doppel
@@ -445,6 +453,49 @@ class WebPush(unittest.TestCase):
         teil = sw[sw.index('addEventListener("push"'):sw.index('addEventListener("pushsubscriptionchange"')]
         self.assertIn("e.waitUntil(self.registration.showNotification(", teil)
         self.assertIn(r"^\.\/(#[A-Za-z0-9_-]+)?$", teil, "Ziel nur innerhalb der App")
+
+
+class AirFryerImWecker(unittest.TestCase):
+    """Air Fryer im Preiswecker (Nico 09.11.2026): Modelle, Preisgrenzen je Modell, Ids der App-Hülle."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("pw_af", WURZEL / "werkzeuge" / "preiswecker.py")
+        cls.pw = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.pw)
+
+    AF = ["af_cosori_tt", "af_medion_p20", "af_cosori_r901"]
+
+    @staticmethod
+    def seite(*preise):
+        return " ".join('{"raw_price": %s, "merchant_name": "H%d", "merchant_free_shipping": true}' % (p, i)
+                        for i, p in enumerate(preise))
+
+    def test_modelle_und_namen(self):
+        for m in self.AF:
+            self.assertIn(m, self.pw.MODELLE)
+            self.assertTrue(self.pw.MODELLE[m].startswith("https://preisvergleich.heise.de/"))
+            self.assertIn(m, self.pw.NAMEN)
+            self.assertIn(m, self.pw.KURZ)
+        self.assertEqual(set(self.pw.NAMEN), set(self.pw.MODELLE))
+        self.assertEqual(set(self.pw.KURZ), set(self.pw.MODELLE))
+
+    def test_preisgrenze_je_modell(self):
+        t = self.seite(12.0, 79.95, 5000)   # Zubehör 12 €, Fehlwert 5000 €
+        af = self.pw.auswerten(t, self.pw.GRENZEN["af_medion_p20"])
+        self.assertEqual(af["angebote"], 1)
+        self.assertEqual(af["sicher"]["gesamt"], 79.95)
+        # Standard (Fernseher) verwirft dasselbe Angebot weiterhin
+        self.assertEqual(self.pw.auswerten(t)["angebote"], 1)
+        self.assertEqual(self.pw.auswerten(self.seite(79.95))["angebote"], 0)
+        self.assertEqual(self.pw.auswerten(self.seite(2000))["angebote"], 1)
+
+    def test_app_ids_gleich_modelle(self):
+        js = (WURZEL / "app" / "app.js").read_text(encoding="utf-8")
+        m = re.search(r"const IDS = \[([^\]]*)\];", js)
+        self.assertIsNotNone(m)
+        self.assertEqual(re.findall(r'"([a-z0-9_]+)"', m.group(1)), list(self.pw.MODELLE))
 
 
 if __name__ == "__main__":

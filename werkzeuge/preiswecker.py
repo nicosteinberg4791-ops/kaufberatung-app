@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Preiswecker TV (Runde 6): liest die heise-Preisvergleich-Seiten der fünf Fernseher (nur GET, kein Konto,
+"""Preiswecker (Runde 6; ab 09.11.2026 mit drei Air Fryern): liest die heise-Preisvergleich-Seiten der fünf Fernseher und drei Air Fryer (nur GET, kein Konto,
 kein Formular) und gibt je Modell das günstigste Angebot als JSON aus.
 
 Herkunft: Stand R4 aus Runde 6 (Codex bestanden), übernommen am 08.11.2026; geändert nur die Pfade in diesem Kopf.
@@ -46,7 +46,16 @@ MODELLE = {
     "sam_s90h": "https://preisvergleich.heise.de/samsung-gq8390h-a3805643.html",
     "tcl_c8l": "https://preisvergleich.heise.de/tcl-85c8l-a3810591.html",
     "sam_qn90f": "https://preisvergleich.heise.de/samsung-qe85qn90f-a3479298.html",
+    # Air Fryer (Nico, 09.11.2026 „Ja, aufnehmen“): heise-Produktseiten per heise-Suche nach der Modellnummer gefunden.
+    # Medion: heise führt vier Einträge zur MD11760 (Nummern 50072937/50072938/50078168/50079506); gewählt ist der
+    # Eintrag „XXL Twin“, der zur Modellbezeichnung P20 XXL Twin passt (Variantenwahl offen für Nicos Bestätigung).
+    "af_cosori_tt": "https://preisvergleich.heise.de/cosori-turbo-tower-pro-smart-schwarz-gold-caf-dc123s-dder-a3472492.html",
+    "af_medion_p20": "https://preisvergleich.heise.de/medion-md-11760-xxl-twin-50079506-a3787540.html",
+    "af_cosori_r901": "https://preisvergleich.heise.de/cosori-doppel-heissluftfritteuse-schwarz-caf-r901-aeu-a3146998.html",
 }
+# Plausibler Artikelpreisbereich je Modell (€); Fernseher 500–20000, Air Fryer 30–1000 (verwirft Zubehör/Fehlwerte)
+GRENZEN = {"af_cosori_tt": (30, 1000), "af_medion_p20": (30, 1000), "af_cosori_r901": (30, 1000)}
+GRENZE_STANDARD = (500, 20000)
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Preiswecker-privat"
 BETRAG = r"(?:€|&euro;)\s*([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{1,2})?|[0-9]+(?:,[0-9]{1,2})?)(?:,-)?"
 
@@ -99,11 +108,11 @@ def sterne(o):
     return "keine Bewertung"
 
 
-def auswerten(text):
+def auswerten(text, grenzen=GRENZE_STANDARD):
     liste = []
     for o in angebote(text):
         preis = o.get("raw_price")
-        if not isinstance(preis, (int, float)) or not 500 <= preis <= 20000:
+        if not isinstance(preis, (int, float)) or not grenzen[0] <= preis <= grenzen[1]:
             continue
         v, vt = versand(o)
         liste.append({"artikel": round(float(preis), 2), "versand": v, "gesamt": None if v is None else round(preis + v, 2),
@@ -123,8 +132,10 @@ def abrufen(url):
 
 
 NAMEN = {"lg_c6elb": "LG OLED83C6ELB", "lg_c69lb": "LG OLED83C69LB", "sam_s90h": "Samsung GQ83S90H",
-         "tcl_c8l": "TCL 85C8L", "sam_qn90f": "Samsung QE85QN90F"}
-KURZ = {"lg_c6elb": "LG C6ELB", "lg_c69lb": "LG C69LB", "sam_s90h": "Samsung S90H", "tcl_c8l": "TCL C8L", "sam_qn90f": "Samsung QN90F"}
+         "tcl_c8l": "TCL 85C8L", "sam_qn90f": "Samsung QE85QN90F",
+         "af_cosori_tt": "Cosori Turbo Tower Pro Smart", "af_medion_p20": "Medion P20 XXL Twin", "af_cosori_r901": "Cosori Dual Basket R901"}
+KURZ = {"lg_c6elb": "LG C6ELB", "lg_c69lb": "LG C69LB", "sam_s90h": "Samsung S90H", "tcl_c8l": "TCL C8L", "sam_qn90f": "Samsung QN90F",
+        "af_cosori_tt": "Cosori Turbo Tower", "af_medion_p20": "Medion P20 XXL", "af_cosori_r901": "Cosori R901"}
 ENDE = "2026-12-01"
 
 
@@ -133,7 +144,7 @@ def abruf_alle():
     erg = {"zeit": jetzt, "modelle": {}}
     for mid, url in MODELLE.items():
         try:
-            erg["modelle"][mid] = {"url": url, **auswerten(abrufen(url))}
+            erg["modelle"][mid] = {"url": url, **auswerten(abrufen(url), GRENZEN.get(mid, GRENZE_STANDARD))}
         except Exception as e:  # Abruf- oder Formatfehler: Modell als Fehler melden, weiter mit den anderen
             erg["modelle"][mid] = {"url": url, "fehler": f"{type(e).__name__}: {str(e)[:120]}"}
         time.sleep(2)
@@ -271,7 +282,7 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
     elif lst == "fehlt" and not anlegen:
         probleme.append("wecker/lauf: nicht im db-Export, nicht geschrieben (Erstlauf nur mit --anlegen)")
     status = "ok" if not (fehler or probleme) else ("fehler" if n_ok == 0 else "teilweise")
-    text = "Alle fünf Preise gelesen." if not (fehler or probleme) else ""
+    text = f"Alle {len(MODELLE)} Preise gelesen." if not (fehler or probleme) else ""
     if fehler:
         text += "Kein Angebot mit belegtem Versand: " + ", ".join(fehler) + ". "
     if probleme:
