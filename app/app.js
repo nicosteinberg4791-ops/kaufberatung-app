@@ -7,7 +7,7 @@
    Alle Daten aus preise.json und localStorage sind fremde Daten: geprüft, nur textContent. */
 (function () {
   "use strict";
-  const IDS = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f"];
+  const IDS = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f", "af_cosori_tt", "af_medion_p20", "af_cosori_r901"];
   const LS_WUNSCH = "kb-app:wunsch";
   const LS_AUS = "kb-app:treffer-ausgeblendet";
   const zahlOk = x => typeof x === "number" && isFinite(x) && x > 0 && x < 100000;
