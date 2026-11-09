@@ -165,28 +165,84 @@
     p.textContent = "In der App liegen Wunschpreise nur auf diesem Handy. Die Preise kommen aus der täglichen Abfrage (preise.json). " +
       "Ein Treffer erscheint beim Öffnen der App als Hinweis oben.";
     box.appendChild(p);
-    const kannHintergrund = "serviceWorker" in navigator && "Notification" in window && "periodicSync" in ServiceWorkerRegistration.prototype;
-    if (kannHintergrund) {
+    const kannPush = "serviceWorker" in navigator && "Notification" in window && "PushManager" in window;
+    if (kannPush) {
       const b = document.createElement("button"); b.type = "button"; b.className = "kbapp-neben";
       const zst = document.createElement("p"); zst.className = "kbapp-zst";
-      const zeichne = () => {
-        b.hidden = Notification.permission === "granted" || Notification.permission === "denied";
-        b.textContent = "Benachrichtigung versuchen";
-        zst.textContent = Notification.permission === "granted"
-          ? "Benachrichtigung erlaubt. Chrome prüft im Hintergrund nur gelegentlich und ohne festen Zeitpunkt; verlässlich ist der Hinweis beim Öffnen."
-          : Notification.permission === "denied" ? "Benachrichtigungen sind für diese App gesperrt (Android-Einstellungen)."
-          : "Ohne Gewähr: Chrome entscheidet selbst, ob und wann im Hintergrund geprüft wird.";
+      const code = document.createElement("div"); code.className = "kbapp-code"; code.hidden = true;
+      const zeichne = async () => {
+        const abo = await pushAbo(false);
+        b.hidden = Notification.permission === "denied";
+        b.textContent = abo ? "Einrichtungscode zeigen" : "Push einrichten";
+        zst.textContent = Notification.permission === "denied"
+          ? "Benachrichtigungen sind für diese App gesperrt (Android-Einstellungen → Apps → Chrome bzw. Kaufberatung → Benachrichtigungen)."
+          : abo ? "Push ist auf diesem Handy eingerichtet. Neuer Tiefstpreis oder Wunschpreis aus der täglichen Abfrage kommt als Benachrichtigung."
+          : "Push: Die tägliche Abfrage meldet neue Tiefstpreise direkt als Benachrichtigung der Kaufberatung (einmal einrichten).";
       };
       b.addEventListener("click", async () => {
         try { await Notification.requestPermission(); } catch (e) { /* abgelehnt */ }
+        if (Notification.permission !== "granted") { await zeichne(); return; }
+        const abo = await pushAbo(true);
         await hintergrundAnmelden();
-        zeichne();
+        if (!abo) { zst.textContent = "Push-Anmeldung hat nicht geklappt (ohne Netz? Chrome aktuell?). Später erneut versuchen."; return; }
+        codeZeigen(code, abo);
+        await zeichne();
       });
       zeichne();
-      box.append(b, zst);
+      box.append(b, zst, code);
     }
     const status = document.getElementById("pw-status");
     (status && status.parentNode === pw ? status : pw.lastElementChild).insertAdjacentElement("afterend", box);
+  }
+
+  /* ---------- Web Push (eigene Benachrichtigung, Sender: tägliche Abfrage auf GitHub) ----------
+     Öffentlicher VAPID-Schlüssel des Absenders (darf öffentlich sein; der private liegt nur als GitHub-Secret VAPID_PRIVAT).
+     Das Abo (Endpoint + Schlüssel) ist geheim: Nico legt es einmal als Secret PUSH_ABO an. */
+  const VAPID_OEFFENTLICH = "BD8emN7S7iqJ8w_1uSQOa9CgYSjHtWg5_qa7O15NlD2HMnHoi8dRoKV3eNx8SVspWcJy5sOUh3uweolU3M9wZAc";
+  const SECRET_SEITE = "https://github.com/nicosteinberg4791-ops/kaufberatung-app/settings/secrets/actions/new";
+  function b64uBytes(s) {
+    const b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4));
+    return Uint8Array.from(b, z => z.charCodeAt(0));
+  }
+  function gleicheBytes(a, b) {
+    if (!a || !b || a.byteLength !== b.byteLength) return false;
+    const x = new Uint8Array(a), y = new Uint8Array(b);
+    for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return false;
+    return true;
+  }
+  async function pushAbo(anlegen) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const schluessel = b64uBytes(VAPID_OEFFENTLICH);
+      let abo = await reg.pushManager.getSubscription();
+      // Abo mit anderem Absenderschlüssel (Schlüssel gewechselt) ist nutzlos: abmelden und neu anlegen
+      if (abo && abo.options && abo.options.applicationServerKey && !gleicheBytes(abo.options.applicationServerKey, schluessel.buffer)) {
+        if (!anlegen) return null;
+        await abo.unsubscribe(); abo = null;
+      }
+      if (!abo && anlegen) abo = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: schluessel });
+      return abo;
+    } catch (e) { return null; }
+  }
+  function codeZeigen(ziel, abo) {
+    ziel.textContent = "";
+    const text = JSON.stringify(abo.toJSON());
+    const h = document.createElement("p");
+    h.textContent = "Letzter Schritt (einmal): Code kopieren, auf GitHub als Secret mit dem Namen PUSH_ABO speichern. " +
+      "Der Code ist geheim: nur dort einfügen, nicht teilen. Danach unter Actions → Preisabfrage → Run workflow mit Häkchen testen.";
+    const feld = document.createElement("textarea"); feld.readOnly = true; feld.rows = 3; feld.value = text;
+    feld.setAttribute("aria-label", "Einrichtungscode für das Secret PUSH_ABO");
+    const reihe = document.createElement("div"); reihe.className = "kbapp-knoepfe";
+    const kopie = document.createElement("button"); kopie.type = "button"; kopie.className = "kbapp-haupt"; kopie.textContent = "Code kopieren";
+    kopie.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(text); kopie.textContent = "Kopiert"; }
+      catch (e) { feld.focus(); feld.select(); kopie.textContent = "Bitte markierten Code kopieren"; }
+    });
+    const link = document.createElement("a"); link.href = SECRET_SEITE; link.target = "_blank"; link.rel = "noopener";
+    link.className = "kbapp-neben"; link.textContent = "Secret auf GitHub anlegen";
+    reihe.append(kopie, link);
+    ziel.append(h, feld, reihe);
+    ziel.hidden = false;
   }
 
   async function hintergrundAnmelden() {
@@ -233,5 +289,5 @@
     hintergrundAnmelden();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
-  window.__kbApp = { wunschAlle, ladePreise, zeigeTreffer };
+  window.__kbApp = { wunschAlle, ladePreise, zeigeTreffer, weckerErgaenzen };
 })();

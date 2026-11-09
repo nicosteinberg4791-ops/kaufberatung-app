@@ -19,10 +19,23 @@ Wird die Kaufberatung überarbeitet, lädt die App die neue Fassung beim nächst
 - Die Preise kommen aus der Abfrage beim heise-Preisvergleich (günstigster Gesamtpreis mit belegtem Versand) und stehen in `preise.json` auf der Seite. GitHub fragt sie **täglich gegen 6:30 Uhr** ab (geplant 6:23 Uhr MEZ, GitHub startet oft einige Minuten später), bis zum 01.12.2026. Stand und Status des letzten Laufs stehen im Preiswecker.
 - **Wunschpreise** (ab der Fassung mit Preiswecker) speichert die App **nur auf diesem Handy**. Sie gehen nicht ins Internet und nicht auf andere Geräte. Wer die App-Daten löscht oder die App entfernt, verliert sie.
 - Ist ein Wunschpreis erreicht, erscheint beim Öffnen der App oben bzw. unten die Karte **„Wunschpreis erreicht“**. Das ist der verlässliche Weg.
-- **Push aufs Handy über ntfy:** siehe unten. Kommt bei neuem Tiefstpreis (und bei Wunschpreis, falls auf GitHub hinterlegt), je Ereignis einmal.
-- **Benachrichtigung im Hintergrund nur als Versuch:** Im Preiswecker „Benachrichtigung versuchen“ tippen und erlauben. Chrome entscheidet selbst, ob und wann die installierte App im Hintergrund prüft (oft nur gelegentlich, manchmal gar nicht). Darauf nicht verlassen.
+- **Push direkt in die App:** siehe „Push-Benachrichtigung der App“ unten. Kommt bei neuem Tiefstpreis (und bei Wunschpreis, falls auf GitHub hinterlegt), je Ereignis einmal. In der Testphase kommt dieselbe Meldung zusätzlich über ntfy.
+- **Hintergrundprüfung nur als Zugabe:** Nach „Push einrichten“ meldet die App zusätzlich die auf dem Handy gespeicherten Wunschpreise, wenn Chrome sie im Hintergrund prüfen lässt (oft nur gelegentlich, manchmal gar nicht). Darauf nicht verlassen.
 
-## Push-Benachrichtigung über ntfy (einmal einrichten)
+## Push-Benachrichtigung der App (einmal einrichten)
+
+Die tägliche Abfrage auf GitHub schickt die Meldung selbst an die installierte App (Standard-Web-Push über den Push-Dienst von Chrome, ohne zusätzliche App, ohne Konto, kostenlos). Der Inhalt ist auf dem Weg verschlüsselt; der Push-Dienst sieht nur, dass etwas zugestellt wird.
+
+1. Die Kaufberatung als App installiert öffnen (nicht im normalen Chrome-Tab), Reiter Fernseher → **Preiswecker** → **„Push einrichten“** tippen und Benachrichtigungen **erlauben**.
+2. Es erscheint ein **Einrichtungscode**. **„Code kopieren“** tippen. Der Code ist geheim (wer ihn hat, kann zusammen mit dem Absenderschlüssel Meldungen an dieses Handy schicken): nur bei GitHub einfügen, nicht teilen.
+3. **„Secret auf GitHub anlegen“** tippen (bei GitHub angemeldet sein; die Seite ggf. als Desktop-Website anzeigen): Name **`PUSH_ABO`**, den Code einfügen, **„Add secret“**.
+4. Test: *Actions → Preisabfrage → Run workflow*, Häkchen **„Zusätzlich eine Test-Benachrichtigung …“** setzen und starten. Nach ein bis zwei Minuten kommt „Kaufberatung: Test“. Antippen öffnet den Preiswecker.
+
+Damit es zuverlässig ankommt: Chrome nicht über „Beenden erzwingen“ schließen und in den Android-Einstellungen die Akku-Optimierung für Chrome ausschalten („Nicht eingeschränkt“). Ob das Wegwischen aus der App-Übersicht die Zustellung stört, hängt vom Handy-Hersteller ab; im Zweifel die ersten Tage beobachten.
+
+**Neu einrichten**, wenn nichts mehr kommt oder die App „Push neu einrichten“ meldet: Nach Löschen der App-Daten, Neuinstallation oder Entzug der Benachrichtigungsrechte ist der Code ungültig. GitHub zeigt den Lauf dann rot („Web-Push-Abo ungültig“), die Preise werden trotzdem aktualisiert. Schritte 1–3 wiederholen; das Secret `PUSH_ABO` wird mit dem neuen Code überschrieben („Update“).
+
+## Push-Benachrichtigung über ntfy (Testphase, parallel)
 
 Die tägliche Abfrage schickt eine Nachricht über den kostenlosen Dienst ntfy.sh, wenn ein Fernseher einen **neuen Tiefstpreis** erreicht (seit Beginn der Abfrage) oder unter einen **auf GitHub hinterlegten Wunschpreis** fällt. Ein Ereignis wird einmal gemeldet; beim Wunschpreis kommt die nächste Meldung erst, wenn der Preis wieder darüber steigt und erneut fällt. Klappt der Versand an ntfy nicht, werden die Preise an dem Tag nicht fortgeschrieben, der Lauf erscheint auf GitHub als fehlgeschlagen und der nächste Lauf meldet das Ereignis erneut, sofern es dann noch gilt (ist der Preis inzwischen wieder gestiegen, wird die verpasste Meldung nicht nachgereicht); selten kann eine Meldung doppelt kommen.
 

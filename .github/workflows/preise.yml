@@ -3,7 +3,8 @@
 # (Commit nur bei Änderung) und schickt bei Treffern (neuer Tiefstpreis, Wunschpreis erreicht) eine ntfy-Nachricht.
 # Reihenfolge (Codex R1 B2): Secret prüfen -> preise.json schreiben -> ntfy senden -> erst dann pushen. Scheitert der
 # Versand, bleibt der alte Stand online und der nächste Lauf meldet dasselbe Ereignis erneut.
-# Secrets: NTFY_TOPIC (Pflicht), WUNSCHPREISE (optional, JSON). Werte stehen nie im Repo oder Log.
+# Secrets: NTFY_TOPIC (Pflicht), WUNSCHPREISE (optional, JSON), Web Push an die App (optional, D6): VAPID_PRIVAT
+# (privater Absenderschlüssel als JWK) und PUSH_ABO (Abo aus der App, „Push einrichten“). Werte stehen nie im Repo oder Log.
 # Endet am 01.12.2026 (der Lauf beendet sich danach selbst; Workflow dann deaktivieren).
 name: Preisabfrage
 
@@ -98,6 +99,41 @@ jobs:
             echo "Test-Benachrichtigung gesendet"
           fi
 
+      - name: Benachrichtigung per Web Push an die App
+        id: webpush
+        if: steps.ende.outputs.aus != '1'
+        env:
+          PUSH_ABO: ${{ secrets.PUSH_ABO }}
+          VAPID_PRIVAT: ${{ secrets.VAPID_PRIVAT }}
+          TESTNACHRICHT: ${{ inputs.testnachricht }}
+        run: |
+          if [ -z "$PUSH_ABO" ] || [ -z "$VAPID_PRIVAT" ]; then
+            echo "::notice::Web Push noch nicht eingerichtet (Secret PUSH_ABO oder VAPID_PRIVAT fehlt), übersprungen"
+            exit 0
+          fi
+          echo "Node $(node --version)"
+          soll=$(grep -o 'VAPID_OEFFENTLICH = "[^"]*"' app/app.js | cut -d'"' -f2)
+          ist=$(node werkzeuge/webpush.mjs --oeffentlich) || ist=""
+          if [ -z "$soll" ] || [ "$soll" != "$ist" ]; then
+            echo "::error::Secret VAPID_PRIVAT passt nicht zum öffentlichen Schlüssel in app/app.js"
+            exit 1
+          fi
+          # 4 = Abo ungültig (404/410): Preise trotzdem veröffentlichen, Lauf am Ende rot; jeder andere Fehler bricht ab
+          senden() {
+            rc=0
+            node werkzeuge/webpush.mjs --senden --datei "$1" --titel "$2" || rc=$?
+            if [ "$rc" = 4 ]; then echo "ungueltig=1" >> "$GITHUB_OUTPUT"; elif [ "$rc" != 0 ]; then exit "$rc"; fi
+          }
+          if [ -s "$RUNNER_TEMP/meldung.txt" ]; then
+            senden "$RUNNER_TEMP/meldung.txt" "TV-Preiswecker"
+          else
+            echo "Kein Treffer, kein Web Push"
+          fi
+          if [ "$TESTNACHRICHT" = "true" ]; then
+            printf 'Test: Push der Kaufberatung-App kommt an (%s).' "$(date '+%d.%m.%Y %H:%M')" > "$RUNNER_TEMP/test-push.txt"
+            senden "$RUNNER_TEMP/test-push.txt" "Kaufberatung: Test"
+          fi
+
       - name: preise.json auf gh-pages pushen (erst nach erfolgreichem Versand)
         if: steps.ende.outputs.aus != '1'
         run: python3 -X utf8 -I werkzeuge/preise_aktualisieren.py --nur-push
@@ -106,4 +142,10 @@ jobs:
         if: steps.ende.outputs.aus != '1' && steps.abfrage.outputs.rc == '3'
         run: |
           echo "::error::Kein einziges Modell gelesen (siehe Schritt Preise abrufen). heise-Sperre nicht umgehen, Nico prüft."
+          exit 1
+
+      - name: Ungültiges Web-Push-Abo melden
+        if: steps.ende.outputs.aus != '1' && steps.webpush.outputs.ungueltig == '1'
+        run: |
+          echo "::error::Web-Push-Abo ungültig (404/410). In der App „Push einrichten“ tippen und Secret PUSH_ABO erneuern."
           exit 1

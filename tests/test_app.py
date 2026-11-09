@@ -2,6 +2,7 @@
 """Tests der App-Hülle: Build in einer Kopie, Manifest, Dateiliste des Service Workers, Symbole, Inhalt unverändert,
 Rahmen der Live-Seite, preise_aktualisieren mit Testabruf. Nur Standardbibliothek; node nur für die Syntaxprüfung (falls da).
 Aufruf: powershell -File tests/alle-tests.ps1  (oder python -I -m unittest discover -s tests)"""
+import base64
 import json
 import os
 import re
@@ -367,7 +368,7 @@ class Workflow(unittest.TestCase):
                    t.index("ntfy.sh/$NTFY_TOPIC"), t.index("preise_aktualisieren.py --nur-push")]
         self.assertEqual(stellen, sorted(stellen))
         self.assertNotIn("--push ", t.replace("--nur-push", ""))
-        self.assertEqual(t.count("exit 1"), 2, "fehlendes Secret und Totalausfall machen den Lauf rot")
+        self.assertEqual(t.count("exit 1"), 4, "fehlendes Secret, falscher VAPID-Schlüssel, Totalausfall und ungültiges Abo machen den Lauf rot")
         self.assertNotIn("continue-on-error", t)
 
     def test_secrets_nur_als_verweis(self):
@@ -378,6 +379,51 @@ class Workflow(unittest.TestCase):
         for zeile in self.t.splitlines():
             if "${{" in zeile:
                 self.assertRegex(zeile, r"^\s+[A-Z_]+: \$\{\{ [\w.]+ \}\}$", "Ausdruck außerhalb von env")
+
+    def test_webpush_vor_push_und_abo_fehler_blockiert_nicht(self):
+        """Web Push (D6): nach ntfy, vor dem Push; 404/410 (Exit 4) blockiert die Preise nicht, macht den Lauf aber rot."""
+        t = self.t
+        stellen = [t.index("ntfy.sh/$NTFY_TOPIC"), t.index("webpush.mjs --senden"), t.index("preise_aktualisieren.py --nur-push"),
+                   t.index("steps.webpush.outputs.ungueltig == '1'")]
+        self.assertEqual(stellen, sorted(stellen))
+        self.assertIn("PUSH_ABO: ${{ secrets.PUSH_ABO }}", t)
+        self.assertIn("VAPID_PRIVAT: ${{ secrets.VAPID_PRIVAT }}", t)
+        self.assertIn('if [ "$rc" = 4 ]; then echo "ungueltig=1" >> "$GITHUB_OUTPUT"; elif [ "$rc" != 0 ]; then exit "$rc"; fi', t)
+        self.assertIn("webpush.mjs --oeffentlich", t)
+
+
+class WebPush(unittest.TestCase):
+    """Eigene Benachrichtigung: Sende-Werkzeug (node --test), Schlüssel in der App, Empfang im Service Worker."""
+
+    def test_node_tests(self):
+        r = subprocess.run(["node", "--test", "tests/webpush.test.mjs"], cwd=WURZEL, capture_output=True, text=True,
+                           encoding="utf-8", timeout=180)
+        self.assertEqual(r.returncode, 0, (r.stdout + r.stderr)[-1500:])
+        r = subprocess.run(["node", "werkzeuge/webpush.mjs", "--selbsttest"], cwd=WURZEL, capture_output=True, text=True,
+                           encoding="utf-8", timeout=60)
+        self.assertEqual(r.returncode, 0, (r.stdout + r.stderr)[-800:])
+
+    def test_oeffentlicher_schluessel_in_app(self):
+        js = (WURZEL / "app" / "app.js").read_text(encoding="utf-8")
+        k = re.findall(r'VAPID_OEFFENTLICH = "([A-Za-z0-9_-]+)"', js)
+        self.assertEqual(len(k), 1)
+        roh = base64.urlsafe_b64decode(k[0] + "=" * (-len(k[0]) % 4))
+        self.assertEqual((len(roh), roh[0]), (65, 4), "unkomprimierter P-256-Punkt")
+        self.assertIn("userVisibleOnly: true", js)
+        # Passt der private Schlüssel (nur auf Nicos Rechner, außerhalb des Repos) zum öffentlichen in der App?
+        privat = WURZEL.parent / "Kaufberatung-App-privat" / "vapid-privat.json"
+        if not privat.exists():
+            self.skipTest("privater Schlüssel nicht auf diesem Rechner")
+        env = dict(os.environ, VAPID_PRIVAT=privat.read_text(encoding="utf-8"))
+        r = subprocess.run(["node", "werkzeuge/webpush.mjs", "--oeffentlich"], cwd=WURZEL, capture_output=True, text=True,
+                           encoding="utf-8", timeout=60, env=env)
+        self.assertEqual((r.returncode, r.stdout.strip()), (0, k[0]))
+
+    def test_service_worker_zeigt_jede_push_nachricht(self):
+        sw = (WURZEL / "app" / "sw.js").read_text(encoding="utf-8")
+        teil = sw[sw.index('addEventListener("push"'):sw.index('addEventListener("pushsubscriptionchange"')]
+        self.assertIn("e.waitUntil(self.registration.showNotification(", teil)
+        self.assertIn(r"^\.\/(#[A-Za-z0-9_-]+)?$", teil, "Ziel nur innerhalb der App")
 
 
 if __name__ == "__main__":

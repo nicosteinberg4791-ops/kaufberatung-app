@@ -102,6 +102,28 @@ self.addEventListener("periodicsync", e => {
   if (e.tag === "kb-preise") e.waitUntil(pruefePreise());
 });
 
+/* Web Push aus der täglichen Abfrage (werkzeuge/webpush.mjs). Chrome verlangt zu jeder Push-Nachricht eine sichtbare
+   Benachrichtigung (userVisibleOnly), daher immer showNotification innerhalb von waitUntil. */
+self.addEventListener("push", e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (_) { d = { text: e.data ? e.data.text() : "" }; }
+  if (!d || typeof d !== "object") d = {};
+  const titel = typeof d.titel === "string" && d.titel.trim() ? d.titel.slice(0, 60) : "Kaufberatung";
+  const text = typeof d.text === "string" && d.text.trim() ? d.text.slice(0, 1000) : "Neue Meldung aus der Preisabfrage.";
+  const ziel = typeof d.ziel === "string" && /^\.\/(#[A-Za-z0-9_-]+)?$/.test(d.ziel) ? d.ziel : "./#preiswecker";
+  e.waitUntil(self.registration.showNotification(titel, {
+    body: text, icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", tag: "kb-push", renotify: true, data: { ziel }
+  }));
+});
+
+// Chrome hat das Abo ersetzt oder entzogen: das GitHub-Secret passt nicht mehr, Nico muss neu einrichten
+self.addEventListener("pushsubscriptionchange", e => {
+  e.waitUntil(self.registration.showNotification("Push neu einrichten", {
+    body: "Die Push-Anmeldung wurde erneuert. App öffnen → Preiswecker → „Push einrichten“ und den Code neu als Secret PUSH_ABO speichern.",
+    icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", tag: "kb-push-abo", data: { ziel: "./#preiswecker" }
+  }).catch(() => {}));
+});
+
 self.addEventListener("notificationclick", e => {
   e.notification.close();
   const ziel = new URL((e.notification.data && e.notification.data.ziel) || "./", self.registration.scope).href;
