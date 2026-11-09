@@ -6,7 +6,9 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
-const [dist, aus] = process.argv.slice(2);
+// dist absolut auflösen: der Server vergleicht mit path.resolve(dist), ein relativer Pfad ergäbe sonst nur 404
+const [distArg, aus] = process.argv.slice(2);
+const dist = path.resolve(distArg);
 const urlArg = process.argv.indexOf("--url") > 0 ? process.argv[process.argv.indexOf("--url") + 1] : null;
 fs.mkdirSync(aus, { recursive: true });
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
@@ -113,7 +115,11 @@ if (await js(`return !!document.getElementById('preiswecker')`)) {
   await js(`location.hash='#preiswecker'; return 1`); await sleep(500);
   ergebnis.r6.messung = await js(messen);
   await bild("r6-wecker.png");
-  ergebnis.r6.punkte = await js(`const bs=[...document.querySelectorAll('.es-dots button')]; if(!bs.length) return null; bs[0].scrollIntoView({block:'center'}); await new Promise(r=>setTimeout(r,300));
+  ergebnis.r6.punkte = await js(`const bs=[...document.querySelectorAll('.es-dots button')]; if(!bs.length) return null; /* sofort scrollen (die Seite hat scroll-behavior:smooth): erst an den Abschnittsanfang, damit der klebende Ergebnisstand
+       an seiner normalen Stelle steht, dann die Punkte in die Bildmitte (dort klebt er nicht unter der Navigationsleiste) */
+    const sp = t => window.scrollTo({top: t, behavior:'instant'});
+    sp(document.getElementById('entscheiden').getBoundingClientRect().top + scrollY); await new Promise(r=>setTimeout(r,200));
+    sp(bs[0].getBoundingClientRect().top + scrollY - innerHeight/2); await new Promise(r=>setTimeout(r,300));
     return bs.map(b=>{const r=b.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+r.height/2; return [-20,0,20].map(d=>document.elementFromPoint(x,y+d)===b).join('/')})`);
   await bild("r6-punkte.png");
 }
