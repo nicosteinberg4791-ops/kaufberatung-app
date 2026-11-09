@@ -48,7 +48,18 @@
 .kbapp-neben { background: var(--seg-bg, #e2e6ec); color: var(--ink, #0e1218); }
 .kbapp-knoepfe button:active, .kbapp-wecker button:active { transform: scale(.97); }
 .kbapp-wecker { display: grid; gap: 10px; justify-items: start; max-width: 46rem; }
-.kbapp-wecker button[hidden] { display: none; }
+.kbapp-wecker button[hidden], .kbapp-code[hidden] { display: none; }
+/* Einrichtungscode für Web Push: volle Breite, bricht um statt quer zu scrollen */
+.kbapp-code { display: grid; gap: 8px; width: 100%; min-width: 0; }
+.kbapp-code textarea {
+  width: 100%; box-sizing: border-box; font: .78rem/1.35 ui-monospace, SFMono-Regular, Consolas, monospace; padding: 8px;
+  border-radius: 10px; border: 1px solid var(--line, #c9d0da); background: var(--seg-bg, #e2e6ec); color: var(--ink, #0e1218);
+  resize: vertical; word-break: break-all; overflow-wrap: anywhere;
+}
+.kbapp-code a.kbapp-neben {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: var(--r-ctl, 999px);
+  font-size: .92rem; font-weight: 600; text-decoration: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .kbapp-karte { transition: opacity 200ms ease; }
   @starting-style { .kbapp-karte { opacity: 0; transform: none; } }
