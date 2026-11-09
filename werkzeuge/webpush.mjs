@@ -124,7 +124,8 @@ export function vapidKopf(endpoint, privJwk, jetztSek) {
 // ---------------------------------------------------------------- Senden
 // JSON auf höchstens 3000 Byte bringen: text an Zeichengrenze kürzen
 function nachrichtAlsJson(n) {
-  const bauen = (text) => JSON.stringify({ titel: n.titel, text, ziel: n.ziel });
+  // art ("treffer" | "test") steuert im Service Worker die Gruppierung: ein Test verdrängt nie einen Treffer (Codex B3)
+  const bauen = (text) => JSON.stringify({ titel: n.titel, text, ziel: n.ziel, ...(n.art ? { art: n.art } : {}) });
   let json = bauen(n.text);
   if (Buffer.byteLength(json) <= MAX_JSON_BYTES) return json;
   const zeichen = Array.from(String(n.text));
@@ -285,8 +286,11 @@ export async function cli(args) {
     let text;
     try { text = fs.readFileSync(datei, "utf8").trim(); } catch { throw konfigFehler("Textdatei nicht lesbar"); }
     if (!text) throw konfigFehler("Textdatei ist leer, nichts zu senden");
+    const art = argWert(args, "--art") ?? "treffer";
+    if (art !== "treffer" && art !== "test") throw konfigFehler("--art muss treffer oder test sein");
     const host = new URL(pruefeAbo(abo).url).host;
     const erg = await senden(abo, priv, {
+      art,
       titel: argWert(args, "--titel") ?? "TV-Preiswecker",
       text,
       ziel: argWert(args, "--ziel") ?? "./#preiswecker",

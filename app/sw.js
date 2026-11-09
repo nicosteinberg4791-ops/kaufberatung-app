@@ -111,9 +111,10 @@ self.addEventListener("push", e => {
   const titel = typeof d.titel === "string" && d.titel.trim() ? d.titel.slice(0, 60) : "Kaufberatung";
   const text = typeof d.text === "string" && d.text.trim() ? d.text.slice(0, 1000) : "Neue Meldung aus der Preisabfrage.";
   const ziel = typeof d.ziel === "string" && /^\.\/(#[A-Za-z0-9_-]+)?$/.test(d.ziel) ? d.ziel : "./#preiswecker";
-  e.waitUntil(self.registration.showNotification(titel, {
-    body: text, icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", tag: "kb-push", renotify: true, data: { ziel }
-  }));
+  // Treffer ohne Tag: jede Meldung bleibt einzeln stehen; nur Tests ersetzen einander (Codex B3)
+  const opt = { body: text, icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", data: { ziel } };
+  if (d.art === "test") { opt.tag = "kb-push-test"; opt.renotify = true; }
+  e.waitUntil(self.registration.showNotification(titel, opt));
 });
 
 // Chrome hat das Abo ersetzt oder entzogen: das GitHub-Secret passt nicht mehr, Nico muss neu einrichten
