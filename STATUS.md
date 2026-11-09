@@ -2,6 +2,11 @@
 
 Stand: 09.11.2026, ca. 07:15 · `main` auf github.com/nicosteinberg4791-ops/kaufberatung-app (öffentlich), Pages aus `gh-pages` (App 4d7fffa16fba, Inhalt Version 9 = Artifact 1794136590-5658) · Prüfstufe Preisabfrage: selbst geprüft + unabhängig geprüft (Codex medium R1/R2: B1 behoben, B2-Rest bewusste Entscheidung D5 → kein schwerer Befund offen, Prüfung abgeschlossen 09.11.2026) · Web Push: selbst geprüft + unabhängig geprüft (Codex medium R1 nicht bestanden, R2 bestanden bis `8ed8496`)
 
+## Veröffentlicht 09.11.2026 ca. 12:05 (Nico: „Ja, App aktualisieren“), App f8c6b2db6ba7: Inhalt Artifact-Version 17 (main `35a218c`)
+- Inhalt = Artifact V17 `1794221595-2dc7`: Fernseher in fünf Bereichen (V15, Codex 2 Runden bestanden, Bericht im Kaufberatung-Projekt `pruefungen/2026-11-09-tv-bereiche/`), Korrektur B-01, Versionseintrag 16–17. Hülle `app/` unverändert.
+- **Selbst geprüft:** `app_bauen.py --quelle` (zurückgelesene Live-Seite) → App f8c6b2db6ba7; `tests/alle-tests.ps1` Fehler 0, Warnungen 0 (auch im Commit-Hook); `pruefe.mjs` lokal und live (`--url`): Meldungen und Offline-Meldungen leer, fünf Preise offline, 375 px scrollW 375; Pages `version.json` = f8c6b2db6ba7 / Artifact-Version 17. Wunschpreis speichern in der App (lokal, 375 px): Wert bleibt nach Neuladen (`kb-app:wunsch`), Testwert danach entfernt. · Unabhängig geprüft: Inhalt ja (Codex), App-Hülle unverändert. · Von Nico freigegeben: Veröffentlichung ja; Sicht am Handy steht aus.
+- **Bekannt:** `pruefe.mjs` „r6.punkte“ meldet jetzt `false/false/false`, weil „Entscheiden“ seit V15 ein beim Start ausgeblendeter Bereich ist (Messartefakt). Nach Wechsel zu `#tv-entscheiden` in der App (pointer:coarse): alle sechs Punkte `true/true/true`. Offen: `pruefe.mjs` vor der Messung auf `#tv-entscheiden` umschalten.
+
 ## Veröffentlicht 09.11.2026 (Nico: „Ja, veröffentlichen“), App 0ebb58ca2b3c: App-Icon „Glas“ Variante J (main `ddfe878`, gh-pages `56bd491`)
 
 - **Selbst geprüft:** `app_bauen.py` → App 0ebb58ca2b3c, Inhalt Version 14 unverändert; `tests/alle-tests.ps1` Fehler 0, Warnungen 0; PNG-Maße 192/512 RGBA, apple-touch 180 RGB; Geheimnis-Scan 0 Funde; `git log origin/main..main` vor dem Push nur die Icon-Commits 93c91af…0d661d3.
