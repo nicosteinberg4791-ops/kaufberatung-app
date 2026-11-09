@@ -25,6 +25,7 @@ Vorlagenversion: 2
 - Wunschpreise nur per `localStorage` auf dem Gerät; alle fremden Daten (preise.json, localStorage) prüfen und nur als Text ausgeben.
 - Nichts versprechen, was nicht belegt ist (Benachrichtigungen: siehe docs/entscheidungen.md D4).
 - Erst-Push von Nico freigegeben (08.11.2026, Repo `kaufberatung-app`, öffentlich). Weitere Pushes von App-Fassungen nach bestandener Prüfung; tägliche `preise.json`-Pushes durch die Preisabfrage sind erlaubt.
+- **Versionsverlauf:** Jede Veröffentlichung der Kaufberatung ergänzt oben in `kaufberatung/quelle/versionen.json` einen Eintrag (Nummer = Artifact-Inhaltsversion, kein Unterstand, 1–2 Sätze „Was ist neu“ in Nicos Sprache, nur Belegtes). `bauen.py` prüft die Datei und baut sie ein; `app_bauen.py` übernimmt sie mit dem Inhalt und zeigt den App-Stand (Hülle) nur klein im Verlauf. App-Änderungen ohne neuen Inhalt bekommen keine neue Nummer.
 - Geheimnisse und Rückweg: KERN §7.
 
 ## Prüfen
