@@ -13,7 +13,8 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <!-- Grundrahmen wie bei der Veröffentlichung auf claude.ai, damit die Seite gleich aussieht -->
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
-<script src="app.js?v=10218f54a67b"></script>
+<script>window.KB_APP_STAND="a299c06b25e9"</script>
+<script src="app.js?v=a299c06b25e9"></script>
 </head><body>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1148,6 +1149,58 @@ section[id],.tk-pane{scroll-margin-top:calc(var(--nav-h) + 16px)}
   .pw-knopf:active{transform:none}
 }
 
+/* ===== Versionsverlauf (V14): Fußzeilen-Knopf + Blatt (mobil von unten, am Rechner mittig) ===== */
+.vfoot{padding-block:8px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px}
+.vchip{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 6px;margin-left:-6px;border:0;background:transparent;
+  color:var(--muted);font:inherit;font-size:.84rem;border-radius:var(--r-tag);cursor:pointer;
+  transition:transform var(--t-press) var(--ease-out),color var(--t-swap) var(--ease-out)}
+.vchip:active{transform:scale(.97)}
+.vchip .vn{color:var(--ink);font-weight:600}
+.vchip .vq{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:var(--line)}
+.vchip .vnew{display:none;font-size:.72rem;font-weight:650;line-height:1;padding:3px 7px;border-radius:var(--r-ctl);background:var(--ctl);color:var(--ctl-ink)}
+.vchip[data-neu="1"] .vnew{display:inline-block}
+@media (hover:hover) and (pointer:fine){ .vchip:hover{color:var(--ink)} }
+
+dialog.vd{box-sizing:border-box;border:0;padding:0;background:var(--surface);color:var(--ink);font:inherit;
+  width:100%;max-width:100%;margin:auto 0 0;max-height:min(88dvh,46rem);overflow:hidden;
+  border-radius:var(--r-stage) var(--r-stage) 0 0;box-shadow:0 -8px 40px var(--shadow),inset 0 1px 0 var(--edge);
+  opacity:0;transform:translateY(24px);
+  transition:opacity 160ms var(--ease-out),transform 240ms var(--ease-out),display 240ms allow-discrete,overlay 240ms allow-discrete}
+dialog.vd[open]{opacity:1;transform:none;display:flex;flex-direction:column}
+@starting-style{ dialog.vd[open]{opacity:0;transform:translateY(24px)} }
+dialog.vd::backdrop{background:rgba(5,7,11,.45);opacity:0;transition:opacity 200ms var(--ease-out),display 200ms allow-discrete,overlay 200ms allow-discrete}
+dialog.vd[open]::backdrop{opacity:1}
+@starting-style{ dialog.vd[open]::backdrop{opacity:0} }
+@media (min-width:760px){
+  dialog.vd{margin:auto;width:min(36rem,calc(100% - 48px));border-radius:var(--r-stage);box-shadow:0 20px 60px var(--shadow),inset 0 1px 0 var(--edge);transform:translateY(12px) scale(.98)}
+  dialog.vd[open]{transform:none}
+  @starting-style{ dialog.vd[open]{opacity:0;transform:translateY(12px) scale(.98)} }
+}
+html:has(dialog.vd[open]){overflow:hidden;scrollbar-gutter:stable}
+.vd-head{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 8px 6px 22px;box-shadow:inset 0 -1px 0 var(--line)}
+.vd-head h2{margin:0;font-size:1.05rem;font-weight:640;letter-spacing:-.02em}
+.vd-x{flex:none;width:44px;height:44px;border:0;border-radius:var(--r-ctl);background:transparent;color:var(--muted);font:inherit;font-size:1.5rem;line-height:1;cursor:pointer;
+  transition:transform var(--t-press) var(--ease-out),background var(--t-swap) var(--ease-out)}
+.vd-x:active{transform:scale(.94)}
+@media (hover:hover) and (pointer:fine){ .vd-x:hover{background:var(--seg-bg);color:var(--ink)} }
+.vd-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:6px 22px calc(18px + env(safe-area-inset-bottom,0px))}
+.vd-neu{margin:14px 0 4px;padding:10px 12px;border-radius:12px;background:var(--surface-2);font-size:.9rem;line-height:1.4}
+.vd-list{list-style:none;margin:0;padding:0}
+.vd-list li{display:grid;gap:4px;padding:14px 0;box-shadow:inset 0 1px 0 var(--line)}
+.vd-list li:first-child{box-shadow:none}
+.vd-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px}
+.vd-top b{font-size:1rem;font-weight:640;letter-spacing:-.015em}
+.vd-top time{font-size:.84rem;color:var(--muted)}
+.vd-tag{font-size:.72rem;font-weight:600;line-height:1;padding:3px 7px;border-radius:var(--r-tag);background:var(--seg-bg);color:var(--muted)}
+.vd-tag.neu{background:var(--ctl);color:var(--ctl-ink);border-radius:var(--r-ctl)}
+.vd-list p{margin:0;font-size:.92rem;line-height:1.45;color:var(--muted);max-width:34rem}
+.vd-list li.cur p{color:var(--ink)}
+.vd-app{margin:14px 0 0;font-size:.78rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){
+  dialog.vd,dialog.vd[open]{transform:none;transition:opacity 120ms linear,display 120ms allow-discrete,overlay 120ms allow-discrete}
+  .vchip:active,.vd-x:active{transform:none}
+}
+
 </style>
 
 <nav class="localnav" aria-label="Kaufberatung">
@@ -1881,6 +1934,9 @@ section[id],.tk-pane{scroll-margin-top:calc(var(--nav-h) + 16px)}
   <footer>Staubsauger-Reiter Runde 5 vom 08.11.2026. Noten aus dem Kaufguide (Methode unverändert), Preise der sechs bestplatzierten Pakete am 08.11.2026 nachgeprüft, Technikdaten mit Quelle je Zahl. Bisheriger Vergleich: <a href="https://claude.ai/artifact/Sr3qUsamTSbjqbsfDSuo1s" target="_blank" rel="noopener">Staubsauger-Vergleich</a>.</footer>
 </div>
 </main>
+
+<div class="wrap vfoot"><button type="button" class="vchip" id="vchip" aria-haspopup="dialog" aria-controls="vdialog"><span class="vn">Version 14</span><span>09.11.2026</span><span class="vnew">Neu</span><span class="vq">Was ist neu?</span></button></div>
+<dialog class="vd" id="vdialog" aria-labelledby="vd-t"><div class="vd-head"><h2 id="vd-t">Versionsverlauf</h2><button type="button" class="vd-x" aria-label="Schließen">×</button></div><div class="vd-body"><p class="vd-neu" hidden></p><ol class="vd-list"></ol><p class="vd-app" hidden></p></div></dialog>
 
 <script>
 (() => {
@@ -4592,5 +4648,48 @@ section[id],.tk-pane{scroll-margin-top:calc(var(--nav-h) + 16px)}
   dbStart();
 })();
 </script>
-<link rel="stylesheet" href="app.css?v=10218f54a67b">
+<script type="application/json" id="versionen-daten">{"aktuell":14,"eintraege":[{"von":14,"bis":14,"datum":"09.11.2026","text":"Neu: der Versionsverlauf. Unten steht, welche Version du gerade siehst; antippen zeigt, was sich wann geändert hat. Beim nächsten Besuch markiert „Neu“, was seit deinem letzten Besuch dazugekommen ist."},{"von":13,"bis":13,"datum":"09.11.2026","text":"Kopfzeile am Handy in zwei Stufen: oben Fernseher/Staubsauger, darunter die Abschnitte. Die Abschnittslinks werden nicht mehr rechts abgeschnitten, der aktive Abschnitt ist markiert."},{"von":12,"bis":12,"datum":"09.11.2026","zwischenstand":true,"text":"Zwischenstand der neuen Kopfzeile, zwei Minuten später durch Version 13 ersetzt. Keine eigene Änderung für dich."},{"von":11,"bis":11,"datum":"09.11.2026","text":"Beim Preiswecker steht jetzt: Er prüft täglich gegen 6:30 Uhr, bis einschließlich 01.12.2026."},{"von":10,"bis":10,"datum":"08.11.2026","text":"Staubsauger Nr. 38 ergänzt: Samsung VS80F28EFP/WD, geprüft und nicht empfohlen (Rang 27 von 38, 504,99 € belegt)."},{"von":9,"bis":9,"datum":"08.11.2026","text":"Fernseher-Reiter Runde 6: Werkzeug „Entscheiden“ mit deinen Gewichten, zwei neue Modelle (Samsung QE85QN90F und Hisense 85UR9DS, beide geprüft und nicht empfohlen), Kleingedrucktes und der Preiswecker."},{"von":8,"bis":8,"datum":"08.11.2026","text":"Zwei Reiter: Fernseher und neu der Staubsauger-Kaufguide. Im Fernseher-Reiter kommen die Technikvergleiche dazu (Sitzabstand, Wand und Maße, Anschlüsse, Panel, Strom, Bedienung)."},{"von":7,"bis":7,"datum":"08.11.2026","zwischenstand":true,"text":"Zwischenstand vor Version 8. Was genau darin neu war, ist nicht einzeln festgehalten."},{"von":6,"bis":6,"datum":"07.11.2026","text":"Preisteil im Fernseher-Vergleich: Preisverlauf mit Tiefstpreisen, Mehrwert je 1.000 € und Kosten. Die Noten blieben unverändert."},{"von":1,"bis":5,"datum":"07.11.2026","text":"Erste Fassungen des Fernseher-Vergleichs mit Noten für die Modelle. Die einzelnen Stände sind nicht festgehalten, deshalb hier zusammengefasst."}]}</script>
+<script>
+/* Versionsverlauf (V14): liest #versionen-daten, füllt das Blatt, merkt die zuletzt gesehene Version (localStorage, try/catch). */
+(function(){
+  var chip=document.getElementById('vchip'), dlg=document.getElementById('vdialog'), dat=document.getElementById('versionen-daten');
+  if(!chip||!dlg||!dat) return;
+  var V; try{ V=JSON.parse(dat.textContent); }catch(e){ return; }
+  var KEY='kb-version-gesehen', gesehen=null;
+  function lies(){ try{ var s=window.localStorage.getItem(KEY); if(s!==null&&/^\d+$/.test(s)) return parseInt(s,10); }catch(e){} return null; }
+  function merke(n){ try{ window.localStorage.setItem(KEY,String(n)); }catch(e){} }
+  gesehen=lies();
+  var neu = gesehen!==null && gesehen<V.aktuell;   // Erstbesuch: nichts hervorheben
+  if(gesehen===null) merke(V.aktuell);
+  if(neu) chip.setAttribute('data-neu','1');
+  function kopf(e){ return e.von===e.bis?'Version '+e.von:'Version '+e.von+' bis '+e.bis; }
+  function el(t,c,x){ var n=document.createElement(t); if(c) n.className=c; if(x!=null) n.textContent=x; return n; }
+  var liste=dlg.querySelector('.vd-list'), meld=dlg.querySelector('.vd-neu'), app=dlg.querySelector('.vd-app');
+  var zeigeNeu=false;
+  function fuelle(){
+    liste.textContent='';
+    V.eintraege.forEach(function(e,i){
+      var li=el('li', i===0?'cur':''), top=el('div','vd-top');
+      top.appendChild(el('b',null,kopf(e)));
+      var t=el('time',null,e.datum); t.setAttribute('datetime',e.datum.split('.').reverse().join('-')); top.appendChild(t);
+      if(e.zwischenstand) top.appendChild(el('span','vd-tag','Zwischenstand'));
+      if(zeigeNeu && gesehen!==null && e.bis>gesehen) top.appendChild(el('span','vd-tag neu','Neu'));
+      li.appendChild(top); li.appendChild(el('p',null,e.text)); liste.appendChild(li);
+    });
+    if(zeigeNeu&&gesehen!==null){ meld.hidden=false; meld.textContent='Neu seit deinem letzten Besuch (zuletzt gesehen: Version '+gesehen+').'; }
+    else meld.hidden=true;
+    var st=window.KB_APP_STAND; if(st){ app.hidden=false; app.textContent='App-Stand '+st+' (technische Hülle der App, nicht Teil der Versionsnummer).'; } else app.hidden=true;
+  }
+  chip.addEventListener('click',function(){
+    zeigeNeu=neu; fuelle();
+    if(typeof dlg.showModal==='function') dlg.showModal(); else dlg.setAttribute('open','');
+    chip.removeAttribute('data-neu'); merke(V.aktuell);
+    var b=dlg.querySelector('.vd-body'); if(b) b.scrollTop=0;
+  });
+  function zu(){ if(dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
+  dlg.querySelector('.vd-x').addEventListener('click',zu);
+  dlg.addEventListener('click',function(ev){ if(ev.target===dlg) zu(); });   // Tipp auf den Hintergrund
+})();
+</script>
+<link rel="stylesheet" href="app.css?v=a299c06b25e9">
 </body></html>
