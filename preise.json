@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-09T07:08:57+01:00",
+ "zeit": "2026-11-09T14:59:26+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -13,7 +13,7 @@
     "haendler": "computeruniverse.net",
     "sterne": "2,5 (5.074)",
     "lieferung": "Lieferzeit 5-7 Werktage",
-    "zeit": "2026-11-09T07:08:57+01:00"
+    "zeit": "2026-11-09T14:59:26+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -43,13 +43,13 @@
     "haendler": "TechnikDirekt",
     "sterne": "2,0 (647)",
     "lieferung": "Auf Lager, Lieferung in 3-5 Werktagen",
-    "zeit": "2026-11-09T07:08:57+01:00"
+    "zeit": "2026-11-09T14:59:26+01:00"
    },
    "roh": {
-    "artikel": 2709.0,
-    "haendler": "Gamingoase.de",
-    "sterne": "4,7 (452)",
-    "zeit": "2026-11-09T07:08:57+01:00"
+    "artikel": 2599.0,
+    "haendler": "expert.de",
+    "sterne": "1,8 (143)",
+    "zeit": "2026-11-09T14:59:26+01:00"
    },
    "tief": {
     "gesamt": 2499.0,
@@ -77,9 +77,15 @@
     "artikel": 2799.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,7 (3.087)",
+    "sterne": "2,7 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-09T07:08:57+01:00"
+    "zeit": "2026-11-09T14:59:26+01:00"
+   },
+   "roh": {
+    "artikel": 2796.0,
+    "haendler": "Alternate",
+    "sterne": "4,7 (3.689)",
+    "zeit": "2026-11-09T14:59:26+01:00"
    },
    "tief": {
     "gesamt": 2799.0,
@@ -109,13 +115,7 @@
     "haendler": "alza.de",
     "sterne": "4,1 (134)",
     "lieferung": "Lagernd, Lieferzeit 1-3 Werktage",
-    "zeit": "2026-11-09T07:08:57+01:00"
-   },
-   "roh": {
-    "artikel": 2289.0,
-    "haendler": "Mediamarkt.de",
-    "sterne": "2,6 (1.015)",
-    "zeit": "2026-11-09T07:08:57+01:00"
+    "zeit": "2026-11-09T14:59:26+01:00"
    },
    "tief": {
     "gesamt": 2369.0,
@@ -145,13 +145,13 @@
     "haendler": "EDV-Service-Stadlauer",
     "sterne": "keine Bewertung",
     "lieferung": "3-6 Werktage",
-    "zeit": "2026-11-09T07:08:57+01:00"
+    "zeit": "2026-11-09T14:59:26+01:00"
    },
    "roh": {
     "artikel": 2899.0,
     "haendler": "techonly",
     "sterne": "4,7 (59)",
-    "zeit": "2026-11-09T07:08:57+01:00"
+    "zeit": "2026-11-09T14:59:26+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -170,12 +170,87 @@
      "h": "EDV-Service-Stadlauer"
     }
    ]
+  },
+  "af_cosori_tt": {
+   "name": "Cosori Turbo Tower Pro Smart",
+   "heiseUrl": "https://preisvergleich.heise.de/cosori-turbo-tower-pro-smart-schwarz-gold-caf-dc123s-dder-a3472492.html",
+   "aktuell": {
+    "gesamt": 249.0,
+    "artikel": 249.0,
+    "versand": 0.0,
+    "haendler": "saturn",
+    "sterne": "3,5 (7)",
+    "lieferung": "Lieferzeit 3-7 Werktage",
+    "zeit": "2026-11-09T14:59:26+01:00"
+   },
+   "tief": {
+    "gesamt": 249.0,
+    "datum": "2026-11-09",
+    "haendler": "saturn"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-09",
+     "g": 249.0,
+     "h": "saturn"
+    }
+   ]
+  },
+  "af_medion_p20": {
+   "name": "Medion P20 XXL Twin",
+   "heiseUrl": "https://preisvergleich.heise.de/medion-md-11760-xxl-twin-50079506-a3787540.html",
+   "aktuell": {
+    "gesamt": 79.95,
+    "artikel": 79.95,
+    "versand": 0.0,
+    "haendler": "medion.de",
+    "sterne": "4,1 (96)",
+    "lieferung": "Sofort verfügbar",
+    "zeit": "2026-11-09T14:59:26+01:00"
+   },
+   "tief": {
+    "gesamt": 79.95,
+    "datum": "2026-11-09",
+    "haendler": "medion.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-09",
+     "g": 79.95,
+     "h": "medion.de"
+    }
+   ]
+  },
+  "af_cosori_r901": {
+   "name": "Cosori Dual Basket R901",
+   "heiseUrl": "https://preisvergleich.heise.de/cosori-doppel-heissluftfritteuse-schwarz-caf-r901-aeu-a3146998.html",
+   "aktuell": {
+    "gesamt": 118.98,
+    "artikel": 118.98,
+    "versand": 0.0,
+    "haendler": "deltatecc-home",
+    "sterne": "3,0 (2)",
+    "lieferung": "Lieferzeit 1-4 Werktage",
+    "zeit": "2026-11-09T14:59:26+01:00"
+   },
+   "tief": {
+    "gesamt": 118.98,
+    "datum": "2026-11-09",
+    "haendler": "deltatecc-home"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-09",
+     "g": 118.98,
+     "h": "deltatecc-home"
+    }
+   ]
   }
  },
  "lauf": {
-  "letzter": "2026-11-09T07:08:57+01:00",
+  "letzter": "2026-11-09T14:59:26+01:00",
   "status": "ok",
-  "meldung": "Alle fünf Preise gelesen.",
+  "meldung": "Alle 8 Preise gelesen.",
   "bis": "2026-12-01"
  }
 }
