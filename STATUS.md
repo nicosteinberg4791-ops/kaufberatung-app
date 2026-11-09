@@ -2,7 +2,11 @@
 
 Stand: 09.11.2026, ca. 07:15 · `main` auf github.com/nicosteinberg4791-ops/kaufberatung-app (öffentlich), Pages aus `gh-pages` (App 4d7fffa16fba, Inhalt Version 9 = Artifact 1794136590-5658) · Prüfstufe Preisabfrage: selbst geprüft + unabhängig geprüft (Codex medium R1/R2: B1 behoben, B2-Rest bewusste Entscheidung D5 → kein schwerer Befund offen, Prüfung abgeschlossen 09.11.2026) · Web Push: selbst geprüft + unabhängig geprüft (Codex medium R1 nicht bestanden, R2 bestanden bis `8ed8496`)
 
-## Lokal gebaut, nicht veröffentlicht (09.11.2026, Sitzung Versionsverlauf): Inhalt Version 14
+## Veröffentlicht 09.11.2026 (Nico: „Ja, veröffentlichen“), App a299c06b25e9, Inhalt Version 14 (Commit 144985c, main und gh-pages gepusht)
+
+Live geprüft (Pages, `pruefe.mjs --url`): `version.json` = a299c06b25e9, 375 px scrollW 375, Meldungen und Offline-Meldungen leer, fünf Preise offline. Nicht auf echtem Handy geprüft. Die folgende Beschreibung („lokal gebaut, nicht committet“) ist damit überholt.
+
+### Beschreibung (vor der Veröffentlichung geschrieben)
 
 - Auf dem veröffentlichten Stand V13 (Commit fa091a0, App 10218f54a67b, laut Commit von Nico freigegeben, inzwischen mit Web Push live) liegt lokal, **nicht committet, nicht gepusht**: `quelle/` + `dist/` = **Artifact-Version 14 `1794208977-341e`** (V13 + Versionsverlauf: Knopf „Version 14 · 09.11.2026“ unten, Blatt mit Verlauf, „Neu“ seit letztem Besuch über localStorage mit try/catch). App `a299c06b25e9`; `app_bauen.py` setzt `window.KB_APP_STAND` (im Verlauf klein als „App-Stand“). Kein `veroeffentlichen.py`, kein Secret. Belege: `tests/alle-tests.ps1` Fehler 0 · `pruefe.mjs` `meldungen`/`meldungenOffline` leer, scrollW 375, fünf Preise offline, Punkte `true/true/true` ×6, kein Verlauf-Element unter den kleinen Tippflächen. **Offen: Nico entscheidet, ob V14 online geht** (Hülle `app/` unverändert, nur Inhalt; Service Worker zeigt zuerst „Neue Fassung bereit“).
 - Regel Versionsverlauf: siehe AGENTS.md „Harte Regeln“.
