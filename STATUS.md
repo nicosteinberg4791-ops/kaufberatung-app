@@ -2,6 +2,10 @@
 
 Stand: 09.11.2026, ca. 07:15 · `main` auf github.com/nicosteinberg4791-ops/kaufberatung-app (öffentlich), Pages aus `gh-pages` (App 4d7fffa16fba, Inhalt Version 9 = Artifact 1794136590-5658) · Prüfstufe Preisabfrage: selbst geprüft + unabhängig geprüft (Codex medium R1/R2: B1 behoben, B2-Rest bewusste Entscheidung D5 → kein schwerer Befund offen, Prüfung abgeschlossen 09.11.2026) · Web Push: selbst geprüft + unabhängig geprüft (Codex medium R1 nicht bestanden, R2 bestanden bis `8ed8496`)
 
+## App-Icon „Glas“ (09.11.2026, lokal committet, NICHT gepusht)
+
+Nico wählte Runde 4 Nr. 1 „Glas“. `app/icons/icon.svg`, `icon-maskable.svg` und alle PNGs (192/512, maskable 192/512, apple-touch 180) ersetzt (Erzeuger `werkzeuge/symbole.py`, Chrome headless). Feinschliff gegenüber dem Entwurf: Scheibe 5 % größer, schwacher Lichtverlauf in der Scheibe (links oben), Kante mit Verlauf nach links oben, Schimmer unten mit weichen Enden. Sonst unverändert: Graphit #0d1219 → #05070b, weißer Haken, kein Fuß. Belege: PNGs angesehen (Read); im Browser (Prüfstand `kaufberatung/design/logo/pruefstand3.html`) 192 und 48 px, Kreis- und Rundquadrat-Maske, heller und dunkler Grund – Motiv in der 80-%-Zone, Haken bei 48 px lesbar; `tests/alle-tests.ps1` Fehler 0; `pruefe.mjs` Meldungen leer, scrollW 375, Punkte true ×6. Codex: nicht gelaufen (nur Bild-Assets, kein Code); laut AGENTS.md Prüfpunkt „Veröffentlichung“ vor dem Push offen. Offen: Nico entscheidet über Veröffentlichung. Android übernimmt neue PWA-Icons oft verzögert (WebAPK-Update, kann Tage dauern); notfalls App deinstallieren und neu installieren.
+
 ## Veröffentlicht 09.11.2026 (Nico: „Ja, veröffentlichen“), App a299c06b25e9, Inhalt Version 14 (Commit 144985c, main und gh-pages gepusht)
 
 Live geprüft (Pages, `pruefe.mjs --url`): `version.json` = a299c06b25e9, 375 px scrollW 375, Meldungen und Offline-Meldungen leer, fünf Preise offline. Nicht auf echtem Handy geprüft. Die folgende Beschreibung („lokal gebaut, nicht committet“) ist damit überholt.
