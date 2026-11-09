@@ -491,6 +491,24 @@ class AirFryerImWecker(unittest.TestCase):
         self.assertEqual(self.pw.auswerten(self.seite(79.95))["angebote"], 0)
         self.assertEqual(self.pw.auswerten(self.seite(2000))["angebote"], 1)
 
+    def test_grenzen_exakt_und_abruf_alle(self):
+        """Codex R1 B1: alle drei Grenzen exakt (Rand drin, knapp außerhalb draußen) und Übergabe durch abruf_alle()."""
+        for m in self.AF:
+            self.assertEqual(self.pw.GRENZEN[m], (30, 1000))
+            g = self.pw.GRENZEN[m]
+            self.assertEqual(self.pw.auswerten(self.seite(29.99, 30, 1000, 1000.01), g)["angebote"], 2)
+        self.assertEqual(self.pw.GRENZE_STANDARD, (500, 20000))
+        self.assertEqual(self.pw.auswerten(self.seite(499.99, 500, 20000, 20000.01))["angebote"], 2)
+        # abruf_alle: Air Fryer mit 150 € gilt, derselbe Wert beim Fernseher nicht; Zubehör 12 € fällt beim Air Fryer weg
+        seite = self.seite(12, 150)
+        with mock.patch.object(self.pw, "abrufen", return_value=seite), mock.patch.object(self.pw.time, "sleep"):
+            erg = self.pw.abruf_alle()
+        for m in self.AF:
+            self.assertEqual(erg["modelle"][m]["angebote"], 1, m)
+            self.assertEqual(erg["modelle"][m]["sicher"]["gesamt"], 150.0, m)
+        for m in set(self.pw.MODELLE) - set(self.AF):
+            self.assertEqual(erg["modelle"][m]["angebote"], 0, m)
+
     def test_app_ids_gleich_modelle(self):
         js = (WURZEL / "app" / "app.js").read_text(encoding="utf-8")
         m = re.search(r"const IDS = \[([^\]]*)\];", js)
