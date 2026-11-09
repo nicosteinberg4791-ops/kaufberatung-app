@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Preiswecker (Runde 6; ab 09.11.2026 mit drei Air Fryern): liest die heise-Preisvergleich-Seiten der fünf Fernseher und drei Air Fryer (nur GET, kein Konto,
+"""Preiswecker (Runde 6; ab 09.11.2026 mit Air Fryern, ab V21 alle zehn der Top 10): liest die heise-Preisvergleich-Seiten der fünf Fernseher und zehn Air Fryer (nur GET, kein Konto,
 kein Formular) und gibt je Modell das günstigste Angebot als JSON aus.
 
 Herkunft: Stand R4 aus Runde 6 (Codex bestanden), übernommen am 08.11.2026; geändert nur die Pfade in diesem Kopf.
@@ -52,9 +52,18 @@ MODELLE = {
     "af_cosori_tt": "https://preisvergleich.heise.de/cosori-turbo-tower-pro-smart-schwarz-gold-caf-dc123s-dder-a3472492.html",
     "af_medion_p20": "https://preisvergleich.heise.de/medion-md-11760-xxl-twin-50079506-a3787540.html",
     "af_cosori_r901": "https://preisvergleich.heise.de/cosori-doppel-heissluftfritteuse-schwarz-caf-r901-aeu-a3146998.html",
+    # Restliche Modelle der Air Fryer Top 10 (Nico, 09.11.2026 „für alle modelle preiswecker“), heise-Suche nach Modellnummer.
+    # Bei mehreren Farbvarianten ist der Grundeintrag gewählt (Ninja DZ400EU, AF500EU), bei Tefal die im Bericht genannte EY942BE0.
+    "af_caso_3186": "https://preisvergleich.heise.de/caso-airfry-duochef-3186-a3417119.html",
+    "af_aeg_aafd11b": "https://preisvergleich.heise.de/aeg-8000-aafd11b-910-004-063-a3916554.html",
+    "af_rh_27680": "https://preisvergleich.heise.de/russell-hobbs-satisfry-dual-basket-9l-27680-56-a3487630.html",
+    "af_ninja_dz400": "https://preisvergleich.heise.de/ninja-dz400eu-max-6-in-1-dual-zone-a3525190.html",
+    "af_tefal_ey942": "https://preisvergleich.heise.de/tefal-ey942b-dual-easy-fry-ey942be0-a3535540.html",
+    "af_gastroback_42586": "https://preisvergleich.heise.de/gastroback-42586-multi-duo-family-9l-a3785334.html",
+    "af_ninja_af500": "https://preisvergleich.heise.de/ninja-af500eu-foodi-flexdrawer-a3337334.html",
 }
 # Plausibler Artikelpreisbereich je Modell (€); Fernseher 500–20000, Air Fryer 30–1000 (verwirft Zubehör/Fehlwerte)
-GRENZEN = {"af_cosori_tt": (30, 1000), "af_medion_p20": (30, 1000), "af_cosori_r901": (30, 1000)}
+GRENZEN = {mid: (30, 1000) for mid in MODELLE if mid.startswith("af_")}
 GRENZE_STANDARD = (500, 20000)
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Preiswecker-privat"
 BETRAG = r"(?:€|&euro;)\s*([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{1,2})?|[0-9]+(?:,[0-9]{1,2})?)(?:,-)?"
@@ -133,9 +142,14 @@ def abrufen(url):
 
 NAMEN = {"lg_c6elb": "LG OLED83C6ELB", "lg_c69lb": "LG OLED83C69LB", "sam_s90h": "Samsung GQ83S90H",
          "tcl_c8l": "TCL 85C8L", "sam_qn90f": "Samsung QE85QN90F",
-         "af_cosori_tt": "Cosori Turbo Tower Pro Smart", "af_medion_p20": "Medion P20 XXL Twin", "af_cosori_r901": "Cosori Dual Basket R901"}
+         "af_cosori_tt": "Cosori Turbo Tower Pro Smart", "af_medion_p20": "Medion P20 XXL Twin", "af_cosori_r901": "Cosori Dual Basket R901",
+         "af_caso_3186": "Caso AirFry DuoChef 3186", "af_aeg_aafd11b": "AEG AAFD11B", "af_rh_27680": "Russell Hobbs SatisFry Dual 27680-56",
+         "af_ninja_dz400": "Ninja Dual Zone DZ400EU", "af_tefal_ey942": "Tefal Easy Fry Dual XXL EY942", "af_gastroback_42586": "Gastroback Duo Family 42586",
+         "af_ninja_af500": "Ninja FlexDrawer AF500EU"}
 KURZ = {"lg_c6elb": "LG C6ELB", "lg_c69lb": "LG C69LB", "sam_s90h": "Samsung S90H", "tcl_c8l": "TCL C8L", "sam_qn90f": "Samsung QN90F",
-        "af_cosori_tt": "Cosori Turbo Tower", "af_medion_p20": "Medion P20 XXL", "af_cosori_r901": "Cosori R901"}
+        "af_cosori_tt": "Cosori Turbo Tower", "af_medion_p20": "Medion P20 XXL", "af_cosori_r901": "Cosori R901",
+        "af_caso_3186": "Caso DuoChef", "af_aeg_aafd11b": "AEG AAFD11B", "af_rh_27680": "Russell Hobbs 27680", "af_ninja_dz400": "Ninja DZ400",
+        "af_tefal_ey942": "Tefal EY942", "af_gastroback_42586": "Gastroback 42586", "af_ninja_af500": "Ninja AF500"}
 ENDE = "2026-12-01"
 
 
