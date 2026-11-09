@@ -1,0 +1,19 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Ein ausdrücklich genanntes Fertigkriterium ist nicht erfüllt: Der Build übernimmt nicht alle Icon-Dateien.",
+  "befunde": [
+    {
+      "id": "B1",
+      "schwere": "schwer",
+      "titel": "Maskable-SVG fehlt im Veröffentlichungspaket",
+      "datei": "werkzeuge/app_bauen.py",
+      "zeile": 26,
+      "beleg": "STATISCH enthält icons/icon.svg und alle fünf PNGs, aber nicht icons/icon-maskable.svg. Ausschließlich STATISCH wird nach dist/ kopiert (Zeilen 104–105) und in die Service-Worker-Dateiliste aufgenommen (Zeile 108). Der lesende Abgleich mit app/icons/ bestätigt genau diese fehlende Datei.",
+      "auswirkung": "Das geforderte vollständige SVG-/PNG-Paket wird auf GitHub Pages unvollständig veröffentlicht. Die maskierbaren Manifest-PNGs werden übernommen; die zugehörige SVG-Datei fehlt jedoch im Veröffentlichungsergebnis.",
+      "vorschlag": "icons/icon-maskable.svg in STATISCH aufnehmen und einen Build-Test ergänzen, der die vollständige Übernahme der vorgesehenen Icon-Dateien prüft.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Commit und main entsprechen 0d661d3b1c10f685e7c773068fd5928f12f58271; Vergleich gegen den lokalen origin/main-Verweis, ohne Fetch. Ausschließlich lesend geprüft. PNG-Dateien dekodiert, Maße, Alpha und PNG-Blöcke untersucht; SVGs und Maskable-Geometrie geprüft. Build-Hash-Wechsel sowie Cache-Neuladung und Altcache-Löschung in einer In-Memory-Simulation bestätigt. Testsuite, echter Build und PNG-Neuerzeugung nicht ausgeführt: Sie schreiben Dateien; außerdem ist Python hier nicht verfügbar. Keine Prüfung auf einem echten Handy oder der veröffentlichten Seite."
+}

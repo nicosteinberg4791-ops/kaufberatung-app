@@ -1,0 +1,9 @@
+{
+  "urteil": "bestanden",
+  "zusammenfassung": "Keine blockierenden Mängel festgestellt. Das Veröffentlichungspaket enthält ausschließlich die vorgesehenen Dateien. Manifest, PNG-Maße, Farbmodi und Maskable-Sicherzone passen; die Icon-Änderungen ändern den Build-Hash und damit den Service-Worker-Cache.",
+  "befunde": [],
+  "geschlossen": [
+    "B1: Als Fehlalarm geschlossen. icon-maskable.svg dient ausschließlich symbole.py als Render-Vorlage; keine Laufzeitreferenz verwendet diese Datei. STATISCH übernimmt sämtliche benötigten Icons einschließlich SVG-Favicon und aller fünf PNGs. Ein zusätzlicher Build-Test für die ungenutzte Vorlage ist daher nicht erforderlich."
+  ],
+  "pruefgrenzen": "Commit 0d661d3b1c10f685e7c773068fd5928f12f58271 ausschließlich lesend geprüft. PNGs im Speicher dekodiert: Maße und Farbmodi korrekt, Maskable durchgehend deckend, nur IHDR/IDAT/IEND vorhanden. SVGs ohne aktive Inhalte oder externe Ressourcen; Maskable-Motiv anhand Geometrie und PNG-Ansicht geprüft. Renderfaktor, Größenprüfung und Verkleinerungsfolge statisch geprüft. Testlauf, erneutes Rendern und Build nicht ausgeführt: Python in dieser Prüfumgebung nicht verfügbar; diese Abläufe schreiben Dateien. Kein Handy-, WebAPK- oder Live-Veröffentlichungstest. origin/main wurde lokal ausgewertet, ohne Fetch."
+}
