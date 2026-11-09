@@ -2,11 +2,11 @@
    Strategie: App-Dateien aus dem versionierten Cache (offline), preise.json zuerst vom Netz (frisch, sonst Cache),
    Google-Schrift aus dem Laufzeit-Cache (veraltet-und-erneuern). Neue Fassung wartet, bis die Seite "jetzt" sagt. */
 "use strict";
-const VERSION = "d6e2a0bd6e50";
+const VERSION = "4d7fffa16fba";
 const APP = "kb-app-" + VERSION;
 const LAUFZEIT = "kb-laufzeit";
 const DATEN = "kb-daten";            // preise.json, Wunschpreise (Spiegel aus der Seite), gemeldete Treffer
-const DATEIEN = ["./", "index.html", "app.js?v=d6e2a0bd6e50", "app.css?v=d6e2a0bd6e50", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
+const DATEIEN = ["./", "index.html", "app.js?v=4d7fffa16fba", "app.css?v=4d7fffa16fba", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
 const SCHRIFT = ["https://fonts.googleapis.com", "https://fonts.gstatic.com"];
 
 self.addEventListener("install", e => {
@@ -100,6 +100,29 @@ async function pruefePreise() {
 
 self.addEventListener("periodicsync", e => {
   if (e.tag === "kb-preise") e.waitUntil(pruefePreise());
+});
+
+/* Web Push aus der täglichen Abfrage (werkzeuge/webpush.mjs). Chrome verlangt zu jeder Push-Nachricht eine sichtbare
+   Benachrichtigung (userVisibleOnly), daher immer showNotification innerhalb von waitUntil. */
+self.addEventListener("push", e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (_) { d = { text: e.data ? e.data.text() : "" }; }
+  if (!d || typeof d !== "object") d = {};
+  const titel = typeof d.titel === "string" && d.titel.trim() ? d.titel.slice(0, 60) : "Kaufberatung";
+  const text = typeof d.text === "string" && d.text.trim() ? d.text.slice(0, 1000) : "Neue Meldung aus der Preisabfrage.";
+  const ziel = typeof d.ziel === "string" && /^\.\/(#[A-Za-z0-9_-]+)?$/.test(d.ziel) ? d.ziel : "./#preiswecker";
+  // Treffer ohne Tag: jede Meldung bleibt einzeln stehen; nur Tests ersetzen einander (Codex B3)
+  const opt = { body: text, icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", data: { ziel } };
+  if (d.art === "test") { opt.tag = "kb-push-test"; opt.renotify = true; }
+  e.waitUntil(self.registration.showNotification(titel, opt));
+});
+
+// Chrome hat das Abo ersetzt oder entzogen: das GitHub-Secret passt nicht mehr, Nico muss neu einrichten
+self.addEventListener("pushsubscriptionchange", e => {
+  e.waitUntil(self.registration.showNotification("Push neu einrichten", {
+    body: "Die Push-Anmeldung wurde erneuert. App öffnen → Preiswecker → „Push einrichten“ und den Code neu als Secret PUSH_ABO speichern.",
+    icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", tag: "kb-push-abo", data: { ziel: "./#preiswecker" }
+  }).catch(() => {}));
 });
 
 self.addEventListener("notificationclick", e => {
