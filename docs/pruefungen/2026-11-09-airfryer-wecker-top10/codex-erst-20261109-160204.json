@@ -1,0 +1,7 @@
+{
+  "urteil": "bestanden",
+  "zusammenfassung": "Keine belegten Befunde im geprüften Diff von 9ab0954 bis ae54e429622cd6ca8f525669a68fb976f452b994. Fünf gezielte Tests bestanden; zusätzlich Reihenfolge und Laufstatus bei jedem einzeln fehlenden Modell lesend geprüft.",
+  "befunde": [],
+  "geschlossen": [],
+  "pruefgrenzen": "Keine Dateien geändert. Gesamttestlauf und schreibender Aktualisierungslauf wegen des ausschließlich lesenden Auftrags nicht ausgeführt; kein Browsertest. Die sieben URL-Pfade enthalten jeweils die verlangte Modellnummer. Vier Produktseiten zusätzlich über heise bestätigt; Caso, AEG und Gastroback waren über das Webwerkzeug nicht abrufbar. Aktuelle Preise daher nicht unabhängig bestätigt. Die Präfixregel setzt für künftige Air Fryer weiterhin IDs mit af_ voraus. IDS wird im vorhandenen Test ausdrücklich einschließlich Reihenfolge geprüft; NAMEN/KURZ werden dort nur als Mengen verglichen, ihre aktuelle Reihenfolge wurde zusätzlich separat geprüft."
+}
