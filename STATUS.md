@@ -2,6 +2,12 @@
 
 Stand: 09.11.2026, ca. 07:15 · `main` auf github.com/nicosteinberg4791-ops/kaufberatung-app (öffentlich), Pages aus `gh-pages` (App 4d7fffa16fba, Inhalt Version 9 = Artifact 1794136590-5658) · Prüfstufe Preisabfrage: selbst geprüft + unabhängig geprüft (Codex medium R1/R2: B1 behoben, B2-Rest bewusste Entscheidung D5 → kein schwerer Befund offen, Prüfung abgeschlossen 09.11.2026) · Web Push: selbst geprüft + unabhängig geprüft (Codex medium R1 nicht bestanden, R2 bestanden bis `8ed8496`)
 
+## Veröffentlicht 09.11.2026 (Nico: „Ja, veröffentlichen“), App 10218f54a67b, Inhalt Artifact-Version 13 (Sitzung Kopfzeile)
+
+- `quelle/` + `dist/` = **Artifact-Version 13 `1794206210-fa7e`** (V9 → V13 in einem Schritt: Samsung Nr. 38, Wecker-Seitensatz, **mobile zweistufige Kopfzeile**). App `10218f54a67b`, Hülle `app/` unverändert, **nicht committet, nicht gepusht**, kein `veroeffentlichen.py`, kein Secret. Belege: `tests/alle-tests.ps1` Fehler 0 · `pruefe.mjs` (Chrome headless, 375 px) `meldungen`/`meldungenOffline` leer, scrollW 375, fünf Preise offline, Fortschrittspunkte `true/true/true` ×6 · im eingebauten Browser mit grobem Zeiger: `--nav-h` 96 px, Linkpille 34 px mit 44-px-Trefferfläche (Punkt 4 px darüber/darunter trifft den Link). Hinweis: `pruefe.mjs` meldet die 34-px-Pille als „klein“ (Optik; Trefferfläche 44 px wie bei `.es-dots`).
+- Beim Test gesehen: ein bereits geladener Service Worker zeigt erst „Neue Fassung bereit“ (altes Layout), bis „Neu laden“ getippt wird. Beim Veröffentlichen gilt das auch für Nicos Handy.
+- **Offene Entscheidung Nico:** Soll dieser Stand online gehen? Die Web-Push-Fassung (Commits 2c84d41, 8ed8496) ist laut Auftrag von Nico noch nicht zur Veröffentlichung freigegeben und steckt in `app/`; ein Veröffentlichen der App bringt sie mit online (`git log origin/main..main` zeigt lokal nichts Unveröffentlichtes, Stand des Remotes nicht neu abgefragt).
+
 ## Erledigt
 
 - Hülle `app/`, Werkzeuge, Inhalt Version 8, veröffentlicht (Details: Git-Verlauf bis `3e910fe`, `docs/pruefungen/2026-11-08-app-huelle/`).
@@ -30,3 +36,5 @@ Bis 10.11. ca. 06:30 MEZ prüfen, ob ein `schedule`-Lauf erscheint (Ereignis `sc
 Nebenbefund `git commit -a` **behoben** (09.11.2026): `PushSchutz.setUp` in `tests/test_app.py` entfernt `GIT_*` aus der Umgebung. Rot-grün: vorher `git commit -a` mit Hook rot (4 Fehler, 32 Tests), nachher grün (Commit dieses Standes mit `-a`).
 Geplanter Lauf / Web Push: am 09.11. ca. 07:30 MEZ noch nicht prüfbar (nächster Cron 10.11. 05:23 UTC); Prüfung ab 10.11. ca. 06:30 MEZ mit `gh run list -R nicosteinberg4791-ops/kaufberatung-app -w preise.yml` bleibt offen, ebenso O7 (Schritt „Web Push“ → „Push gesendet (HTTP 201)“ erst nach Nicos Secrets).
 Danach: Version 10 wie V9 nachziehen (`Artifact read` → `app_bauen.py --quelle` → `pruefe.mjs` → Tests → `veroeffentlichen.py`).
+
+- Live geprüft (Pages, pruefe.mjs --url): 375 px scrollW 375, Meldungen leer (auch offline). Web Push war bereits mit 4d7fffa16fba live; dieses Update brachte nur den Inhalt V13. Nicht auf echtem Handy geprüft.
