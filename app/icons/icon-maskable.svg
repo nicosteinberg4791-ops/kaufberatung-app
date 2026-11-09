@@ -68,7 +68,7 @@
   <rect width="512" height="512" fill="url(#nebelT)"/>
   <rect width="512" height="512" fill="url(#nebelL)"/>
   <rect width="512" height="512" fill="url(#licht)"/>
-  <circle cx="430" cy="74" r="3.5" fill="#fff" opacity="0.81"/><circle cx="462" cy="120" r="2.1" fill="#fff" opacity="0.63"/><circle cx="392" cy="104" r="1.8" fill="#fff" opacity="0.50"/><circle cx="74" cy="404" r="2.6" fill="#fff" opacity="0.54"/><circle cx="446" cy="448" r="2.2" fill="#fff" opacity="0.45"/><circle cx="118" cy="452" r="1.6" fill="#fff" opacity="0.41"/>
+  
   <g transform="translate(256 256) scale(.8) translate(-256 -256)">
     <rect x="88" y="141" width="336" height="189" rx="24" fill="url(#tiefe)" fill-opacity=".95"/>
     <g clip-path="url(#scheibe)">
