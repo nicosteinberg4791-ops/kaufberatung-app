@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <!-- Grundrahmen wie bei der Veröffentlichung auf claude.ai, damit die Seite gleich aussieht -->
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
-<script src="app.js?v=4d7fffa16fba"></script>
+<script src="app.js?v=10218f54a67b"></script>
 </head><body>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -623,6 +623,40 @@ section[id],.tk-pane{scroll-margin-top:calc(var(--nav-h) + 16px)}
 #sitz-svg{max-height:min(600px,78vh)}
 .uib,.uib figcaption{grid-template-columns:minmax(0,1fr)} .uib .gap,.kv .gap,.sum6 .gap{width:auto}
 #technik > *,.tk-pane > *,.tk-sub > *{min-width:0}
+
+
+/* ===== Runde 7: Kopfzeile (09.11.2026) – Abschnittslinks zeigen den aktiven Abschnitt; mobil zwei Zeilen ===== */
+@property --fl{syntax:"<length>";inherits:false;initial-value:0px}
+@property --fr{syntax:"<length>";inherits:false;initial-value:0px}
+.navlinks{position:relative;overscroll-behavior-x:contain;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,var(--ink) var(--fl),var(--ink) calc(100% - var(--fr)),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,var(--ink) var(--fl),var(--ink) calc(100% - var(--fr)),transparent 100%);
+  transition:--fl 200ms var(--ease-out),--fr 200ms var(--ease-out)}
+.navlinks a{transition:color var(--t-swap) var(--ease-out),background-color var(--t-swap) var(--ease-out)}
+.navlinks a[aria-current="true"]{color:var(--ink)}
+.navlinks a:focus-visible{outline:2px solid var(--ink);outline-offset:-2px;border-radius:999px}
+@media (max-width:760px){
+  :root:root{--nav-r1:52px;--nav-r2:44px;--nav-h:calc(var(--nav-r1) + var(--nav-r2))}
+  .localnav{transition:transform 260ms var(--spring);will-change:transform}
+  .localnav.kompakt{transform:translateY(calc(var(--nav-r1) * -1))}
+  .navin{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:var(--nav-r1) var(--nav-r2);height:auto;gap:0 12px;align-items:center}
+  .brand{display:block;font-size:.95rem}
+  .tabs{width:100%;max-width:none;display:flex}
+  .tabs button{flex:1;min-height:38px;font-size:.88rem;padding:6px 8px}
+  .navlinks{grid-column:1/-1;height:var(--nav-r2);align-items:center;gap:4px;margin:0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+    padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+    scroll-padding-inline:48px;box-shadow:inset 0 1px 0 var(--line)}
+  .localnav .navlinks a{position:relative;display:flex;align-items:center;height:34px;min-height:0;padding:0 13px;border-radius:999px;font-size:.88rem}
+  .localnav .navlinks a::after{content:"";position:absolute;inset:-5px -2px}
+  .localnav .navlinks a[aria-current="true"]{background:var(--seg-bg);font-weight:600}
+  .localnav .navlinks a:active{transform:scale(.97)}
+}
+@media (max-width:440px){ .navin{gap:0 10px} }
+@media (prefers-reduced-motion:reduce){
+  .localnav{transition:none}
+  .navlinks{transition:none}
+  .localnav .navlinks a:active{transform:none}
+}
 
 /* Runde 5: Staubsauger-Reiter. Nur vorhandene Tokens; Rollenfarben = TV-Modelltokens, AEG = Referenztoken (--sony) */
 #view-sauger section[id]{scroll-margin-top:calc(var(--nav-h) + 16px)}
@@ -2632,6 +2666,7 @@ section[id],.tk-pane{scroll-margin-top:calc(var(--nav-h) + 16px)}
       document.querySelector(`.navlinks[data-view="${x}"]`).hidden = x !== k;
     });
     selectTab(tabs, k); cur = k;
+    kopfSync();
     const v = $("view-" + k);
     if (anim && !reduce.matches) v.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: EASE });
     v.querySelectorAll(".segx").forEach(placeThumb);
@@ -2974,6 +3009,82 @@ section[id],.tk-pane{scroll-margin-top:calc(var(--nav-h) + 16px)}
     const ro = new ResizeObserver(() => { if (theme === "sitz") drawSitz(); if (theme === "wand") drawWand(); });
     ro.observe($("sitz-svg")); ro.observe($("wand-svg"));
   }
+  // ---------- Kopfzeile (Runde 7): Scrollspy, aktiver Link in Sicht, Randverlauf, mobil kompakt beim Runterscrollen ----------
+  const navEl = document.querySelector(".localnav");
+  const mobilNav = matchMedia("(max-width: 760px)");
+  const aktBox = () => document.querySelector(`.navlinks[data-view="${cur}"]`);
+  let spyLinks = [], spyAkt = null, spyBusy = false, lastY = scrollY;
+  function fades(box) {
+    const rest = box.scrollWidth - box.clientWidth - box.scrollLeft;
+    box.style.setProperty("--fl", box.scrollLeft > 4 ? "36px" : "0px");
+    box.style.setProperty("--fr", rest > 4 ? "36px" : "0px");
+  }
+  function kopfSync() {
+    const box = aktBox(); if (!box) return;
+    spyLinks = [...box.querySelectorAll('a[href^="#"]')].map(a => {
+      let id = ""; try { id = decodeURIComponent(a.getAttribute("href").slice(1)); } catch (e) { id = ""; }
+      return { a, el: document.getElementById(id) };
+    }).filter(x => x.el);
+    spyAkt = null; box.scrollLeft = 0; spy(); fades(box);
+  }
+  // Leiste sanft verschieben (eigene Animation: unterbrechbar, bricht bei Berührung ab; scrollTo smooth wurde bei laufenden Layoutänderungen verworfen)
+  let gleitAnim = 0, gleitUhr = 0;
+  const gleitStop = () => { cancelAnimationFrame(gleitAnim); clearTimeout(gleitUhr); };
+  function gleite(box, ziel) {
+    gleitStop();
+    const von = box.scrollLeft, d = ziel - von;
+    if (Math.abs(d) < 2 || reduce.matches) { box.scrollLeft = ziel; return; }
+    const t0 = performance.now(), dauer = 260;
+    const schritt = t => {
+      const p = Math.min(1, (t - t0) / dauer);
+      box.scrollLeft = von + d * (1 - Math.pow(1 - p, 4));
+      if (p < 1) gleitAnim = requestAnimationFrame(schritt);
+    };
+    gleitAnim = requestAnimationFrame(schritt);
+    gleitUhr = setTimeout(() => { cancelAnimationFrame(gleitAnim); box.scrollLeft = ziel; }, dauer + 120); // Rückfall ohne Bildtakt
+  }
+  ["touchstart", "wheel", "pointerdown"].forEach(e => addEventListener(e, gleitStop, { passive: true, capture: true }));
+  function spy() {
+    const box = aktBox(); if (!box || !spyLinks.length) return;
+    const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 80;
+    // Sprungziele landen bei scroll-padding plus scroll-margin des Abschnitts; so weit darf die Oberkante höchstens abweichen
+    const line = x => pad + (parseFloat(getComputedStyle(x.el).scrollMarginTop) || 0) + 6;
+    let akt = null;
+    const amEnde = scrollY > 0 && innerHeight + scrollY >= document.documentElement.scrollHeight - 4;
+    for (const x of spyLinks) { if (!x.el.getClientRects().length) continue; if (x.el.getBoundingClientRect().top <= line(x)) akt = x; }
+    if (amEnde) { const sicht = spyLinks.filter(x => x.el.getClientRects().length); if (sicht.length) akt = sicht[sicht.length - 1]; }
+    const a = akt ? akt.a : null;
+    if (a === spyAkt) return;
+    spyAkt = a;
+    spyLinks.forEach(x => { if (x.a === a) x.a.setAttribute("aria-current", "true"); else x.a.removeAttribute("aria-current"); });
+    if (box.scrollWidth > box.clientWidth) {
+      const ziel = a ? a.offsetLeft - (box.clientWidth - a.offsetWidth) / 2 : 0; // kein aktiver Abschnitt: Leiste zurück an den Anfang
+      gleite(box, Math.max(0, Math.min(ziel, box.scrollWidth - box.clientWidth)));
+    }
+  }
+  function kompakt() {
+    const y = scrollY, d = y - lastY;
+    if (!mobilNav.matches) { navEl.classList.remove("kompakt"); lastY = y; return; }
+    if (y < 120) { navEl.classList.remove("kompakt"); lastY = y; return; } // oben immer volle Kopfzeile
+    if (Math.abs(d) < 6) return;
+    lastY = y;
+    if (d < 0 || navEl.contains(document.activeElement)) navEl.classList.remove("kompakt");
+    else navEl.classList.add("kompakt");
+  }
+  // einmal pro Bild nachführen; Zeitgeber als Rückfall, falls ein Hintergrundfenster keine Bilder liefert
+  function plane() {
+    if (spyBusy) return; spyBusy = true;
+    const los = () => { if (!spyBusy) return; spyBusy = false; spy(); kompakt(); };
+    requestAnimationFrame(los); setTimeout(los, 100);
+  }
+  addEventListener("scroll", plane, { passive: true });
+  addEventListener("hashchange", () => { setTimeout(plane, 80); setTimeout(plane, 400); }); // Sprung zu einem Abschnitt: danach nachführen, auch wenn kein Scroll-Ereignis kommt
+  addEventListener("resize", () => { const b = aktBox(); if (b) fades(b); kompakt(); });
+  // Layout ändert sich ohne Scrollen (Schrift, Reiterwechsel, Grafiken): Zustand der Leiste nachziehen
+  if ("ResizeObserver" in window) new ResizeObserver(plane).observe(document.body);
+  navEl.addEventListener("focusin", () => navEl.classList.remove("kompakt"));
+  document.querySelectorAll(".navlinks").forEach(b => b.addEventListener("scroll", () => fades(b), { passive: true }));
+
   drawSitz(); drawWand(); drawHdmi(); drawStrom();
   route(true);
   window.__tvTechnik = { assign: id => assign(byId[id]), angle: (id, d) => angle(byId[id], d), merge: id => merge(byId[id]), route }; // für die Skriptprüfung
@@ -3436,7 +3547,7 @@ section[id],.tk-pane{scroll-margin-top:calc(var(--nav-h) + 16px)}
     leeren(box);
     const P = window.__kbPreise;
     const angezeigt = "Angezeigt: Preise vom " + E.preise_heute.zeit + " (eingebettet).";
-    const plan = "Der Wecker läuft täglich gegen 7 Uhr bis einschließlich 01.12.2026.";
+    const plan = "Der Wecker läuft täglich gegen 6:30 Uhr bis einschließlich 01.12.2026.";
     const zeile = (cls, t) => box.appendChild(el("p", cls, t));
     const pille = (wort, art) => {
       const t = el("span", "tag pw-pille pw-" + art);
@@ -3461,7 +3572,7 @@ section[id],.tk-pane{scroll-margin-top:calc(var(--nav-h) + 16px)}
       add(p1, " Letzter Lauf: " + S.lauf.letzter + ".");
       box.appendChild(p1);
       if (S.lauf.meldung) zeile("small", S.lauf.meldung);
-      zeile("small", "Der Wecker läuft täglich gegen 7 Uhr bis einschließlich " + (S.lauf.bis || "01.12.2026") + ".");
+      zeile("small", "Der Wecker läuft täglich gegen 6:30 Uhr bis einschließlich " + (S.lauf.bis || "01.12.2026") + ".");
       if (!hat) zeile("small", angezeigt);
     } else if (S.phase === "laden") {
       zeile("pw-s1", "Live-Daten werden geladen. " + angezeigt);
@@ -4481,5 +4592,5 @@ section[id],.tk-pane{scroll-margin-top:calc(var(--nav-h) + 16px)}
   dbStart();
 })();
 </script>
-<link rel="stylesheet" href="app.css?v=4d7fffa16fba">
+<link rel="stylesheet" href="app.css?v=10218f54a67b">
 </body></html>
