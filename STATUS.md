@@ -45,6 +45,8 @@ Live geprüft (Pages, `pruefe.mjs --url`): `version.json` = a299c06b25e9, 375 px
 
 ## Nächster Schritt
 
+**Zuerst (App-Icon):** Nico entscheidet, ob das Icon „Glas“ Variante I (Commit 90495b1) online geht. Bei Ja: Codex-Prüfung Prüfpunkt „Veröffentlichung“ (Skill `pruefschleife`, nur Icons + `werkzeuge/symbole.py` geändert), dann `veroeffentlichen.py` und live prüfen (`pruefe.mjs --url`, Manifest-Icons abrufbar). Fertig, wenn: live mit Belegen oder Nicos Nein vermerkt. Lesen: STATUS.md (Abschnitt App-Icon), `werkzeuge/veroeffentlichen.py` (Kopf).
+
 Bis 10.11. ca. 06:30 MEZ prüfen, ob ein `schedule`-Lauf erscheint (Ereignis `schedule`, grün, neues `lauf.letzter` in preise.json auf gh-pages); fehlt er wieder, Nico informieren und Auftrag zu Gegenmaßnahmen einholen (z. B. andere Uhrzeit). Hat Nico O7 erledigt (Secrets `VAPID_PRIVAT`, `PUSH_ABO`): im Lauf prüfen, dass der Schritt „Web Push“ „Push gesendet (HTTP 201)“ meldet. Fertig, wenn: geplanter Lauf belegt oder Nico informiert; Web-Push-Zustellung von Nico bestätigt oder als offen benannt. Lesen: STATUS.md, `docs/offene-punkte.md` (O5–O7), `docs/anleitung-handy.md` (Abschnitt Push).
 Nebenbefund `git commit -a` **behoben** (09.11.2026): `PushSchutz.setUp` in `tests/test_app.py` entfernt `GIT_*` aus der Umgebung. Rot-grün: vorher `git commit -a` mit Hook rot (4 Fehler, 32 Tests), nachher grün (Commit dieses Standes mit `-a`).
 Geplanter Lauf / Web Push: am 09.11. ca. 07:30 MEZ noch nicht prüfbar (nächster Cron 10.11. 05:23 UTC); Prüfung ab 10.11. ca. 06:30 MEZ mit `gh run list -R nicosteinberg4791-ops/kaufberatung-app -w preise.yml` bleibt offen, ebenso O7 (Schritt „Web Push“ → „Push gesendet (HTTP 201)“ erst nach Nicos Secrets).
