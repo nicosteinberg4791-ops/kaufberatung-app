@@ -1,18 +1,88 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <!-- Kaufberatung: dunkler Abendraum (Bühnenfarben der Seite), Bildschirm im Fensterlicht, Haken = entschieden -->
+  <!-- Kaufberatung: Glasscheibe im Fensterlicht, Haken = entschieden; Entwurf „1 Glas“ mit Akzenten Türkis/Lila -->
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#0d1219"/>
       <stop offset="1" stop-color="#05070b"/>
     </linearGradient>
-    <radialGradient id="licht" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(40 30) scale(420 380)">
-      <stop offset="0" stop-color="#cedef2" stop-opacity=".30"/>
-      <stop offset="1" stop-color="#cedef2" stop-opacity="0"/>
+    <radialGradient id="licht" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(40 30) scale(440 400)">
+      <stop offset="0" stop-color="#d4e3f6" stop-opacity=".40"/>
+      <stop offset=".55" stop-color="#d4e3f6" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#d4e3f6" stop-opacity="0"/>
     </radialGradient>
+    <radialGradient id="nebelT" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(70 500) scale(330 260)">
+      <stop offset="0" stop-color="#3fe0d6" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#3fe0d6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nebelL" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(500 420) scale(330 330)">
+      <stop offset="0" stop-color="#9d74ff" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#9d74ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".24"/>
+      <stop offset=".18" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="tiefe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a2230"/>
+      <stop offset="1" stop-color="#000"/>
+    </linearGradient>
+    <linearGradient id="kante" gradientUnits="userSpaceOnUse" x1="88" y1="141" x2="424" y2="330">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset=".38" stop-color="#c9fbf6" stop-opacity=".92"/>
+      <stop offset=".72" stop-color="#d9ccff" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#9d74ff" stop-opacity=".42"/>
+    </linearGradient>
+    <linearGradient id="glanz" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.09"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="spiegel" gradientUnits="userSpaceOnUse" x1="88" y1="141" x2="278" y2="291">
+      <stop offset="0" stop-color="#fff" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="oberlicht" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".3" stop-color="#fff" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="glimmfarbe" gradientUnits="userSpaceOnUse" x1="186.0" y1="0" x2="326.0" y2="0">
+      <stop offset="0" stop-color="#3fe0d6"/>
+      <stop offset="1" stop-color="#9d74ff"/>
+    </linearGradient>
+    <radialGradient id="schein" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#dbe8fa" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#dbe8fa" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="linie" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3fe0d6" stop-opacity="0"/>
+      <stop offset=".3" stop-color="#3fe0d6" stop-opacity="0.8"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".85"/>
+      <stop offset=".7" stop-color="#9d74ff" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#9d74ff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="scheibe"><rect x="88" y="141" width="336" height="189" rx="24"/></clipPath>
+    <filter id="glimmen" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="weich" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.5"/></filter>
   </defs>
   <rect width="512" height="512" rx="116" fill="url(#g)"/>
+  <rect width="512" height="512" rx="116" fill="url(#nebelT)"/>
+  <rect width="512" height="512" rx="116" fill="url(#nebelL)"/>
   <rect width="512" height="512" rx="116" fill="url(#licht)"/>
-  <rect x="96" y="146" width="320" height="180" rx="16" fill="#05070b" stroke="#eef0f3" stroke-width="14"/>
-  <path d="M196 238 l38 38 l82 -82" fill="none" stroke="#eef0f3" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M206 372 h100" stroke="#a4adb9" stroke-width="14" stroke-linecap="round"/>
+  
+  <rect x="1.5" y="1.5" width="509" height="509" rx="114.5" fill="none" stroke="url(#rand)" stroke-width="3"/>
+  <rect x="88" y="141" width="336" height="189" rx="24" fill="url(#tiefe)" fill-opacity=".95"/>
+    <g clip-path="url(#scheibe)">
+      <path d="M88 141 H424 V210.2 Q256.0 240.2 88 210.2 Z" fill="url(#glanz)"/>
+      <path d="M88 141 H298 L178 330 H88 Z" fill="url(#spiegel)"/>
+      <path d="M320 141 H338 L218 330 H200 Z" fill="#fff" fill-opacity="0.05"/>
+    </g>
+    <path d="M195.0 238.5 l40 40 l86 -86" fill="none" stroke="url(#glimmfarbe)" stroke-opacity="0.75" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" filter="url(#glimmen)"/>
+    <path d="M195.0 238.5 l40 40 l86 -86" fill="none" stroke="#fff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="84" y="137" width="344" height="197" rx="28" fill="none" stroke="url(#kante)" stroke-opacity="0.55" stroke-width="6" filter="url(#weich)"/>
+    <rect x="88" y="141" width="336" height="189" rx="24" fill="none" stroke="url(#kante)" stroke-width="13"/>
+    <rect x="99.5" y="152.5" width="313.0" height="166.0" rx="14.5" fill="none" stroke="#fff" stroke-opacity="0.16" stroke-width="3.5"/>
+    <path d="M118 150.5 H394" stroke="url(#oberlicht)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="102" cy="153" r="5" fill="#fff" opacity=".9" filter="url(#weich)"/>
+    <ellipse cx="256.0" cy="368" rx="122" ry="13" fill="url(#schein)"/>
+    <rect x="176.0" y="365.5" width="160" height="5" rx="2.5" fill="url(#linie)"/>
 </svg>

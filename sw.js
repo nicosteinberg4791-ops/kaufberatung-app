@@ -2,11 +2,11 @@
    Strategie: App-Dateien aus dem versionierten Cache (offline), preise.json zuerst vom Netz (frisch, sonst Cache),
    Google-Schrift aus dem Laufzeit-Cache (veraltet-und-erneuern). Neue Fassung wartet, bis die Seite "jetzt" sagt. */
 "use strict";
-const VERSION = "a299c06b25e9";
+const VERSION = "0ebb58ca2b3c";
 const APP = "kb-app-" + VERSION;
 const LAUFZEIT = "kb-laufzeit";
 const DATEN = "kb-daten";            // preise.json, Wunschpreise (Spiegel aus der Seite), gemeldete Treffer
-const DATEIEN = ["./", "index.html", "app.js?v=a299c06b25e9", "app.css?v=a299c06b25e9", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
+const DATEIEN = ["./", "index.html", "app.js?v=0ebb58ca2b3c", "app.css?v=0ebb58ca2b3c", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
 const SCHRIFT = ["https://fonts.googleapis.com", "https://fonts.gstatic.com"];
 
 self.addEventListener("install", e => {
