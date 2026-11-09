@@ -1,0 +1,7 @@
+{
+  "urteil": "bestanden",
+  "zusammenfassung": "B1–B3 sind geschlossen. Keine neuen belegbaren Fehler durch die Korrekturen festgestellt.",
+  "befunde": [],
+  "geschlossen": ["B1", "B2", "B3"],
+  "pruefgrenzen": "Commit 8ed84967dd777b798ee4a49dbeab1aa10d04f368 geprüft. 17 ausgewählte Node-Tests und Selbsttest bestanden; zusätzliche Speicherproben für B2 und verschlüsselte CLI-Nachrichtenarten bestanden. Abgleich mit [RFC 8291](https://www.rfc-editor.org/rfc/rfc8291) und [RFC 8292](https://www.rfc-editor.org/rfc/rfc8292). Vollständiger Testlauf nicht bestätigt: Ein zusätzlich erfasster CLI-Test scheiterte an gesperrten Temp-Schreibrechten. Kein echter Push-Dienst, Android-Gerät oder Actions-Lauf getestet; Workflow-Fehlerlogik statisch geprüft."
+}
