@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-09T14:59:26+01:00",
+ "zeit": "2026-11-10T14:34:15+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -13,7 +13,7 @@
     "haendler": "computeruniverse.net",
     "sterne": "2,5 (5.074)",
     "lieferung": "Lieferzeit 5-7 Werktage",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -30,6 +30,11 @@
      "d": "2026-11-09",
      "g": 2779.0,
      "h": "computeruniverse.net"
+    },
+    {
+     "d": "2026-11-10",
+     "g": 2779.0,
+     "h": "computeruniverse.net"
     }
    ]
   },
@@ -37,19 +42,13 @@
    "name": "LG OLED83C69LB",
    "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled83c69lb-a3773534.html",
    "aktuell": {
-    "gesamt": 2799.0,
-    "artikel": 2799.0,
-    "versand": 0.0,
-    "haendler": "TechnikDirekt",
-    "sterne": "2,0 (647)",
-    "lieferung": "Auf Lager, Lieferung in 3-5 Werktagen",
-    "zeit": "2026-11-09T14:59:26+01:00"
-   },
-   "roh": {
+    "gesamt": 2599.0,
     "artikel": 2599.0,
-    "haendler": "expert.de",
-    "sterne": "1,8 (143)",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "versand": 0.0,
+    "haendler": "Berlet.de",
+    "sterne": "4,2 (33)",
+    "lieferung": "Auf Lager - Lieferung in 2-3 Werktagen",
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "tief": {
     "gesamt": 2499.0,
@@ -66,6 +65,11 @@
      "d": "2026-11-09",
      "g": 2799.0,
      "h": "TechnikDirekt"
+    },
+    {
+     "d": "2026-11-10",
+     "g": 2599.0,
+     "h": "Berlet.de"
     }
    ]
   },
@@ -79,13 +83,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,7 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "roh": {
     "artikel": 2796.0,
     "haendler": "Alternate",
     "sterne": "4,7 (3.689)",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "tief": {
     "gesamt": 2799.0,
@@ -102,6 +106,11 @@
      "d": "2026-11-09",
      "g": 2799.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-10",
+     "g": 2799.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -109,18 +118,18 @@
    "name": "TCL 85C8L",
    "heiseUrl": "https://preisvergleich.heise.de/tcl-85c8l-a3810591.html",
    "aktuell": {
-    "gesamt": 2369.0,
-    "artikel": 2369.0,
+    "gesamt": 1999.0,
+    "artikel": 1999.0,
     "versand": 0.0,
-    "haendler": "alza.de",
-    "sterne": "4,1 (134)",
-    "lieferung": "Lagernd, Lieferzeit 1-3 Werktage",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "haendler": "Amazon.de",
+    "sterne": "2,7 (3.086)",
+    "lieferung": "siehe Shop",
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "tief": {
-    "gesamt": 2369.0,
-    "datum": "2026-11-08",
-    "haendler": "alza.de"
+    "gesamt": 1999.0,
+    "datum": "2026-11-10",
+    "haendler": "Amazon.de"
    },
    "verlauf": [
     {
@@ -132,6 +141,11 @@
      "d": "2026-11-09",
      "g": 2369.0,
      "h": "alza.de"
+    },
+    {
+     "d": "2026-11-10",
+     "g": 1999.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -145,13 +159,13 @@
     "haendler": "EDV-Service-Stadlauer",
     "sterne": "keine Bewertung",
     "lieferung": "3-6 Werktage",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "roh": {
     "artikel": 2899.0,
     "haendler": "techonly",
     "sterne": "4,7 (59)",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -168,6 +182,11 @@
      "d": "2026-11-09",
      "g": 2999.0,
      "h": "EDV-Service-Stadlauer"
+    },
+    {
+     "d": "2026-11-10",
+     "g": 2999.0,
+     "h": "EDV-Service-Stadlauer"
     }
    ]
   },
@@ -181,7 +200,7 @@
     "haendler": "saturn",
     "sterne": "3,5 (7)",
     "lieferung": "Lieferzeit 3-7 Werktage",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "tief": {
     "gesamt": 249.0,
@@ -191,6 +210,11 @@
    "verlauf": [
     {
      "d": "2026-11-09",
+     "g": 249.0,
+     "h": "saturn"
+    },
+    {
+     "d": "2026-11-10",
      "g": 249.0,
      "h": "saturn"
     }
@@ -206,7 +230,7 @@
     "haendler": "medion.de",
     "sterne": "4,1 (96)",
     "lieferung": "Sofort verfügbar",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "tief": {
     "gesamt": 79.95,
@@ -216,6 +240,11 @@
    "verlauf": [
     {
      "d": "2026-11-09",
+     "g": 79.95,
+     "h": "medion.de"
+    },
+    {
+     "d": "2026-11-10",
      "g": 79.95,
      "h": "medion.de"
     }
@@ -231,7 +260,7 @@
     "haendler": "deltatecc-home",
     "sterne": "3,0 (2)",
     "lieferung": "Lieferzeit 1-4 Werktage",
-    "zeit": "2026-11-09T14:59:26+01:00"
+    "zeit": "2026-11-10T14:34:15+01:00"
    },
    "tief": {
     "gesamt": 118.98,
@@ -243,14 +272,212 @@
      "d": "2026-11-09",
      "g": 118.98,
      "h": "deltatecc-home"
+    },
+    {
+     "d": "2026-11-10",
+     "g": 118.98,
+     "h": "deltatecc-home"
+    }
+   ]
+  },
+  "af_caso_3186": {
+   "name": "Caso AirFry DuoChef 3186",
+   "heiseUrl": "https://preisvergleich.heise.de/caso-airfry-duochef-3186-a3417119.html",
+   "aktuell": {
+    "gesamt": 137.09,
+    "artikel": 137.09,
+    "versand": 0.0,
+    "haendler": "technikkenner_quedlinburg",
+    "sterne": "keine Bewertung",
+    "lieferung": "lagernd",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "tief": {
+    "gesamt": 137.09,
+    "datum": "2026-11-10",
+    "haendler": "technikkenner_quedlinburg"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-10",
+     "g": 137.09,
+     "h": "technikkenner_quedlinburg"
+    }
+   ]
+  },
+  "af_aeg_aafd11b": {
+   "name": "AEG AAFD11B",
+   "heiseUrl": "https://preisvergleich.heise.de/aeg-8000-aafd11b-910-004-063-a3916554.html",
+   "aktuell": {
+    "gesamt": 169.0,
+    "artikel": 169.0,
+    "versand": 0.0,
+    "haendler": "Amazon.de",
+    "sterne": "2,7 (3.086)",
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "roh": {
+    "artikel": 149.0,
+    "haendler": "XXXLutz Online Shop",
+    "sterne": "2,1 (16)",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "tief": {
+    "gesamt": 169.0,
+    "datum": "2026-11-10",
+    "haendler": "Amazon.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-10",
+     "g": 169.0,
+     "h": "Amazon.de"
+    }
+   ]
+  },
+  "af_rh_27680": {
+   "name": "Russell Hobbs SatisFry Dual 27680-56",
+   "heiseUrl": "https://preisvergleich.heise.de/russell-hobbs-satisfry-dual-basket-9l-27680-56-a3487630.html",
+   "aktuell": {
+    "gesamt": 124.3,
+    "artikel": 124.3,
+    "versand": 0.0,
+    "haendler": "deltatecc-home",
+    "sterne": "3,0 (2)",
+    "lieferung": "Lieferzeit 2-4 Werktage",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "roh": {
+    "artikel": 123.0,
+    "haendler": "expert.de",
+    "sterne": "1,8 (143)",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "tief": {
+    "gesamt": 124.3,
+    "datum": "2026-11-10",
+    "haendler": "deltatecc-home"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-10",
+     "g": 124.3,
+     "h": "deltatecc-home"
+    }
+   ]
+  },
+  "af_ninja_dz400": {
+   "name": "Ninja Dual Zone DZ400EU",
+   "heiseUrl": "https://preisvergleich.heise.de/ninja-dz400eu-max-6-in-1-dual-zone-a3525190.html",
+   "aktuell": {
+    "gesamt": 135.9,
+    "artikel": 135.9,
+    "versand": 0.0,
+    "haendler": "Joybuy",
+    "sterne": "3,1 (16)",
+    "lieferung": "Lieferzeit 1-2 Werktage",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "tief": {
+    "gesamt": 135.9,
+    "datum": "2026-11-10",
+    "haendler": "Joybuy"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-10",
+     "g": 135.9,
+     "h": "Joybuy"
+    }
+   ]
+  },
+  "af_tefal_ey942": {
+   "name": "Tefal Easy Fry Dual XXL EY942",
+   "heiseUrl": "https://preisvergleich.heise.de/tefal-ey942b-dual-easy-fry-ey942be0-a3535540.html",
+   "aktuell": {
+    "gesamt": 124.59,
+    "artikel": 124.59,
+    "versand": 0.0,
+    "haendler": "Future-X.de",
+    "sterne": "3,4 (985)",
+    "lieferung": "Zentrallager: Auf Lager",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "roh": {
+    "artikel": 115.99,
+    "haendler": "TechnikDirekt",
+    "sterne": "2,0 (647)",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "tief": {
+    "gesamt": 124.59,
+    "datum": "2026-11-10",
+    "haendler": "Future-X.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-10",
+     "g": 124.59,
+     "h": "Future-X.de"
+    }
+   ]
+  },
+  "af_gastroback_42586": {
+   "name": "Gastroback Duo Family 42586",
+   "heiseUrl": "https://preisvergleich.heise.de/gastroback-42586-multi-duo-family-9l-a3785334.html",
+   "aktuell": {
+    "gesamt": 132.42,
+    "artikel": 132.42,
+    "versand": 0.0,
+    "haendler": "galaxus",
+    "sterne": "4,0 (842)",
+    "lieferung": "Lager Lieferant: Sofort lieferbar, 2-4 Werktage",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "tief": {
+    "gesamt": 132.42,
+    "datum": "2026-11-10",
+    "haendler": "galaxus"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-10",
+     "g": 132.42,
+     "h": "galaxus"
+    }
+   ]
+  },
+  "af_ninja_af500": {
+   "name": "Ninja FlexDrawer AF500EU",
+   "heiseUrl": "https://preisvergleich.heise.de/ninja-af500eu-foodi-flexdrawer-a3337334.html",
+   "aktuell": {
+    "gesamt": 169.0,
+    "artikel": 169.0,
+    "versand": 0.0,
+    "haendler": "galaxus",
+    "sterne": "4,0 (842)",
+    "lieferung": "Auf Lager, 1-2 Werktage",
+    "zeit": "2026-11-10T14:34:15+01:00"
+   },
+   "tief": {
+    "gesamt": 169.0,
+    "datum": "2026-11-10",
+    "haendler": "galaxus"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-10",
+     "g": 169.0,
+     "h": "galaxus"
     }
    ]
   }
  },
  "lauf": {
-  "letzter": "2026-11-09T14:59:26+01:00",
+  "letzter": "2026-11-10T14:34:15+01:00",
   "status": "ok",
-  "meldung": "Alle 8 Preise gelesen.",
+  "meldung": "Alle 15 Preise gelesen. Treffer: TCL C8L 1.999 € neuer Tiefstpreis.",
   "bis": "2026-12-01"
  }
 }
