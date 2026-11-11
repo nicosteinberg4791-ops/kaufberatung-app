@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-10T14:34:15+01:00",
+ "zeit": "2026-11-11T13:47:42+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -12,8 +12,8 @@
     "versand": 0.0,
     "haendler": "computeruniverse.net",
     "sterne": "2,5 (5.074)",
-    "lieferung": "Lieferzeit 5-7 Werktage",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "lieferung": "Lieferzeit 7-14 Werktage",
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -35,6 +35,11 @@
      "d": "2026-11-10",
      "g": 2779.0,
      "h": "computeruniverse.net"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 2779.0,
+     "h": "computeruniverse.net"
     }
    ]
   },
@@ -48,7 +53,7 @@
     "haendler": "Berlet.de",
     "sterne": "4,2 (33)",
     "lieferung": "Auf Lager - Lieferung in 2-3 Werktagen",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 2499.0,
@@ -70,6 +75,11 @@
      "d": "2026-11-10",
      "g": 2599.0,
      "h": "Berlet.de"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 2599.0,
+     "h": "Berlet.de"
     }
    ]
   },
@@ -83,13 +93,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,7 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "roh": {
     "artikel": 2796.0,
     "haendler": "Alternate",
     "sterne": "4,7 (3.689)",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 2799.0,
@@ -111,6 +121,11 @@
      "d": "2026-11-10",
      "g": 2799.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 2799.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -118,13 +133,13 @@
    "name": "TCL 85C8L",
    "heiseUrl": "https://preisvergleich.heise.de/tcl-85c8l-a3810591.html",
    "aktuell": {
-    "gesamt": 1999.0,
-    "artikel": 1999.0,
+    "gesamt": 2199.0,
+    "artikel": 2199.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
     "sterne": "2,7 (3.086)",
     "lieferung": "siehe Shop",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 1999.0,
@@ -146,6 +161,11 @@
      "d": "2026-11-10",
      "g": 1999.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 2199.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -159,13 +179,13 @@
     "haendler": "EDV-Service-Stadlauer",
     "sterne": "keine Bewertung",
     "lieferung": "3-6 Werktage",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "roh": {
     "artikel": 2899.0,
     "haendler": "techonly",
     "sterne": "4,7 (59)",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -187,6 +207,11 @@
      "d": "2026-11-10",
      "g": 2999.0,
      "h": "EDV-Service-Stadlauer"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 2999.0,
+     "h": "EDV-Service-Stadlauer"
     }
    ]
   },
@@ -200,7 +225,7 @@
     "haendler": "saturn",
     "sterne": "3,5 (7)",
     "lieferung": "Lieferzeit 3-7 Werktage",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 249.0,
@@ -217,6 +242,11 @@
      "d": "2026-11-10",
      "g": 249.0,
      "h": "saturn"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 249.0,
+     "h": "saturn"
     }
    ]
   },
@@ -230,7 +260,7 @@
     "haendler": "medion.de",
     "sterne": "4,1 (96)",
     "lieferung": "Sofort verfügbar",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 79.95,
@@ -247,6 +277,11 @@
      "d": "2026-11-10",
      "g": 79.95,
      "h": "medion.de"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 79.95,
+     "h": "medion.de"
     }
    ]
   },
@@ -260,7 +295,7 @@
     "haendler": "deltatecc-home",
     "sterne": "3,0 (2)",
     "lieferung": "Lieferzeit 1-4 Werktage",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 118.98,
@@ -277,6 +312,11 @@
      "d": "2026-11-10",
      "g": 118.98,
      "h": "deltatecc-home"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 118.98,
+     "h": "deltatecc-home"
     }
    ]
   },
@@ -284,13 +324,13 @@
    "name": "Caso AirFry DuoChef 3186",
    "heiseUrl": "https://preisvergleich.heise.de/caso-airfry-duochef-3186-a3417119.html",
    "aktuell": {
-    "gesamt": 137.09,
-    "artikel": 137.09,
+    "gesamt": 137.99,
+    "artikel": 137.99,
     "versand": 0.0,
-    "haendler": "technikkenner_quedlinburg",
-    "sterne": "keine Bewertung",
-    "lieferung": "lagernd",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "haendler": "Amazon.de",
+    "sterne": "2,7 (3.086)",
+    "lieferung": "siehe Shop",
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 137.09,
@@ -302,6 +342,11 @@
      "d": "2026-11-10",
      "g": 137.09,
      "h": "technikkenner_quedlinburg"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 137.99,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -315,13 +360,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,7 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "roh": {
     "artikel": 149.0,
     "haendler": "XXXLutz Online Shop",
     "sterne": "2,1 (16)",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 169.0,
@@ -331,6 +376,11 @@
    "verlauf": [
     {
      "d": "2026-11-10",
+     "g": 169.0,
+     "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-11",
      "g": 169.0,
      "h": "Amazon.de"
     }
@@ -346,13 +396,13 @@
     "haendler": "deltatecc-home",
     "sterne": "3,0 (2)",
     "lieferung": "Lieferzeit 2-4 Werktage",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "roh": {
     "artikel": 123.0,
     "haendler": "expert.de",
     "sterne": "1,8 (143)",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 124.3,
@@ -362,6 +412,11 @@
    "verlauf": [
     {
      "d": "2026-11-10",
+     "g": 124.3,
+     "h": "deltatecc-home"
+    },
+    {
+     "d": "2026-11-11",
      "g": 124.3,
      "h": "deltatecc-home"
     }
@@ -377,7 +432,7 @@
     "haendler": "Joybuy",
     "sterne": "3,1 (16)",
     "lieferung": "Lieferzeit 1-2 Werktage",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 135.9,
@@ -387,6 +442,11 @@
    "verlauf": [
     {
      "d": "2026-11-10",
+     "g": 135.9,
+     "h": "Joybuy"
+    },
+    {
+     "d": "2026-11-11",
      "g": 135.9,
      "h": "Joybuy"
     }
@@ -402,13 +462,13 @@
     "haendler": "Future-X.de",
     "sterne": "3,4 (985)",
     "lieferung": "Zentrallager: Auf Lager",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "roh": {
-    "artikel": 115.99,
-    "haendler": "TechnikDirekt",
-    "sterne": "2,0 (647)",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "artikel": 122.59,
+    "haendler": "Jacob Elektronik direkt",
+    "sterne": "4,1 (4.143)",
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 124.59,
@@ -420,6 +480,11 @@
      "d": "2026-11-10",
      "g": 124.59,
      "h": "Future-X.de"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 124.59,
+     "h": "Future-X.de"
     }
    ]
   },
@@ -427,24 +492,35 @@
    "name": "Gastroback Duo Family 42586",
    "heiseUrl": "https://preisvergleich.heise.de/gastroback-42586-multi-duo-family-9l-a3785334.html",
    "aktuell": {
-    "gesamt": 132.42,
-    "artikel": 132.42,
+    "gesamt": 129.05,
+    "artikel": 129.05,
     "versand": 0.0,
-    "haendler": "galaxus",
-    "sterne": "4,0 (842)",
-    "lieferung": "Lager Lieferant: Sofort lieferbar, 2-4 Werktage",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "haendler": "cyberport",
+    "sterne": "keine Bewertung",
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-11T13:47:42+01:00"
+   },
+   "roh": {
+    "artikel": 105.94,
+    "haendler": "computeruniverse.net",
+    "sterne": "2,5 (5.074)",
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
-    "gesamt": 132.42,
-    "datum": "2026-11-10",
-    "haendler": "galaxus"
+    "gesamt": 129.05,
+    "datum": "2026-11-11",
+    "haendler": "cyberport"
    },
    "verlauf": [
     {
      "d": "2026-11-10",
      "g": 132.42,
      "h": "galaxus"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 129.05,
+     "h": "cyberport"
     }
    ]
   },
@@ -455,10 +531,10 @@
     "gesamt": 169.0,
     "artikel": 169.0,
     "versand": 0.0,
-    "haendler": "galaxus",
-    "sterne": "4,0 (842)",
-    "lieferung": "Auf Lager, 1-2 Werktage",
-    "zeit": "2026-11-10T14:34:15+01:00"
+    "haendler": "Coolblue",
+    "sterne": "4,5 (1.069)",
+    "lieferung": "Lieferzeit: 1 Werktag",
+    "zeit": "2026-11-11T13:47:42+01:00"
    },
    "tief": {
     "gesamt": 169.0,
@@ -470,14 +546,19 @@
      "d": "2026-11-10",
      "g": 169.0,
      "h": "galaxus"
+    },
+    {
+     "d": "2026-11-11",
+     "g": 169.0,
+     "h": "Coolblue"
     }
    ]
   }
  },
  "lauf": {
-  "letzter": "2026-11-10T14:34:15+01:00",
+  "letzter": "2026-11-11T13:47:42+01:00",
   "status": "ok",
-  "meldung": "Alle 15 Preise gelesen. Treffer: TCL C8L 1.999 € neuer Tiefstpreis.",
+  "meldung": "Alle 15 Preise gelesen. Treffer: Gastroback 42586 129,05 € neuer Tiefstpreis.",
   "bis": "2026-12-01"
  }
 }
