@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-12T14:50:11+01:00",
+ "zeit": "2026-11-13T14:12:26+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -11,9 +11,9 @@
     "artikel": 2779.0,
     "versand": 0.0,
     "haendler": "computeruniverse.net",
-    "sterne": "2,5 (5.074)",
+    "sterne": "2,4 (5.074)",
     "lieferung": "Lieferzeit 5-7 Werktage",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -45,6 +45,11 @@
      "d": "2026-11-12",
      "g": 2779.0,
      "h": "computeruniverse.net"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 2779.0,
+     "h": "computeruniverse.net"
     }
    ]
   },
@@ -58,7 +63,7 @@
     "haendler": "Berlet.de",
     "sterne": "4,2 (33)",
     "lieferung": "Auf Lager - Lieferung in 2-3 Werktagen",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 2499.0,
@@ -90,6 +95,11 @@
      "d": "2026-11-12",
      "g": 2599.0,
      "h": "Berlet.de"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 2599.0,
+     "h": "Berlet.de"
     }
    ]
   },
@@ -103,13 +113,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,7 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "roh": {
-    "artikel": 2796.0,
-    "haendler": "Alternate",
-    "sterne": "4,7 (3.689)",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "artikel": 2699.0,
+    "haendler": "Mediamarkt.de",
+    "sterne": "2,4 (1.015)",
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 2799.0,
@@ -141,6 +151,11 @@
      "d": "2026-11-12",
      "g": 2799.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 2799.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -148,13 +163,13 @@
    "name": "TCL 85C8L",
    "heiseUrl": "https://preisvergleich.heise.de/tcl-85c8l-a3810591.html",
    "aktuell": {
-    "gesamt": 2199.0,
-    "artikel": 2199.0,
+    "gesamt": 1999.0,
+    "artikel": 1999.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
     "sterne": "2,7 (3.086)",
     "lieferung": "siehe Shop",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 1999.0,
@@ -186,6 +201,11 @@
      "d": "2026-11-12",
      "g": 2199.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 1999.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -199,13 +219,13 @@
     "haendler": "EDV-Service-Stadlauer",
     "sterne": "keine Bewertung",
     "lieferung": "3-6 Werktage",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "roh": {
     "artikel": 2899.0,
     "haendler": "techonly",
     "sterne": "4,7 (59)",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -237,6 +257,11 @@
      "d": "2026-11-12",
      "g": 2999.0,
      "h": "EDV-Service-Stadlauer"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 2999.0,
+     "h": "EDV-Service-Stadlauer"
     }
    ]
   },
@@ -250,7 +275,13 @@
     "haendler": "saturn",
     "sterne": "3,5 (7)",
     "lieferung": "Lieferzeit 3-7 Werktage",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
+   },
+   "roh": {
+    "artikel": 199.0,
+    "haendler": "Mediamarkt.de",
+    "sterne": "2,4 (1.015)",
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 249.0,
@@ -277,6 +308,11 @@
      "d": "2026-11-12",
      "g": 249.0,
      "h": "saturn"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 249.0,
+     "h": "saturn"
     }
    ]
   },
@@ -290,7 +326,7 @@
     "haendler": "medion.de",
     "sterne": "4,1 (96)",
     "lieferung": "Sofort verfügbar",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 79.95,
@@ -317,6 +353,11 @@
      "d": "2026-11-12",
      "g": 79.95,
      "h": "medion.de"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 79.95,
+     "h": "medion.de"
     }
    ]
   },
@@ -330,7 +371,7 @@
     "haendler": "deltatecc-home",
     "sterne": "3,0 (2)",
     "lieferung": "Lieferzeit 1-4 Werktage",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 118.98,
@@ -357,6 +398,11 @@
      "d": "2026-11-12",
      "g": 118.98,
      "h": "deltatecc-home"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 118.98,
+     "h": "deltatecc-home"
     }
    ]
   },
@@ -370,7 +416,7 @@
     "haendler": "deltatecc-home",
     "sterne": "3,0 (2)",
     "lieferung": "Lieferzeit 2-5 Werktage",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 137.09,
@@ -392,6 +438,11 @@
      "d": "2026-11-12",
      "g": 137.97,
      "h": "deltatecc-home"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 137.97,
+     "h": "deltatecc-home"
     }
    ]
   },
@@ -405,13 +456,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,7 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "roh": {
     "artikel": 149.0,
     "haendler": "XXXLutz Online Shop",
     "sterne": "2,1 (16)",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 169.0,
@@ -433,6 +484,11 @@
      "d": "2026-11-12",
      "g": 169.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 169.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -440,19 +496,19 @@
    "name": "Russell Hobbs SatisFry Dual 27680-56",
    "heiseUrl": "https://preisvergleich.heise.de/russell-hobbs-satisfry-dual-basket-9l-27680-56-a3487630.html",
    "aktuell": {
-    "gesamt": 124.3,
-    "artikel": 124.3,
+    "gesamt": 127.99,
+    "artikel": 127.99,
     "versand": 0.0,
-    "haendler": "deltatecc-home",
-    "sterne": "3,0 (2)",
+    "haendler": "expert_ecommerce",
+    "sterne": "5,0 (1)",
     "lieferung": "Lieferzeit 2-4 Werktage",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "roh": {
     "artikel": 123.0,
     "haendler": "expert.de",
     "sterne": "1,8 (143)",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 124.3,
@@ -474,6 +530,11 @@
      "d": "2026-11-12",
      "g": 124.3,
      "h": "deltatecc-home"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 127.99,
+     "h": "expert_ecommerce"
     }
    ]
   },
@@ -481,19 +542,19 @@
    "name": "Ninja Dual Zone DZ400EU",
    "heiseUrl": "https://preisvergleich.heise.de/ninja-dz400eu-max-6-in-1-dual-zone-a3525190.html",
    "aktuell": {
-    "gesamt": 149.0,
-    "artikel": 149.0,
+    "gesamt": 139.99,
+    "artikel": 139.99,
     "versand": 0.0,
-    "haendler": "Coolblue",
-    "sterne": "4,5 (1.069)",
-    "lieferung": "Lieferzeit: 1 Werktag",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "haendler": "Joybuy",
+    "sterne": "3,1 (16)",
+    "lieferung": "Lieferzeit 1-2 Werktage",
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "roh": {
     "artikel": 137.48,
     "haendler": "Proshop.de",
     "sterne": "4,3 (1.068)",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 135.9,
@@ -515,6 +576,11 @@
      "d": "2026-11-12",
      "g": 149.0,
      "h": "Coolblue"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 139.99,
+     "h": "Joybuy"
     }
    ]
   },
@@ -528,13 +594,13 @@
     "haendler": "Future-X.de",
     "sterne": "3,4 (985)",
     "lieferung": "Zentrallager: Auf Lager",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "roh": {
     "artikel": 115.99,
     "haendler": "TechnikDirekt",
     "sterne": "2,0 (647)",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 124.59,
@@ -556,6 +622,11 @@
      "d": "2026-11-12",
      "g": 124.59,
      "h": "Future-X.de"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 124.59,
+     "h": "Future-X.de"
     }
    ]
   },
@@ -567,15 +638,15 @@
     "artikel": 111.32,
     "versand": 0.0,
     "haendler": "galaxus",
-    "sterne": "4,0 (844)",
+    "sterne": "4,0 (845)",
     "lieferung": "Lager Lieferant: Sofort lieferbar, 2-4 Werktage",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "roh": {
     "artikel": 102.91,
     "haendler": "computeruniverse.net",
-    "sterne": "2,5 (5.074)",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "sterne": "2,4 (5.074)",
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 111.32,
@@ -597,6 +668,11 @@
      "d": "2026-11-12",
      "g": 111.32,
      "h": "galaxus"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 111.32,
+     "h": "galaxus"
     }
    ]
   },
@@ -610,7 +686,7 @@
     "haendler": "Coolblue",
     "sterne": "4,5 (1.069)",
     "lieferung": "Lieferzeit: 1 Werktag",
-    "zeit": "2026-11-12T14:50:11+01:00"
+    "zeit": "2026-11-13T14:12:26+01:00"
    },
    "tief": {
     "gesamt": 169.0,
@@ -632,14 +708,19 @@
      "d": "2026-11-12",
      "g": 169.0,
      "h": "Coolblue"
+    },
+    {
+     "d": "2026-11-13",
+     "g": 169.0,
+     "h": "Coolblue"
     }
    ]
   }
  },
  "lauf": {
-  "letzter": "2026-11-12T14:50:11+01:00",
+  "letzter": "2026-11-13T14:12:26+01:00",
   "status": "ok",
-  "meldung": "Alle 15 Preise gelesen. Treffer: Gastroback 42586 111,32 € neuer Tiefstpreis.",
+  "meldung": "Alle 15 Preise gelesen.",
   "bis": "2026-12-01"
  }
 }
