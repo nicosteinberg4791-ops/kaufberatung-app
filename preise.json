@@ -1,19 +1,25 @@
 {
  "format": 1,
- "zeit": "2026-11-13T14:12:26+01:00",
+ "zeit": "2026-11-14T13:16:37+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
    "name": "LG OLED83C6ELB",
    "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled83c6elb-a3774767.html",
    "aktuell": {
-    "gesamt": 2779.0,
-    "artikel": 2779.0,
+    "gesamt": 2936.37,
+    "artikel": 2936.37,
     "versand": 0.0,
-    "haendler": "computeruniverse.net",
-    "sterne": "2,4 (5.074)",
+    "haendler": "Cyberport.de",
+    "sterne": "2,4 (6.136)",
     "lieferung": "Lieferzeit 5-7 Werktage",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-14T13:16:37+01:00"
+   },
+   "roh": {
+    "artikel": 2779.0,
+    "haendler": "electronic4you.de",
+    "sterne": "4,9 (4.044)",
+    "zeit": "2026-11-14T13:16:37+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -50,6 +56,11 @@
      "d": "2026-11-13",
      "g": 2779.0,
      "h": "computeruniverse.net"
+    },
+    {
+     "d": "2026-11-14",
+     "g": 2936.37,
+     "h": "Cyberport.de"
     }
    ]
   },
@@ -718,9 +729,9 @@
   }
  },
  "lauf": {
-  "letzter": "2026-11-13T14:12:26+01:00",
-  "status": "ok",
-  "meldung": "Alle 15 Preise gelesen.",
+  "letzter": "2026-11-14T13:16:37+01:00",
+  "status": "teilweise",
+  "meldung": "Kein Angebot mit belegtem Versand: LG C69LB, Samsung S90H, TCL C8L, Samsung QN90F, Cosori Turbo Tower, Medion P20 XXL, Cosori R901, Caso DuoChef, AEG AAFD11B, Russell Hobbs 27680, Ninja DZ400, Tefal EY942, Gastroback 42586, Ninja AF500.",
   "bis": "2026-12-01"
  }
 }
