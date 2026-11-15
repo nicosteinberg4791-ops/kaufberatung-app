@@ -515,6 +515,50 @@ class AirFryerImWecker(unittest.TestCase):
         self.assertFalse([t for t in erg_["treffer"] if self.pw.KURZ["lg_c6elb_65"] in t], erg_["treffer"])
         self.assertTrue(self.pw.ist_groesse("tcl_c8l_77") and not self.pw.ist_groesse("tcl_c8l"))
 
+    def test_429_wird_einmal_wiederholt(self):
+        """B-429 (15.11.2026): heise drosselt ab ~19 Abrufen; nach HTTP 429 warten und genau einmal wiederholen."""
+        import urllib.error
+        fehler429 = urllib.error.HTTPError("https://x", 429, "Too Many Requests", {"Retry-After": "7"}, None)
+        aufrufe = []
+
+        def abrufen(url):
+            aufrufe.append(url)
+            if len(aufrufe) == 1:
+                raise fehler429
+            return "seite"
+        ergebnis = {"angebote": 1, "sicher": {"gesamt": 1.0}, "roh": None}
+        with mock.patch.dict(self.pw.MODELLE, {"tcl_c8l": "https://x"}, clear=True), \
+                mock.patch.object(self.pw, "abrufen", side_effect=abrufen), \
+                mock.patch.object(self.pw, "auswerten", return_value=ergebnis), \
+                mock.patch.object(self.pw.time, "sleep") as schlaf:
+            erg = self.pw.abruf_alle()
+        self.assertEqual(len(aufrufe), 2)
+        self.assertNotIn("fehler", erg["modelle"]["tcl_c8l"])
+        self.assertIn(mock.call(7), schlaf.call_args_list, "Retry-After wird beachtet")
+        # zweimal 429: Fehler bleibt stehen, keine Endlosschleife
+        with mock.patch.dict(self.pw.MODELLE, {"tcl_c8l": "https://x"}, clear=True), \
+                mock.patch.object(self.pw, "abrufen", side_effect=fehler429) as ab, \
+                mock.patch.object(self.pw.time, "sleep"):
+            erg = self.pw.abruf_alle()
+        self.assertEqual(ab.call_count, 2)
+        self.assertIn("429", erg["modelle"]["tcl_c8l"]["fehler"])
+
+    def test_abruffehler_eigene_meldung(self):
+        """Abruffehler (z. B. 429) heißt nicht „kein Angebot“: eigene Zeile in der Laufmeldung (B-429)."""
+        erg = {"zeit": "2026-11-16T06:30:00+01:00", "modelle": {
+            "lg_c6elb": {"fehler": "HTTPError: HTTP Error 429: Too Many Requests"}, "tcl_c8l": {"angebote": 3, "sicher": None}}}
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp, "db")
+            (db / "preise").mkdir(parents=True)
+            for m in self.pw.MODELLE:
+                (db / "preise" / f"{m}.json").write_text(json.dumps({"version": 1}), encoding="utf-8")
+            erg_ = self.pw.abgleich(erg, str(db), str(Path(tmp, "aus")), anlegen=True)
+        self.assertIn("Abruf fehlgeschlagen", erg_["lauf"])
+        self.assertIn(self.pw.KURZ["lg_c6elb"] + " (HTTP 429)", erg_["lauf"])
+        kein = erg_["lauf"].split("Kein Angebot mit belegtem Versand:")[1].split(".")[0]
+        self.assertIn(self.pw.KURZ["tcl_c8l"], kein)
+        self.assertNotIn(self.pw.KURZ["lg_c6elb"] + ",", kein + ",")
+
     def test_groessenknoepfe_44px(self):
         """Größenleiste (Seite: .gr-leiste .segx button 36 px) bekommt bei grobem Zeiger 44 px Tippfläche."""
         css = (WURZEL / "app" / "app.css").read_text(encoding="utf-8")

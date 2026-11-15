@@ -38,6 +38,7 @@ import json
 import re
 import sys
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 
@@ -177,14 +178,41 @@ KURZ = {"lg_c6elb": "LG C6ELB", "lg_c69lb": "LG C69LB", "sam_s90h": "Samsung S90
 ENDE = "2026-12-01"
 
 
+WARTE_429 = 30          # Sekunden nach HTTP 429 ohne brauchbares Retry-After
+WARTE_429_MAX = 120     # höchstens so lange je Wiederholung
+WARTE_429_SUMME = 240   # Wartebudget je Lauf (Workflow-Timeout 10 min), danach keine Wiederholung mehr
+
+
+def _warte_429(e):
+    """Wartezeit nach HTTP 429: Retry-After in Sekunden (1…WARTE_429_MAX), sonst WARTE_429."""
+    try:
+        s = int(str((e.headers or {}).get("Retry-After", "")).strip())
+        return s if 1 <= s <= WARTE_429_MAX else WARTE_429
+    except (ValueError, AttributeError):
+        return WARTE_429
+
+
 def abruf_alle():
     jetzt = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     erg = {"zeit": jetzt, "modelle": {}}
+    budget = WARTE_429_SUMME
     for mid, url in MODELLE.items():
-        try:
-            erg["modelle"][mid] = {"url": url, **auswerten(abrufen(url), GRENZEN.get(mid, GRENZE_STANDARD))}
-        except Exception as e:  # Abruf- oder Formatfehler: Modell als Fehler melden, weiter mit den anderen
-            erg["modelle"][mid] = {"url": url, "fehler": f"{type(e).__name__}: {str(e)[:120]}"}
+        for versuch in (1, 2):
+            try:
+                erg["modelle"][mid] = {"url": url, **auswerten(abrufen(url), GRENZEN.get(mid, GRENZE_STANDARD))}
+                break
+            except urllib.error.HTTPError as e:
+                # B-429 (15.11.2026): heise drosselt ab ~19 Abrufen kurz hintereinander; einmal warten und wiederholen
+                w = _warte_429(e) if e.code == 429 else 0
+                if versuch == 1 and w and w <= budget:
+                    budget -= w
+                    time.sleep(w)
+                    continue
+                erg["modelle"][mid] = {"url": url, "fehler": f"{type(e).__name__}: {str(e)[:120]}"}
+                break
+            except Exception as e:  # Abruf- oder Formatfehler: Modell als Fehler melden, weiter mit den anderen
+                erg["modelle"][mid] = {"url": url, "fehler": f"{type(e).__name__}: {str(e)[:120]}"}
+                break
         time.sleep(2)
     return erg
 
@@ -254,6 +282,7 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
     os.makedirs(aus_dir, exist_ok=True)
     heute = erg["zeit"][:10]
     writes, treffer, fehler, probleme, warnungen = [], [], [], [], []
+    abruf = []  # Modelle, deren Abruf scheiterte (z. B. HTTP 429); zählen wie fehler, eigener Text
     for mid in MODELLE:
         try:
             alt, ver, st = lies_doc(db_dir, "preise", mid)
@@ -272,7 +301,11 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
             r = erg["modelle"].get(mid, {})
             akt = r.get("sicher")
             if not akt:
-                fehler.append(KURZ[mid])
+                if r.get("fehler"):  # Abruf gescheitert (B-429): nicht als „kein Angebot“ melden
+                    code = re.search(r"HTTP Error (\d+)", str(r["fehler"]))
+                    abruf.append(KURZ[mid] + (f" (HTTP {code.group(1)})" if code else ""))
+                else:
+                    fehler.append(KURZ[mid])
                 continue
             neu = {"name": NAMEN[mid], "heiseUrl": MODELLE[mid],
                    "aktuell": {k: akt[k] for k in ("gesamt", "artikel", "versand", "haendler", "sterne", "lieferung")} | {"zeit": erg["zeit"]}}
@@ -317,16 +350,19 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
             writes.append(w)
         except Exception as e:  # ein kaputtes Modell darf die anderen und die Ausgabedateien nicht stoppen
             probleme.append(f"{KURZ[mid]}: {type(e).__name__}: {str(e)[:100]}")
-    n_ok = len(MODELLE) - len(fehler) - len([x for x in probleme if not x.startswith("wecker/lauf")])
+    n_ok = len(MODELLE) - len(fehler) - len(abruf) - len([x for x in probleme if not x.startswith("wecker/lauf")])
+    fehler_alle = fehler + abruf
     lauf_alt, lauf_ver, lst = lies_doc(db_dir, "wecker", "lauf")
     if lst == "defekt":
         probleme.append("wecker/lauf: db-Export unlesbar oder ohne Version, nicht geschrieben")
     elif lst == "fehlt" and not anlegen:
         probleme.append("wecker/lauf: nicht im db-Export, nicht geschrieben (Erstlauf nur mit --anlegen)")
-    status = "ok" if not (fehler or probleme) else ("fehler" if n_ok == 0 else "teilweise")
-    text = f"Alle {len(MODELLE)} Preise gelesen." if not (fehler or probleme) else ""
+    status = "ok" if not (fehler_alle or probleme) else ("fehler" if n_ok == 0 else "teilweise")
+    text = f"Alle {len(MODELLE)} Preise gelesen." if not (fehler_alle or probleme) else ""
     if fehler:
         text += "Kein Angebot mit belegtem Versand: " + ", ".join(fehler) + ". "
+    if abruf:
+        text += "Abruf fehlgeschlagen, alter Preis bleibt: " + ", ".join(abruf) + ". "
     if probleme:
         text += "Fehler: " + "; ".join(probleme) + ". "
     if treffer:
