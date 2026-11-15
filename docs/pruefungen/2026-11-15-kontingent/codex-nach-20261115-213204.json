@@ -1,0 +1,9 @@
+{
+  "urteil": "bestanden_mit_hinweisen",
+  "zusammenfassung": "SELBST-01 ist nach Codeprüfung geschlossen. Keine neuen Fehler durch die Korrektur festgestellt.",
+  "befunde": [],
+  "geschlossen": [
+    "SELBST-01"
+  ],
+  "pruefgrenzen": "Commit 7e2299ad6357c8cd85828f1b6881f5def138ec02 bestätigt. Diff und betroffene Aufrufpfade ausschließlich lesend geprüft. Laufzeitprüfung nicht möglich: python fehlt; py meldet „No installed Python found!“. „Fehler: 0“ daher nicht unabhängig bestätigt. Der vollständige Testlauf würde zudem Dateien schreiben. Keine Liveabrufe, Änderungen, Commits oder Pushes."
+}
