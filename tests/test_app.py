@@ -863,6 +863,43 @@ class Kontingent(unittest.TestCase):
             self.assertEqual(ziel.read_text(encoding="utf-8"), inhalt, "preise.json unverändert")
             self.assertEqual(meld.read_text(encoding="utf-8"), "")
 
+    def test_wiederholung_zaehlt_gegen_kontingent(self):
+        """Codex KONT-01: 429-Wiederholungen zählen mit; je Lauf höchstens ABRUF_JE_LAUF HTTP-Anfragen."""
+        import urllib.error
+        f = urllib.error.HTTPError("https://x", 429, "Too Many Requests", {"Retry-After": "1"}, None)
+        aufrufe = []
+
+        def abrufen(url, bis=None):
+            aufrufe.append(url)
+            if len(aufrufe) == 1:
+                raise f
+            return "seite"
+        ids = list(self.pw.MODELLE)
+        with mock.patch.object(self.pw, "abrufen", side_effect=abrufen),                 mock.patch.object(self.pw, "auswerten", return_value=self.ERG), mock.patch.object(self.pw.time, "sleep"):
+            erg = self.pw.abruf_alle(ids)
+        self.assertEqual(len(aufrufe), self.pw.ABRUF_JE_LAUF)
+        self.assertEqual(sum(1 for m in ids if erg["modelle"][m].get("verschoben")), len(ids) - 15)
+        # 429 auf der letzten erlaubten Anfrage: keine Wiederholung mehr
+        aufrufe.clear()
+        with mock.patch.object(self.pw, "abrufen", side_effect=f) as ab, mock.patch.object(self.pw.time, "sleep"),                 mock.patch.object(self.pw, "ABRUF_JE_LAUF", 1):
+            erg = self.pw.abruf_alle(ids[:3])
+        self.assertEqual(ab.call_count, 1)
+        self.assertIn("429", erg["modelle"][ids[0]]["fehler"])
+
+    def test_scheiternde_modelle_blockieren_nicht(self):
+        """Codex KONT-02: Abrufversuch wird gespeichert; gerade versuchte Modelle rücken hinter die übrigen."""
+        ids = list(self.pw.MODELLE)
+        with tempfile.TemporaryDirectory() as tmp:
+            ziel = Path(tmp, "preise.json")
+            erg = {"zeit": "2026-11-16T06:30:00+01:00",
+                   "modelle": {m: {"angebote": 0, "sicher": None} for m in ids[:16]} | {m: {"verschoben": True} for m in ids[16:]}}
+            _, lauf = self.pa.aktualisiere(self.pw, erg, ziel)
+            self.assertEqual(sorted(lauf["versuche"]), sorted(ids[:16]))
+            alt = self.pa.lies_alt(ziel)
+        reihe = self.pa.abrufreihe(alt, ids, "2026-11-16")
+        self.assertEqual(reihe[:8], ids[16:], "nie versuchte Modelle zuerst")
+        self.assertEqual(sorted(reihe[8:]), sorted(ids[:16]))
+
     def test_workflow_hat_nachlaeufe(self):
         t = (WURZEL / ".github" / "workflows" / "preise.yml").read_text(encoding="utf-8")
         self.assertGreaterEqual(len(re.findall(r'(?m)^    - cron: "\d+ \d+ \* \* \*"', t)), 3)

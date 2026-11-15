@@ -257,14 +257,15 @@ def abruf_alle(reihe=None):
     for mid in MODELLE:
         if mid not in reihe:
             erg["modelle"][mid] = {"url": MODELLE[mid], "heute_schon": True}
-    for mid in reihe[ABRUF_JE_LAUF:]:
-        erg["modelle"][mid] = {"url": MODELLE[mid], "verschoben": True}
-    nr = 0  # Zahl der HTTP-Anfragen in diesem Lauf (Messung des Kontingents, steht bei 429 im Fehlertext)
+    nr = 0  # HTTP-Anfragen in diesem Lauf, Wiederholungen eingeschlossen (Codex KONT-01); steht bei 429 im Fehlertext
 
     def rest():
         return LAUF_FRIST - (time.monotonic() - start)
-    for mid in reihe[:ABRUF_JE_LAUF]:
+    for mid in reihe:
         url = MODELLE[mid]
+        if nr >= ABRUF_JE_LAUF:  # Kontingent je Lauf ausgeschöpft: folgt im Nachlauf
+            erg["modelle"][mid] = {"url": url, "verschoben": True}
+            continue
         if rest() < ABRUF_MAX:  # Frist reicht nicht für einen weiteren Abruf: nicht abrufen, als Abruffehler melden
             erg["modelle"][mid] = {"url": url, "fehler": f"Lauffrist {LAUF_FRIST} s erreicht, nicht abgerufen"}
             continue
@@ -277,7 +278,7 @@ def abruf_alle(reihe=None):
             except urllib.error.HTTPError as e:
                 # B-429 (15.11.2026): heise drosselt ab ~19 Abrufen kurz hintereinander; einmal warten und wiederholen
                 w = _warte_429(e) if e.code == 429 else 0
-                if versuch == 1 and w and w <= budget and w + ABRUF_MAX <= rest():
+                if versuch == 1 and w and w <= budget and w + ABRUF_MAX <= rest() and nr < ABRUF_JE_LAUF:
                     budget -= w
                     time.sleep(w)
                     continue

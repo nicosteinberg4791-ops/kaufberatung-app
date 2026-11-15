@@ -98,10 +98,16 @@ def abrufreihe(alt, modelle, heute):
     bei Gleichstand MODELLE-Reihenfolge). Mehrere Läufe am Tag holen so nacheinander alle Preise, ohne doppelt zu
     fragen; fällt ein Lauf aus, rückt der älteste Preis am nächsten Tag nach vorn."""
     preise = alt.get("preise") if isinstance(alt.get("preise"), dict) else {}
+    lauf = alt.get("lauf") if isinstance(alt.get("lauf"), dict) else {}
+    versuche = lauf.get("versuche") if isinstance(lauf.get("versuche"), dict) else {}
 
     def zeit(mid):
+        # Codex KONT-02: Schlüssel = späterer Zeitpunkt aus letztem Preis und letztem Abrufversuch. Ein Modell, das
+        # gerade erfolglos versucht wurde, rückt hinter die übrigen; dauerhaft scheiternde Modelle blockieren nicht.
         akt = (preise.get(mid) or {}).get("aktuell") if isinstance(preise.get(mid), dict) else None
-        return akt.get("zeit") if preis_datum(preise.get(mid)) and isinstance(akt.get("zeit"), str) else ""
+        p = akt.get("zeit") if preis_datum(preise.get(mid)) and isinstance(akt.get("zeit"), str) else ""
+        v = versuche.get(mid) if isinstance(versuche.get(mid), str) else ""
+        return max(p, v)
     offen = [m for m in modelle if preis_datum(preise.get(m)) != heute]
     return sorted(offen, key=lambda m: zeit(m))   # sorted ist stabil: gleiche Zeit -> MODELLE-Reihenfolge
 
@@ -169,6 +175,14 @@ def aktualisiere(pw, erg, ziel, wunsch=None):
                 d.pop("meldung", None)
                 preise[mid] = d
         lauf = json.loads((aus / "wecker_lauf.json").read_text(encoding="utf-8"))
+    # letzter Abrufversuch je Modell (für die Reihenfolge der nächsten Läufe, Codex KONT-02); nur Zeitpunkte
+    alt_lauf = alt.get("lauf") if isinstance(alt.get("lauf"), dict) else {}
+    versuche = {m: z for m, z in (alt_lauf.get("versuche") or {}).items()
+                if m in pw.MODELLE and isinstance(z, str)} if isinstance(alt_lauf.get("versuche"), dict) else {}
+    for mid, r in erg["modelle"].items():
+        if mid in pw.MODELLE and isinstance(r, dict) and not (r.get("heute_schon") or r.get("verschoben")):
+            versuche[mid] = erg["zeit"]
+    lauf["versuche"] = versuche
     lauf["meldung"] = oeffentlicher_lauftext(lauf.get("meldung", ""), bericht["treffer"], pw._kurzliste)
     for mid, d in preise.items():
         g = (d.get("aktuell") or {}).get("gesamt")
