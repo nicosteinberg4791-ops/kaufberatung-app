@@ -553,11 +553,82 @@ class AirFryerImWecker(unittest.TestCase):
             for m in self.pw.MODELLE:
                 (db / "preise" / f"{m}.json").write_text(json.dumps({"version": 1}), encoding="utf-8")
             erg_ = self.pw.abgleich(erg, str(db), str(Path(tmp, "aus")), anlegen=True)
-        self.assertIn("Abruf fehlgeschlagen", erg_["lauf"])
-        self.assertIn(self.pw.KURZ["lg_c6elb"] + " (HTTP 429)", erg_["lauf"])
-        kein = erg_["lauf"].split("Kein Angebot mit belegtem Versand:")[1].split(".")[0]
-        self.assertIn(self.pw.KURZ["tcl_c8l"], kein)
-        self.assertNotIn(self.pw.KURZ["lg_c6elb"] + ",", kein + ",")
+            gespeichert = json.loads(Path(tmp, "aus", "wecker_lauf.json").read_text(encoding="utf-8"))["meldung"]
+        self.assertEqual(erg_["status"], "fehler")  # kein Modell mit Preis
+        # gespeicherte (auf 300 Zeichen begrenzte) Meldung: Abruffehler sichtbar, Rest gekürzt statt verdrängt (B429-02)
+        self.assertLessEqual(len(erg_["lauf"]), 300)
+        self.assertEqual(gespeichert, erg_["lauf"])
+        self.assertTrue(gespeichert.startswith("Abruf fehlgeschlagen, alter Preis bleibt: " + self.pw.KURZ["lg_c6elb"] + " (HTTP 429)."), gespeichert)
+        kein = gespeichert.split("Kein Angebot mit belegtem Versand")[1]
+        self.assertIn("(23):", kein)
+        self.assertIn("weitere.", kein)
+        self.assertNotIn(self.pw.KURZ["lg_c6elb"] + ",", kein)
+
+    def test_meldung_viele_abruffehler_gekuerzt(self):
+        """B429-02: auch 20 Abruffehler + kein Angebot + Problem bleiben in 300 Zeichen, jeder Teil sichtbar."""
+        erg = {"zeit": "2026-11-16T06:30:00+01:00", "modelle": {
+            m: {"fehler": "HTTPError: HTTP Error 429: Too Many Requests"} for m in list(self.pw.MODELLE)[:20]}}
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp, "db")
+            (db / "preise").mkdir(parents=True)
+            for m in self.pw.MODELLE:
+                (db / "preise" / f"{m}.json").write_text(json.dumps({"version": 1}), encoding="utf-8")
+            (db / "preise" / f"{list(self.pw.MODELLE)[-1]}.json").write_text("kaputt", encoding="utf-8")
+            erg_ = self.pw.abgleich(erg, str(db), str(Path(tmp, "aus")), anlegen=True)
+        t = erg_["lauf"]
+        self.assertLessEqual(len(t), 300, t)
+        self.assertTrue(t.startswith("Abruf fehlgeschlagen, alter Preis bleibt (20): "), t)
+        self.assertIn("Fehler", t.split("(20):")[1])
+        self.assertIn("Kein Angebot mit belegtem Versand", t)
+        self.assertEqual(erg_["status"], "fehler")  # kein Modell gelesen
+
+    def test_429_grenzen_und_andere_fehler(self):
+        """B-429: andere Fehler nicht wiederholen; ungültiges Retry-After → 30 s; Budget und Lauffrist begrenzen."""
+        import urllib.error
+
+        def h429(wert):
+            return urllib.error.HTTPError("https://x", 429, "Too Many Requests", {"Retry-After": wert} if wert is not None else {}, None)
+        for wert in (None, "0", "-5", "121", "Wed, 21 Oct 2026 07:28:00 GMT", "abc"):
+            self.assertEqual(self.pw._warte_429(h429(wert)), 30, wert)
+        self.assertEqual(self.pw._warte_429(urllib.error.HTTPError("https://x", 429, "x", None, None)), 30)
+        self.assertEqual(self.pw._warte_429(h429("120")), 120)
+        ein = {"tcl_c8l": "https://x"}
+        for fehler in (urllib.error.HTTPError("https://x", 503, "Unavailable", {}, None), TimeoutError("timed out")):
+            with mock.patch.dict(self.pw.MODELLE, ein, clear=True), \
+                    mock.patch.object(self.pw, "abrufen", side_effect=fehler) as ab, \
+                    mock.patch.object(self.pw.time, "sleep"):
+                erg = self.pw.abruf_alle()
+            self.assertEqual(ab.call_count, 1, fehler)
+            self.assertIn("fehler", erg["modelle"]["tcl_c8l"])
+        # Wartebudget: 240 s / 120 s je Wiederholung → nur die ersten zwei Modelle werden wiederholt
+        drei = {"tcl_c8l": "https://a", "lg_c6elb": "https://b", "sam_s90h": "https://c"}
+        with mock.patch.dict(self.pw.MODELLE, drei, clear=True), \
+                mock.patch.object(self.pw, "abrufen", side_effect=h429("120")) as ab, \
+                mock.patch.object(self.pw.time, "sleep") as schlaf:
+            erg = self.pw.abruf_alle()
+        self.assertEqual(ab.call_count, 5)
+        self.assertEqual(schlaf.call_args_list.count(mock.call(120)), 2)
+        self.assertEqual(len(erg["modelle"]), 3)
+        # Lauffrist: Uhr springt nach dem ersten Modell auf 400 s → zweites und drittes nicht abgerufen
+        uhr = iter([0, 0, 400, 400, 400, 400, 400])
+        with mock.patch.dict(self.pw.MODELLE, drei, clear=True), \
+                mock.patch.object(self.pw, "abrufen", return_value="seite") as ab, \
+                mock.patch.object(self.pw, "auswerten", return_value={"angebote": 1, "sicher": None, "roh": None}), \
+                mock.patch.object(self.pw.time, "monotonic", side_effect=lambda: next(uhr)), \
+                mock.patch.object(self.pw.time, "sleep"):
+            erg = self.pw.abruf_alle()
+        self.assertEqual(ab.call_count, 1)
+        self.assertIn("Lauffrist", erg["modelle"]["lg_c6elb"]["fehler"])
+        self.assertIn("Lauffrist", erg["modelle"]["sam_s90h"]["fehler"])
+        # Lauffrist verhindert die Wiederholung, wenn Warten + Abruf nicht mehr hineinpassen
+        uhr = iter([0, 0, 300, 300])
+        with mock.patch.dict(self.pw.MODELLE, ein, clear=True), \
+                mock.patch.object(self.pw, "abrufen", side_effect=h429("100")) as ab, \
+                mock.patch.object(self.pw.time, "monotonic", side_effect=lambda: next(uhr)), \
+                mock.patch.object(self.pw.time, "sleep") as schlaf:
+            erg = self.pw.abruf_alle()
+        self.assertEqual(ab.call_count, 1)
+        self.assertNotIn(mock.call(100), schlaf.call_args_list)
 
     def test_groessenknoepfe_44px(self):
         """Größenleiste (Seite: .gr-leiste .segx button 36 px) bekommt bei grobem Zeiger 44 px Tippfläche."""

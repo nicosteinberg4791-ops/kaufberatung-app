@@ -181,6 +181,10 @@ ENDE = "2026-12-01"
 WARTE_429 = 30          # Sekunden nach HTTP 429 ohne brauchbares Retry-After
 WARTE_429_MAX = 120     # höchstens so lange je Wiederholung
 WARTE_429_SUMME = 240   # Wartebudget je Lauf (Workflow-Timeout 10 min), danach keine Wiederholung mehr
+# Gesamtfrist für alle Abrufe (Codex B429-01): Workflow-Timeout 10 min, davor Checkout, danach Meldung und Push.
+# Ein Abruf beginnt nur, wenn noch ABRUF_MAX (urlopen-Timeout in abrufen) Rest bleibt; sonst Abruffehler „Lauffrist“.
+LAUF_FRIST = 420
+ABRUF_MAX = 30
 
 
 def _warte_429(e):
@@ -192,11 +196,29 @@ def _warte_429(e):
         return WARTE_429
 
 
+def _kurzliste(titel, namen, sep, platz):
+    """„Titel: a, b. “ – passt die Liste nicht in platz Zeichen: „Titel (n): a, +k weitere. “ (B429-02)."""
+    voll = f"{titel}: {sep.join(namen)}. "
+    if len(voll) <= platz:
+        return voll
+    for k in range(len(namen) - 1, -1, -1):
+        s = f"{titel} ({len(namen)}): " + "".join(x + sep for x in namen[:k]) + f"+{len(namen) - k} weitere. "
+        if len(s) <= platz or k == 0:
+            return s
+
+
 def abruf_alle():
     jetzt = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     erg = {"zeit": jetzt, "modelle": {}}
     budget = WARTE_429_SUMME
+    start = time.monotonic()
+
+    def rest():
+        return LAUF_FRIST - (time.monotonic() - start)
     for mid, url in MODELLE.items():
+        if rest() < ABRUF_MAX:  # Frist reicht nicht für einen weiteren Abruf: nicht abrufen, als Abruffehler melden
+            erg["modelle"][mid] = {"url": url, "fehler": f"Lauffrist {LAUF_FRIST} s erreicht, nicht abgerufen"}
+            continue
         for versuch in (1, 2):
             try:
                 erg["modelle"][mid] = {"url": url, **auswerten(abrufen(url), GRENZEN.get(mid, GRENZE_STANDARD))}
@@ -204,7 +226,7 @@ def abruf_alle():
             except urllib.error.HTTPError as e:
                 # B-429 (15.11.2026): heise drosselt ab ~19 Abrufen kurz hintereinander; einmal warten und wiederholen
                 w = _warte_429(e) if e.code == 429 else 0
-                if versuch == 1 and w and w <= budget:
+                if versuch == 1 and w and w <= budget and w + ABRUF_MAX <= rest():
                     budget -= w
                     time.sleep(w)
                     continue
@@ -359,12 +381,15 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
         probleme.append("wecker/lauf: nicht im db-Export, nicht geschrieben (Erstlauf nur mit --anlegen)")
     status = "ok" if not (fehler_alle or probleme) else ("fehler" if n_ok == 0 else "teilweise")
     text = f"Alle {len(MODELLE)} Preise gelesen." if not (fehler_alle or probleme) else ""
-    if fehler:
-        text += "Kein Angebot mit belegtem Versand: " + ", ".join(fehler) + ". "
-    if abruf:
-        text += "Abruf fehlgeschlagen, alter Preis bleibt: " + ", ".join(abruf) + ". "
-    if probleme:
-        text += "Fehler: " + "; ".join(probleme) + ". "
+    # Codex B429-02: Die Meldung wird auf 300 Zeichen gekürzt. Abruffehler zuerst, dann Fehler, dann „kein Angebot“;
+    # jede Liste bekommt den Restplatz abzüglich einer Reserve für die folgenden Teile (Titel + „(n): +k weitere. “);
+    # zu lange Listen werden mit „+n weitere“ gekürzt, damit kein Teil ganz verschwindet.
+    teile = [(t, n, s) for t, n, s in (("Abruf fehlgeschlagen, alter Preis bleibt", abruf, ", "),
+                                       ("Fehler", probleme, "; "),
+                                       ("Kein Angebot mit belegtem Versand", fehler, ", ")) if n]
+    for i, (titel, namen, sep) in enumerate(teile):
+        reserve = sum(len(t) + 22 for t, _, _ in teile[i + 1:])
+        text += _kurzliste(titel, namen, sep, max(40, 300 - len(text) - reserve))
     if treffer:
         text += "Treffer: " + "; ".join(treffer) + "."
     text = text.strip()
