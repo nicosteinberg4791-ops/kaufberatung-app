@@ -269,8 +269,12 @@ def main():
         erg = json.loads(Path(x.abruf).read_text(encoding="utf-8"))
     else:
         heute = datetime.now(timezone.utc).astimezone().date().isoformat()   # Ortszeit wie erg["zeit"] (TZ im Workflow)
-        reihe = abrufreihe(lies_alt(x.ziel), list(pw.MODELLE), heute)
-        if not reihe:   # Nachlauf, alles schon von heute: nichts abrufen, preise.json unverändert
+        alt = lies_alt(x.ziel)
+        reihe = abrufreihe(alt, list(pw.MODELLE), heute)
+        alt_status = alt.get("lauf", {}).get("status") if isinstance(alt.get("lauf"), dict) else None
+        # Nachlauf, alles schon von heute und Status ok: nichts abrufen, preise.json unverändert. Steht noch ein
+        # älterer Status (z. B. „teilweise“ eines früheren Laufs), wird er ohne Abruf neu berechnet (abruf_alle([])).
+        if not reihe and alt_status == "ok":
             if x.meldung:
                 Path(x.meldung).write_text("", encoding="utf-8")
             print(json.dumps({"ziel": x.ziel, "status": "ok", "abgerufen": 0,

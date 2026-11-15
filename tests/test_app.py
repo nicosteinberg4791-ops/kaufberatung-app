@@ -853,7 +853,8 @@ class Kontingent(unittest.TestCase):
         heute = __import__("datetime").datetime.now().astimezone().isoformat(timespec="seconds")
         with tempfile.TemporaryDirectory() as tmp:
             ziel = Path(tmp, "preise.json")
-            inhalt = json.dumps({"preise": {m: {"aktuell": {"gesamt": 100.0, "zeit": heute}} for m in ids}})
+            inhalt = json.dumps({"preise": {m: {"aktuell": {"gesamt": 100.0, "zeit": heute}} for m in ids},
+                                 "lauf": {"status": "ok"}})
             ziel.write_text(inhalt, encoding="utf-8")
             meld = Path(tmp, "m.txt")
             r = subprocess.run([sys.executable, "-X", "utf8", "-I", str(WURZEL / "werkzeuge" / "preise_aktualisieren.py"),
@@ -861,6 +862,19 @@ class Kontingent(unittest.TestCase):
             self.assertEqual(r.returncode, 0, r.stderr)
             self.assertIn('"abgerufen": 0', r.stdout)
             self.assertEqual(ziel.read_text(encoding="utf-8"), inhalt, "preise.json unverändert")
+            self.assertEqual(meld.read_text(encoding="utf-8"), "")
+            # Livelauf 15.11.2026: alle Preise von heute, aber Status eines früheren Laufs „teilweise“ -> ohne Abruf ok
+            akt = dict(self.ERG["sicher"], zeit=heute)
+            ziel.write_text(json.dumps({"preise": {m: {"name": "x", "aktuell": akt} for m in ids},
+                                        "lauf": {"status": "teilweise", "meldung": "Abruf fehlgeschlagen, alter Preis bleibt: x."}}),
+                            encoding="utf-8")
+            r = subprocess.run([sys.executable, "-X", "utf8", "-I", str(WURZEL / "werkzeuge" / "preise_aktualisieren.py"),
+                                "--ziel", str(ziel), "--meldung", str(meld)], capture_output=True, text=True, encoding="utf-8", timeout=60)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            neu = json.loads(ziel.read_text(encoding="utf-8"))
+            self.assertEqual(neu["lauf"]["status"], "ok", neu["lauf"])
+            self.assertEqual(neu["lauf"]["meldung"], f"Alle {len(ids)} Preise gelesen.")
+            self.assertEqual(json.loads(r.stdout)["modelle"], {m: "heute schon gelesen" for m in ids}, "keine Anfrage")
             self.assertEqual(meld.read_text(encoding="utf-8"), "")
 
     def test_wiederholung_zaehlt_gegen_kontingent(self):
