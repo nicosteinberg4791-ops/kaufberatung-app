@@ -37,6 +37,7 @@ import html
 import json
 import re
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -164,7 +165,7 @@ def abrufen(url, bis=None):
         while True:
             if bis is not None and time.monotonic() > bis:
                 raise TimeoutError("Lauffrist während des Abrufs erreicht")
-            b = r.read(65536)
+            b = r.read1(65536)  # read1: höchstens ein Socket-Empfang je Aufruf (read() füllt den Block ganz)
             if not b:
                 break
             teile.append(b)
@@ -208,6 +209,27 @@ def _warte_429(e):
         return WARTE_429
 
 
+def _mit_frist(fn, sekunden):
+    """fn() in einem Daemon-Thread; läuft er nach `sekunden` noch, TimeoutError (Codex B429-01 R3).
+    Erzwingt die Frist unabhängig vom Netzwerkaufruf (DNS, Verbindungsaufbau, tröpfelndes Lesen);
+    ein hängender Thread bleibt zurück und endet mit dem Prozess."""
+    erg = {}
+
+    def lauf():
+        try:
+            erg["wert"] = fn()
+        except BaseException as e:  # im Hauptthread erneut auslösen (u. a. HTTPError für die 429-Wiederholung)
+            erg["fehler"] = e
+    t = threading.Thread(target=lauf, daemon=True)
+    t.start()
+    t.join(sekunden)
+    if t.is_alive():
+        raise TimeoutError(f"Abruf nach {sekunden:.0f} s abgebrochen (Lauffrist)")
+    if "fehler" in erg:
+        raise erg["fehler"]
+    return erg["wert"]
+
+
 def _kurzliste(titel, namen, sep, platz):
     """„Titel: a, b. “ – passt die Liste nicht in platz Zeichen: „Titel (n): a, +k weitere. “ (B429-02)."""
     voll = f"{titel}: {sep.join(namen)}. "
@@ -233,7 +255,7 @@ def abruf_alle():
             continue
         for versuch in (1, 2):
             try:
-                seite = abrufen(url, bis=start + LAUF_FRIST)
+                seite = _mit_frist(lambda: abrufen(url, bis=start + LAUF_FRIST), max(1, rest()))
                 erg["modelle"][mid] = {"url": url, **auswerten(seite, GRENZEN.get(mid, GRENZE_STANDARD))}
                 break
             except urllib.error.HTTPError as e:

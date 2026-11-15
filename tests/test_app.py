@@ -642,7 +642,7 @@ class AirFryerImWecker(unittest.TestCase):
             def __exit__(self, *a):
                 return False
 
-            def read(self, n=-1):
+            def read1(self, n=-1):
                 return b"x"
         uhr = itertools.count(0, 10)
         with mock.patch.object(self.pw.urllib.request, "urlopen", return_value=Tropf()) as uo, \
@@ -652,9 +652,36 @@ class AirFryerImWecker(unittest.TestCase):
         self.assertEqual(uo.call_args.kwargs["timeout"], 25)
         with mock.patch.object(self.pw.urllib.request, "urlopen", return_value=Tropf()) as uo, \
                 mock.patch.object(self.pw.time, "monotonic", return_value=0):
-            with mock.patch.object(Tropf, "read", side_effect=[b"<html>", b""]):
+            with mock.patch.object(Tropf, "read1", side_effect=[b"<html>", b""]):
                 self.assertEqual(self.pw.abrufen("https://x", bis=1000), "<html>")
         self.assertEqual(uo.call_args.kwargs["timeout"], 30)
+
+    def test_blockierender_abruf_endet_mit_lauffrist(self):
+        """Codex B429-01 R3: ein Abruf, der in einem einzigen Aufruf hängt (z. B. read() über einen ganzen Block),
+        wird von der Lauffrist abgebrochen; der Lauf geht weiter, Fehler aus dem Thread kommen unverändert an."""
+        import threading
+        import time
+        import urllib.error
+        frei = threading.Event()
+        self.addCleanup(frei.set)
+
+        def haengt(url, bis=None):
+            frei.wait(30)
+            return "zu spät"
+        drei = {"tcl_c8l": "https://a", "lg_c6elb": "https://b"}
+        t0 = time.monotonic()
+        with mock.patch.dict(self.pw.MODELLE, drei, clear=True), \
+                mock.patch.object(self.pw, "LAUF_FRIST", 0.3), mock.patch.object(self.pw, "ABRUF_MAX", 0.1), \
+                mock.patch.object(self.pw, "abrufen", side_effect=haengt), \
+                mock.patch.object(self.pw.time, "sleep"):
+            erg = self.pw.abruf_alle()
+        self.assertLess(time.monotonic() - t0, 5)
+        self.assertIn("abgebrochen", erg["modelle"]["tcl_c8l"]["fehler"])
+        self.assertIn("Lauffrist", erg["modelle"]["lg_c6elb"]["fehler"])
+        f = urllib.error.HTTPError("https://x", 429, "x", {}, None)
+        with self.assertRaises(urllib.error.HTTPError):
+            self.pw._mit_frist(mock.Mock(side_effect=f), 5)
+        self.assertEqual(self.pw._mit_frist(lambda: "ok", 5), "ok")
 
     def test_oeffentliche_meldung_behaelt_abruffehler(self):
         """Codex B429-03: 1 × HTTP 429 und 23 Tiefstpreis-Treffer → veröffentlichte Meldung nennt den Abruffehler."""
