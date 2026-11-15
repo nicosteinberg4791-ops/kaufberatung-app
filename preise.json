@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-14T13:16:37+01:00",
+ "zeit": "2026-11-15T13:49:26+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -13,13 +13,13 @@
     "haendler": "Cyberport.de",
     "sterne": "2,4 (6.136)",
     "lieferung": "Lieferzeit 5-7 Werktage",
-    "zeit": "2026-11-14T13:16:37+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "roh": {
     "artikel": 2779.0,
     "haendler": "electronic4you.de",
     "sterne": "4,9 (4.044)",
-    "zeit": "2026-11-14T13:16:37+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -61,6 +61,11 @@
      "d": "2026-11-14",
      "g": 2936.37,
      "h": "Cyberport.de"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 2936.37,
+     "h": "Cyberport.de"
     }
    ]
   },
@@ -71,10 +76,10 @@
     "gesamt": 2599.0,
     "artikel": 2599.0,
     "versand": 0.0,
-    "haendler": "Berlet.de",
-    "sterne": "4,2 (33)",
-    "lieferung": "Auf Lager - Lieferung in 2-3 Werktagen",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "haendler": "expert.de",
+    "sterne": "1,8 (144)",
+    "lieferung": "Lieferzeit 4 - 7 Werktage",
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 2499.0,
@@ -111,6 +116,11 @@
      "d": "2026-11-13",
      "g": 2599.0,
      "h": "Berlet.de"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 2599.0,
+     "h": "expert.de"
     }
    ]
   },
@@ -118,23 +128,17 @@
    "name": "Samsung GQ83S90H",
    "heiseUrl": "https://preisvergleich.heise.de/samsung-gq8390h-a3805643.html",
    "aktuell": {
-    "gesamt": 2799.0,
-    "artikel": 2799.0,
+    "gesamt": 2699.0,
+    "artikel": 2699.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,7 (3.086)",
+    "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-13T14:12:26+01:00"
-   },
-   "roh": {
-    "artikel": 2699.0,
-    "haendler": "Mediamarkt.de",
-    "sterne": "2,4 (1.015)",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
-    "gesamt": 2799.0,
-    "datum": "2026-11-08",
+    "gesamt": 2699.0,
+    "datum": "2026-11-15",
     "haendler": "Amazon.de"
    },
    "verlauf": [
@@ -167,6 +171,11 @@
      "d": "2026-11-13",
      "g": 2799.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 2699.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -178,9 +187,9 @@
     "artikel": 1999.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,7 (3.086)",
-    "lieferung": "siehe Shop",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "sterne": "2,6 (3.086)",
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 1999.0,
@@ -217,6 +226,11 @@
      "d": "2026-11-13",
      "g": 1999.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 1999.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -224,19 +238,13 @@
    "name": "Samsung QE85QN90F",
    "heiseUrl": "https://preisvergleich.heise.de/samsung-qe85qn90f-a3479298.html",
    "aktuell": {
-    "gesamt": 2999.0,
-    "artikel": 2999.0,
+    "gesamt": 4499.0,
+    "artikel": 4499.0,
     "versand": 0.0,
-    "haendler": "EDV-Service-Stadlauer",
+    "haendler": "Gamingoase",
     "sterne": "keine Bewertung",
-    "lieferung": "3-6 Werktage",
-    "zeit": "2026-11-13T14:12:26+01:00"
-   },
-   "roh": {
-    "artikel": 2899.0,
-    "haendler": "techonly",
-    "sterne": "4,7 (59)",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "lieferung": "1-4 Werktage",
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -273,6 +281,11 @@
      "d": "2026-11-13",
      "g": 2999.0,
      "h": "EDV-Service-Stadlauer"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 4499.0,
+     "h": "Gamingoase"
     }
    ]
   },
@@ -280,23 +293,17 @@
    "name": "Cosori Turbo Tower Pro Smart",
    "heiseUrl": "https://preisvergleich.heise.de/cosori-turbo-tower-pro-smart-schwarz-gold-caf-dc123s-dder-a3472492.html",
    "aktuell": {
-    "gesamt": 249.0,
-    "artikel": 249.0,
+    "gesamt": 199.0,
+    "artikel": 199.0,
     "versand": 0.0,
     "haendler": "saturn",
     "sterne": "3,5 (7)",
     "lieferung": "Lieferzeit 3-7 Werktage",
-    "zeit": "2026-11-13T14:12:26+01:00"
-   },
-   "roh": {
-    "artikel": 199.0,
-    "haendler": "Mediamarkt.de",
-    "sterne": "2,4 (1.015)",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
-    "gesamt": 249.0,
-    "datum": "2026-11-09",
+    "gesamt": 199.0,
+    "datum": "2026-11-15",
     "haendler": "saturn"
    },
    "verlauf": [
@@ -324,6 +331,11 @@
      "d": "2026-11-13",
      "g": 249.0,
      "h": "saturn"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 199.0,
+     "h": "saturn"
     }
    ]
   },
@@ -337,7 +349,13 @@
     "haendler": "medion.de",
     "sterne": "4,1 (96)",
     "lieferung": "Sofort verfügbar",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
+   },
+   "roh": {
+    "artikel": 79.9,
+    "haendler": "euronics-maxi-media",
+    "sterne": "1,0 (3)",
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 79.95,
@@ -369,6 +387,11 @@
      "d": "2026-11-13",
      "g": 79.95,
      "h": "medion.de"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 79.95,
+     "h": "medion.de"
     }
    ]
   },
@@ -376,18 +399,18 @@
    "name": "Cosori Dual Basket R901",
    "heiseUrl": "https://preisvergleich.heise.de/cosori-doppel-heissluftfritteuse-schwarz-caf-r901-aeu-a3146998.html",
    "aktuell": {
-    "gesamt": 118.98,
-    "artikel": 118.98,
+    "gesamt": 113.05,
+    "artikel": 113.05,
     "versand": 0.0,
-    "haendler": "deltatecc-home",
-    "sterne": "3,0 (2)",
-    "lieferung": "Lieferzeit 1-4 Werktage",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "haendler": "expert_ecommerce",
+    "sterne": "5,0 (1)",
+    "lieferung": "lagernd",
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
-    "gesamt": 118.98,
-    "datum": "2026-11-09",
-    "haendler": "deltatecc-home"
+    "gesamt": 113.05,
+    "datum": "2026-11-15",
+    "haendler": "expert_ecommerce"
    },
    "verlauf": [
     {
@@ -414,6 +437,11 @@
      "d": "2026-11-13",
      "g": 118.98,
      "h": "deltatecc-home"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 113.05,
+     "h": "expert_ecommerce"
     }
    ]
   },
@@ -421,18 +449,18 @@
    "name": "Caso AirFry DuoChef 3186",
    "heiseUrl": "https://preisvergleich.heise.de/caso-airfry-duochef-3186-a3417119.html",
    "aktuell": {
-    "gesamt": 137.97,
-    "artikel": 137.97,
+    "gesamt": 131.07,
+    "artikel": 131.07,
     "versand": 0.0,
     "haendler": "deltatecc-home",
     "sterne": "3,0 (2)",
     "lieferung": "Lieferzeit 2-5 Werktage",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
-    "gesamt": 137.09,
-    "datum": "2026-11-10",
-    "haendler": "technikkenner_quedlinburg"
+    "gesamt": 131.07,
+    "datum": "2026-11-15",
+    "haendler": "deltatecc-home"
    },
    "verlauf": [
     {
@@ -454,6 +482,11 @@
      "d": "2026-11-13",
      "g": 137.97,
      "h": "deltatecc-home"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 131.07,
+     "h": "deltatecc-home"
     }
    ]
   },
@@ -465,15 +498,15 @@
     "artikel": 169.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,7 (3.086)",
+    "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "roh": {
     "artikel": 149.0,
     "haendler": "XXXLutz Online Shop",
     "sterne": "2,1 (16)",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 169.0,
@@ -500,6 +533,11 @@
      "d": "2026-11-13",
      "g": 169.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 169.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -513,13 +551,13 @@
     "haendler": "expert_ecommerce",
     "sterne": "5,0 (1)",
     "lieferung": "Lieferzeit 2-4 Werktage",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "roh": {
     "artikel": 123.0,
     "haendler": "expert.de",
-    "sterne": "1,8 (143)",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "sterne": "1,8 (144)",
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 124.3,
@@ -546,6 +584,11 @@
      "d": "2026-11-13",
      "g": 127.99,
      "h": "expert_ecommerce"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 127.99,
+     "h": "expert_ecommerce"
     }
    ]
   },
@@ -559,13 +602,13 @@
     "haendler": "Joybuy",
     "sterne": "3,1 (16)",
     "lieferung": "Lieferzeit 1-2 Werktage",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "roh": {
-    "artikel": 137.48,
+    "artikel": 137.01,
     "haendler": "Proshop.de",
-    "sterne": "4,3 (1.068)",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "sterne": "4,3 (1.070)",
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 135.9,
@@ -592,6 +635,11 @@
      "d": "2026-11-13",
      "g": 139.99,
      "h": "Joybuy"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 139.99,
+     "h": "Joybuy"
     }
    ]
   },
@@ -605,13 +653,13 @@
     "haendler": "Future-X.de",
     "sterne": "3,4 (985)",
     "lieferung": "Zentrallager: Auf Lager",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "roh": {
-    "artikel": 115.99,
+    "artikel": 114.81,
     "haendler": "TechnikDirekt",
     "sterne": "2,0 (647)",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 124.59,
@@ -638,6 +686,11 @@
      "d": "2026-11-13",
      "g": 124.59,
      "h": "Future-X.de"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 124.59,
+     "h": "Future-X.de"
     }
    ]
   },
@@ -645,19 +698,13 @@
    "name": "Gastroback Duo Family 42586",
    "heiseUrl": "https://preisvergleich.heise.de/gastroback-42586-multi-duo-family-9l-a3785334.html",
    "aktuell": {
-    "gesamt": 111.32,
-    "artikel": 111.32,
+    "gesamt": 118.31,
+    "artikel": 118.31,
     "versand": 0.0,
     "haendler": "galaxus",
     "sterne": "4,0 (845)",
     "lieferung": "Lager Lieferant: Sofort lieferbar, 2-4 Werktage",
-    "zeit": "2026-11-13T14:12:26+01:00"
-   },
-   "roh": {
-    "artikel": 102.91,
-    "haendler": "computeruniverse.net",
-    "sterne": "2,4 (5.074)",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
     "gesamt": 111.32,
@@ -684,6 +731,11 @@
      "d": "2026-11-13",
      "g": 111.32,
      "h": "galaxus"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 118.31,
+     "h": "galaxus"
     }
    ]
   },
@@ -691,17 +743,23 @@
    "name": "Ninja FlexDrawer AF500EU",
    "heiseUrl": "https://preisvergleich.heise.de/ninja-af500eu-foodi-flexdrawer-a3337334.html",
    "aktuell": {
-    "gesamt": 169.0,
-    "artikel": 169.0,
+    "gesamt": 166.46,
+    "artikel": 166.46,
     "versand": 0.0,
-    "haendler": "Coolblue",
-    "sterne": "4,5 (1.069)",
-    "lieferung": "Lieferzeit: 1 Werktag",
-    "zeit": "2026-11-13T14:12:26+01:00"
+    "haendler": "galaxus",
+    "sterne": "4,0 (845)",
+    "lieferung": "Auf Lager, 1-2 Werktage",
+    "zeit": "2026-11-15T13:49:26+01:00"
+   },
+   "roh": {
+    "artikel": 165.0,
+    "haendler": "euronics-maxi-media",
+    "sterne": "1,0 (3)",
+    "zeit": "2026-11-15T13:49:26+01:00"
    },
    "tief": {
-    "gesamt": 169.0,
-    "datum": "2026-11-10",
+    "gesamt": 166.46,
+    "datum": "2026-11-15",
     "haendler": "galaxus"
    },
    "verlauf": [
@@ -724,14 +782,19 @@
      "d": "2026-11-13",
      "g": 169.0,
      "h": "Coolblue"
+    },
+    {
+     "d": "2026-11-15",
+     "g": 166.46,
+     "h": "galaxus"
     }
    ]
   }
  },
  "lauf": {
-  "letzter": "2026-11-14T13:16:37+01:00",
-  "status": "teilweise",
-  "meldung": "Kein Angebot mit belegtem Versand: LG C69LB, Samsung S90H, TCL C8L, Samsung QN90F, Cosori Turbo Tower, Medion P20 XXL, Cosori R901, Caso DuoChef, AEG AAFD11B, Russell Hobbs 27680, Ninja DZ400, Tefal EY942, Gastroback 42586, Ninja AF500.",
+  "letzter": "2026-11-15T13:49:26+01:00",
+  "status": "ok",
+  "meldung": "Alle 15 Preise gelesen. Treffer: Samsung S90H 2.699 € neuer Tiefstpreis; Cosori Turbo Tower 199 € neuer Tiefstpreis; Cosori R901 113,05 € neuer Tiefstpreis; Caso DuoChef 131,07 € neuer Tiefstpreis; Ninja AF500 166,46 € neuer Tiefstpreis.",
   "bis": "2026-12-01"
  }
 }
