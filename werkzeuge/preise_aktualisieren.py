@@ -34,6 +34,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 WURZEL = Path(__file__).resolve().parent.parent
@@ -76,6 +77,35 @@ def lies_wunsch(text, modelle):
     return wunsch
 
 
+def lies_alt(ziel):
+    """Bisherige preise.json als dict (fehlt oder unlesbar: {})."""
+    try:
+        alt = json.loads(Path(ziel).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return alt if isinstance(alt, dict) else {}
+
+
+def preis_datum(doc):
+    """Datum (JJJJ-MM-TT) des aktuellen Preises eines Eintrags, sonst ""."""
+    akt = doc.get("aktuell") if isinstance(doc, dict) else None
+    z = akt.get("zeit") if isinstance(akt, dict) else None
+    return z[:10] if isinstance(z, str) and zahl_ok(akt.get("gesamt")) else ""
+
+
+def abrufreihe(alt, modelle, heute):
+    """Kontingent-Lösung (15.11.2026): nur Modelle ohne Preis von heute, älteste zuerst (fehlende ganz vorn,
+    bei Gleichstand MODELLE-Reihenfolge). Mehrere Läufe am Tag holen so nacheinander alle Preise, ohne doppelt zu
+    fragen; fällt ein Lauf aus, rückt der älteste Preis am nächsten Tag nach vorn."""
+    preise = alt.get("preise") if isinstance(alt.get("preise"), dict) else {}
+
+    def zeit(mid):
+        akt = (preise.get(mid) or {}).get("aktuell") if isinstance(preise.get(mid), dict) else None
+        return akt.get("zeit") if preis_datum(preise.get(mid)) and isinstance(akt.get("zeit"), str) else ""
+    offen = [m for m in modelle if preis_datum(preise.get(m)) != heute]
+    return sorted(offen, key=lambda m: zeit(m))   # sorted ist stabil: gleiche Zeit -> MODELLE-Reihenfolge
+
+
 def schreibe_doc(ordner, doc_id, felder):
     ordner.mkdir(parents=True, exist_ok=True)
     (ordner / f"{doc_id}.json").write_text(json.dumps(felder | {"version": 1}, ensure_ascii=False), encoding="utf-8")
@@ -108,15 +138,13 @@ def oeffentlicher_lauftext(text, treffer, kurzliste):
 
 def aktualisiere(pw, erg, ziel, wunsch=None):
     wunsch = wunsch or {}
-    alt = {}
-    if ziel.exists():
-        try:
-            alt = json.loads(ziel.read_text(encoding="utf-8"))
-        except ValueError:
-            alt = {}
-    if not isinstance(alt, dict):
-        alt = {}
+    alt = lies_alt(ziel)
     alt_preise = alt.get("preise") if isinstance(alt.get("preise"), dict) else {}
+    # „heute schon gelesen“ nur gelten lassen, wenn preise.json wirklich einen Preis von heute hat; sonst Abruffehler
+    # (kein Modell darf ohne heutigen Preis als gelesen zählen)
+    for mid, r in erg["modelle"].items():
+        if isinstance(r, dict) and r.get("heute_schon") and preis_datum(alt_preise.get(mid)) != erg["zeit"][:10]:
+            erg["modelle"][mid] = {"url": r.get("url"), "fehler": "nicht abgerufen, kein Preis von heute vorhanden"}
     with tempfile.TemporaryDirectory() as tmp:
         db, aus = Path(tmp, "db"), Path(tmp, "aus")
         for mid, doc in alt_preise.items():
@@ -191,8 +219,15 @@ def meldetext(treffer):
 
 def uebersicht(erg):
     """Je Modell nur Angebotszahl oder Fehler (für das öffentliche Log; zeigt z. B. eine heise-Sperre)."""
-    return {mid: (r.get("fehler") if r.get("fehler") else f"{r.get('angebote', '?')} Angebote")
-            for mid, r in erg["modelle"].items() if isinstance(r, dict)}
+    def zeile(r):
+        if r.get("fehler"):
+            return r["fehler"]
+        if r.get("heute_schon"):
+            return "heute schon gelesen"
+        if r.get("verschoben"):
+            return "folgt im nächsten Lauf"
+        return f"{r.get('angebote', '?')} Angebote"
+    return {mid: zeile(r) for mid, r in erg["modelle"].items() if isinstance(r, dict)}
 
 
 def main():
@@ -215,7 +250,19 @@ def main():
         return
     pw, pfad = lade_skript(x.skript)
     wunsch = lies_wunsch(os.environ.get("WUNSCHPREISE", ""), pw.MODELLE)
-    erg = json.loads(Path(x.abruf).read_text(encoding="utf-8")) if x.abruf else pw.abruf_alle()
+    if x.abruf:
+        erg = json.loads(Path(x.abruf).read_text(encoding="utf-8"))
+    else:
+        heute = datetime.now(timezone.utc).astimezone().date().isoformat()   # Ortszeit wie erg["zeit"] (TZ im Workflow)
+        reihe = abrufreihe(lies_alt(x.ziel), list(pw.MODELLE), heute)
+        if not reihe:   # Nachlauf, alles schon von heute: nichts abrufen, preise.json unverändert
+            if x.meldung:
+                Path(x.meldung).write_text("", encoding="utf-8")
+            print(json.dumps({"ziel": x.ziel, "status": "ok", "abgerufen": 0,
+                              "lauf": f"Alle {len(pw.MODELLE)} Preise von heute schon vorhanden, nichts abgerufen."},
+                             ensure_ascii=False))
+            return
+        erg = pw.abruf_alle(reihe)
     assert isinstance(erg, dict) and isinstance(erg.get("modelle"), dict) and isinstance(erg.get("zeit"), str), "Abrufergebnis ungültig"
     ziel = Path(x.ziel)
     bericht, lauf = aktualisiere(pw, erg, ziel, wunsch)

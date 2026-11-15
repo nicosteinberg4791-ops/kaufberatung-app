@@ -198,6 +198,10 @@ WARTE_429_SUMME = 240   # Wartebudget je Lauf (Workflow-Timeout 10 min), danach 
 # Ein Abruf beginnt nur, wenn noch ABRUF_MAX (urlopen-Timeout in abrufen) Rest bleibt; sonst Abruffehler „Lauffrist“.
 LAUF_FRIST = 420
 ABRUF_MAX = 30
+# Kontingent (Livelauf 15.11.2026): heise ließ je Zeitfenster genau 18 Abrufe durch, danach 429 auch nach Wartezeit.
+# Je Lauf daher höchstens ABRUF_JE_LAUF Abrufe (Reserve unter 18); der Rest gilt als „verschoben“ und wird von den
+# Nachläufen (preise.yml) geholt. Reihenfolge bestimmt der Aufrufer (älteste Preise zuerst, preise_aktualisieren.py).
+ABRUF_JE_LAUF = 16
 
 
 def _warte_429(e):
@@ -241,19 +245,31 @@ def _kurzliste(titel, namen, sep, platz):
             return s
 
 
-def abruf_alle():
+def abruf_alle(reihe=None):
+    """Preise abrufen. reihe = Modell-Ids in Abrufreihenfolge (Standard: alle in MODELLE-Reihenfolge); Modelle außerhalb
+    von reihe gelten als heute schon gelesen ({"heute_schon": True}), Modelle über ABRUF_JE_LAUF hinaus als
+    {"verschoben": True} (Kontingent, folgt im Nachlauf)."""
     jetzt = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     erg = {"zeit": jetzt, "modelle": {}}
     budget = WARTE_429_SUMME
     start = time.monotonic()
+    reihe = list(MODELLE) if reihe is None else [m for m in dict.fromkeys(reihe) if m in MODELLE]
+    for mid in MODELLE:
+        if mid not in reihe:
+            erg["modelle"][mid] = {"url": MODELLE[mid], "heute_schon": True}
+    for mid in reihe[ABRUF_JE_LAUF:]:
+        erg["modelle"][mid] = {"url": MODELLE[mid], "verschoben": True}
+    nr = 0  # Zahl der HTTP-Anfragen in diesem Lauf (Messung des Kontingents, steht bei 429 im Fehlertext)
 
     def rest():
         return LAUF_FRIST - (time.monotonic() - start)
-    for mid, url in MODELLE.items():
+    for mid in reihe[:ABRUF_JE_LAUF]:
+        url = MODELLE[mid]
         if rest() < ABRUF_MAX:  # Frist reicht nicht für einen weiteren Abruf: nicht abrufen, als Abruffehler melden
             erg["modelle"][mid] = {"url": url, "fehler": f"Lauffrist {LAUF_FRIST} s erreicht, nicht abgerufen"}
             continue
         for versuch in (1, 2):
+            nr += 1
             try:
                 seite = _mit_frist(lambda: abrufen(url, bis=start + LAUF_FRIST), max(1, rest()))
                 erg["modelle"][mid] = {"url": url, **auswerten(seite, GRENZEN.get(mid, GRENZE_STANDARD))}
@@ -265,7 +281,9 @@ def abruf_alle():
                     budget -= w
                     time.sleep(w)
                     continue
-                erg["modelle"][mid] = {"url": url, "fehler": f"{type(e).__name__}: {str(e)[:120]}"}
+                ra = str((e.headers or {}).get("Retry-After", "-")).strip()[:20] if e.code == 429 else ""
+                mess = f" [Retry-After {ra}, Anfrage {nr}]" if e.code == 429 else ""  # Zeitpunkt: Actions-Log
+                erg["modelle"][mid] = {"url": url, "fehler": f"{type(e).__name__}: {str(e)[:120]}{mess}"}
                 break
             except Exception as e:  # Abruf- oder Formatfehler: Modell als Fehler melden, weiter mit den anderen
                 erg["modelle"][mid] = {"url": url, "fehler": f"{type(e).__name__}: {str(e)[:120]}"}
@@ -340,6 +358,7 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
     heute = erg["zeit"][:10]
     writes, treffer, fehler, probleme, warnungen = [], [], [], [], []
     abruf = []  # Modelle, deren Abruf scheiterte (z. B. HTTP 429); zählen wie fehler, eigener Text
+    offen = []  # Modelle über dem Kontingent je Lauf (ABRUF_JE_LAUF), folgen im Nachlauf
     for mid in MODELLE:
         try:
             alt, ver, st = lies_doc(db_dir, "preise", mid)
@@ -356,6 +375,11 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
             if wst == "defekt":
                 warnungen.append(f"{KURZ[mid]}: Wunschpreis-Export unlesbar, Wunschpreis ignoriert")
             r = erg["modelle"].get(mid, {})
+            if r.get("heute_schon"):  # heute in einem früheren Lauf gelesen: nichts schreiben, zählt als gelesen
+                continue
+            if r.get("verschoben"):   # Kontingent je Lauf ausgeschöpft: folgt im Nachlauf, alter Preis bleibt
+                offen.append(KURZ[mid])
+                continue
             akt = r.get("sicher")
             if not akt:
                 if r.get("fehler"):  # Abruf gescheitert (B-429): nicht als „kein Angebot“ melden
@@ -407,8 +431,8 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
             writes.append(w)
         except Exception as e:  # ein kaputtes Modell darf die anderen und die Ausgabedateien nicht stoppen
             probleme.append(f"{KURZ[mid]}: {type(e).__name__}: {str(e)[:100]}")
-    n_ok = len(MODELLE) - len(fehler) - len(abruf) - len([x for x in probleme if not x.startswith("wecker/lauf")])
-    fehler_alle = fehler + abruf
+    n_ok = len(MODELLE) - len(fehler) - len(abruf) - len(offen) - len([x for x in probleme if not x.startswith("wecker/lauf")])
+    fehler_alle = fehler + abruf + offen
     lauf_alt, lauf_ver, lst = lies_doc(db_dir, "wecker", "lauf")
     if lst == "defekt":
         probleme.append("wecker/lauf: db-Export unlesbar oder ohne Version, nicht geschrieben")
@@ -421,7 +445,8 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
     # zu lange Listen werden mit „+n weitere“ gekürzt, damit kein Teil ganz verschwindet.
     teile = [(t, n, s) for t, n, s in (("Abruf fehlgeschlagen, alter Preis bleibt", abruf, ", "),
                                        ("Fehler", probleme, "; "),
-                                       ("Kein Angebot mit belegtem Versand", fehler, ", ")) if n]
+                                       ("Kein Angebot mit belegtem Versand", fehler, ", "),
+                                       ("Folgt im nächsten Lauf", offen, ", ")) if n]
     for i, (titel, namen, sep) in enumerate(teile):
         reserve = sum(len(t) + 22 for t, _, _ in teile[i + 1:])
         text += _kurzliste(titel, namen, sep, max(40, 300 - len(text) - reserve))

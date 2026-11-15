@@ -746,7 +746,7 @@ class AirFryerImWecker(unittest.TestCase):
         self.assertEqual(self.pw.auswerten(self.seite(499.99, 500, 20000, 20000.01))["angebote"], 2)
         # abruf_alle: Air Fryer mit 150 € gilt, derselbe Wert beim Fernseher nicht; Zubehör 12 € fällt beim Air Fryer weg
         seite = self.seite(12, 150)
-        with mock.patch.object(self.pw, "abrufen", return_value=seite), mock.patch.object(self.pw.time, "sleep"):
+        with mock.patch.object(self.pw, "abrufen", return_value=seite), mock.patch.object(self.pw.time, "sleep"),                 mock.patch.object(self.pw, "ABRUF_JE_LAUF", 99):   # Grenzen aller Modelle, Kontingent hier nicht Gegenstand
             erg = self.pw.abruf_alle()
         for m in self.AF:
             self.assertEqual(erg["modelle"][m]["angebote"], 1, m)
@@ -759,6 +759,113 @@ class AirFryerImWecker(unittest.TestCase):
         m = re.search(r"const IDS = \[([^\]]*)\];", js)
         self.assertIsNotNone(m)
         self.assertEqual(re.findall(r'"([a-z0-9_]+)"', m.group(1)), list(self.pw.MODELLE))
+
+
+class Kontingent(unittest.TestCase):
+    """heise-Kontingent (Livelauf 15.11.2026: genau 18 Abrufe je Fenster): höchstens ABRUF_JE_LAUF Abrufe je Lauf,
+    älteste Preise zuerst, Nachläufe holen nur, was heute noch fehlt."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("pw_k", WURZEL / "werkzeuge" / "preiswecker.py")
+        cls.pw = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.pw)
+        import preise_aktualisieren
+        cls.pa = preise_aktualisieren
+
+    ERG = {"angebote": 1, "sicher": {"gesamt": 100.0, "artikel": 100.0, "versand": 0.0, "haendler": "H",
+                                      "sterne": "", "lieferung": ""}, "roh": None}
+
+    def test_hoechstens_16_abrufe_rest_verschoben(self):
+        self.assertLess(self.pw.ABRUF_JE_LAUF, 18, "Reserve unter dem gemessenen Kontingent")
+        ids = list(self.pw.MODELLE)
+        with mock.patch.object(self.pw, "abrufen", return_value="seite") as ab,                 mock.patch.object(self.pw, "auswerten", return_value=self.ERG),                 mock.patch.object(self.pw.time, "sleep"):
+            erg = self.pw.abruf_alle(list(reversed(ids)))
+        self.assertEqual(ab.call_count, self.pw.ABRUF_JE_LAUF)
+        reihe = list(reversed(ids))
+        self.assertEqual([c.args[0] for c in ab.call_args_list], [self.pw.MODELLE[m] for m in reihe[:16]], "Reihenfolge des Aufrufers")
+        self.assertTrue(all(erg["modelle"][m].get("verschoben") for m in reihe[16:]))
+        # Teilreihe: übrige Modelle gelten als heute schon gelesen, werden nicht abgerufen
+        with mock.patch.object(self.pw, "abrufen", return_value="seite") as ab,                 mock.patch.object(self.pw, "auswerten", return_value=self.ERG),                 mock.patch.object(self.pw.time, "sleep"):
+            erg = self.pw.abruf_alle(ids[:2])
+        self.assertEqual(ab.call_count, 2)
+        self.assertTrue(all(erg["modelle"][m].get("heute_schon") for m in ids[2:]))
+        self.assertEqual(len(erg["modelle"]), len(ids))
+
+    def test_429_meldung_mit_messwerten(self):
+        import urllib.error
+        f = urllib.error.HTTPError("https://x", 429, "Too Many Requests", {"Retry-After": "300"}, None)
+        with mock.patch.dict(self.pw.MODELLE, {"tcl_c8l": "https://x"}, clear=True),                 mock.patch.object(self.pw, "abrufen", side_effect=f), mock.patch.object(self.pw.time, "sleep"):
+            erg = self.pw.abruf_alle()
+        self.assertRegex(erg["modelle"]["tcl_c8l"]["fehler"], r"HTTP Error 429.*\[Retry-After 300, Anfrage 2\]")
+
+    def _abgleich(self, modelle):
+        erg = {"zeit": "2026-11-16T07:30:00+01:00", "modelle": modelle}
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp, "db")
+            (db / "preise").mkdir(parents=True)
+            (db / "wecker").mkdir()
+            for m in self.pw.MODELLE:
+                (db / "preise" / f"{m}.json").write_text(json.dumps({"version": 1}), encoding="utf-8")
+            (db / "wecker" / "lauf.json").write_text(json.dumps({"version": 1}), encoding="utf-8")
+            return self.pw.abgleich(erg, str(db), str(Path(tmp, "aus")))
+
+    def test_status_teilweise_bis_alles_da_dann_ok(self):
+        ids = list(self.pw.MODELLE)
+        erster = {m: dict(self.ERG) for m in ids[:16]} | {m: {"verschoben": True} for m in ids[16:]}
+        r = self._abgleich(erster)
+        self.assertEqual(r["status"], "teilweise")
+        self.assertIn("Folgt im nächsten Lauf", r["lauf"])
+        self.assertNotIn("Abruf fehlgeschlagen", r["lauf"])
+        self.assertNotIn("Kein Angebot", r["lauf"])
+        nachlauf = {m: {"heute_schon": True} for m in ids[:16]} | {m: dict(self.ERG) for m in ids[16:]}
+        r = self._abgleich(nachlauf)
+        self.assertEqual(r["status"], "ok", r["lauf"])
+        self.assertEqual(r["writes"], len(ids) - 16 + 1, "nur nachgeholte Preise und wecker/lauf")
+
+    def test_abrufreihe_aelteste_zuerst_nur_ohne_heutigen_preis(self):
+        ids = list(self.pw.MODELLE)
+        def doc(z):
+            return {"aktuell": {"gesamt": 100.0, "zeit": z}}
+        alt = {"preise": {ids[0]: doc("2026-11-16T06:30:00+01:00"), ids[1]: doc("2026-11-15T06:30:00+01:00"),
+                          ids[2]: doc("2026-11-14T06:30:00+01:00"), ids[3]: {"aktuell": {"gesamt": None, "zeit": "2026-11-16T06:30:00+01:00"}}}}
+        reihe = self.pa.abrufreihe(alt, ids, "2026-11-16")
+        self.assertNotIn(ids[0], reihe, "heute schon gelesen")
+        self.assertEqual(reihe[:len(ids) - 3], [m for m in ids if m not in ids[:3]], "ohne Preis zuerst, MODELLE-Reihenfolge")
+        self.assertEqual(reihe[-2:], [ids[2], ids[1]], "dann älteste zuerst")
+        self.assertEqual(self.pa.abrufreihe({"preise": {m: doc("2026-11-16T06:30:00+01:00") for m in ids}}, ids, "2026-11-16"), [])
+        self.assertEqual(self.pa.abrufreihe({}, ids, "2026-11-16"), ids)
+
+    def test_heute_schon_ohne_heutigen_preis_ist_fehler(self):
+        """Schutz: „heute schon gelesen“ zählt nur, wenn preise.json wirklich einen Preis von heute hat."""
+        ids = list(self.pw.MODELLE)
+        with tempfile.TemporaryDirectory() as tmp:
+            ziel = Path(tmp, "preise.json")
+            ziel.write_text(json.dumps({"preise": {ids[0]: {"name": "x", "aktuell": dict(self.ERG["sicher"], zeit="2026-11-15T06:30:00+01:00")}}}), encoding="utf-8")
+            erg = {"zeit": "2026-11-16T07:30:00+01:00", "modelle": {m: {"heute_schon": True} for m in ids}}
+            bericht, lauf = self.pa.aktualisiere(self.pw, erg, ziel)
+        self.assertEqual(bericht["status"], "fehler")
+        self.assertIn("Abruf fehlgeschlagen", lauf["meldung"])
+
+    def test_nachlauf_ohne_offene_modelle_ruft_nichts_ab(self):
+        ids = list(self.pw.MODELLE)
+        heute = __import__("datetime").datetime.now().astimezone().isoformat(timespec="seconds")
+        with tempfile.TemporaryDirectory() as tmp:
+            ziel = Path(tmp, "preise.json")
+            inhalt = json.dumps({"preise": {m: {"aktuell": {"gesamt": 100.0, "zeit": heute}} for m in ids}})
+            ziel.write_text(inhalt, encoding="utf-8")
+            meld = Path(tmp, "m.txt")
+            r = subprocess.run([sys.executable, "-X", "utf8", "-I", str(WURZEL / "werkzeuge" / "preise_aktualisieren.py"),
+                                "--ziel", str(ziel), "--meldung", str(meld)], capture_output=True, text=True, encoding="utf-8", timeout=60)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn('"abgerufen": 0', r.stdout)
+            self.assertEqual(ziel.read_text(encoding="utf-8"), inhalt, "preise.json unverändert")
+            self.assertEqual(meld.read_text(encoding="utf-8"), "")
+
+    def test_workflow_hat_nachlaeufe(self):
+        t = (WURZEL / ".github" / "workflows" / "preise.yml").read_text(encoding="utf-8")
+        self.assertGreaterEqual(len(re.findall(r'(?m)^    - cron: "\d+ \d+ \* \* \*"', t)), 3)
 
 
 if __name__ == "__main__":
