@@ -81,20 +81,29 @@ def schreibe_doc(ordner, doc_id, felder):
     (ordner / f"{doc_id}.json").write_text(json.dumps(felder | {"version": 1}, ensure_ascii=False), encoding="utf-8")
 
 
-def oeffentlicher_lauftext(text, treffer):
-    """Laufmeldung ohne Wunschpreis-Treffer (die verraten den Wunschpreis); Tiefstpreis-Treffer bleiben."""
+def oeffentlicher_lauftext(text, treffer, kurzliste):
+    """Laufmeldung ohne Wunschpreis-Treffer (die verraten den Wunschpreis); Tiefstpreis-Treffer bleiben.
+    kurzliste = preiswecker._kurzliste (Liste mit „+k weitere“ auf eine Länge bringen)."""
     i = text.find("Treffer:")
     text = (text[:i] if i >= 0 else text).strip()
     oeff = [t for t in treffer if "Wunschpreis" not in t]
-    if oeff:
-        # Seit 24 Modellen (15.11.2026) kann die Fehlerliste allein 300 Zeichen füllen: Treffer haben Vorrang,
-        # der Text davor wird gekürzt (die Treffer kommen aus der Liste, nicht aus dem schon gekürzten Lauftext).
-        zusatz = "Treffer: " + "; ".join(oeff) + "."
-        platz = 300 - len(zusatz) - 1
-        if len(text) > platz:
-            text = text[:max(0, platz - 1)].rstrip() + "…" if platz > 1 else ""
-        text = (text + " " + zusatz).strip()
-    return text[:300]
+    if not oeff:
+        return text[:300]
+    # Codex B429-03: Abruffehler (Satz am Anfang, aus abgleich) bleiben sichtbar, höchstens 150 Zeichen;
+    # die Treffer bekommen den Platz danach (zu viele mit „+k weitere“), der übrige Text (kein Angebot,
+    # Fehler) wird zuletzt gekürzt. Die Treffer kommen aus der Liste, nicht aus dem gekürzten Lauftext.
+    kopf, rest = "", text
+    if text.startswith("Abruf fehlgeschlagen"):
+        j = text.find(". ")
+        j = len(text) if j < 0 else j + 1
+        kopf, rest = text[:j], text[j:].strip()
+        if len(kopf) > 150:
+            kopf = kopf[:148].rsplit(", ", 1)[0] + " …"
+    zusatz = kurzliste("Treffer", oeff, "; ", 300 - len(kopf) - 1).strip()
+    platz = 300 - len(kopf) - len(zusatz) - 2
+    if len(rest) > platz:
+        rest = rest[:max(0, platz - 1)].rstrip() + "…" if platz > 1 else ""
+    return " ".join(x for x in (kopf, rest, zusatz) if x)[:300]
 
 
 def aktualisiere(pw, erg, ziel, wunsch=None):
@@ -132,7 +141,7 @@ def aktualisiere(pw, erg, ziel, wunsch=None):
                 d.pop("meldung", None)
                 preise[mid] = d
         lauf = json.loads((aus / "wecker_lauf.json").read_text(encoding="utf-8"))
-    lauf["meldung"] = oeffentlicher_lauftext(lauf.get("meldung", ""), bericht["treffer"])
+    lauf["meldung"] = oeffentlicher_lauftext(lauf.get("meldung", ""), bericht["treffer"], pw._kurzliste)
     for mid, d in preise.items():
         g = (d.get("aktuell") or {}).get("gesamt")
         assert zahl_ok(g), f"{mid}: Gesamtpreis {g!r} unplausibel"

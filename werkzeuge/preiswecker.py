@@ -153,10 +153,22 @@ def auswerten(text, grenzen=GRENZE_STANDARD):
     return {"angebote": len(liste), "sicher": best, "roh": hinweis}
 
 
-def abrufen(url):
+def abrufen(url, bis=None):
+    """Seite holen. bis = Termin auf der time.monotonic()-Uhr (Codex B429-01): Socket-Timeout höchstens bis dahin
+    (max. 30 s), gelesen wird blockweise; ist der Termin während des Lesens überschritten, folgt TimeoutError.
+    Eine tröpfelnde Antwort überzieht den Termin so höchstens um ein Socket-Timeout."""
+    t = 30 if bis is None else max(1, min(30, bis - time.monotonic()))
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "de-DE,de;q=0.9"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return r.read().decode("utf-8", "replace")
+    teile = []
+    with urllib.request.urlopen(req, timeout=t) as r:
+        while True:
+            if bis is not None and time.monotonic() > bis:
+                raise TimeoutError("Lauffrist während des Abrufs erreicht")
+            b = r.read(65536)
+            if not b:
+                break
+            teile.append(b)
+    return b"".join(teile).decode("utf-8", "replace")
 
 
 NAMEN = {"lg_c6elb": "LG OLED83C6ELB", "lg_c69lb": "LG OLED83C69LB", "sam_s90h": "Samsung GQ83S90H",
@@ -221,7 +233,8 @@ def abruf_alle():
             continue
         for versuch in (1, 2):
             try:
-                erg["modelle"][mid] = {"url": url, **auswerten(abrufen(url), GRENZEN.get(mid, GRENZE_STANDARD))}
+                seite = abrufen(url, bis=start + LAUF_FRIST)
+                erg["modelle"][mid] = {"url": url, **auswerten(seite, GRENZEN.get(mid, GRENZE_STANDARD))}
                 break
             except urllib.error.HTTPError as e:
                 # B-429 (15.11.2026): heise drosselt ab ~19 Abrufen kurz hintereinander; einmal warten und wiederholen

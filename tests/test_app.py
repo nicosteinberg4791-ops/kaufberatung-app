@@ -521,7 +521,8 @@ class AirFryerImWecker(unittest.TestCase):
         fehler429 = urllib.error.HTTPError("https://x", 429, "Too Many Requests", {"Retry-After": "7"}, None)
         aufrufe = []
 
-        def abrufen(url):
+        def abrufen(url, bis=None):
+            self.assertIsNotNone(bis, "abruf_alle übergibt den Termin der Lauffrist")
             aufrufe.append(url)
             if len(aufrufe) == 1:
                 raise fehler429
@@ -629,6 +630,53 @@ class AirFryerImWecker(unittest.TestCase):
             erg = self.pw.abruf_alle()
         self.assertEqual(ab.call_count, 1)
         self.assertNotIn(mock.call(100), schlaf.call_args_list)
+
+    def test_abruf_endet_am_termin(self):
+        """Codex B429-01: eine tröpfelnde Antwort endet am Termin mit TimeoutError; Socket-Timeout ≤ Rest, ≤ 30 s."""
+        import itertools
+
+        class Tropf:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+            def read(self, n=-1):
+                return b"x"
+        uhr = itertools.count(0, 10)
+        with mock.patch.object(self.pw.urllib.request, "urlopen", return_value=Tropf()) as uo, \
+                mock.patch.object(self.pw.time, "monotonic", side_effect=lambda: next(uhr)):
+            with self.assertRaises(TimeoutError):
+                self.pw.abrufen("https://x", bis=25)
+        self.assertEqual(uo.call_args.kwargs["timeout"], 25)
+        with mock.patch.object(self.pw.urllib.request, "urlopen", return_value=Tropf()) as uo, \
+                mock.patch.object(self.pw.time, "monotonic", return_value=0):
+            with mock.patch.object(Tropf, "read", side_effect=[b"<html>", b""]):
+                self.assertEqual(self.pw.abrufen("https://x", bis=1000), "<html>")
+        self.assertEqual(uo.call_args.kwargs["timeout"], 30)
+
+    def test_oeffentliche_meldung_behaelt_abruffehler(self):
+        """Codex B429-03: 1 × HTTP 429 und 23 Tiefstpreis-Treffer → veröffentlichte Meldung nennt den Abruffehler."""
+        import preise_aktualisieren as pa
+        text = "Abruf fehlgeschlagen, alter Preis bleibt: Ninja AF500 (HTTP 429). Treffer: x"
+        treffer = [f"{self.pw.KURZ[m]} 100 € neuer Tiefstpreis" for m in list(self.pw.MODELLE)[:23]]
+        t = pa.oeffentlicher_lauftext(text, treffer + ["LG C6ELB unter Wunschpreis 999 €"], self.pw._kurzliste)
+        self.assertLessEqual(len(t), 300, t)
+        self.assertTrue(t.startswith("Abruf fehlgeschlagen, alter Preis bleibt: Ninja AF500 (HTTP 429). Treffer (23): "), t)
+        self.assertIn("weitere.", t)
+        self.assertNotIn("Wunschpreis", t)
+        # viele Abruffehler + Kein Angebot + Treffer: alle drei Teile sichtbar, Abruffehler auf 150 Zeichen begrenzt
+        lang = ("Abruf fehlgeschlagen, alter Preis bleibt: " + ", ".join(f"{self.pw.KURZ[m]} (HTTP 429)" for m in list(self.pw.MODELLE)[:9])
+                + ". Kein Angebot mit belegtem Versand: TCL C8L.")
+        t = pa.oeffentlicher_lauftext(lang, treffer[:3], self.pw._kurzliste)
+        self.assertLessEqual(len(t), 300, t)
+        self.assertIn(" …", t.split("Treffer")[0])
+        self.assertIn("Kein Angebot", t)
+        self.assertIn("Treffer: " + treffer[0], t)
+        # ohne Abruffehler bleibt das bisherige Verhalten: Text, dann Treffer
+        self.assertEqual(pa.oeffentlicher_lauftext("Kein Angebot mit belegtem Versand: TCL C8L.", treffer[:1], self.pw._kurzliste),
+                         "Kein Angebot mit belegtem Versand: TCL C8L. Treffer: " + treffer[0] + ".")
 
     def test_groessenknoepfe_44px(self):
         """Größenleiste (Seite: .gr-leiste .segx button 36 px) bekommt bei grobem Zeiger 44 px Tippfläche."""
