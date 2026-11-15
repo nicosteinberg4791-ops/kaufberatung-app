@@ -11,6 +11,8 @@
   /* ab Runde 6: Entscheiden (Weiter, egal/normal/wichtig, Münze, Mehr zeigen) und Preiswecker (Speichern) */
   .es-btn, .es-seg3 button, .pw-knopf { min-height: 44px; }
   .es-link.es-more { display: inline-flex; align-items: center; min-height: 44px; }
+  /* ab V23: Größenleiste im Fernseher-Reiter (die Seite setzt 36 px mit höherer Spezifität) */
+  .gr-leiste .segx button { min-height: 44px; }
   /* Schrittleiste: Optik bleibt, unsichtbare Trefferfläche auf 44 px (Breite = Spalte, daher keine Überlappung) */
   .es-dots button::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; transform: translateY(-50%); }
   :root { --nav-h: 60px; }
