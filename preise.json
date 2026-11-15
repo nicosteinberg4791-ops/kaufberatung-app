@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-15T13:49:26+01:00",
+ "zeit": "2026-11-15T19:06:09+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -13,13 +13,13 @@
     "haendler": "Cyberport.de",
     "sterne": "2,4 (6.136)",
     "lieferung": "Lieferzeit 5-7 Werktage",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "roh": {
     "artikel": 2779.0,
     "haendler": "electronic4you.de",
     "sterne": "4,9 (4.044)",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -79,7 +79,7 @@
     "haendler": "expert.de",
     "sterne": "1,8 (144)",
     "lieferung": "Lieferzeit 4 - 7 Werktage",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "tief": {
     "gesamt": 2499.0,
@@ -134,7 +134,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "tief": {
     "gesamt": 2699.0,
@@ -189,7 +189,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "tief": {
     "gesamt": 1999.0,
@@ -244,7 +244,7 @@
     "haendler": "Gamingoase",
     "sterne": "keine Bewertung",
     "lieferung": "1-4 Werktage",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -289,6 +289,243 @@
     }
    ]
   },
+  "lg_c6elb_55": {
+   "name": "LG OLED55C6ELB",
+   "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled55c6elb-a3774754.html",
+   "aktuell": {
+    "gesamt": 1099.0,
+    "artikel": 1099.0,
+    "versand": 0.0,
+    "haendler": "Amazon.de",
+    "sterne": "2,6 (3.086)",
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "tief": {
+    "gesamt": 1099.0,
+    "datum": "2026-11-15",
+    "haendler": "Amazon.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-15",
+     "g": 1099.0,
+     "h": "Amazon.de"
+    }
+   ]
+  },
+  "lg_c6elb_65": {
+   "name": "LG OLED65C6ELB",
+   "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled65c6elb-a3774758.html",
+   "aktuell": {
+    "gesamt": 1349.0,
+    "artikel": 1349.0,
+    "versand": 0.0,
+    "haendler": "Cyberport.de",
+    "sterne": "2,4 (6.136)",
+    "lieferung": "voraussichtlich verfügbar ab 09.12.2026",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "tief": {
+    "gesamt": 1349.0,
+    "datum": "2026-11-15",
+    "haendler": "Cyberport.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-15",
+     "g": 1349.0,
+     "h": "Cyberport.de"
+    }
+   ]
+  },
+  "lg_c6elb_77": {
+   "name": "LG OLED77C6ELB",
+   "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled77c6elb-a3774764.html",
+   "aktuell": {
+    "gesamt": 1899.0,
+    "artikel": 1899.0,
+    "versand": 0.0,
+    "haendler": "Cyberport.de",
+    "sterne": "2,4 (6.136)",
+    "lieferung": "Lieferzeit 5-7 Werktage",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "tief": {
+    "gesamt": 1899.0,
+    "datum": "2026-11-15",
+    "haendler": "Cyberport.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-15",
+     "g": 1899.0,
+     "h": "Cyberport.de"
+    }
+   ]
+  },
+  "sam_s90h_55": {
+   "name": "Samsung GQ55S90H",
+   "heiseUrl": "https://preisvergleich.heise.de/samsung-gq5s90h-a3805570.html",
+   "aktuell": {
+    "gesamt": 999.0,
+    "artikel": 999.0,
+    "versand": 0.0,
+    "haendler": "k-r-electro-bad-nauheim",
+    "sterne": "5,0 (1)",
+    "lieferung": "Lieferzeit 5-9 Werktage",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "tief": {
+    "gesamt": 999.0,
+    "datum": "2026-11-15",
+    "haendler": "k-r-electro-bad-nauheim"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-15",
+     "g": 999.0,
+     "h": "k-r-electro-bad-nauheim"
+    }
+   ]
+  },
+  "sam_s90h_65": {
+   "name": "Samsung GQ65S90H",
+   "heiseUrl": "https://preisvergleich.heise.de/samsung-gq6s90h-a3805608.html",
+   "aktuell": {
+    "gesamt": 1399.0,
+    "artikel": 1399.0,
+    "versand": 0.0,
+    "haendler": "Amazon.de",
+    "sterne": "2,6 (3.086)",
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "tief": {
+    "gesamt": 1399.0,
+    "datum": "2026-11-15",
+    "haendler": "Amazon.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-15",
+     "g": 1399.0,
+     "h": "Amazon.de"
+    }
+   ]
+  },
+  "sam_s90h_77": {
+   "name": "Samsung GQ77S90H",
+   "heiseUrl": "https://preisvergleich.heise.de/samsung-gq7790h-a3805616.html",
+   "aktuell": {
+    "gesamt": 1899.0,
+    "artikel": 1899.0,
+    "versand": 0.0,
+    "haendler": "Amazon.de",
+    "sterne": "2,6 (3.086)",
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "tief": {
+    "gesamt": 1899.0,
+    "datum": "2026-11-15",
+    "haendler": "Amazon.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-15",
+     "g": 1899.0,
+     "h": "Amazon.de"
+    }
+   ]
+  },
+  "tcl_c8l_55": {
+   "name": "TCL 55C8L",
+   "heiseUrl": "https://preisvergleich.heise.de/tcl-55c8l-a3810824.html",
+   "aktuell": {
+    "gesamt": 899.0,
+    "artikel": 899.0,
+    "versand": 0.0,
+    "haendler": "Amazon.de",
+    "sterne": "2,6 (3.086)",
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "roh": {
+    "artikel": 829.0,
+    "haendler": "Gamingoase.de",
+    "sterne": "4,7 (452)",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "tief": {
+    "gesamt": 899.0,
+    "datum": "2026-11-15",
+    "haendler": "Amazon.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-15",
+     "g": 899.0,
+     "h": "Amazon.de"
+    }
+   ]
+  },
+  "tcl_c8l_65": {
+   "name": "TCL 65C8L",
+   "heiseUrl": "https://preisvergleich.heise.de/tcl-65c8l-a3810509.html",
+   "aktuell": {
+    "gesamt": 1199.0,
+    "artikel": 1199.0,
+    "versand": 0.0,
+    "haendler": "Amazon.de",
+    "sterne": "2,6 (3.086)",
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "tief": {
+    "gesamt": 1199.0,
+    "datum": "2026-11-15",
+    "haendler": "Amazon.de"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-15",
+     "g": 1199.0,
+     "h": "Amazon.de"
+    }
+   ]
+  },
+  "tcl_c8l_77": {
+   "name": "TCL 75C8L",
+   "heiseUrl": "https://preisvergleich.heise.de/tcl-75c8l-a3810580.html",
+   "aktuell": {
+    "gesamt": 1899.0,
+    "artikel": 1899.0,
+    "versand": 0.0,
+    "haendler": "Gamingoase",
+    "sterne": "keine Bewertung",
+    "lieferung": "2-5 Werktage",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "roh": {
+    "artikel": 1499.0,
+    "haendler": "Mediamarkt.de",
+    "sterne": "2,4 (1.015)",
+    "zeit": "2026-11-15T19:06:09+01:00"
+   },
+   "tief": {
+    "gesamt": 1899.0,
+    "datum": "2026-11-15",
+    "haendler": "Gamingoase"
+   },
+   "verlauf": [
+    {
+     "d": "2026-11-15",
+     "g": 1899.0,
+     "h": "Gamingoase"
+    }
+   ]
+  },
   "af_cosori_tt": {
    "name": "Cosori Turbo Tower Pro Smart",
    "heiseUrl": "https://preisvergleich.heise.de/cosori-turbo-tower-pro-smart-schwarz-gold-caf-dc123s-dder-a3472492.html",
@@ -299,7 +536,7 @@
     "haendler": "saturn",
     "sterne": "3,5 (7)",
     "lieferung": "Lieferzeit 3-7 Werktage",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "tief": {
     "gesamt": 199.0,
@@ -349,13 +586,13 @@
     "haendler": "medion.de",
     "sterne": "4,1 (96)",
     "lieferung": "Sofort verfügbar",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "roh": {
     "artikel": 79.9,
     "haendler": "euronics-maxi-media",
     "sterne": "1,0 (3)",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "tief": {
     "gesamt": 79.95,
@@ -399,13 +636,13 @@
    "name": "Cosori Dual Basket R901",
    "heiseUrl": "https://preisvergleich.heise.de/cosori-doppel-heissluftfritteuse-schwarz-caf-r901-aeu-a3146998.html",
    "aktuell": {
-    "gesamt": 113.05,
-    "artikel": 113.05,
+    "gesamt": 114.99,
+    "artikel": 114.99,
     "versand": 0.0,
-    "haendler": "expert_ecommerce",
-    "sterne": "5,0 (1)",
-    "lieferung": "lagernd",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "haendler": "deltatecc-home",
+    "sterne": "3,0 (2)",
+    "lieferung": "Lieferzeit 1-4 Werktage",
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "tief": {
     "gesamt": 113.05,
@@ -440,8 +677,8 @@
     },
     {
      "d": "2026-11-15",
-     "g": 113.05,
-     "h": "expert_ecommerce"
+     "g": 114.99,
+     "h": "deltatecc-home"
     }
    ]
   },
@@ -455,7 +692,7 @@
     "haendler": "deltatecc-home",
     "sterne": "3,0 (2)",
     "lieferung": "Lieferzeit 2-5 Werktage",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-15T19:06:09+01:00"
    },
    "tief": {
     "gesamt": 131.07,
@@ -792,9 +1029,9 @@
   }
  },
  "lauf": {
-  "letzter": "2026-11-15T13:49:26+01:00",
-  "status": "ok",
-  "meldung": "Alle 15 Preise gelesen. Treffer: Samsung S90H 2.699 € neuer Tiefstpreis; Cosori Turbo Tower 199 € neuer Tiefstpreis; Cosori R901 113,05 € neuer Tiefstpreis; Caso DuoChef 131,07 € neuer Tiefstpreis; Ninja AF500 166,46 € neuer Tiefstpreis.",
+  "letzter": "2026-11-15T19:06:09+01:00",
+  "status": "teilweise",
+  "meldung": "Kein Angebot mit belegtem Versand: AEG AAFD11B, Russell Hobbs 27680, Ninja DZ400, Tefal EY942, Gastroback 42586, Ninja AF500.",
   "bis": "2026-12-01"
  }
 }
