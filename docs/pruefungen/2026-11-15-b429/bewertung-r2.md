@@ -1,0 +1,8 @@
+# Bewertung Runde 2 (Codex nach, Stand 54602a1) – Korrektur im folgenden Commit
+
+| Befund | Einordnung | Beleg / Korrektur |
+|---|---|---|
+| B429-01 schwer: Gesamtfrist unterbricht laufende Abrufe nicht | bestätigt | `abrufen(url, bis)`: Socket-Timeout = min(30 s, Rest bis Termin), Lesen blockweise (64 KiB), vor jedem Block Terminprüfung → `TimeoutError` (Abruffehler, keine Wiederholung). `abruf_alle` übergibt `bis = start + LAUF_FRIST`. Überzug höchstens ein Socket-Timeout (≤ 30 s) → Abrufphase ≤ 450 s, Rest für Checkout/Meldung/Push. Test `test_abruf_endet_am_termin` (tröpfelnde Antwort, Timeout 25 s bei Rest 25; normal 30 s); `test_429_wird_einmal_wiederholt` prüft Übergabe von `bis`. Grenze: DNS-Auflösung ist nicht durch den Socket-Timeout begrenzt (Standardbibliothek). |
+| B429-03 schwer: Treffer verdrängen Abruffehler aus der veröffentlichten Meldung | bestätigt | `oeffentlicher_lauftext(text, treffer, kurzliste)`: Satz „Abruf fehlgeschlagen…“ bleibt vorn (höchstens 150 Zeichen, sonst „ …“), Treffer danach über `preiswecker._kurzliste` („Treffer (n): …; +k weitere.“), übriger Text zuletzt gekürzt. Ohne Abruffehler Verhalten wie bisher. Test `test_oeffentliche_meldung_behaelt_abruffehler` (Codex-Fall 1 × 429 + 23 Treffer; 9 Abruffehler + kein Angebot + Treffer; Wunschpreis-Treffer bleibt verborgen). |
+
+Rot-Probe: neue Tests am Stand 54602a1 → 1 Fehlschlag, 2 Fehler; mit Korrektur grün. `tests/alle-tests.ps1` Fehler 0.

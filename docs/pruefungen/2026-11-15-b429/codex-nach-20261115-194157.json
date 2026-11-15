@@ -1,0 +1,21 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "B429-01 bleibt blockierend offen. B429-03 ist geschlossen. Keine weiteren Fehler durch die Korrekturen festgestellt.",
+  "befunde": [
+    {
+      "id": "B429-01",
+      "schwere": "schwer",
+      "titel": "Blockweises Lesen setzt die Gesamtfrist weiterhin nicht durch",
+      "datei": "werkzeuge/preiswecker.py",
+      "zeile": 167,
+      "beleg": "Fertigkriterium: „der Lauf bleibt sicher unter dem Workflow-Timeout von 10 min“. Auslöser: Eine HTTP-Antwort mit Content-Length ≥ 65536 liefert alle 0,01 s ein Byte. Ist: HTTPResponse.read(65536) kann intern wiederholt vom Socket lesen, bis der Block vollständig ist; jeder einzelne Empfang bleibt unter dem Socket-Timeout von 30 s. Dieser eine read-Aufruf dauert dadurch rund 655 s. Die Terminprüfung in Zeile 165 wird erst danach erneut erreicht. Soll: Der laufende Abruf wird rechtzeitig beendet. Der Test in tests/test_app.py:645 gibt hingegen bei jedem read-Aufruf sofort ein Byte zurück und bildet dieses Blockierungsverhalten nicht ab.",
+      "auswirkung": "Bereits ein einzelner Abruf kann das Workflow-Limit überschreiten. Fehlerstand und Meldung können vor dem Workflow-Abbruch unveröffentlicht bleiben. Die behauptete maximale Überschreitung um einen Socket-Timeout ist nicht gewährleistet.",
+      "vorschlag": "Eine unabhängig vom laufenden Netzwerkaufruf durchsetzbare Gesamtfrist verwenden, die auch Verbindungsaufbau und vollständiges Lesen umfasst. Einen Regressionstest mit echter HTTPResponse-Leselogik und tröpfelnder Datenquelle ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "B429-03"
+  ],
+  "pruefgrenzen": "HEAD entspricht ffe1078149a721d32f67fa0b7901f88c270d7b87. Ausschließlich lesende Prüfung des Diffs und gezielter relevanter Stellen; keine Unteragenten, Änderungen oder Netzabrufe. Laufzeitprüfungen waren nicht möglich: python fehlt, py meldet „No installed Python found!“. „Fehler: 0“ wurde daher nicht unabhängig bestätigt."
+}

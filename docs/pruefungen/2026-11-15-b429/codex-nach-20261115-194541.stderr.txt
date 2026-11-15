@@ -1,0 +1,9 @@
+﻿codex.exe : 2026-11-15T18:45:47.541023Z ERROR codex_models_manager::manager: failed to refresh available models: 
+request timed out
+In C:\Users\Nico\Documents\AI Work Playbook\werkzeuge\pruefe.ps1:402 Zeichen:45
++ ... ke-Nativ { $kopf | & $codex @vorArgumente @argumente 2> $stderrZiel }
++                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2026-11-15T18:4...quest timed out:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2026-11-15T18:45:47.620412Z ERROR codex_models_manager::manager: failed to refresh available models: request timed out

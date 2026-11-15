@@ -1,0 +1,9 @@
+{
+  "urteil": "bestanden",
+  "zusammenfassung": "B429-01 ist geschlossen. Keine neuen Fehler durch die Korrekturen festgestellt.",
+  "befunde": [],
+  "geschlossen": [
+    "B429-01"
+  ],
+  "pruefgrenzen": "Commit d0a61697c292dd71b0951f7512184756426b6239 ausschließlich lesend geprüft. Die Thread-Frist begrenzt auch blockierende Netzwerkaufrufe unabhängig von deren Rückkehr. Tests konnten mangels installierter Python-Laufzeit nicht ausgeführt werden; „Fehler: 0“ wurde daher nicht unabhängig bestätigt. Kein Live-Abruf."
+}

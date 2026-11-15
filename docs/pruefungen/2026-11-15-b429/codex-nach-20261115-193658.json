@@ -1,0 +1,32 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "B429-02 ist geschlossen. B429-01 bleibt offen; zusätzlich kann die Veröffentlichung Abruffehler weiterhin vollständig ausblenden.",
+  "befunde": [
+    {
+      "id": "B429-01",
+      "schwere": "schwer",
+      "titel": "Gesamtfrist unterbricht laufende Abrufe nicht",
+      "datei": "werkzeuge/preiswecker.py",
+      "zeile": 224,
+      "beleg": "Fertigkriterium: „der Lauf bleibt sicher unter dem Workflow-Timeout von 10 min“. Die Frist wird nur vor Abrufen geprüft (Zeilen 219 und 229). abrufen verwendet weiterhin urlopen(timeout=30) und anschließend ein unbegrenztes r.read() (Zeilen 158–159). Liefert die Gegenstelle fortlaufend Daten innerhalb des Socket-Timeouts, kann bereits dieser Abruf länger als 600 s dauern. LAUF_FRIST beendet ihn nicht. Diese Grenze bestätigt auch die Einordnung des Bauers ausdrücklich.",
+      "auswirkung": "Der Workflow kann weiterhin vor Speicherung und Veröffentlichung des Fehlerstands abbrechen. Das frühere Fertigkriterium ist nicht vollständig erfüllt.",
+      "vorschlag": "Eine durchsetzbare Gesamtfrist für laufende Netzwerkabrufe einführen, einschließlich Verbindungsaufbau und vollständigem Lesen. Fristüberschreitungen als Abruffehler erfassen und die Veröffentlichung innerhalb der Reserve ermöglichen; einen während des Abrufs überschrittenen Termin testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "B429-03",
+      "schwere": "schwer",
+      "titel": "Treffer verdrängen Abruffehler aus der veröffentlichten Meldung",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 95,
+      "beleg": "Fertigkriterium: „Gescheiterter Abruf: Laufmeldung ‚Abruf fehlgeschlagen, alter Preis bleibt: <Modell> (HTTP <code>)‘“. Reproduzierbarer Eingabefall: Ninja AF500 liefert HTTP 429; die übrigen 14 Modelle ohne Größenvarianten melden jeweils „100 € neuer Tiefstpreis“. Mit den aktuellen KURZ-Namen umfasst der Trefferzusatz 543 Zeichen. oeffentlicher_lauftext berechnet platz=-244, entfernt deshalb den gesamten vorangestellten Fehlertext und gibt ausschließlich die ersten 300 Zeichen der Trefferliste zurück (Zeilen 92–97). aktualisiere übernimmt genau diesen Text in lauf.meldung (Zeile 135). Soll: Der Abruffehler bleibt sichtbar.",
+      "auswirkung": "Die korrigierte Meldung aus abgleich erreicht bei mehreren Treffern die veröffentlichte preise.json weiterhin ohne jeden Hinweis auf gescheiterte Abrufe.",
+      "vorschlag": "Auch beim Zusammenstellen der öffentlichen Meldung Platz für Abruffehler reservieren und Treffer zusammenfassen. Den gemischten Fall bis zur veröffentlichten lauf.meldung testen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "B429-02"
+  ],
+  "pruefgrenzen": "Commit 54602a147faf28552867a8a013d53de0625bf99e und Übereinstimmung der relevanten Arbeitsdateien geprüft. Ausschließlich lesend gearbeitet. Keine Live-Abfrage. Python nicht verfügbar (python fehlt; py meldet keine installierte Python-Version), daher keine Python-Tests ausgeführt. Den schreibenden Test-Sammellauf nicht gestartet; „Fehler: 0“ nicht unabhängig bestätigt. Zeichenlängen des Veröffentlichungsfalls mit PowerShell nachgerechnet."
+}
