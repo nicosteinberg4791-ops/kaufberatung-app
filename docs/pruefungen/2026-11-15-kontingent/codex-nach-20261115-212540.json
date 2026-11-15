@@ -1,0 +1,21 @@
+{
+  "urteil": "bestanden_mit_hinweisen",
+  "zusammenfassung": "KONT-01 ist geschlossen. KONT-02 bleibt beim Erreichen der Lauffrist offen.",
+  "befunde": [
+    {
+      "id": "KONT-02",
+      "schwere": "mittel",
+      "titel": "Nicht abgerufene Modelle erhalten Versuchszeitpunkte und können weiterhin verhungern",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 183,
+      "beleg": "Die Bedingung schließt nur heute_schon und verschoben aus. preiswecker.py:269–271 kennzeichnet Modelle bei erschöpfter Lauffrist jedoch als fehler, obwohl keine Anfrage erfolgte. Nachvollziehbarer Fall: keine alten Preise; die ersten 13 Anfragen scheitern jeweils nach 30 Sekunden. Mit jeweils 2 Sekunden Pause sind 416 der 420 Sekunden verbraucht. Die übrigen elf Modelle werden nicht abgerufen. Trotzdem erhalten alle 24 Modelle in Zeile 184 denselben Versuchszeitpunkt. abrufreihe sortiert dadurch beim nächsten Lauf wieder stabil in MODELLE-Reihenfolge (Zeilen 110–112). Bei wiederholtem Ablauf bleiben dieselben elf Modelle dauerhaft ohne Abruf.",
+      "auswirkung": "Die Fairnesskorrektur verhindert dauerhaftes Aushungern bei wiederholter Fristüberschreitung nicht; tatsächlich nie versuchte Modelle verlieren ihren Vorrang.",
+      "vorschlag": "Tatsächlich gestartete Anfragen ausdrücklich kennzeichnen und nur für diese lauf.versuche aktualisieren. Einen Test ergänzen, der die Lauffrist vor Ausschöpfung des Anfragenbudgets erreicht und anschließend den Vorrang der nicht abgerufenen Modelle prüft.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "KONT-01"
+  ],
+  "pruefgrenzen": "Commit 05aee2c9007980abd7dfe05425ae05229dcb74db lesend geprüft. Keine Dateien verändert. Tests und Laufzeitreproduktion konnten nicht ausgeführt werden: python fehlt im Suchpfad; der vorhandene py-Launcher meldet „No installed Python found!“. Die Angabe „Fehler: 0“ ist daher nicht unabhängig bestätigt. Keine Liveabrufe oder Workflow-Ausführung."
+}

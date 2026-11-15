@@ -1,0 +1,9 @@
+{
+  "urteil": "bestanden",
+  "zusammenfassung": "KONT-02 ist geschlossen. In den Korrekturen wurden keine neuen Fehler festgestellt.",
+  "befunde": [],
+  "geschlossen": [
+    "KONT-02"
+  ],
+  "pruefgrenzen": "Statische Nachprüfung am bestätigten Commit aae8de1beac75b348511aa71543a1d607c9dfc3b. Nicht gestartete Abrufe erhalten keinen neuen Versuchszeitpunkt; zuvor versuchte Modelle werden dadurch hinter bislang unversuchte einsortiert. Der heute_schon-Schutz bleibt erhalten. Keine Dateien geändert. Dynamische Prüfung nicht möglich, da python nicht verfügbar ist. tests/alle-tests.ps1 wegen seiner Schreibvorgänge nicht ausgeführt; die gemeldeten „Fehler: 0“ daher nicht unabhängig bestätigt. Keine Live-Abfragen oder GitHub-Actions-Ausführung."
+}

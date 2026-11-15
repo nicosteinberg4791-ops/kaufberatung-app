@@ -1,0 +1,30 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Das Abruflimit begrenzt Modelle statt HTTP-Anfragen. Außerdem können wiederholt erfolglose Modelle alle Nachläufe belegen und andere Modelle dauerhaft verdrängen.",
+  "befunde": [
+    {
+      "id": "KONT-01",
+      "schwere": "schwer",
+      "titel": "429-Wiederholungen überschreiten das Abruflimit",
+      "datei": "werkzeuge/preiswecker.py",
+      "zeile": 271,
+      "beleg": "Fertigkriterium: „Jeder Lauf ruft höchstens `ABRUF_JE_LAUF` (16) Seiten ab.“ Die Begrenzung in Zeile 266 betrifft nur Modell-IDs. Die Schleife ab Zeile 271 erlaubt je Modell zwei HTTP-Anfragen; Zeilen 280–283 wiederholen nach 429 ohne Prüfung von nr gegen ABRUF_JE_LAUF. Reproduktionsfall: Beim ersten Modell einmal HTTP 429 mit Retry-After: 1, danach erfolgreiche Antworten und ausreichend Restzeit. Ist: 17 Aufrufe von abrufen für 16 Modelle. Soll: höchstens 16 HTTP-Anfragen einschließlich Wiederholungen.",
+      "auswirkung": "Der Lauf kann trotz Reserve das gemessene Kontingent überschreiten und zusätzliche Drosselungen auslösen.",
+      "vorschlag": "Ein gemeinsames Anfragenbudget einschließlich Wiederholungen durchsetzen. Vor jeder HTTP-Anfrage das Budget prüfen und noch nicht abgerufene Modelle bei ausgeschöpftem Budget als verschoben markieren. Einen Test mit 429 und insgesamt 16 offenen Modellen ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "KONT-02",
+      "schwere": "mittel",
+      "titel": "Erfolglose Modelle können spätere Modelle dauerhaft aushungern",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 106,
+      "beleg": "abrufreihe sortiert ausschließlich nach dem unveränderten alten Preiszeitpunkt; fehlende Preise erhalten den Sortierschlüssel \"\". abruf_alle berücksichtigt anschließend nur die ersten 16 Modelle. Konkreter Fall: Alle 24 Preise fehlen, die ersten 16 Modelle liefern dauerhaft Fehler oder kein belegtes Angebot. Für diese Modelle wird kein neuer Preis gespeichert (preiswecker.py, Zeilen 383–390). Dadurch liefern alle Nachläufe und Folgetage dieselben ersten 16 IDs; die letzten acht bleiben stets verschoben.",
+      "auswirkung": "Auch erreichbare Modelle hinter den erfolglosen Einträgen werden niemals versucht. Die zusätzlichen täglichen Läufe garantieren keine Fortschritte für diese Modelle.",
+      "vorschlag": "Eine Fairnessregel für wiederholt erfolglose Abrufe festlegen und testen, etwa anhand separat gespeicherter letzter Abrufversuche. Dabei ausdrücklich klären, wie diese Regel mit „älteste zuerst“ zusammenwirkt.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "HEAD entspricht e6eacebbe59b9bf0c74d56cb6ad3a3e3265856c4. Ausschließlich lesende Codeprüfung; keine Änderungen, Unteragenten oder Netzwerkabrufe. Dynamische Proben und alle-tests konnten nicht ausgeführt werden: python fehlt im Suchpfad, der vorhandene py-Launcher meldet „No installed Pythons found!“. „Fehler: 0“ wurde daher nicht unabhängig bestätigt."
+}
