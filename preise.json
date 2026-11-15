@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-15T19:48:02+01:00",
+ "zeit": "2026-11-15T21:33:57+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -1029,9 +1029,10 @@
   }
  },
  "lauf": {
-  "letzter": "2026-11-15T19:48:02+01:00",
-  "status": "teilweise",
-  "meldung": "Abruf fehlgeschlagen, alter Preis bleibt: AEG AAFD11B (HTTP 429), Russell Hobbs 27680 (HTTP 429), Ninja DZ400 (HTTP 429), Tefal EY942 (HTTP 429), Gastroback 42586 (HTTP 429), Ninja AF500 (HTTP 429).",
-  "bis": "2026-12-01"
+  "letzter": "2026-11-15T21:33:57+01:00",
+  "status": "ok",
+  "meldung": "Alle 24 Preise gelesen.",
+  "bis": "2026-12-01",
+  "versuche": {}
  }
 }
