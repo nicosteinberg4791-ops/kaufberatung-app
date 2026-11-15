@@ -267,7 +267,8 @@ def abruf_alle(reihe=None):
             erg["modelle"][mid] = {"url": url, "verschoben": True}
             continue
         if rest() < ABRUF_MAX:  # Frist reicht nicht für einen weiteren Abruf: nicht abrufen, als Abruffehler melden
-            erg["modelle"][mid] = {"url": url, "fehler": f"Lauffrist {LAUF_FRIST} s erreicht, nicht abgerufen"}
+            erg["modelle"][mid] = {"url": url, "fehler": f"Lauffrist {LAUF_FRIST} s erreicht, nicht abgerufen",
+                                  "nicht_versucht": True}  # keine Anfrage: kein Versuchszeitpunkt (Codex KONT-02 R2)
             continue
         for versuch in (1, 2):
             nr += 1

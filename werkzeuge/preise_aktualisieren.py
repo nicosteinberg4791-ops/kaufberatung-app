@@ -150,7 +150,8 @@ def aktualisiere(pw, erg, ziel, wunsch=None):
     # (kein Modell darf ohne heutigen Preis als gelesen zählen)
     for mid, r in erg["modelle"].items():
         if isinstance(r, dict) and r.get("heute_schon") and preis_datum(alt_preise.get(mid)) != erg["zeit"][:10]:
-            erg["modelle"][mid] = {"url": r.get("url"), "fehler": "nicht abgerufen, kein Preis von heute vorhanden"}
+            erg["modelle"][mid] = {"url": r.get("url"), "fehler": "nicht abgerufen, kein Preis von heute vorhanden",
+                                  "nicht_versucht": True}
     with tempfile.TemporaryDirectory() as tmp:
         db, aus = Path(tmp, "db"), Path(tmp, "aus")
         for mid, doc in alt_preise.items():
@@ -180,7 +181,7 @@ def aktualisiere(pw, erg, ziel, wunsch=None):
     versuche = {m: z for m, z in (alt_lauf.get("versuche") or {}).items()
                 if m in pw.MODELLE and isinstance(z, str)} if isinstance(alt_lauf.get("versuche"), dict) else {}
     for mid, r in erg["modelle"].items():
-        if mid in pw.MODELLE and isinstance(r, dict) and not (r.get("heute_schon") or r.get("verschoben")):
+        if mid in pw.MODELLE and isinstance(r, dict) and not (r.get("heute_schon") or r.get("verschoben") or r.get("nicht_versucht")):
             versuche[mid] = erg["zeit"]
     lauf["versuche"] = versuche
     lauf["meldung"] = oeffentlicher_lauftext(lauf.get("meldung", ""), bericht["treffer"], pw._kurzliste)

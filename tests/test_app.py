@@ -900,6 +900,20 @@ class Kontingent(unittest.TestCase):
         self.assertEqual(reihe[:8], ids[16:], "nie versuchte Modelle zuerst")
         self.assertEqual(sorted(reihe[8:]), sorted(ids[:16]))
 
+    def test_lauffrist_gibt_keinen_versuchszeitpunkt(self):
+        """Codex KONT-02 R2: wegen Lauffrist nicht abgerufene Modelle bleiben vorn (kein Versuchszeitpunkt)."""
+        ids = list(self.pw.MODELLE)
+        uhr = iter([0] + [self.pw.LAUF_FRIST] * 1000)   # Frist sofort erschöpft
+        with mock.patch.object(self.pw, "abrufen") as ab, mock.patch.object(self.pw.time, "sleep"),                 mock.patch.object(self.pw.time, "monotonic", side_effect=lambda: next(uhr)):
+            erg = self.pw.abruf_alle(ids[:3])
+        self.assertEqual(ab.call_count, 0)
+        self.assertTrue(all(erg["modelle"][m].get("nicht_versucht") for m in ids[:3]))
+        with tempfile.TemporaryDirectory() as tmp:
+            erg["zeit"] = "2026-11-16T06:30:00+01:00"
+            _, lauf = self.pa.aktualisiere(self.pw, erg, Path(tmp, "preise.json"))
+        self.assertEqual(lauf["versuche"], {})
+        self.assertTrue(lauf["meldung"].startswith("Abruf fehlgeschlagen"), lauf["meldung"])
+
     def test_workflow_hat_nachlaeufe(self):
         t = (WURZEL / ".github" / "workflows" / "preise.yml").read_text(encoding="utf-8")
         self.assertGreaterEqual(len(re.findall(r'(?m)^    - cron: "\d+ \d+ \* \* \*"', t)), 3)
