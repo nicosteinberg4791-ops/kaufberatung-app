@@ -87,7 +87,13 @@ def oeffentlicher_lauftext(text, treffer):
     text = (text[:i] if i >= 0 else text).strip()
     oeff = [t for t in treffer if "Wunschpreis" not in t]
     if oeff:
-        text = (text + " Treffer: " + "; ".join(oeff) + ".").strip()
+        # Seit 24 Modellen (15.11.2026) kann die Fehlerliste allein 300 Zeichen füllen: Treffer haben Vorrang,
+        # der Text davor wird gekürzt (die Treffer kommen aus der Liste, nicht aus dem schon gekürzten Lauftext).
+        zusatz = "Treffer: " + "; ".join(oeff) + "."
+        platz = 300 - len(zusatz) - 1
+        if len(text) > platz:
+            text = text[:max(0, platz - 1)].rstrip() + "…" if platz > 1 else ""
+        text = (text + " " + zusatz).strip()
     return text[:300]
 
 

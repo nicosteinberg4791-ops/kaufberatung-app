@@ -174,10 +174,13 @@ class Preise(unittest.TestCase):
     def test_fortschreiben(self):
         ziel = Path(self.tmp.name) / "seiten" / "preise.json"
         modelle = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f"]
+        # Größenvarianten seit 15.11.2026 im Wecker (Preise 900–1899 €)
+        modelle += [f"{m}_{g}" for m in ("lg_c6elb", "sam_s90h", "tcl_c8l") for g in ("55", "65", "77")]
         af = {"af_cosori_tt": 249.0, "af_medion_p20": 79.95, "af_cosori_r901": 119.0}   # Air Fryer seit 09.11.2026 im Wecker
         af.update({"af_caso_3186": 137.09, "af_aeg_aafd11b": 169.0, "af_rh_27680": 124.3, "af_ninja_dz400": 135.9,
                    "af_tefal_ey942": 124.59, "af_gastroback_42586": 132.42, "af_ninja_af500": 169.0})   # ab V21 alle Top 10
-        tag1 = {"zeit": "2026-11-07T10:00:00+01:00", "modelle": {m: {"sicher": angebot(2000.0 + i)} for i, m in enumerate(modelle)}}
+        tag1 = {"zeit": "2026-11-07T10:00:00+01:00", "modelle": {m: {"sicher": angebot((900.0 if "_" in m[4:] else 2000.0) + i)}
+                                                                 for i, m in enumerate(modelle)}}
         tag1["modelle"].update({m: {"sicher": angebot(p)} for m, p in af.items()})
         modelle = modelle + list(af)
         p1, b1 = self.lauf(tag1, ziel)
@@ -471,12 +474,53 @@ class AirFryerImWecker(unittest.TestCase):
     AF = ["af_cosori_tt", "af_medion_p20", "af_cosori_r901", "af_caso_3186", "af_aeg_aafd11b", "af_rh_27680",
           "af_ninja_dz400", "af_tefal_ey942", "af_gastroback_42586", "af_ninja_af500"]
     TV = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f"]
+    # Größenwahl (Nico 15.11.2026 „Ja, alle Größen“): C6ELB, S90H, C8L in 55/65/75–77″, kein C69LB
+    GR = [f"{m}_{g}" for m in ("lg_c6elb", "sam_s90h", "tcl_c8l") for g in ("55", "65", "77")]
 
-    def test_genau_zehn_air_fryer_und_fuenf_fernseher(self):
+    def test_genau_zehn_air_fryer_und_fernseher_mit_groessen(self):
         """Grenzen werden aus dem Präfix af_ abgeleitet: kein Fernseher darf die Air-Fryer-Grenze bekommen."""
-        self.assertEqual(list(self.pw.MODELLE), self.TV + self.AF)
+        self.assertEqual(list(self.pw.MODELLE), self.TV + self.GR + self.AF)
         self.assertEqual(sorted(self.pw.GRENZEN), sorted(self.AF))
-        self.assertEqual(len(set(self.pw.MODELLE.values())), 15, "jede heise-Seite nur einmal")
+        self.assertEqual(len(set(self.pw.MODELLE.values())), 24, "jede heise-Seite nur einmal")
+
+    def test_groessen_seiten(self):
+        """Größenvarianten: heise-Seite passt zur Modellnummer der Größe, kein C69LB, Fernsehergrenze."""
+        nummer = {"lg_c6elb": "oled{g}c6elb", "sam_s90h": None, "tcl_c8l": "{g}c8l"}
+        for gid in self.GR:
+            m, g = gid.rsplit("_", 1)
+            url = self.pw.MODELLE[gid]
+            self.assertTrue(url.startswith("https://preisvergleich.heise.de/"), gid)
+            if nummer[m]:
+                self.assertIn(nummer[m].format(g="75" if (m == "tcl_c8l" and g == "77") else g), url, gid)
+            self.assertNotIn(gid, self.pw.GRENZEN)
+            self.assertIn(gid, self.pw.NAMEN)
+            self.assertIn(gid, self.pw.KURZ)
+        self.assertFalse([k for k in self.pw.MODELLE if k.startswith("lg_c69lb_")])
+
+    def test_groessen_ohne_meldung(self):
+        """Neuer Tiefstpreis bzw. Wunschpreis: Meldung nur für 83/85″, Größenvarianten speichern nur (Vorprüfung B1)."""
+        akt = {"gesamt": 900.0, "artikel": 900.0, "versand": 0.0, "haendler": "H", "sterne": "", "lieferung": ""}
+        erg = {"zeit": "2026-11-16T06:30:00+01:00", "modelle": {m: {"sicher": dict(akt)} for m in ("lg_c6elb", "lg_c6elb_65")}}
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp, "db")
+            for m in self.pw.MODELLE:
+                (db / "preise").mkdir(parents=True, exist_ok=True)
+                (db / "preise" / f"{m}.json").write_text(json.dumps(
+                    {"version": 1, "tief": {"gesamt": 1000.0, "datum": "2026-11-15"}}), encoding="utf-8")
+            for m in ("lg_c6elb", "lg_c6elb_65"):
+                (db / "wunsch").mkdir(exist_ok=True)
+                (db / "wunsch" / f"{m}.json").write_text(json.dumps({"version": 1, "preis": 950}), encoding="utf-8")
+            erg_ = self.pw.abgleich(erg, str(db), str(Path(tmp, "aus")))
+        self.assertTrue(any(t.startswith(self.pw.KURZ["lg_c6elb"] + " ") for t in erg_["treffer"]), erg_["treffer"])
+        self.assertFalse([t for t in erg_["treffer"] if self.pw.KURZ["lg_c6elb_65"] in t], erg_["treffer"])
+        self.assertTrue(self.pw.ist_groesse("tcl_c8l_77") and not self.pw.ist_groesse("tcl_c8l"))
+
+    def test_groessenknoepfe_44px(self):
+        """Größenleiste (Seite: .gr-leiste .segx button 36 px) bekommt bei grobem Zeiger 44 px Tippfläche."""
+        css = (WURZEL / "app" / "app.css").read_text(encoding="utf-8")
+        grob = css[css.index("@media (pointer: coarse)"):]
+        grob = grob[:grob.index("\n}\n")]
+        self.assertRegex(grob, r"\.gr-leiste \.segx button \{ min-height: 44px; \}")
 
     @staticmethod
     def seite(*preise):

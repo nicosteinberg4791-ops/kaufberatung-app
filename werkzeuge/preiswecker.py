@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Preiswecker (Runde 6; ab 09.11.2026 mit Air Fryern, ab V21 alle zehn der Top 10): liest die heise-Preisvergleich-Seiten der fünf Fernseher und zehn Air Fryer (nur GET, kein Konto,
+"""Preiswecker (Runde 6; ab 09.11.2026 mit Air Fryern, ab V21 alle zehn der Top 10; ab 15.11.2026 auch die Fernseher in
+55/65/75–77″): liest die heise-Preisvergleich-Seiten der fünf Fernseher (83/85″), neun Größenvarianten und zehn Air Fryer (nur GET, kein Konto,
 kein Formular) und gibt je Modell das günstigste Angebot als JSON aus.
 
 Herkunft: Stand R4 aus Runde 6 (Codex bestanden), übernommen am 08.11.2026; geändert nur die Pfade in diesem Kopf.
@@ -46,6 +47,18 @@ MODELLE = {
     "sam_s90h": "https://preisvergleich.heise.de/samsung-gq8390h-a3805643.html",
     "tcl_c8l": "https://preisvergleich.heise.de/tcl-85c8l-a3810591.html",
     "sam_qn90f": "https://preisvergleich.heise.de/samsung-qe85qn90f-a3479298.html",
+    # Größenwahl (V23): dieselben Fernseher in 55/65/75–77″ (Nico, 15.11.2026 „Ja, alle Größen“). heise-Seiten aus
+    # kaufberatung/daten/groessen.json (Recherche 14.11.2026). Id = <Modell>_<Größenstufe>; Stufe 77 ist bei TCL der 75C8L.
+    # LG C69LB hat in 55/65/77″ kein belegtes Angebot und fehlt deshalb hier.
+    "lg_c6elb_55": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled55c6elb-a3774754.html",
+    "lg_c6elb_65": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled65c6elb-a3774758.html",
+    "lg_c6elb_77": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled77c6elb-a3774764.html",
+    "sam_s90h_55": "https://preisvergleich.heise.de/samsung-gq5s90h-a3805570.html",
+    "sam_s90h_65": "https://preisvergleich.heise.de/samsung-gq6s90h-a3805608.html",
+    "sam_s90h_77": "https://preisvergleich.heise.de/samsung-gq7790h-a3805616.html",
+    "tcl_c8l_55": "https://preisvergleich.heise.de/tcl-55c8l-a3810824.html",
+    "tcl_c8l_65": "https://preisvergleich.heise.de/tcl-65c8l-a3810509.html",
+    "tcl_c8l_77": "https://preisvergleich.heise.de/tcl-75c8l-a3810580.html",
     # Air Fryer (Nico, 09.11.2026 „Ja, aufnehmen“): heise-Produktseiten per heise-Suche nach der Modellnummer gefunden.
     # Medion: heise führt vier Einträge zur MD11760 (Nummern 50072937/50072938/50078168/50079506); gewählt ist der
     # Eintrag „XXL Twin“, der zur Modellbezeichnung P20 XXL Twin passt (Variantenwahl offen für Nicos Bestätigung).
@@ -65,6 +78,11 @@ MODELLE = {
 # Plausibler Artikelpreisbereich je Modell (€); Fernseher 500–20000, Air Fryer 30–1000 (verwirft Zubehör/Fehlwerte)
 GRENZEN = {mid: (30, 1000) for mid in MODELLE if mid.startswith("af_")}
 GRENZE_STANDARD = (500, 20000)
+
+
+def ist_groesse(mid):
+    """Größenvariante eines Fernsehers (<modell>_55/65/77): wird abgefragt und gespeichert, meldet aber nichts."""
+    return mid.startswith(("lg_c6elb_", "sam_s90h_", "tcl_c8l_"))
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Preiswecker-privat"
 BETRAG = r"(?:€|&euro;)\s*([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{1,2})?|[0-9]+(?:,[0-9]{1,2})?)(?:,-)?"
 
@@ -142,11 +160,17 @@ def abrufen(url):
 
 NAMEN = {"lg_c6elb": "LG OLED83C6ELB", "lg_c69lb": "LG OLED83C69LB", "sam_s90h": "Samsung GQ83S90H",
          "tcl_c8l": "TCL 85C8L", "sam_qn90f": "Samsung QE85QN90F",
+         "lg_c6elb_55": "LG OLED55C6ELB", "lg_c6elb_65": "LG OLED65C6ELB", "lg_c6elb_77": "LG OLED77C6ELB",
+         "sam_s90h_55": "Samsung GQ55S90H", "sam_s90h_65": "Samsung GQ65S90H", "sam_s90h_77": "Samsung GQ77S90H",
+         "tcl_c8l_55": "TCL 55C8L", "tcl_c8l_65": "TCL 65C8L", "tcl_c8l_77": "TCL 75C8L",
          "af_cosori_tt": "Cosori Turbo Tower Pro Smart", "af_medion_p20": "Medion P20 XXL Twin", "af_cosori_r901": "Cosori Dual Basket R901",
          "af_caso_3186": "Caso AirFry DuoChef 3186", "af_aeg_aafd11b": "AEG AAFD11B", "af_rh_27680": "Russell Hobbs SatisFry Dual 27680-56",
          "af_ninja_dz400": "Ninja Dual Zone DZ400EU", "af_tefal_ey942": "Tefal Easy Fry Dual XXL EY942", "af_gastroback_42586": "Gastroback Duo Family 42586",
          "af_ninja_af500": "Ninja FlexDrawer AF500EU"}
 KURZ = {"lg_c6elb": "LG C6ELB", "lg_c69lb": "LG C69LB", "sam_s90h": "Samsung S90H", "tcl_c8l": "TCL C8L", "sam_qn90f": "Samsung QN90F",
+        "lg_c6elb_55": "LG C6 55″", "lg_c6elb_65": "LG C6 65″", "lg_c6elb_77": "LG C6 77″",
+        "sam_s90h_55": "Samsung S90H 55″", "sam_s90h_65": "Samsung S90H 65″", "sam_s90h_77": "Samsung S90H 77″",
+        "tcl_c8l_55": "TCL C8L 55″", "tcl_c8l_65": "TCL C8L 65″", "tcl_c8l_77": "TCL C8L 75″",
         "af_cosori_tt": "Cosori Turbo Tower", "af_medion_p20": "Medion P20 XXL", "af_cosori_r901": "Cosori R901",
         "af_caso_3186": "Caso DuoChef", "af_aeg_aafd11b": "AEG AAFD11B", "af_rh_27680": "Russell Hobbs 27680", "af_ninja_dz400": "Ninja DZ400",
         "af_tefal_ey942": "Tefal EY942", "af_gastroback_42586": "Gastroback 42586", "af_ninja_af500": "Ninja AF500"}
@@ -241,6 +265,8 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
                 probleme.append(f"{KURZ[mid]}: preise/{mid} nicht im db-Export, nicht geschrieben (Erstlauf nur mit --anlegen)")
                 continue
             wunsch, _, wst = lies_doc(db_dir, "wunsch", mid)
+            if ist_groesse(mid):
+                wunsch, wst = {}, "fehlt"  # Wunschpreise gibt es nur für die 83/85″-Modelle
             if wst == "defekt":
                 warnungen.append(f"{KURZ[mid]}: Wunschpreis-Export unlesbar, Wunschpreis ignoriert")
             r = erg["modelle"].get(mid, {})
@@ -258,7 +284,9 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
                 neu["tief"] = tief_alt
             else:
                 neu["tief"] = {"gesamt": g, "datum": heute, "haendler": akt["haendler"]}
-                if tief_alt:
+                # Größenvarianten (<modell>_55/65/77) nur speichern und anzeigen, keine Meldung/Push (Nico 15.11.2026:
+                # Benachrichtigungen bleiben bei den 83/85″-Modellen)
+                if tief_alt and not ist_groesse(mid):
                     treffer.append(f"{KURZ[mid]} {eur(g)} neuer Tiefstpreis")
             vl = alt.get("verlauf", [])
             if not isinstance(vl, list):  # z. B. null oder Text im Altdokument

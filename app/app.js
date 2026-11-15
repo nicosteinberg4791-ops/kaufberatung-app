@@ -7,7 +7,10 @@
    Alle Daten aus preise.json und localStorage sind fremde Daten: geprüft, nur textContent. */
 (function () {
   "use strict";
-  const IDS = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f", "af_cosori_tt", "af_medion_p20", "af_cosori_r901",
+  // Fernseher 83/85″, dann dieselben in 55/65/75–77″ (Größenwahl, ab 15.11.2026 im Preiswecker), dann Air Fryer
+  const IDS = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f",
+    "lg_c6elb_55", "lg_c6elb_65", "lg_c6elb_77", "sam_s90h_55", "sam_s90h_65", "sam_s90h_77", "tcl_c8l_55", "tcl_c8l_65", "tcl_c8l_77",
+    "af_cosori_tt", "af_medion_p20", "af_cosori_r901",
     "af_caso_3186", "af_aeg_aafd11b", "af_rh_27680", "af_ninja_dz400", "af_tefal_ey942", "af_gastroback_42586", "af_ninja_af500"];
   const LS_WUNSCH = "kb-app:wunsch";
   const LS_AUS = "kb-app:treffer-ausgeblendet";
