@@ -2,11 +2,11 @@
    Strategie: App-Dateien aus dem versionierten Cache (offline), preise.json zuerst vom Netz (frisch, sonst Cache),
    Google-Schrift aus dem Laufzeit-Cache (veraltet-und-erneuern). Neue Fassung wartet, bis die Seite "jetzt" sagt. */
 "use strict";
-const VERSION = "498f4dc35334";
+const VERSION = "31a992c7c98d";
 const APP = "kb-app-" + VERSION;
 const LAUFZEIT = "kb-laufzeit";
 const DATEN = "kb-daten";            // preise.json, Wunschpreise (Spiegel aus der Seite), gemeldete Treffer
-const DATEIEN = ["./", "index.html", "app.js?v=498f4dc35334", "app.css?v=498f4dc35334", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
+const DATEIEN = ["./", "index.html", "app.js?v=31a992c7c98d", "app.css?v=31a992c7c98d", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
 const SCHRIFT = ["https://fonts.googleapis.com", "https://fonts.gstatic.com"];
 
 self.addEventListener("install", e => {
@@ -77,7 +77,7 @@ async function pruefePreise() {
   try { const r = await netzZuerst(new Request("preise.json")); preise = await r.json(); } catch (e) { return; }
   try { wunsch = (await (await c.match("wunsch.json")).json()) || {}; } catch (e) { wunsch = {}; }
   try { gemeldet = (await (await c.match("gemeldet.json")).json()) || {}; } catch (e) { gemeldet = {}; }
-  const treffer = [];
+  const treffer = [], namen = [];
   for (const [id, w] of Object.entries(wunsch)) {
     const p = preise && preise.preise && preise.preise[id];
     const g = p && p.aktuell && p.aktuell.gesamt;
@@ -86,12 +86,15 @@ async function pruefePreise() {
     const sig = g + "|" + wp;
     if (gemeldet[id] === sig) continue;
     gemeldet[id] = sig;
-    treffer.push((typeof p.name === "string" ? p.name.slice(0, 40) : id) + ": " + g.toLocaleString("de-DE") + " €");
+    namen.push(typeof p.name === "string" ? p.name.slice(0, 40) : id);
+    treffer.push(namen[namen.length - 1] + ": " + g.toLocaleString("de-DE") + " €");
   }
   if (!treffer.length) return;
   await c.put("gemeldet.json", new Response(JSON.stringify(gemeldet), { headers: { "Content-Type": "application/json" } }));
   if (self.Notification && Notification.permission === "granted") {
-    await self.registration.showNotification("Preiswecker: Wunschpreis erreicht", {
+    const titel = treffer.length === 1 ? "Preisalarm: " + namen[0] + " ist unter deinem Wunschpreis"
+      : "Preisalarm: " + treffer.length + " Modelle unter deinem Wunschpreis";
+    await self.registration.showNotification(titel, {
       body: treffer.join(" · ").slice(0, 180), icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png",
       tag: "kb-preiswecker", data: { ziel: "./#preiswecker" }
     });
@@ -117,10 +120,11 @@ self.addEventListener("push", e => {
   e.waitUntil(self.registration.showNotification(titel, opt));
 });
 
-// Chrome hat das Abo ersetzt oder entzogen: das GitHub-Secret passt nicht mehr, Nico muss neu einrichten
+// Chrome hat das Abo ersetzt oder entzogen: das hinterlegte Abo passt nicht mehr, Push muss neu eingerichtet werden.
+// Nur Geräte mit Push-Abo bekommen dieses Ereignis (Abo entsteht nur über „Push einrichten“ mit Besitzer-Merker).
 self.addEventListener("pushsubscriptionchange", e => {
   e.waitUntil(self.registration.showNotification("Push neu einrichten", {
-    body: "Die Push-Anmeldung wurde erneuert. App öffnen → Preiswecker → „Push einrichten“ und den Code neu als Secret PUSH_ABO speichern.",
+    body: "Die Push-Anmeldung dieses Geräts wurde erneuert. App öffnen → Preiswecker → „Push einrichten“.",
     icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", tag: "kb-push-abo", data: { ziel: "./#preiswecker" }
   }).catch(() => {}));
 });
