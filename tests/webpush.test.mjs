@@ -9,7 +9,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { verschluesseln, ableiten, vapidKopf, senden } from "../werkzeuge/webpush.mjs";
+import { verschluesseln, ableiten, vapidKopf, senden, subjekt } from "../werkzeuge/webpush.mjs";
 
 const HIER = path.dirname(fileURLToPath(import.meta.url));
 const PROJEKT = path.resolve(HIER, "..");
@@ -71,7 +71,7 @@ function jwtPruefen(authKopf, erwartetAud) {
   assert.equal(claims.aud, erwartetAud);
   const jetzt = Math.floor(Date.now() / 1000);
   assert.ok(claims.exp > jetzt && claims.exp <= jetzt + 24 * 3600, "exp höchstens 24 h");
-  assert.equal(claims.sub, "https://nicosteinberg4791-ops.github.io/kaufberatung-app/");
+  assert.equal(claims.sub, subjekt());
   return { pubB64: m[2], claims };
 }
 
@@ -461,4 +461,11 @@ test("Service Worker: Treffer bleiben einzeln stehen, nur Tests ersetzen einande
   assert.equal(gezeigt[3][1].data.ziel, "./#preiswecker", "fremdes Ziel wird verworfen");
   assert.equal(gezeigt[4][1].body, "kein json");
   assert.equal(gezeigt[5][0], "Kaufberatung");
+});
+
+test("VAPID-Subjekt aus GITHUB_REPOSITORY, sonst neutral (keine Konto-URL im Code)", () => {
+  assert.equal(subjekt({ GITHUB_REPOSITORY: "Beispiel-Konto/kaufberatung-app" }), "https://beispiel-konto.github.io/kaufberatung-app/");
+  assert.equal(subjekt({}), "https://github.com/");
+  assert.equal(subjekt({ GITHUB_REPOSITORY: "kaputt" }), "https://github.com/");
+  assert.match(subjekt(), /^https:\/\//);
 });

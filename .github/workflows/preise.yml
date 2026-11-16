@@ -1,4 +1,4 @@
-# Tägliche Preisabfrage der Kaufberatung-App (Nicos Entscheidung O1/O2, 08.11.2026).
+# Tägliche Preisabfrage der Kaufberatung-App (Entscheidung O1/O2, 08.11.2026).
 # Ruft je Fernseher eine heise-Preisvergleich-Seite ab (werkzeuge/preiswecker.py), schreibt preise.json auf gh-pages
 # (Commit nur bei Änderung) und schickt bei Treffern (neuer Tiefstpreis, Wunschpreis erreicht) eine ntfy-Nachricht.
 # Reihenfolge (Codex R1 B2): Secret prüfen -> preise.json schreiben -> ntfy senden -> erst dann pushen. Scheitert der
@@ -88,7 +88,7 @@ jobs:
             curl -fsS -o /dev/null --retry 3 --retry-all-errors \
               -H "Title: TV-Preiswecker" \
               -H "Tags: tv" \
-              -H "Click: https://nicosteinberg4791-ops.github.io/kaufberatung-app/" \
+              -H "Click: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
               --data-binary @"$1" "https://ntfy.sh/$NTFY_TOPIC"
           }
           if [ -s "$RUNNER_TEMP/meldung.txt" ]; then
@@ -145,7 +145,7 @@ jobs:
       - name: Totalausfall melden
         if: steps.ende.outputs.aus != '1' && steps.abfrage.outputs.rc == '3'
         run: |
-          echo "::error::Kein einziges Modell gelesen (siehe Schritt Preise abrufen). heise-Sperre nicht umgehen, Nico prüft."
+          echo "::error::Kein einziges Modell gelesen (siehe Schritt Preise abrufen). heise-Sperre nicht umgehen, der Besitzer prüft."
           exit 1
 
       - name: Ungültiges Web-Push-Abo melden

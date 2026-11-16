@@ -49,7 +49,7 @@ MODELLE = {
     "sam_s90h": "https://preisvergleich.heise.de/samsung-gq8390h-a3805643.html",
     "tcl_c8l": "https://preisvergleich.heise.de/tcl-85c8l-a3810591.html",
     "sam_qn90f": "https://preisvergleich.heise.de/samsung-qe85qn90f-a3479298.html",
-    # Größenwahl (V23): dieselben Fernseher in 55/65/75–77″ (Nico, 15.11.2026 „Ja, alle Größen“). heise-Seiten aus
+    # Größenwahl (V23): dieselben Fernseher in 55/65/75–77″ (Entscheidung 15.11.2026). heise-Seiten aus
     # kaufberatung/daten/groessen.json (Recherche 14.11.2026). Id = <Modell>_<Größenstufe>; Stufe 77 ist bei TCL der 75C8L.
     # LG C69LB hat in 55/65/77″ kein belegtes Angebot und fehlt deshalb hier.
     "lg_c6elb_55": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled55c6elb-a3774754.html",
@@ -61,13 +61,13 @@ MODELLE = {
     "tcl_c8l_55": "https://preisvergleich.heise.de/tcl-55c8l-a3810824.html",
     "tcl_c8l_65": "https://preisvergleich.heise.de/tcl-65c8l-a3810509.html",
     "tcl_c8l_77": "https://preisvergleich.heise.de/tcl-75c8l-a3810580.html",
-    # Air Fryer (Nico, 09.11.2026 „Ja, aufnehmen“): heise-Produktseiten per heise-Suche nach der Modellnummer gefunden.
+    # Air Fryer (Entscheidung 09.11.2026): heise-Produktseiten per heise-Suche nach der Modellnummer gefunden.
     # Medion: heise führt vier Einträge zur MD11760 (Nummern 50072937/50072938/50078168/50079506); gewählt ist der
-    # Eintrag „XXL Twin“, der zur Modellbezeichnung P20 XXL Twin passt (Variantenwahl offen für Nicos Bestätigung).
+    # Eintrag „XXL Twin“, der zur Modellbezeichnung P20 XXL Twin passt (Variantenwahl offen, Bestätigung ausstehend).
     "af_cosori_tt": "https://preisvergleich.heise.de/cosori-turbo-tower-pro-smart-schwarz-gold-caf-dc123s-dder-a3472492.html",
     "af_medion_p20": "https://preisvergleich.heise.de/medion-md-11760-xxl-twin-50079506-a3787540.html",
     "af_cosori_r901": "https://preisvergleich.heise.de/cosori-doppel-heissluftfritteuse-schwarz-caf-r901-aeu-a3146998.html",
-    # Restliche Modelle der Air Fryer Top 10 (Nico, 09.11.2026 „für alle modelle preiswecker“), heise-Suche nach Modellnummer.
+    # Restliche Modelle der Air Fryer Top 10 (Entscheidung 09.11.2026), heise-Suche nach Modellnummer.
     # Bei mehreren Farbvarianten ist der Grundeintrag gewählt (Ninja DZ400EU, AF500EU), bei Tefal die im Bericht genannte EY942BE0.
     "af_caso_3186": "https://preisvergleich.heise.de/caso-airfry-duochef-3186-a3417119.html",
     "af_aeg_aafd11b": "https://preisvergleich.heise.de/aeg-8000-aafd11b-910-004-063-a3916554.html",
@@ -400,7 +400,7 @@ def abgleich(erg, db_dir, aus_dir, anlegen=False):
                 neu["tief"] = tief_alt
             else:
                 neu["tief"] = {"gesamt": g, "datum": heute, "haendler": akt["haendler"]}
-                # Größenvarianten (<modell>_55/65/77) nur speichern und anzeigen, keine Meldung/Push (Nico 15.11.2026:
+                # Größenvarianten (<modell>_55/65/77) nur speichern und anzeigen, keine Meldung/Push (Entscheidung 15.11.2026:
                 # Benachrichtigungen bleiben bei den 83/85″-Modellen)
                 if tief_alt and not ist_groesse(mid):
                     treffer.append(f"{KURZ[mid]} {eur(g)} neuer Tiefstpreis")

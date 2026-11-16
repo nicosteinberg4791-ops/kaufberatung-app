@@ -12,7 +12,7 @@
 
 **Selbstprüfung:** `tests/alle-tests.ps1` Fehler 0, Warnungen 0. Livelauf `preise_aktualisieren.py --ziel <temp>`: Status ok, 8 Modelle, Cosori TT 249 €, Medion 79,95 €, R901 118,98 €, alle Versand belegt.
 
-**Grenzen:** heise-Seiten per Livelauf, nicht per Mock; Medion-Variantenwahl offen für Nico; `.github/workflows/preise.yml` Push-Titel bleibt „TV-Preiswecker“ (bewusst).
+**Grenzen:** heise-Seiten per Livelauf, nicht per Mock; Medion-Variantenwahl offen für Besitzer; `.github/workflows/preise.yml` Push-Titel bleibt „TV-Preiswecker“ (bewusst).
 
 **Prüffragen**
 1. Kann die neue Preisgrenze (Parameter `grenzen`) die TV-Auswertung verändern oder einen Aufruf mit alter Signatur brechen?

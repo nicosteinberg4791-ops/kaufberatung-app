@@ -20,7 +20,26 @@
   function lsLies(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
   function lsSchreib(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
 
+  /* Besitzer-Merker (nur dieses Gerät): blendet die Besitzerfunktionen ein (Wunschpreise, Treffer, „Push einrichten“).
+     Sichtbarkeit, keine Sicherheit: jeder kann den Merker setzen; Push und Preiswecker-Meldungen wirken trotzdem nur über die
+     Secrets des Repos. Setzen: App-Adresse einmal mit #besitzer öffnen; entfernen: #kein-besitzer. Ohne Merker: isOwner() false. */
+  const LS_BESITZER = "kb-app:besitzer";
+  function besitzerFragment() {
+    try {
+      const h = location.hash;
+      if (h === "#besitzer") localStorage.setItem(LS_BESITZER, "1");
+      else if (h === "#kein-besitzer") localStorage.removeItem(LS_BESITZER);
+      else return false;
+      history.replaceState(null, "", location.pathname + location.search);   // Fragment nicht stehen lassen
+      return true;
+    } catch (e) { return false; }
+  }
+  besitzerFragment();   // synchron, vor den Seitenskripten
+  try { window.addEventListener("hashchange", () => { if (besitzerFragment()) location.reload(); }); } catch (e) { /* ohne Fenster */ }
+  function istBesitzer() { try { return localStorage.getItem(LS_BESITZER) === "1"; } catch (e) { return false; } }
+
   function wunschAlle() {
+    if (!istBesitzer()) return {};   // ohne Merker keine Wunschpreise (auch kein Spiegel für den Service Worker)
     const roh = lsLies(LS_WUNSCH), out = {};
     if (roh && typeof roh === "object") for (const id of IDS) {
       const w = roh[id];
@@ -85,6 +104,7 @@
       async get() { return { exists: false, data: () => null }; },
       async set(daten) {
         // preis: Zahl = setzen, null = löschen (leeres Feld im Preiswecker)
+        if (teile[0] === "wunsch" && !istBesitzer()) throw fehlerDoc("nur-besitzer");
         if (teile.length === 2 && teile[0] === "wunsch" && IDS.indexOf(teile[1]) >= 0 && daten && (daten.preis === null || zahlOk(daten.preis))) {
           const roh0 = lsLies(LS_WUNSCH), roh = roh0 && typeof roh0 === "object" && !Array.isArray(roh0) ? roh0 : {};
           if (daten.preis === null) delete roh[teile[1]];
@@ -101,7 +121,7 @@
     };
   }
   const db = { collection: sammlung, doc: dokument };
-  const user = { isOwner: async () => true, id: async () => null };
+  const user = { isOwner: async () => istBesitzer(), id: async () => null };
   if (!window.claude) {
     window.claude = { use: async name => (name === "db" ? db : name === "user" ? user : null), app: true };
   }
@@ -163,7 +183,7 @@
   /* Hinweis im Preiswecker: wo die Wunschpreise liegen, Benachrichtigung als Versuch */
   function weckerErgaenzen() {
     const pw = document.getElementById("preiswecker");
-    if (!pw || document.getElementById("kbapp-wecker")) return;
+    if (!istBesitzer() || !pw || document.getElementById("kbapp-wecker")) return;
     const box = document.createElement("div"); box.id = "kbapp-wecker"; box.className = "kbapp-wecker small";
     const p = document.createElement("p");
     p.textContent = "In der App liegen Wunschpreise nur auf diesem Handy. Die Preise kommen aus der täglichen Abfrage (preise.json). " +
@@ -202,9 +222,17 @@
 
   /* ---------- Web Push (eigene Benachrichtigung, Sender: tägliche Abfrage auf GitHub) ----------
      Öffentlicher VAPID-Schlüssel des Absenders (darf öffentlich sein; der private liegt nur als GitHub-Secret VAPID_PRIVAT).
-     Das Abo (Endpoint + Schlüssel) ist geheim: Nico legt es einmal als Secret PUSH_ABO an. */
+     Das Abo (Endpoint + Schlüssel) ist geheim: der Besitzer legt es einmal als Secret PUSH_ABO an. */
   const VAPID_OEFFENTLICH = "BD8emN7S7iqJ8w_1uSQOa9CgYSjHtWg5_qa7O15NlD2HMnHoi8dRoKV3eNx8SVspWcJy5sOUh3uweolU3M9wZAc";
-  const SECRET_SEITE = "https://github.com/nicosteinberg4791-ops/kaufberatung-app/settings/secrets/actions/new";
+  // Secret-Seite aus der Pages-Adresse (<konto>.github.io/<repo>/) abgeleitet; auf anderen Hosts kein Link
+  function secretSeite() {
+    try {
+      const konto = location.hostname.endsWith(".github.io") ? location.hostname.split(".")[0] : "";
+      const repo = location.pathname.split("/")[1] || "";
+      return /^[A-Za-z0-9-]+$/.test(konto) && /^[A-Za-z0-9._-]+$/.test(repo)
+        ? "https://github.com/" + konto + "/" + repo + "/settings/secrets/actions/new" : null;
+    } catch (e) { return null; }
+  }
   function b64uBytes(s) {
     const b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4));
     return Uint8Array.from(b, z => z.charCodeAt(0));
@@ -243,16 +271,20 @@
       try { await navigator.clipboard.writeText(text); kopie.textContent = "Kopiert"; }
       catch (e) { feld.focus(); feld.select(); kopie.textContent = "Bitte markierten Code kopieren"; }
     });
-    const link = document.createElement("a"); link.href = SECRET_SEITE; link.target = "_blank"; link.rel = "noopener";
-    link.className = "kbapp-neben"; link.textContent = "Secret auf GitHub anlegen";
-    reihe.append(kopie, link);
+    reihe.append(kopie);
+    const seite = secretSeite();
+    if (seite) {
+      const link = document.createElement("a"); link.href = seite; link.target = "_blank"; link.rel = "noopener";
+      link.className = "kbapp-neben"; link.textContent = "Secret auf GitHub anlegen";
+      reihe.append(link);
+    }
     ziel.append(h, feld, reihe);
     ziel.hidden = false;
   }
 
   async function hintergrundAnmelden() {
     try {
-      if (Notification.permission !== "granted") return;
+      if (!istBesitzer() || Notification.permission !== "granted") return;
       const reg = await navigator.serviceWorker.ready;
       if (!reg.periodicSync) return;
       const st = await navigator.permissions.query({ name: "periodic-background-sync" });

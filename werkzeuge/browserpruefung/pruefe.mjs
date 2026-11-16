@@ -89,7 +89,8 @@ await sleep(800);
 ergebnis.dunkel = await js(messen);
 await bild("dunkel-oben.png");
 await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
-// 4. Treffer-Hinweis
+// 4. Treffer-Hinweis (Besitzeransicht: Merker kb-app:besitzer, sonst bleiben Wunschpreise und Push ausgeblendet)
+await js(`localStorage.setItem('kb-app:besitzer', '1'); return 1`);
 await js(`localStorage.setItem('kb-app:wunsch', JSON.stringify({tcl_c8l:{preis:2400}})); return 1`);
 await neu();
 ergebnis.treffer = await js(`const k = document.getElementById('kbapp-treffer'); return k ? { text: k.textContent, rolle: k.getAttribute('role'), hoehe: Math.round(k.getBoundingClientRect().height) } : null`);

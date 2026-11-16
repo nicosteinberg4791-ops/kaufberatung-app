@@ -13,7 +13,7 @@
 
 **Selbstprüfung:** `powershell -File tests/alle-tests.ps1` → Fehler 0 (31 Tests, darunter `node --test tests/webpush.test.mjs` 23/23 und `--selbsttest`). Gegenprobe: verfälschter Testvektor → rot. Browser (375 px, hell/dunkel): Einrichtung mit nachgestellter Erlaubnis und Abo, Code angezeigt, kein Querscrollen, Konsole leer. Geheimnis-Scan 0 Funde; privater Schlüssel liegt außerhalb des Repos.
 
-**Bekannte Grenzen:** Nicht gegen einen echten Push-Dienst getestet (erst mit Nicos Handy möglich). Zustellung bei zwangsbeendetem Chrome/Akku-Optimierung nicht steuerbar. `pushsubscriptionchange` in Chrome nicht belegt; Abo muss bei Ungültigkeit von Hand erneuert werden. ntfy läuft parallel weiter.
+**Bekannte Grenzen:** Nicht gegen einen echten Push-Dienst getestet (erst mit des Besitzers Handy möglich). Zustellung bei zwangsbeendetem Chrome/Akku-Optimierung nicht steuerbar. `pushsubscriptionchange` in Chrome nicht belegt; Abo muss bei Ungültigkeit von Hand erneuert werden. ntfy läuft parallel weiter.
 
 **Prüffragen**
 1. Ist die Verschlüsselung/VAPID-Kopfzeile so, dass FCM (fcm.googleapis.com) sie annimmt (aud, exp, `vapid t=…, k=…`, TTL, Urgency, Content-Encoding)?

@@ -14,7 +14,7 @@
 
 **Selbstprüfung:** `powershell -File tests/alle-tests.ps1` → Fehler 0, Warnungen 0. PNG-Maße per PIL: 192/512 RGBA, apple-touch 180 RGB. PNGs angesehen; Prüfstand 192/48 px mit Kreis- und Rundquadrat-Maske, hell/dunkel; `pruefe.mjs` ohne Meldungen.
 
-**Bekannte Grenzen:** Gestaltung ist von Nico gewählt (keine Geschmacksprüfung). Android übernimmt neue WebAPK-Icons verzögert. Nicht auf echtem Handy geprüft. `badge` in sw.js nutzt schon vor dieser Änderung das Maskable-Icon.
+**Bekannte Grenzen:** Gestaltung ist von Besitzer gewählt (keine Geschmacksprüfung). Android übernimmt neue WebAPK-Icons verzögert. Nicht auf echtem Handy geprüft. `badge` in sw.js nutzt schon vor dieser Änderung das Maskable-Icon.
 
 **Prüffragen**
 1. Geht mit dem Push etwas Unerwartetes mit (Commits, Dateien, Geheimnisse, persönliche Daten)?

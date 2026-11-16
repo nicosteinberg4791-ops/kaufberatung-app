@@ -24,7 +24,12 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const SKRIPT = fileURLToPath(import.meta.url);
 const PROJEKTORDNER = path.resolve(path.dirname(SKRIPT), "..");
-const SUBJEKT = "https://nicosteinberg4791-ops.github.io/kaufberatung-app/";
+// VAPID-Subjekt (Kontakt-URL des Absenders): Pages-Adresse aus GITHUB_REPOSITORY (in Actions gesetzt), sonst neutral
+export function subjekt(umgebung = process.env) {
+  const m = /^([A-Za-z0-9-]+)\/([A-Za-z0-9._-]+)$/.exec(umgebung.GITHUB_REPOSITORY || "");
+  return m ? `https://${m[1].toLowerCase()}.github.io/${m[2]}/` : "https://github.com/";
+}
+const SUBJEKT = subjekt();
 const MAX_JSON_BYTES = 3000;
 const KUERZUNG = " … (weitere in der App)";
 

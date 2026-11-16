@@ -444,7 +444,7 @@ class WebPush(unittest.TestCase):
         # Codex B2: lokales Abo ist keine fertige Einrichtung; Secret und Testlauf bleiben im Status genannt
         self.assertNotIn("Push ist auf diesem Handy eingerichtet", js)
         self.assertIn("Dieses Handy ist für Push angemeldet. Meldungen kommen erst, wenn der Einrichtungscode als Secret PUSH_ABO", js)
-        # Passt der private Schlüssel (nur auf Nicos Rechner, außerhalb des Repos) zum öffentlichen in der App?
+        # Passt der private Schlüssel (nur auf dem Rechner des Besitzers, außerhalb des Repos) zum öffentlichen in der App?
         privat = WURZEL.parent / "Kaufberatung-App-privat" / "vapid-privat.json"
         if not privat.exists():
             self.skipTest("privater Schlüssel nicht auf diesem Rechner")
@@ -460,8 +460,103 @@ class WebPush(unittest.TestCase):
         self.assertIn(r"^\.\/(#[A-Za-z0-9_-]+)?$", teil, "Ziel nur innerhalb der App")
 
 
+BESITZER_PROBE = r"""
+// Lädt app/app.js in node:vm mit nachgebautem Browser (nur was die Hülle braucht) und meldet, was sichtbar wird.
+const vm = require("node:vm"), fs = require("node:fs");
+const [datei, hash, merker] = process.argv.slice(2);
+const speicher = new Map();
+if (merker === "1") speicher.set("kb-app:besitzer", "1");
+speicher.set("kb-app:wunsch", JSON.stringify({ tcl_c8l: { preis: 2400, gesetzt: "x" } }));
+const localStorage = { getItem: k => (speicher.has(k) ? speicher.get(k) : null), setItem: (k, v) => speicher.set(k, String(v)),
+  removeItem: k => speicher.delete(k) };
+const eingefuegt = [];
+function knoten(tag) {
+  return { tag, id: "", kinder: [], hidden: false, textContent: "", style: {}, className: "", parentNode: null,
+    setAttribute() {}, getAttribute() { return null; }, addEventListener() {}, remove() {},
+    append(...k) { for (const x of k) { x.parentNode = this; this.kinder.push(x); } },
+    appendChild(x) { this.append(x); return x; },
+    insertAdjacentElement(_, x) { eingefuegt.push(x); return x; },
+    get lastElementChild() { return this.kinder[this.kinder.length - 1] || this; } };
+}
+const pw = knoten("section"); pw.id = "preiswecker";
+const body = knoten("body");
+const alleKnoten = () => [...eingefuegt, ...body.kinder, ...body.kinder.flatMap(x => x.kinder)];
+const document = { readyState: "complete", body, createElement: knoten, addEventListener() {},
+  getElementById: id => (id === "preiswecker" ? pw : alleKnoten().find(x => x.id === id) || null) };
+const location = { hash, pathname: "/kaufberatung-app/", search: "", hostname: "beispiel.github.io", reload() {} };
+const history = { replaceState() { location.hash = ""; } };
+const Notification = { permission: "default", requestPermission: async () => "default" };
+const window = { addEventListener() {}, Notification, PushManager: function () {} };
+const preise = { preise: { tcl_c8l: { name: "TCL C8L", aktuell: { gesamt: 1900, haendler: "h" } } }, lauf: null };
+const ctx = { window, document, location, history, localStorage, Notification, console, setTimeout, clearTimeout,
+  navigator: { serviceWorker: { ready: Promise.resolve({ pushManager: { getSubscription: async () => null } }), controller: null,
+    addEventListener() {}, register: () => new Promise(() => {}) } },
+  atob, fetch: async () => ({ ok: true, json: async () => preise }), caches: undefined, Response: function () {} };
+vm.createContext(ctx);
+vm.runInContext(fs.readFileSync(datei, "utf8"), ctx);
+(async () => {
+  const user = await ctx.window.claude.use("user");
+  const db = await ctx.window.claude.use("db");
+  let wunsch = null;
+  db.collection("wunsch").onSnapshot(s => { wunsch = s.docs.map(d => d.id); });
+  let setzen = "ok";
+  try { await db.doc("wunsch/tcl_c8l").set({ preis: 2400 }); } catch (e) { setzen = e.code; }
+  await new Promise(r => setTimeout(r, 50));
+  const texte = JSON.stringify(alleKnoten().map(function t(x) { return [x.id, x.textContent, (x.kinder || []).map(t)]; }));
+  console.log(JSON.stringify({ besitzer: await user.isOwner(), wunsch, setzen,
+    wecker: alleKnoten().some(x => x.id === "kbapp-wecker"), treffer: alleKnoten().some(x => x.id === "kbapp-treffer"),
+    push: texte.includes("Push"), merker: speicher.get("kb-app:besitzer") || null, hash: location.hash }));
+})();
+"""
+
+
+class Besitzer(unittest.TestCase):
+    """Besitzerfunktionen (Wunschpreise, Push einrichten) nur mit lokalem Merker kb-app:besitzer (Sichtbarkeit, keine Sicherheit)."""
+
+    def probe(self, hash="", merker=""):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node nicht vorhanden")
+        with tempfile.TemporaryDirectory() as tmp:
+            s = Path(tmp) / "probe.cjs"
+            s.write_text(BESITZER_PROBE, encoding="utf-8")
+            r = subprocess.run([node, str(s), str(WURZEL / "app" / "app.js"), hash, merker],
+                               capture_output=True, text=True, encoding="utf-8", timeout=60)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return json.loads(r.stdout.strip().splitlines()[-1])
+
+    def test_ohne_merker_kein_wunschpreis_kein_push(self):
+        e = self.probe()
+        self.assertIs(e["besitzer"], False)
+        self.assertEqual(e["wunsch"], [], "gespeicherte Wunschpreise bleiben ohne Merker unsichtbar")
+        self.assertNotEqual(e["setzen"], "ok", "Wunschpreis setzen nur mit Merker")
+        self.assertFalse(e["wecker"], "kein Wunschpreis-/Push-Hinweis im Preiswecker")
+        self.assertFalse(e["treffer"], "kein Wunschpreis-Treffer")
+        self.assertFalse(e["push"], "kein „Push einrichten“")
+
+    def test_mit_merker_besitzer(self):
+        e = self.probe(merker="1")
+        self.assertIs(e["besitzer"], True)
+        self.assertEqual(e["setzen"], "ok")
+        self.assertIn("tcl_c8l", e["wunsch"])
+        self.assertTrue(e["wecker"])
+        self.assertTrue(e["push"])
+        self.assertTrue(e["treffer"])
+
+    def test_fragment_setzt_und_loescht_merker(self):
+        e = self.probe(hash="#besitzer")
+        self.assertEqual((e["besitzer"], e["merker"], e["hash"]), (True, "1", ""), "Fragment wird nach dem Setzen entfernt")
+        e = self.probe(hash="#kein-besitzer", merker="1")
+        self.assertEqual((e["besitzer"], e["merker"]), (False, None))
+
+    def test_keine_konto_url_im_code(self):
+        js = (WURZEL / "app" / "app.js").read_text(encoding="utf-8") + (WURZEL / "app" / "sw.js").read_text(encoding="utf-8")
+        self.assertNotRegex(js, r"github\.com/[A-Za-z0-9-]+/kaufberatung-app")
+        self.assertIn("Sichtbarkeit, keine Sicherheit", js)
+
+
 class AirFryerImWecker(unittest.TestCase):
-    """Air Fryer im Preiswecker (Nico 09.11.2026): Modelle, Preisgrenzen je Modell, Ids der App-Hülle."""
+    """Air Fryer im Preiswecker (Entscheidung 09.11.2026): Modelle, Preisgrenzen je Modell, Ids der App-Hülle."""
 
     @classmethod
     def setUpClass(cls):
@@ -470,11 +565,11 @@ class AirFryerImWecker(unittest.TestCase):
         cls.pw = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cls.pw)
 
-    # Ab V21 alle zehn Modelle der Air Fryer Top 10 (Nico 09.11.2026 „für alle modelle preiswecker“)
+    # Ab V21 alle zehn Modelle der Air Fryer Top 10 (Entscheidung 09.11.2026)
     AF = ["af_cosori_tt", "af_medion_p20", "af_cosori_r901", "af_caso_3186", "af_aeg_aafd11b", "af_rh_27680",
           "af_ninja_dz400", "af_tefal_ey942", "af_gastroback_42586", "af_ninja_af500"]
     TV = ["lg_c6elb", "lg_c69lb", "sam_s90h", "tcl_c8l", "sam_qn90f"]
-    # Größenwahl (Nico 15.11.2026 „Ja, alle Größen“): C6ELB, S90H, C8L in 55/65/75–77″, kein C69LB
+    # Größenwahl (Entscheidung 15.11.2026): C6ELB, S90H, C8L in 55/65/75–77″, kein C69LB
     GR = [f"{m}_{g}" for m in ("lg_c6elb", "sam_s90h", "tcl_c8l") for g in ("55", "65", "77")]
 
     def test_genau_zehn_air_fryer_und_fernseher_mit_groessen(self):

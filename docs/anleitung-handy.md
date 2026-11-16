@@ -1,6 +1,6 @@
 # Kaufberatung als App auf dem Android-Handy
 
-Adresse: **https://nicosteinberg4791-ops.github.io/kaufberatung-app/**
+Adresse: `https://<konto>.github.io/kaufberatung-app/` (GitHub-Pages-Adresse des Repos)
 
 ## Installieren (einmal)
 
@@ -17,6 +17,7 @@ Wird die Kaufberatung überarbeitet, lädt die App die neue Fassung beim nächst
 ## Preise und Preiswecker
 
 - Die Preise kommen aus der Abfrage beim heise-Preisvergleich (günstigster Gesamtpreis mit belegtem Versand) und stehen in `preise.json` auf der Seite. GitHub fragt sie **täglich gegen 6:30 Uhr** ab (geplant 6:23 Uhr MEZ, GitHub startet oft einige Minuten später), bis zum 01.12.2026. Stand und Status des letzten Laufs stehen im Preiswecker.
+- **Wunschpreise und Push** sind Besitzerfunktionen: Sie erscheinen nur auf Geräten, auf denen der Besitzer sie eingeschaltet hat; alle anderen sehen den Preiswecker mit Preisen und Tiefstpreisen.
 - **Wunschpreise** (ab der Fassung mit Preiswecker) speichert die App **nur auf diesem Handy**. Sie gehen nicht ins Internet und nicht auf andere Geräte. Wer die App-Daten löscht oder die App entfernt, verliert sie.
 - Ist ein Wunschpreis erreicht, erscheint beim Öffnen der App oben bzw. unten die Karte **„Wunschpreis erreicht“**. Das ist der verlässliche Weg.
 - **Push direkt in die App:** siehe „Push-Benachrichtigung der App“ unten. Die tägliche Abfrage schickt bei neuem Tiefstpreis (und bei Wunschpreis, falls auf GitHub hinterlegt) je Ereignis eine Meldung; die Zustellung ist nicht garantiert. In der Testphase kommt dieselbe Meldung zusätzlich über ntfy.
@@ -40,7 +41,7 @@ Eine Zustellung ist nicht garantiert: Android und Chrome können sie verzögern 
 Die tägliche Abfrage schickt eine Nachricht über den kostenlosen Dienst ntfy.sh, wenn ein Fernseher einen **neuen Tiefstpreis** erreicht (seit Beginn der Abfrage) oder unter einen **auf GitHub hinterlegten Wunschpreis** fällt. Ein Ereignis wird einmal gemeldet; beim Wunschpreis kommt die nächste Meldung erst, wenn der Preis wieder darüber steigt und erneut fällt. Klappt der Versand an ntfy nicht, werden die Preise an dem Tag nicht fortgeschrieben, der Lauf erscheint auf GitHub als fehlgeschlagen und der nächste Lauf meldet das Ereignis erneut, sofern es dann noch gilt (ist der Preis inzwischen wieder gestiegen, wird die verpasste Meldung nicht nachgereicht); selten kann eine Meldung doppelt kommen.
 
 1. Auf dem Handy die App **„ntfy“** aus dem Google Play Store installieren (kostenlos).
-2. Am PC die Datei `C:\Users\Nico\Documents\Claude\Kaufberatung-App-privat\ntfy-topic.txt` öffnen. Darin steht der **Themenname** (beginnt mit `kb-`, lange Zufallsfolge). Er ist das einzige Kennwort: nicht weitergeben, nicht in Chats kopieren.
+2. Am PC die private Datei `ntfy-topic.txt` öffnen (liegt beim Besitzer außerhalb des Repos, `<privater-ordner>`). Darin steht der **Themenname** (beginnt mit `kb-`, lange Zufallsfolge). Er ist das einzige Kennwort: nicht weitergeben, nicht in Chats kopieren.
 3. In ntfy auf **„+“** tippen, den Themennamen genau übertragen (z. B. über die eigene Notiz-App), Server **ntfy.sh** lassen, **„Abonnieren“**.
 4. Test: Auf GitHub unter *Actions → Preisabfrage → Run workflow* das Häkchen **„Zusätzlich eine Test-Benachrichtigung …“** setzen und starten. Wenn alles klappt, kommt nach dem Lauf „Test: Benachrichtigungen der Kaufberatung-App kommen an“ (keine feste Zustellzeit).
 

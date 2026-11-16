@@ -5,7 +5,7 @@ Aufruf:  python -I werkzeuge/veroeffentlichen.py            bauen, nach .veroeff
          python -I werkzeuge/veroeffentlichen.py --trocken  nur bauen und spiegeln, kein Commit, kein Push
 Voraussetzung: Remote origin gesetzt. Beim ersten Lauf wird gh-pages als eigener Zweig ohne Vorgeschichte angelegt
 und als git worktree unter .veroeffentlichung/ eingebunden (steht in .gitignore).
-Push nur mit Nicos Auftrag (AGENTS.md).
+Push nur mit Auftrag des Besitzers (AGENTS.md).
 """
 import shutil
 import subprocess
