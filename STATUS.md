@@ -7,7 +7,7 @@ Stand: 16.11.2026 · `main` auf `github.com/<konto>/kaufberatung-app` (öffentli
 - App-Hülle: Besitzerfunktionen (Wunschpreise, Treffer-Karte, „Push einrichten“, Hintergrundprüfung) nur mit lokalem Merker `kb-app:besitzer` (`app/app.js`); ohne Merker `isOwner()` = false, Wunschpreise unsichtbar und nicht setzbar. Sichtbarkeit, keine Sicherheit. Secret-Link aus der Pages-Adresse abgeleitet, keine Konto-URL im Code.
 - Benachrichtigungen neutral („Preisalarm: <Modell> ist unter deinem Wunschpreis“; „Push neu einrichten“ ohne Besitzerbezug). Manifest-Beschreibung ohne „Private“.
 - Repo-Dateien ohne Namen, lokale Pfade und Konto-URLs (Platzhalter `<arbeitsordner>`, `<privater-ordner>`, `<konto>`); Workflow-Klickziel und VAPID-Subjekt aus `GITHUB_REPOSITORY`.
-- Offen: Inhalt (`quelle/`, `dist/`) kommt aus dem neuen Artifact-Bau; der Preiswecker der Seite zeigt ohne Besitzer noch „kein Wunschpreis“ je Zeile (Seiteninhalt, nicht Hülle). Browserprüfung (`pruefe.mjs`) und Codex-Prüfung stehen aus.
+- Inhalt (`quelle/`, `dist/`) kommt aus dem Artifact-Bau (zuletzt Version 29). Ohne Besitzer zeigt der Preiswecker der Seite je Zeile „kein Wunschpreis“ (Seiteninhalt, nicht Hülle). Geprüft: Codex (V28 und V29 bestanden), `pruefe.mjs --url` live ohne Meldungen.
 
 ## Ablauf und Werkzeuge
 
