@@ -1,8 +1,8 @@
 # Stand – Kaufberatung-App
 
-Stand: 16.11.2026 · `main` auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 58be586255ab, Inhalt Artifact-Version 26 (16.11.2026). Ältere Einzelheiten: Git-Verlauf und `docs/pruefungen/`.
+Stand: 16.11.2026 · `main` auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 14645eebc97d, Inhalt Artifact-Version 29 (16.11.2026, Bedienung neu geordnet: vier Bereiche, Schrittleiste, Verlauf, Antwortzeile, Suche). Ältere Einzelheiten: Git-Verlauf und `docs/pruefungen/`.
 
-## In Arbeit: „für alle“ (Branch `fuer-alle-v28`, nicht gepusht)
+## „Für alle“ (seit Artifact-Version 28 veröffentlicht)
 
 - App-Hülle: Besitzerfunktionen (Wunschpreise, Treffer-Karte, „Push einrichten“, Hintergrundprüfung) nur mit lokalem Merker `kb-app:besitzer` (`app/app.js`); ohne Merker `isOwner()` = false, Wunschpreise unsichtbar und nicht setzbar. Sichtbarkeit, keine Sicherheit. Secret-Link aus der Pages-Adresse abgeleitet, keine Konto-URL im Code.
 - Benachrichtigungen neutral („Preisalarm: <Modell> ist unter deinem Wunschpreis“; „Push neu einrichten“ ohne Besitzerbezug). Manifest-Beschreibung ohne „Private“.
