@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-15T21:33:57+01:00",
+ "zeit": "2026-11-16T14:45:27+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -13,13 +13,13 @@
     "haendler": "Cyberport.de",
     "sterne": "2,4 (6.136)",
     "lieferung": "Lieferzeit 5-7 Werktage",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "roh": {
     "artikel": 2779.0,
     "haendler": "electronic4you.de",
     "sterne": "4,9 (4.044)",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -66,6 +66,11 @@
      "d": "2026-11-15",
      "g": 2936.37,
      "h": "Cyberport.de"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 2936.37,
+     "h": "Cyberport.de"
     }
    ]
   },
@@ -79,7 +84,7 @@
     "haendler": "expert.de",
     "sterne": "1,8 (144)",
     "lieferung": "Lieferzeit 4 - 7 Werktage",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 2499.0,
@@ -121,6 +126,11 @@
      "d": "2026-11-15",
      "g": 2599.0,
      "h": "expert.de"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 2599.0,
+     "h": "expert.de"
     }
    ]
   },
@@ -134,7 +144,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 2699.0,
@@ -176,6 +186,11 @@
      "d": "2026-11-15",
      "g": 2699.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 2699.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -189,7 +204,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 1999.0,
@@ -231,6 +246,11 @@
      "d": "2026-11-15",
      "g": 1999.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 1999.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -244,7 +264,7 @@
     "haendler": "Gamingoase",
     "sterne": "keine Bewertung",
     "lieferung": "1-4 Werktage",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -286,6 +306,11 @@
      "d": "2026-11-15",
      "g": 4499.0,
      "h": "Gamingoase"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 4499.0,
+     "h": "Gamingoase"
     }
    ]
   },
@@ -296,10 +321,10 @@
     "gesamt": 1099.0,
     "artikel": 1099.0,
     "versand": 0.0,
-    "haendler": "Amazon.de",
-    "sterne": "2,6 (3.086)",
-    "lieferung": "Auf Lager",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "haendler": "galaxus",
+    "sterne": "4,0 (845)",
+    "lieferung": "Auf Lager, 4 Werktage",
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 1099.0,
@@ -311,6 +336,11 @@
      "d": "2026-11-15",
      "g": 1099.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 1099.0,
+     "h": "galaxus"
     }
    ]
   },
@@ -324,7 +354,7 @@
     "haendler": "Cyberport.de",
     "sterne": "2,4 (6.136)",
     "lieferung": "voraussichtlich verfügbar ab 09.12.2026",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 1349.0,
@@ -334,6 +364,11 @@
    "verlauf": [
     {
      "d": "2026-11-15",
+     "g": 1349.0,
+     "h": "Cyberport.de"
+    },
+    {
+     "d": "2026-11-16",
      "g": 1349.0,
      "h": "Cyberport.de"
     }
@@ -348,8 +383,8 @@
     "versand": 0.0,
     "haendler": "Cyberport.de",
     "sterne": "2,4 (6.136)",
-    "lieferung": "Lieferzeit 5-7 Werktage",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "lieferung": "voraussichtlich verfügbar ab 09.12.2026",
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 1899.0,
@@ -359,6 +394,11 @@
    "verlauf": [
     {
      "d": "2026-11-15",
+     "g": 1899.0,
+     "h": "Cyberport.de"
+    },
+    {
+     "d": "2026-11-16",
      "g": 1899.0,
      "h": "Cyberport.de"
     }
@@ -371,10 +411,10 @@
     "gesamt": 999.0,
     "artikel": 999.0,
     "versand": 0.0,
-    "haendler": "k-r-electro-bad-nauheim",
-    "sterne": "5,0 (1)",
-    "lieferung": "Lieferzeit 5-9 Werktage",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "haendler": "Electronic_Lichtenau",
+    "sterne": "keine Bewertung",
+    "lieferung": "3-5 Werktage",
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 999.0,
@@ -386,6 +426,11 @@
      "d": "2026-11-15",
      "g": 999.0,
      "h": "k-r-electro-bad-nauheim"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 999.0,
+     "h": "Electronic_Lichtenau"
     }
    ]
   },
@@ -399,7 +444,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-15T19:48:02+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 1399.0,
@@ -409,6 +454,11 @@
    "verlauf": [
     {
      "d": "2026-11-15",
+     "g": 1399.0,
+     "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-16",
      "g": 1399.0,
      "h": "Amazon.de"
     }
@@ -737,13 +787,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "roh": {
     "artikel": 149.0,
     "haendler": "XXXLutz Online Shop",
     "sterne": "2,1 (16)",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 169.0,
@@ -775,6 +825,11 @@
      "d": "2026-11-15",
      "g": 169.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 169.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -782,19 +837,19 @@
    "name": "Russell Hobbs SatisFry Dual 27680-56",
    "heiseUrl": "https://preisvergleich.heise.de/russell-hobbs-satisfry-dual-basket-9l-27680-56-a3487630.html",
    "aktuell": {
-    "gesamt": 127.99,
-    "artikel": 127.99,
+    "gesamt": 124.3,
+    "artikel": 124.3,
     "versand": 0.0,
-    "haendler": "expert_ecommerce",
-    "sterne": "5,0 (1)",
+    "haendler": "deltatecc-home",
+    "sterne": "3,0 (2)",
     "lieferung": "Lieferzeit 2-4 Werktage",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "roh": {
     "artikel": 123.0,
     "haendler": "expert.de",
     "sterne": "1,8 (144)",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 124.3,
@@ -826,6 +881,11 @@
      "d": "2026-11-15",
      "g": 127.99,
      "h": "expert_ecommerce"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 124.3,
+     "h": "deltatecc-home"
     }
    ]
   },
@@ -839,13 +899,13 @@
     "haendler": "Joybuy",
     "sterne": "3,1 (16)",
     "lieferung": "Lieferzeit 1-2 Werktage",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "roh": {
-    "artikel": 137.01,
-    "haendler": "Proshop.de",
-    "sterne": "4,3 (1.070)",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "artikel": 137.0,
+    "haendler": "Cyberport Stores Deutschland",
+    "sterne": "2,4 (6.136)",
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 135.9,
@@ -877,6 +937,11 @@
      "d": "2026-11-15",
      "g": 139.99,
      "h": "Joybuy"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 139.99,
+     "h": "Joybuy"
     }
    ]
   },
@@ -890,13 +955,13 @@
     "haendler": "Future-X.de",
     "sterne": "3,4 (985)",
     "lieferung": "Zentrallager: Auf Lager",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "roh": {
-    "artikel": 114.81,
+    "artikel": 115.99,
     "haendler": "TechnikDirekt",
     "sterne": "2,0 (647)",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 124.59,
@@ -928,6 +993,11 @@
      "d": "2026-11-15",
      "g": 124.59,
      "h": "Future-X.de"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 124.59,
+     "h": "Future-X.de"
     }
    ]
   },
@@ -935,13 +1005,19 @@
    "name": "Gastroback Duo Family 42586",
    "heiseUrl": "https://preisvergleich.heise.de/gastroback-42586-multi-duo-family-9l-a3785334.html",
    "aktuell": {
-    "gesamt": 118.31,
-    "artikel": 118.31,
+    "gesamt": 139.28,
+    "artikel": 139.28,
     "versand": 0.0,
     "haendler": "galaxus",
     "sterne": "4,0 (845)",
     "lieferung": "Lager Lieferant: Sofort lieferbar, 2-4 Werktage",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
+   },
+   "roh": {
+    "artikel": 132.29,
+    "haendler": "Cyberport.de",
+    "sterne": "2,4 (6.136)",
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 111.32,
@@ -973,6 +1049,11 @@
      "d": "2026-11-15",
      "g": 118.31,
      "h": "galaxus"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 139.28,
+     "h": "galaxus"
     }
    ]
   },
@@ -980,19 +1061,19 @@
    "name": "Ninja FlexDrawer AF500EU",
    "heiseUrl": "https://preisvergleich.heise.de/ninja-af500eu-foodi-flexdrawer-a3337334.html",
    "aktuell": {
-    "gesamt": 166.46,
-    "artikel": 166.46,
+    "gesamt": 169.0,
+    "artikel": 169.0,
     "versand": 0.0,
-    "haendler": "galaxus",
-    "sterne": "4,0 (845)",
-    "lieferung": "Auf Lager, 1-2 Werktage",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "haendler": "Coolblue",
+    "sterne": "4,6 (1.069)",
+    "lieferung": "Lieferzeit: 1 Werktag",
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "roh": {
     "artikel": 165.0,
     "haendler": "euronics-maxi-media",
     "sterne": "1,0 (3)",
-    "zeit": "2026-11-15T13:49:26+01:00"
+    "zeit": "2026-11-16T14:45:27+01:00"
    },
    "tief": {
     "gesamt": 166.46,
@@ -1024,15 +1105,37 @@
      "d": "2026-11-15",
      "g": 166.46,
      "h": "galaxus"
+    },
+    {
+     "d": "2026-11-16",
+     "g": 169.0,
+     "h": "Coolblue"
     }
    ]
   }
  },
  "lauf": {
-  "letzter": "2026-11-15T21:33:57+01:00",
-  "status": "ok",
-  "meldung": "Alle 24 Preise gelesen.",
+  "letzter": "2026-11-16T14:45:27+01:00",
+  "status": "teilweise",
+  "meldung": "Folgt im nächsten Lauf: Samsung S90H 77″, TCL C8L 55″, TCL C8L 65″, TCL C8L 75″, Cosori Turbo Tower, Medion P20 XXL, Cosori R901, Caso DuoChef.",
   "bis": "2026-12-01",
-  "versuche": {}
+  "versuche": {
+   "af_aeg_aafd11b": "2026-11-16T14:45:27+01:00",
+   "af_rh_27680": "2026-11-16T14:45:27+01:00",
+   "af_ninja_dz400": "2026-11-16T14:45:27+01:00",
+   "af_tefal_ey942": "2026-11-16T14:45:27+01:00",
+   "af_gastroback_42586": "2026-11-16T14:45:27+01:00",
+   "af_ninja_af500": "2026-11-16T14:45:27+01:00",
+   "lg_c6elb": "2026-11-16T14:45:27+01:00",
+   "lg_c69lb": "2026-11-16T14:45:27+01:00",
+   "sam_s90h": "2026-11-16T14:45:27+01:00",
+   "tcl_c8l": "2026-11-16T14:45:27+01:00",
+   "sam_qn90f": "2026-11-16T14:45:27+01:00",
+   "lg_c6elb_55": "2026-11-16T14:45:27+01:00",
+   "lg_c6elb_65": "2026-11-16T14:45:27+01:00",
+   "lg_c6elb_77": "2026-11-16T14:45:27+01:00",
+   "sam_s90h_55": "2026-11-16T14:45:27+01:00",
+   "sam_s90h_65": "2026-11-16T14:45:27+01:00"
+  }
  }
 }
