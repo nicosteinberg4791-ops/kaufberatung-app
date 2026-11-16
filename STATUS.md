@@ -1,13 +1,13 @@
 # Stand – Kaufberatung-App
 
-Stand: 16.11.2026 · `main` auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 8dbf0366c458, Inhalt Artifact-Version 29 (16.11.2026, Bedienung neu geordnet: vier Bereiche, Schrittleiste, Verlauf, Antwortzeile, Suche). Ältere Einzelheiten: Git-Verlauf und `docs/pruefungen/`.
+Stand: 16.11.2026 · `main` auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 090ac453670e, Inhalt Artifact-Version 30 (16.11.2026, Fortschrittspunkte der TV-Entscheidungshilfe mit 44 px Tippfläche; davor V29 Bedienung neu geordnet). Ältere Einzelheiten: Git-Verlauf und `docs/pruefungen/`.
 
 ## „Für alle“ (seit Artifact-Version 28 veröffentlicht)
 
 - App-Hülle: Besitzerfunktionen (Wunschpreise, Treffer-Karte, „Push einrichten“, Hintergrundprüfung) nur mit lokalem Merker `kb-app:besitzer` (`app/app.js`); ohne Merker `isOwner()` = false, Wunschpreise unsichtbar und nicht setzbar. Sichtbarkeit, keine Sicherheit. Secret-Link aus der Pages-Adresse abgeleitet, keine Konto-URL im Code.
 - Benachrichtigungen neutral („Preisalarm: <Modell> ist unter deinem Wunschpreis“; „Push neu einrichten“ ohne Besitzerbezug). Manifest-Beschreibung ohne „Private“.
 - Repo-Dateien ohne Namen, lokale Pfade und Konto-URLs (Platzhalter `<arbeitsordner>`, `<privater-ordner>`, `<konto>`); Workflow-Klickziel und VAPID-Subjekt aus `GITHUB_REPOSITORY`.
-- Inhalt (`quelle/`, `dist/`) kommt aus dem Artifact-Bau (zuletzt Version 29). Ohne Besitzer zeigt der Preiswecker der Seite je Zeile „kein Wunschpreis“ (Seiteninhalt, nicht Hülle). Geprüft: Codex (V28 und V29 bestanden), `pruefe.mjs --url` live ohne Meldungen.
+- Inhalt (`quelle/`, `dist/`) kommt aus dem Artifact-Bau (zuletzt Version 30). Ohne Besitzer zeigt der Preiswecker der Seite je Zeile „kein Wunschpreis“ (Seiteninhalt, nicht Hülle). Geprüft: Codex (V28, V29 und V30 bestanden), `pruefe.mjs --url` live ohne Meldungen und ohne Tippziele unter 44 px.
 
 ## Ablauf und Werkzeuge
 
