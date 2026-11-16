@@ -19,7 +19,7 @@ Stand: 16.11.2026 · `main` auf `github.com/<konto>/kaufberatung-app` (öffentli
 
 ## Offen
 
-- **O5:** Wunschpreise als Secret setzen? **O6:** heise-Nutzungsbedingungen ungeklärt (dokumentiert). **O7:** Web-Push-Zustellung auf dem Handy bestätigen, danach über ntfy entscheiden.
+- **O5:** Wunschpreise als Secret setzen? **O6:** heise-Nutzungsbedingungen ungeklärt (dokumentiert). **O7:** Web Push scharf schalten und Zustellung bestätigen (Stand siehe `docs/offene-punkte.md`).
 - Nicht auf echtem Android-Handy geprüft: neue Icons (WebAPK übernimmt verzögert), Push-Zustellung, Besitzer-Merker.
 
 ## Nächster Schritt

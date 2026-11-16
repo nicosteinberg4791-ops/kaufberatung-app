@@ -63,7 +63,7 @@ KOPF = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kaufberatung</title>
-<meta name="description" content="Private Kaufberatung: Fernseher und Staubsauger, mit Preiswecker.">
+<meta name="description" content="Kaufberatung: Fernseher, Staubsauger und Air Fryer, mit Preiswecker.">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef1f5">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
