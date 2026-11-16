@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 16.11.2026 · `main` auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 14645eebc97d, Inhalt Artifact-Version 29 (16.11.2026, Bedienung neu geordnet: vier Bereiche, Schrittleiste, Verlauf, Antwortzeile, Suche). Ältere Einzelheiten: Git-Verlauf und `docs/pruefungen/`.
+Stand: 16.11.2026 · `main` auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 8dbf0366c458, Inhalt Artifact-Version 29 (16.11.2026, Bedienung neu geordnet: vier Bereiche, Schrittleiste, Verlauf, Antwortzeile, Suche). Ältere Einzelheiten: Git-Verlauf und `docs/pruefungen/`.
 
 ## „Für alle“ (seit Artifact-Version 28 veröffentlicht)
 
