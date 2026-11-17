@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-17T15:35:40+01:00",
+ "zeit": "2026-11-17T17:16:09+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -542,7 +542,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "tief": {
     "gesamt": 1899.0,
@@ -557,6 +557,11 @@
     },
     {
      "d": "2026-11-16",
+     "g": 1899.0,
+     "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-17",
      "g": 1899.0,
      "h": "Amazon.de"
     }
@@ -572,13 +577,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "roh": {
     "artikel": 829.0,
     "haendler": "Gamingoase.de",
     "sterne": "4,7 (452)",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "tief": {
     "gesamt": 899.0,
@@ -595,6 +600,11 @@
      "d": "2026-11-16",
      "g": 899.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-17",
+     "g": 899.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -608,7 +618,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "tief": {
     "gesamt": 1199.0,
@@ -625,6 +635,11 @@
      "d": "2026-11-16",
      "g": 1199.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-17",
+     "g": 1199.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -638,13 +653,13 @@
     "haendler": "Gamingoase",
     "sterne": "keine Bewertung",
     "lieferung": "2-5 Werktage",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "roh": {
     "artikel": 1499.0,
     "haendler": "Mediamarkt.de",
     "sterne": "2,4 (1.015)",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "tief": {
     "gesamt": 1899.0,
@@ -661,6 +676,11 @@
      "d": "2026-11-16",
      "g": 1899.0,
      "h": "Gamingoase"
+    },
+    {
+     "d": "2026-11-17",
+     "g": 1899.0,
+     "h": "Gamingoase"
     }
    ]
   },
@@ -674,7 +694,7 @@
     "haendler": "saturn",
     "sterne": "3,5 (7)",
     "lieferung": "Lieferzeit 3-7 Werktage",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "tief": {
     "gesamt": 199.0,
@@ -716,6 +736,11 @@
      "d": "2026-11-16",
      "g": 199.0,
      "h": "saturn"
+    },
+    {
+     "d": "2026-11-17",
+     "g": 199.0,
+     "h": "saturn"
     }
    ]
   },
@@ -729,7 +754,7 @@
     "haendler": "medionshop-deutschland",
     "sterne": "2,5 (9)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "tief": {
     "gesamt": 74.9,
@@ -771,6 +796,11 @@
      "d": "2026-11-16",
      "g": 74.9,
      "h": "medionshop-deutschland"
+    },
+    {
+     "d": "2026-11-17",
+     "g": 74.9,
+     "h": "medionshop-deutschland"
     }
    ]
   },
@@ -784,7 +814,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.086)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "tief": {
     "gesamt": 103.99,
@@ -826,6 +856,11 @@
      "d": "2026-11-16",
      "g": 103.99,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-17",
+     "g": 103.99,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -833,13 +868,13 @@
    "name": "Caso AirFry DuoChef 3186",
    "heiseUrl": "https://preisvergleich.heise.de/caso-airfry-duochef-3186-a3417119.html",
    "aktuell": {
-    "gesamt": 137.99,
-    "artikel": 137.99,
+    "gesamt": 137.97,
+    "artikel": 137.97,
     "versand": 0.0,
-    "haendler": "expert.de",
-    "sterne": "1,8 (144)",
-    "lieferung": "Lieferzeit 1 - 3 Werktage",
-    "zeit": "2026-11-16T17:08:20+01:00"
+    "haendler": "deltatecc-home",
+    "sterne": "3,0 (2)",
+    "lieferung": "Lieferzeit 2-5 Werktage",
+    "zeit": "2026-11-17T17:16:09+01:00"
    },
    "tief": {
     "gesamt": 131.07,
@@ -876,6 +911,11 @@
      "d": "2026-11-16",
      "g": 137.99,
      "h": "expert.de"
+    },
+    {
+     "d": "2026-11-17",
+     "g": 137.97,
+     "h": "deltatecc-home"
     }
    ]
   },
@@ -1241,9 +1281,9 @@
   }
  },
  "lauf": {
-  "letzter": "2026-11-17T15:35:40+01:00",
-  "status": "teilweise",
-  "meldung": "Folgt im nächsten Lauf: Samsung S90H 77″, TCL C8L 55″, TCL C8L 65″, TCL C8L 75″, Cosori Turbo Tower, Medion P20 XXL, Cosori R901, Caso DuoChef. Treffer: Ninja AF500 164,90 € neuer Tiefstpreis.",
+  "letzter": "2026-11-17T17:16:09+01:00",
+  "status": "ok",
+  "meldung": "Alle 24 Preise gelesen.",
   "bis": "2026-12-01",
   "versuche": {
    "af_aeg_aafd11b": "2026-11-17T15:35:40+01:00",
@@ -1262,14 +1302,14 @@
    "lg_c6elb_77": "2026-11-17T15:35:40+01:00",
    "sam_s90h_55": "2026-11-17T15:35:40+01:00",
    "sam_s90h_65": "2026-11-17T15:35:40+01:00",
-   "sam_s90h_77": "2026-11-16T17:08:20+01:00",
-   "tcl_c8l_55": "2026-11-16T17:08:20+01:00",
-   "tcl_c8l_65": "2026-11-16T17:08:20+01:00",
-   "tcl_c8l_77": "2026-11-16T17:08:20+01:00",
-   "af_cosori_tt": "2026-11-16T17:08:20+01:00",
-   "af_medion_p20": "2026-11-16T17:08:20+01:00",
-   "af_cosori_r901": "2026-11-16T17:08:20+01:00",
-   "af_caso_3186": "2026-11-16T17:08:20+01:00"
+   "sam_s90h_77": "2026-11-17T17:16:09+01:00",
+   "tcl_c8l_55": "2026-11-17T17:16:09+01:00",
+   "tcl_c8l_65": "2026-11-17T17:16:09+01:00",
+   "tcl_c8l_77": "2026-11-17T17:16:09+01:00",
+   "af_cosori_tt": "2026-11-17T17:16:09+01:00",
+   "af_medion_p20": "2026-11-17T17:16:09+01:00",
+   "af_cosori_r901": "2026-11-17T17:16:09+01:00",
+   "af_caso_3186": "2026-11-17T17:16:09+01:00"
   }
  }
 }
