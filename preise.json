@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-18T15:12:27+01:00",
+ "zeit": "2026-11-18T16:50:15+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -584,9 +584,9 @@
     "artikel": 1899.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,6 (3.086)",
+    "sterne": "2,6 (3.087)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-17T17:16:09+01:00"
+    "zeit": "2026-11-18T16:50:15+01:00"
    },
    "tief": {
     "gesamt": 1899.0,
@@ -606,6 +606,11 @@
     },
     {
      "d": "2026-11-17",
+     "g": 1899.0,
+     "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-18",
      "g": 1899.0,
      "h": "Amazon.de"
     }
@@ -1355,9 +1360,9 @@
   }
  },
  "lauf": {
-  "letzter": "2026-11-18T15:12:27+01:00",
+  "letzter": "2026-11-18T16:50:15+01:00",
   "status": "teilweise",
-  "meldung": "Folgt im nächsten Lauf: Samsung S90H 77″, TCL C8L 55″, TCL C8L 65″, TCL C8L 75″, Cosori Turbo Tower, Medion P20 XXL, Cosori R901, Caso DuoChef. Treffer: AEG AAFD11B 161,95 € neuer Tiefstpreis.",
+  "meldung": "Abruf fehlgeschlagen, alter Preis bleibt: TCL C8L 55″ (HTTP 429), TCL C8L 65″ (HTTP 429), TCL C8L 75″ (HTTP 429), Cosori Turbo Tower (HTTP 429), Medion P20 XXL (HTTP 429), Cosori R901 (HTTP 429), Caso DuoChef (HTTP 429).",
   "bis": "2026-12-01",
   "versuche": {
    "af_aeg_aafd11b": "2026-11-18T15:12:27+01:00",
@@ -1376,14 +1381,14 @@
    "lg_c6elb_77": "2026-11-18T15:12:27+01:00",
    "sam_s90h_55": "2026-11-18T15:12:27+01:00",
    "sam_s90h_65": "2026-11-18T15:12:27+01:00",
-   "sam_s90h_77": "2026-11-17T17:16:09+01:00",
-   "tcl_c8l_55": "2026-11-17T17:16:09+01:00",
-   "tcl_c8l_65": "2026-11-17T17:16:09+01:00",
-   "tcl_c8l_77": "2026-11-17T17:16:09+01:00",
-   "af_cosori_tt": "2026-11-17T17:16:09+01:00",
-   "af_medion_p20": "2026-11-17T17:16:09+01:00",
-   "af_cosori_r901": "2026-11-17T17:16:09+01:00",
-   "af_caso_3186": "2026-11-17T17:16:09+01:00"
+   "sam_s90h_77": "2026-11-18T16:50:15+01:00",
+   "tcl_c8l_55": "2026-11-18T16:50:15+01:00",
+   "tcl_c8l_65": "2026-11-18T16:50:15+01:00",
+   "tcl_c8l_77": "2026-11-18T16:50:15+01:00",
+   "af_cosori_tt": "2026-11-18T16:50:15+01:00",
+   "af_medion_p20": "2026-11-18T16:50:15+01:00",
+   "af_cosori_r901": "2026-11-18T16:50:15+01:00",
+   "af_caso_3186": "2026-11-18T16:50:15+01:00"
   }
  }
 }
