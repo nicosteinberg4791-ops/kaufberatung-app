@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-19T15:29:40+01:00",
+ "zeit": "2026-11-19T16:54:45+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -635,8 +635,8 @@
     "versand": 0.0,
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.087)",
-    "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T16:50:15+01:00"
+    "lieferung": "siehe Shop",
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "tief": {
     "gesamt": 1899.0,
@@ -661,6 +661,11 @@
     },
     {
      "d": "2026-11-18",
+     "g": 1899.0,
+     "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
      "g": 1899.0,
      "h": "Amazon.de"
     }
@@ -676,13 +681,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.087)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "roh": {
     "artikel": 799.0,
     "haendler": "Gamingoase.de",
     "sterne": "4,7 (452)",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "tief": {
     "gesamt": 899.0,
@@ -709,6 +714,11 @@
      "d": "2026-11-18",
      "g": 899.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 899.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -722,13 +732,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.087)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "roh": {
     "artikel": 1125.0,
     "haendler": "Gamingoase.de",
     "sterne": "4,7 (452)",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "tief": {
     "gesamt": 1199.0,
@@ -755,6 +765,11 @@
      "d": "2026-11-18",
      "g": 1199.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 1199.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -768,13 +783,13 @@
     "haendler": "Gamingoase",
     "sterne": "keine Bewertung",
     "lieferung": "2-5 Werktage",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "roh": {
     "artikel": 1499.0,
     "haendler": "Mediamarkt.de",
     "sterne": "2,4 (1.015)",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "tief": {
     "gesamt": 1899.0,
@@ -801,6 +816,11 @@
      "d": "2026-11-18",
      "g": 1899.0,
      "h": "Gamingoase"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 1899.0,
+     "h": "Gamingoase"
     }
    ]
   },
@@ -814,7 +834,7 @@
     "haendler": "saturn",
     "sterne": "3,5 (7)",
     "lieferung": "Lieferzeit 3-7 Werktage",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "tief": {
     "gesamt": 199.0,
@@ -866,6 +886,11 @@
      "d": "2026-11-18",
      "g": 199.0,
      "h": "saturn"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 199.0,
+     "h": "saturn"
     }
    ]
   },
@@ -873,18 +898,18 @@
    "name": "Medion P20 XXL Twin",
    "heiseUrl": "https://preisvergleich.heise.de/medion-md-11760-xxl-twin-50079506-a3787540.html",
    "aktuell": {
-    "gesamt": 74.9,
-    "artikel": 74.9,
+    "gesamt": 74.75,
+    "artikel": 74.75,
     "versand": 0.0,
-    "haendler": "medionshop-deutschland",
-    "sterne": "2,5 (9)",
+    "haendler": "UEBilliger",
+    "sterne": "keine Bewertung",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "tief": {
-    "gesamt": 74.9,
-    "datum": "2026-11-16",
-    "haendler": "medionshop-deutschland"
+    "gesamt": 74.75,
+    "datum": "2026-11-19",
+    "haendler": "UEBilliger"
    },
    "verlauf": [
     {
@@ -931,6 +956,11 @@
      "d": "2026-11-18",
      "g": 74.9,
      "h": "medionshop-deutschland"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 74.75,
+     "h": "UEBilliger"
     }
    ]
   },
@@ -944,7 +974,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.087)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "tief": {
     "gesamt": 103.99,
@@ -996,6 +1026,11 @@
      "d": "2026-11-18",
      "g": 103.99,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 103.99,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -1003,17 +1038,17 @@
    "name": "Caso AirFry DuoChef 3186",
    "heiseUrl": "https://preisvergleich.heise.de/caso-airfry-duochef-3186-a3417119.html",
    "aktuell": {
-    "gesamt": 131.81,
-    "artikel": 131.81,
+    "gesamt": 130.97,
+    "artikel": 130.97,
     "versand": 0.0,
     "haendler": "deltatecc-home",
     "sterne": "3,0 (2)",
     "lieferung": "Lieferzeit 2-5 Werktage",
-    "zeit": "2026-11-18T18:22:38+01:00"
+    "zeit": "2026-11-19T16:54:45+01:00"
    },
    "tief": {
-    "gesamt": 131.07,
-    "datum": "2026-11-15",
+    "gesamt": 130.97,
+    "datum": "2026-11-19",
     "haendler": "deltatecc-home"
    },
    "verlauf": [
@@ -1055,6 +1090,11 @@
     {
      "d": "2026-11-18",
      "g": 131.81,
+     "h": "deltatecc-home"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 130.97,
      "h": "deltatecc-home"
     }
    ]
@@ -1481,9 +1521,9 @@
   }
  },
  "lauf": {
-  "letzter": "2026-11-19T15:29:40+01:00",
-  "status": "teilweise",
-  "meldung": "Folgt im nächsten Lauf: Samsung S90H 77″, TCL C8L 55″, TCL C8L 65″, TCL C8L 75″, Cosori Turbo Tower, Medion P20 XXL, Cosori R901, Caso DuoChef. Treffer: AEG AAFD11B 139,95 € neuer Tiefstpreis.",
+  "letzter": "2026-11-19T16:54:45+01:00",
+  "status": "ok",
+  "meldung": "Alle 24 Preise gelesen. Treffer: Medion P20 XXL 74,75 € neuer Tiefstpreis; Caso DuoChef 130,97 € neuer Tiefstpreis.",
   "bis": "2026-12-01",
   "versuche": {
    "af_aeg_aafd11b": "2026-11-19T15:29:40+01:00",
@@ -1502,14 +1542,14 @@
    "lg_c6elb_77": "2026-11-19T15:29:40+01:00",
    "sam_s90h_55": "2026-11-19T15:29:40+01:00",
    "sam_s90h_65": "2026-11-19T15:29:40+01:00",
-   "sam_s90h_77": "2026-11-18T16:50:15+01:00",
-   "tcl_c8l_55": "2026-11-18T18:22:38+01:00",
-   "tcl_c8l_65": "2026-11-18T18:22:38+01:00",
-   "tcl_c8l_77": "2026-11-18T18:22:38+01:00",
-   "af_cosori_tt": "2026-11-18T18:22:38+01:00",
-   "af_medion_p20": "2026-11-18T18:22:38+01:00",
-   "af_cosori_r901": "2026-11-18T18:22:38+01:00",
-   "af_caso_3186": "2026-11-18T18:22:38+01:00"
+   "sam_s90h_77": "2026-11-19T16:54:45+01:00",
+   "tcl_c8l_55": "2026-11-19T16:54:45+01:00",
+   "tcl_c8l_65": "2026-11-19T16:54:45+01:00",
+   "tcl_c8l_77": "2026-11-19T16:54:45+01:00",
+   "af_cosori_tt": "2026-11-19T16:54:45+01:00",
+   "af_medion_p20": "2026-11-19T16:54:45+01:00",
+   "af_cosori_r901": "2026-11-19T16:54:45+01:00",
+   "af_caso_3186": "2026-11-19T16:54:45+01:00"
   }
  }
 }
