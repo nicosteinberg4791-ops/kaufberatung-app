@@ -1,25 +1,25 @@
 {
  "format": 1,
- "zeit": "2026-11-18T18:22:38+01:00",
+ "zeit": "2026-11-19T15:29:40+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
    "name": "LG OLED83C6ELB",
    "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled83c6elb-a3774767.html",
    "aktuell": {
-    "gesamt": 2996.37,
-    "artikel": 2996.37,
+    "gesamt": 3026.37,
+    "artikel": 3026.37,
     "versand": 0.0,
     "haendler": "galaxus",
-    "sterne": "4,0 (844)",
+    "sterne": "4,0 (845)",
     "lieferung": "Auf Lager, 6 Werktage",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "roh": {
     "artikel": 2779.0,
     "haendler": "electronic4you.de",
     "sterne": "4,9 (4.044)",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -81,6 +81,11 @@
      "d": "2026-11-18",
      "g": 2996.37,
      "h": "galaxus"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 3026.37,
+     "h": "galaxus"
     }
    ]
   },
@@ -94,7 +99,7 @@
     "haendler": "Berlet.de",
     "sterne": "4,2 (33)",
     "lieferung": "Auf Lager - Lieferung in 2-3 Werktagen",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 2499.0,
@@ -151,6 +156,11 @@
      "d": "2026-11-18",
      "g": 2599.0,
      "h": "Berlet.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 2599.0,
+     "h": "Berlet.de"
     }
    ]
   },
@@ -164,7 +174,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.087)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 2699.0,
@@ -221,6 +231,11 @@
      "d": "2026-11-18",
      "g": 2699.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 2699.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -234,7 +249,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.087)",
     "lieferung": "siehe Shop",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 1999.0,
@@ -291,6 +306,11 @@
      "d": "2026-11-18",
      "g": 1999.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 1999.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -304,7 +324,7 @@
     "haendler": "Gamingoase",
     "sterne": "keine Bewertung",
     "lieferung": "1-4 Werktage",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -361,6 +381,11 @@
      "d": "2026-11-18",
      "g": 4499.0,
      "h": "Gamingoase"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 4499.0,
+     "h": "Gamingoase"
     }
    ]
   },
@@ -374,7 +399,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.087)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 1079.0,
@@ -401,6 +426,11 @@
      "d": "2026-11-18",
      "g": 1079.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 1079.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -408,13 +438,19 @@
    "name": "LG OLED65C6ELB",
    "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled65c6elb-a3774758.html",
    "aktuell": {
-    "gesamt": 1349.0,
+    "gesamt": 1374.0,
     "artikel": 1349.0,
-    "versand": 0.0,
+    "versand": 25.0,
     "haendler": "Cyberport.de",
-    "sterne": "2,4 (6.138)",
+    "sterne": "2,4 (6.140)",
     "lieferung": "Lieferzeit 7-14 Werktage",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
+   },
+   "roh": {
+    "artikel": 1349.0,
+    "haendler": "Cyberport Stores Deutschland",
+    "sterne": "2,4 (6.140)",
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 1349.0,
@@ -441,6 +477,11 @@
      "d": "2026-11-18",
      "g": 1349.0,
      "h": "Cyberport.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 1374.0,
+     "h": "Cyberport.de"
     }
    ]
   },
@@ -448,19 +489,19 @@
    "name": "LG OLED77C6ELB",
    "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled77c6elb-a3774764.html",
    "aktuell": {
-    "gesamt": 2599.0,
+    "gesamt": 2624.0,
     "artikel": 2599.0,
-    "versand": 0.0,
+    "versand": 25.0,
     "haendler": "Cyberport.de",
-    "sterne": "2,4 (6.138)",
+    "sterne": "2,4 (6.140)",
     "lieferung": "voraussichtlich verfügbar ab 15.12.2026",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "roh": {
     "artikel": 2399.0,
     "haendler": "electronic4you.de",
     "sterne": "4,9 (4.044)",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 1899.0,
@@ -487,6 +528,11 @@
      "d": "2026-11-18",
      "g": 2599.0,
      "h": "Cyberport.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 2624.0,
+     "h": "Cyberport.de"
     }
    ]
   },
@@ -494,19 +540,13 @@
    "name": "Samsung GQ55S90H",
    "heiseUrl": "https://preisvergleich.heise.de/samsung-gq5s90h-a3805570.html",
    "aktuell": {
-    "gesamt": 1020.16,
-    "artikel": 1020.16,
+    "gesamt": 1019.99,
+    "artikel": 1019.99,
     "versand": 0.0,
-    "haendler": "Amazon.de",
-    "sterne": "2,6 (3.087)",
-    "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T15:12:27+01:00"
-   },
-   "roh": {
-    "artikel": 1020.15,
-    "haendler": "Jacob Elektronik direkt",
-    "sterne": "4,1 (4.143)",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "haendler": "Medimax_Bad_Nauheim",
+    "sterne": "keine Bewertung",
+    "lieferung": "3-5 Werktage",
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 999.0,
@@ -533,6 +573,11 @@
      "d": "2026-11-18",
      "g": 1020.16,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 1019.99,
+     "h": "Medimax_Bad_Nauheim"
     }
    ]
   },
@@ -546,7 +591,7 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.087)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 1399.0,
@@ -571,6 +616,11 @@
     },
     {
      "d": "2026-11-18",
+     "g": 1399.0,
+     "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
      "g": 1399.0,
      "h": "Amazon.de"
     }
@@ -1013,24 +1063,18 @@
    "name": "AEG AAFD11B",
    "heiseUrl": "https://preisvergleich.heise.de/aeg-8000-aafd11b-910-004-063-a3916554.html",
    "aktuell": {
-    "gesamt": 161.95,
-    "artikel": 161.95,
+    "gesamt": 139.95,
+    "artikel": 139.95,
     "versand": 0.0,
-    "haendler": "aeg-deutschland",
+    "haendler": "AEG-Deutschland",
     "sterne": "keine Bewertung",
-    "lieferung": "Lieferzeit 1-4 Werktage",
-    "zeit": "2026-11-18T15:12:27+01:00"
-   },
-   "roh": {
-    "artikel": 149.0,
-    "haendler": "XXXLutz Online Shop",
-    "sterne": "2,1 (16)",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "lieferung": "Auf Lager",
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
-    "gesamt": 161.95,
-    "datum": "2026-11-18",
-    "haendler": "aeg-deutschland"
+    "gesamt": 139.95,
+    "datum": "2026-11-19",
+    "haendler": "AEG-Deutschland"
    },
    "verlauf": [
     {
@@ -1072,6 +1116,11 @@
      "d": "2026-11-18",
      "g": 161.95,
      "h": "aeg-deutschland"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 139.95,
+     "h": "AEG-Deutschland"
     }
    ]
   },
@@ -1085,13 +1134,13 @@
     "haendler": "expert_ecommerce",
     "sterne": "5,0 (1)",
     "lieferung": "Lieferzeit 2-4 Werktage",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "roh": {
     "artikel": 123.0,
     "haendler": "expert.de",
     "sterne": "1,8 (144)",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 124.3,
@@ -1138,6 +1187,11 @@
      "d": "2026-11-18",
      "g": 127.99,
      "h": "expert_ecommerce"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 127.99,
+     "h": "expert_ecommerce"
     }
    ]
   },
@@ -1151,13 +1205,13 @@
     "haendler": "Joybuy",
     "sterne": "3,1 (16)",
     "lieferung": "Lieferzeit 1-2 Werktage",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "roh": {
     "artikel": 137.0,
     "haendler": "Cyberport Stores Deutschland",
-    "sterne": "2,4 (6.138)",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "sterne": "2,4 (6.140)",
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 135.9,
@@ -1204,6 +1258,11 @@
      "d": "2026-11-18",
      "g": 139.99,
      "h": "Joybuy"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 139.99,
+     "h": "Joybuy"
     }
    ]
   },
@@ -1217,13 +1276,13 @@
     "haendler": "Future-X.de",
     "sterne": "3,4 (985)",
     "lieferung": "Zentrallager: Auf Lager",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "roh": {
-    "artikel": 115.99,
-    "haendler": "TechnikDirekt",
-    "sterne": "2,0 (647)",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "artikel": 119.0,
+    "haendler": "elektrowolske",
+    "sterne": "keine Bewertung",
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 124.59,
@@ -1270,6 +1329,11 @@
      "d": "2026-11-18",
      "g": 124.59,
      "h": "Future-X.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 124.59,
+     "h": "Future-X.de"
     }
    ]
   },
@@ -1277,19 +1341,19 @@
    "name": "Gastroback Duo Family 42586",
    "heiseUrl": "https://preisvergleich.heise.de/gastroback-42586-multi-duo-family-9l-a3785334.html",
    "aktuell": {
-    "gesamt": 140.64,
-    "artikel": 140.64,
+    "gesamt": 139.99,
+    "artikel": 139.99,
     "versand": 0.0,
-    "haendler": "galaxus",
-    "sterne": "4,0 (844)",
-    "lieferung": "Lager Lieferant: Sofort lieferbar, 2-4 Werktage",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "haendler": "Gastroback",
+    "sterne": "keine Bewertung",
+    "lieferung": "Lieferzeit ca. 2-3 Werktage",
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "roh": {
     "artikel": 133.65,
     "haendler": "Cyberport.de",
-    "sterne": "2,4 (6.138)",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "sterne": "2,4 (6.140)",
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 111.32,
@@ -1336,6 +1400,11 @@
      "d": "2026-11-18",
      "g": 140.64,
      "h": "galaxus"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 139.99,
+     "h": "Gastroback"
     }
    ]
   },
@@ -1349,7 +1418,13 @@
     "haendler": "Amazon.de",
     "sterne": "2,6 (3.087)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-18T15:12:27+01:00"
+    "zeit": "2026-11-19T15:29:40+01:00"
+   },
+   "roh": {
+    "artikel": 163.99,
+    "haendler": "euronics-maxi-media",
+    "sterne": "1,0 (3)",
+    "zeit": "2026-11-19T15:29:40+01:00"
    },
    "tief": {
     "gesamt": 164.9,
@@ -1396,32 +1471,37 @@
      "d": "2026-11-18",
      "g": 164.9,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-19",
+     "g": 164.9,
+     "h": "Amazon.de"
     }
    ]
   }
  },
  "lauf": {
-  "letzter": "2026-11-18T18:22:38+01:00",
-  "status": "ok",
-  "meldung": "Alle 24 Preise gelesen.",
+  "letzter": "2026-11-19T15:29:40+01:00",
+  "status": "teilweise",
+  "meldung": "Folgt im nächsten Lauf: Samsung S90H 77″, TCL C8L 55″, TCL C8L 65″, TCL C8L 75″, Cosori Turbo Tower, Medion P20 XXL, Cosori R901, Caso DuoChef. Treffer: AEG AAFD11B 139,95 € neuer Tiefstpreis.",
   "bis": "2026-12-01",
   "versuche": {
-   "af_aeg_aafd11b": "2026-11-18T15:12:27+01:00",
-   "af_rh_27680": "2026-11-18T15:12:27+01:00",
-   "af_ninja_dz400": "2026-11-18T15:12:27+01:00",
-   "af_tefal_ey942": "2026-11-18T15:12:27+01:00",
-   "af_gastroback_42586": "2026-11-18T15:12:27+01:00",
-   "af_ninja_af500": "2026-11-18T15:12:27+01:00",
-   "lg_c6elb": "2026-11-18T15:12:27+01:00",
-   "lg_c69lb": "2026-11-18T15:12:27+01:00",
-   "sam_s90h": "2026-11-18T15:12:27+01:00",
-   "tcl_c8l": "2026-11-18T15:12:27+01:00",
-   "sam_qn90f": "2026-11-18T15:12:27+01:00",
-   "lg_c6elb_55": "2026-11-18T15:12:27+01:00",
-   "lg_c6elb_65": "2026-11-18T15:12:27+01:00",
-   "lg_c6elb_77": "2026-11-18T15:12:27+01:00",
-   "sam_s90h_55": "2026-11-18T15:12:27+01:00",
-   "sam_s90h_65": "2026-11-18T15:12:27+01:00",
+   "af_aeg_aafd11b": "2026-11-19T15:29:40+01:00",
+   "af_rh_27680": "2026-11-19T15:29:40+01:00",
+   "af_ninja_dz400": "2026-11-19T15:29:40+01:00",
+   "af_tefal_ey942": "2026-11-19T15:29:40+01:00",
+   "af_gastroback_42586": "2026-11-19T15:29:40+01:00",
+   "af_ninja_af500": "2026-11-19T15:29:40+01:00",
+   "lg_c6elb": "2026-11-19T15:29:40+01:00",
+   "lg_c69lb": "2026-11-19T15:29:40+01:00",
+   "sam_s90h": "2026-11-19T15:29:40+01:00",
+   "tcl_c8l": "2026-11-19T15:29:40+01:00",
+   "sam_qn90f": "2026-11-19T15:29:40+01:00",
+   "lg_c6elb_55": "2026-11-19T15:29:40+01:00",
+   "lg_c6elb_65": "2026-11-19T15:29:40+01:00",
+   "lg_c6elb_77": "2026-11-19T15:29:40+01:00",
+   "sam_s90h_55": "2026-11-19T15:29:40+01:00",
+   "sam_s90h_65": "2026-11-19T15:29:40+01:00",
    "sam_s90h_77": "2026-11-18T16:50:15+01:00",
    "tcl_c8l_55": "2026-11-18T18:22:38+01:00",
    "tcl_c8l_65": "2026-11-18T18:22:38+01:00",
