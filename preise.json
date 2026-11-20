@@ -1,25 +1,25 @@
 {
  "format": 1,
- "zeit": "2026-11-19T16:54:45+01:00",
+ "zeit": "2026-11-20T15:07:07+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
    "name": "LG OLED83C6ELB",
    "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled83c6elb-a3774767.html",
    "aktuell": {
-    "gesamt": 3026.37,
-    "artikel": 3026.37,
+    "gesamt": 3056.37,
+    "artikel": 3056.37,
     "versand": 0.0,
     "haendler": "galaxus",
     "sterne": "4,0 (845)",
     "lieferung": "Auf Lager, 6 Werktage",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "zeit": "2026-11-20T15:07:07+01:00"
    },
    "roh": {
     "artikel": 2779.0,
-    "haendler": "electronic4you.de",
-    "sterne": "4,9 (4.044)",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "haendler": "Alternate",
+    "sterne": "4,7 (3.689)",
+    "zeit": "2026-11-20T15:07:07+01:00"
    },
    "tief": {
     "gesamt": 2779.0,
@@ -85,6 +85,11 @@
     {
      "d": "2026-11-19",
      "g": 3026.37,
+     "h": "galaxus"
+    },
+    {
+     "d": "2026-11-20",
+     "g": 3056.37,
      "h": "galaxus"
     }
    ]
@@ -1521,9 +1526,9 @@
   }
  },
  "lauf": {
-  "letzter": "2026-11-19T16:54:45+01:00",
-  "status": "ok",
-  "meldung": "Alle 24 Preise gelesen. Treffer: Medion P20 XXL 74,75 € neuer Tiefstpreis; Caso DuoChef 130,97 € neuer Tiefstpreis.",
+  "letzter": "2026-11-20T15:07:07+01:00",
+  "status": "teilweise",
+  "meldung": "Abruf fehlgeschlagen, alter Preis bleibt: LG C69LB (HTTP 429), Samsung S90H (HTTP 429), TCL C8L (HTTP 429), Samsung QN90F (HTTP 429), LG C6 55″ (HTTP 429), LG C6 65″ (HTTP 429), LG C6 77″ (HTTP 429), Samsung S90H 55″ (HTTP 429). Folgt im nächsten Lauf (15): Samsung S90H 65″, +14 weitere.",
   "bis": "2026-12-01",
   "versuche": {
    "af_aeg_aafd11b": "2026-11-19T15:29:40+01:00",
@@ -1532,15 +1537,15 @@
    "af_tefal_ey942": "2026-11-19T15:29:40+01:00",
    "af_gastroback_42586": "2026-11-19T15:29:40+01:00",
    "af_ninja_af500": "2026-11-19T15:29:40+01:00",
-   "lg_c6elb": "2026-11-19T15:29:40+01:00",
-   "lg_c69lb": "2026-11-19T15:29:40+01:00",
-   "sam_s90h": "2026-11-19T15:29:40+01:00",
-   "tcl_c8l": "2026-11-19T15:29:40+01:00",
-   "sam_qn90f": "2026-11-19T15:29:40+01:00",
-   "lg_c6elb_55": "2026-11-19T15:29:40+01:00",
-   "lg_c6elb_65": "2026-11-19T15:29:40+01:00",
-   "lg_c6elb_77": "2026-11-19T15:29:40+01:00",
-   "sam_s90h_55": "2026-11-19T15:29:40+01:00",
+   "lg_c6elb": "2026-11-20T15:07:07+01:00",
+   "lg_c69lb": "2026-11-20T15:07:07+01:00",
+   "sam_s90h": "2026-11-20T15:07:07+01:00",
+   "tcl_c8l": "2026-11-20T15:07:07+01:00",
+   "sam_qn90f": "2026-11-20T15:07:07+01:00",
+   "lg_c6elb_55": "2026-11-20T15:07:07+01:00",
+   "lg_c6elb_65": "2026-11-20T15:07:07+01:00",
+   "lg_c6elb_77": "2026-11-20T15:07:07+01:00",
+   "sam_s90h_55": "2026-11-20T15:07:07+01:00",
    "sam_s90h_65": "2026-11-19T15:29:40+01:00",
    "sam_s90h_77": "2026-11-19T16:54:45+01:00",
    "tcl_c8l_55": "2026-11-19T16:54:45+01:00",
