@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-20T16:38:14+01:00",
+ "zeit": "2026-11-20T18:02:31+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -182,9 +182,9 @@
     "artikel": 2699.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,6 (3.087)",
+    "sterne": "2,5 (3.088)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "zeit": "2026-11-20T18:02:31+01:00"
    },
    "tief": {
     "gesamt": 2699.0,
@@ -246,6 +246,11 @@
      "d": "2026-11-19",
      "g": 2699.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-20",
+     "g": 2699.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -257,9 +262,9 @@
     "artikel": 1999.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,6 (3.087)",
-    "lieferung": "siehe Shop",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "sterne": "2,5 (3.088)",
+    "lieferung": "Gewöhnlich versandfertig in 1 bis 2 Monaten",
+    "zeit": "2026-11-20T18:02:31+01:00"
    },
    "tief": {
     "gesamt": 1999.0,
@@ -321,6 +326,11 @@
      "d": "2026-11-19",
      "g": 1999.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-20",
+     "g": 1999.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -334,7 +344,7 @@
     "haendler": "Gamingoase",
     "sterne": "keine Bewertung",
     "lieferung": "1-4 Werktage",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "zeit": "2026-11-20T18:02:31+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -396,6 +406,11 @@
      "d": "2026-11-19",
      "g": 4499.0,
      "h": "Gamingoase"
+    },
+    {
+     "d": "2026-11-20",
+     "g": 4499.0,
+     "h": "Gamingoase"
     }
    ]
   },
@@ -407,9 +422,9 @@
     "artikel": 1079.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,6 (3.087)",
+    "sterne": "2,5 (3.088)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "zeit": "2026-11-20T18:02:31+01:00"
    },
    "tief": {
     "gesamt": 1079.0,
@@ -441,6 +456,11 @@
      "d": "2026-11-19",
      "g": 1079.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-20",
+     "g": 1079.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -448,19 +468,13 @@
    "name": "LG OLED65C6ELB",
    "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled65c6elb-a3774758.html",
    "aktuell": {
-    "gesamt": 1374.0,
+    "gesamt": 1349.0,
     "artikel": 1349.0,
-    "versand": 25.0,
-    "haendler": "Cyberport.de",
-    "sterne": "2,4 (6.140)",
-    "lieferung": "Lieferzeit 7-14 Werktage",
-    "zeit": "2026-11-19T15:29:40+01:00"
-   },
-   "roh": {
-    "artikel": 1349.0,
-    "haendler": "Cyberport Stores Deutschland",
-    "sterne": "2,4 (6.140)",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "versand": 0.0,
+    "haendler": "computeruniverse.net",
+    "sterne": "2,4 (5.078)",
+    "lieferung": "Lieferzeit 5-7 Werktage",
+    "zeit": "2026-11-20T18:02:31+01:00"
    },
    "tief": {
     "gesamt": 1349.0,
@@ -492,6 +506,11 @@
      "d": "2026-11-19",
      "g": 1374.0,
      "h": "Cyberport.de"
+    },
+    {
+     "d": "2026-11-20",
+     "g": 1349.0,
+     "h": "computeruniverse.net"
     }
    ]
   },
@@ -499,19 +518,19 @@
    "name": "LG OLED77C6ELB",
    "heiseUrl": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled77c6elb-a3774764.html",
    "aktuell": {
-    "gesamt": 2624.0,
+    "gesamt": 2599.0,
     "artikel": 2599.0,
-    "versand": 25.0,
-    "haendler": "Cyberport.de",
-    "sterne": "2,4 (6.140)",
+    "versand": 0.0,
+    "haendler": "computeruniverse.net",
+    "sterne": "2,4 (5.078)",
     "lieferung": "voraussichtlich verfügbar ab 15.12.2026",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "zeit": "2026-11-20T18:02:31+01:00"
    },
    "roh": {
-    "artikel": 2399.0,
-    "haendler": "electronic4you.de",
-    "sterne": "4,9 (4.044)",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "artikel": 1879.0,
+    "haendler": "Alternate",
+    "sterne": "4,7 (3.689)",
+    "zeit": "2026-11-20T18:02:31+01:00"
    },
    "tief": {
     "gesamt": 1899.0,
@@ -543,6 +562,11 @@
      "d": "2026-11-19",
      "g": 2624.0,
      "h": "Cyberport.de"
+    },
+    {
+     "d": "2026-11-20",
+     "g": 2599.0,
+     "h": "computeruniverse.net"
     }
    ]
   },
@@ -550,13 +574,13 @@
    "name": "Samsung GQ55S90H",
    "heiseUrl": "https://preisvergleich.heise.de/samsung-gq5s90h-a3805570.html",
    "aktuell": {
-    "gesamt": 1019.99,
-    "artikel": 1019.99,
+    "gesamt": 1099.0,
+    "artikel": 1099.0,
     "versand": 0.0,
-    "haendler": "Medimax_Bad_Nauheim",
+    "haendler": "Electronic_Lichtenau",
     "sterne": "keine Bewertung",
     "lieferung": "3-5 Werktage",
-    "zeit": "2026-11-19T15:29:40+01:00"
+    "zeit": "2026-11-20T18:02:31+01:00"
    },
    "tief": {
     "gesamt": 999.0,
@@ -588,6 +612,11 @@
      "d": "2026-11-19",
      "g": 1019.99,
      "h": "Medimax_Bad_Nauheim"
+    },
+    {
+     "d": "2026-11-20",
+     "g": 1099.0,
+     "h": "Electronic_Lichtenau"
     }
    ]
   },
@@ -866,10 +895,10 @@
     "gesamt": 199.0,
     "artikel": 199.0,
     "versand": 0.0,
-    "haendler": "saturn",
-    "sterne": "3,5 (7)",
+    "haendler": "mediamarkt-darmstadt-city",
+    "sterne": "keine Bewertung",
     "lieferung": "Lieferzeit 3-7 Werktage",
-    "zeit": "2026-11-19T16:54:45+01:00"
+    "zeit": "2026-11-20T18:02:31+01:00"
    },
    "tief": {
     "gesamt": 199.0,
@@ -926,6 +955,11 @@
      "d": "2026-11-19",
      "g": 199.0,
      "h": "saturn"
+    },
+    {
+     "d": "2026-11-20",
+     "g": 199.0,
+     "h": "mediamarkt-darmstadt-city"
     }
    ]
   },
@@ -1595,9 +1629,9 @@
   }
  },
  "lauf": {
-  "letzter": "2026-11-20T16:38:14+01:00",
-  "status": "teilweise",
-  "meldung": "Kein Angebot mit belegtem Versand: Cosori Turbo Tower. Folgt im nächsten Lauf: Samsung S90H, TCL C8L, Samsung QN90F, LG C6 55″, LG C6 65″, LG C6 77″, Samsung S90H 55″. Treffer: Tefal EY942 111 € neuer Tiefstpreis; Ninja AF500 164 € neuer Tiefstpreis.",
+  "letzter": "2026-11-20T18:02:31+01:00",
+  "status": "ok",
+  "meldung": "Alle 24 Preise gelesen.",
   "bis": "2026-12-01",
   "versuche": {
    "af_aeg_aafd11b": "2026-11-20T16:38:14+01:00",
@@ -1608,19 +1642,19 @@
    "af_ninja_af500": "2026-11-20T16:38:14+01:00",
    "lg_c6elb": "2026-11-20T15:07:07+01:00",
    "lg_c69lb": "2026-11-20T16:38:14+01:00",
-   "sam_s90h": "2026-11-20T15:07:07+01:00",
-   "tcl_c8l": "2026-11-20T15:07:07+01:00",
-   "sam_qn90f": "2026-11-20T15:07:07+01:00",
-   "lg_c6elb_55": "2026-11-20T15:07:07+01:00",
-   "lg_c6elb_65": "2026-11-20T15:07:07+01:00",
-   "lg_c6elb_77": "2026-11-20T15:07:07+01:00",
-   "sam_s90h_55": "2026-11-20T15:07:07+01:00",
+   "sam_s90h": "2026-11-20T18:02:31+01:00",
+   "tcl_c8l": "2026-11-20T18:02:31+01:00",
+   "sam_qn90f": "2026-11-20T18:02:31+01:00",
+   "lg_c6elb_55": "2026-11-20T18:02:31+01:00",
+   "lg_c6elb_65": "2026-11-20T18:02:31+01:00",
+   "lg_c6elb_77": "2026-11-20T18:02:31+01:00",
+   "sam_s90h_55": "2026-11-20T18:02:31+01:00",
    "sam_s90h_65": "2026-11-20T16:38:14+01:00",
    "sam_s90h_77": "2026-11-20T16:38:14+01:00",
    "tcl_c8l_55": "2026-11-20T16:38:14+01:00",
    "tcl_c8l_65": "2026-11-20T16:38:14+01:00",
    "tcl_c8l_77": "2026-11-20T16:38:14+01:00",
-   "af_cosori_tt": "2026-11-20T16:38:14+01:00",
+   "af_cosori_tt": "2026-11-20T18:02:31+01:00",
    "af_medion_p20": "2026-11-20T16:38:14+01:00",
    "af_cosori_r901": "2026-11-20T16:38:14+01:00",
    "af_caso_3186": "2026-11-20T16:38:14+01:00"
