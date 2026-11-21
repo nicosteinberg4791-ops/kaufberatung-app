@@ -82,12 +82,18 @@ class Vorlagen(unittest.TestCase):
         g, _ = s.auswerten_seite(vorlage("proshop_ninja.html"), MODELLE["af_ninja_af500"], QUELLEN["proshop"], "L", "Z")
         self.assertEqual([(a["preis"], a["versand"]) for a in g], [(174.05, 4.99)])
 
-    def test_proshop_ohne_versandangabe(self):
+    def test_proshop_versand_punkt_null(self):
+        # D7-08: Vorlage nennt Versand nach DE als ".00" EUR
         g, _ = s.auswerten_seite(vorlage("proshop_s26.html"), MODELLE["phone_s26_ultra_256"], QUELLEN["proshop"], "L", "Z")
         self.assertEqual(len(g), 1)
-        self.assertIsNone(g[0]["versand"])
-        self.assertIsNone(g[0]["gesamt"])
-        self.assertEqual(g[0]["versand_herkunft"], "unbekannt")
+        self.assertEqual((g[0]["versand"], g[0]["versand_herkunft"], g[0]["gesamt"]), (0.0, "json-ld", 969.0))
+
+    def test_vorlagen_ohne_konto_pfade_und_zusatzangebote(self):
+        # D7-09: nur Felder, die die Tests brauchen; keine Konto-URLs, keine Service-/Garantietexte
+        for name in os.listdir(VORLAGEN):
+            t = vorlage(name)
+            for verboten in ("myaccount", "loyalty", '"addOn"', "Garantie", "MerchantReturnPolicy"):
+                self.assertNotIn(verboten, t, f"{name}: {verboten}")
 
     def test_saturn_produktgruppe_nur_passende_ean_und_eigenes_angebot(self):
         g, prot = s.auswerten_seite(vorlage("saturn_s90h.html"), MODELLE["sam_s90h_65"], QUELLEN["saturn"], "L", "Z")
@@ -115,6 +121,18 @@ class Vorlagen(unittest.TestCase):
         g, prot = s.auswerten_seite(text, MODELLE["af_ninja_af500"], QUELLEN["saturn"], "L", "Z")
         self.assertEqual(g, [])
         self.assertTrue(any("passt nicht zum JSON-LD" in p["grund"] for p in prot), prot)
+
+    def test_saturn_preisfeld_nicht_aus_folgeobjekt(self):
+        # D7-04: SKU-Objekt ohne Preis darf den Preis des folgenden Objekts (andere SKU, Marktplatz) nicht übernehmen
+        p = produkt(ean="0622356270373", price="219.99")
+        del p["offers"]["seller"]
+        p["sku"] = "111"
+        zustand = ('{"id":"Saturn:de:111","currency":"EUR","isProductOfTypeMarketplace":false,"price":null,'
+                   '"productGroupId":1}, {"id":"Saturn:de:222","currency":"EUR","isProductOfTypeMarketplace":true,'
+                   '"price":{"__typename":"CofrPriceFeaturePrice","amount":219.99,"shippingCost":0}}')
+        text = seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(zustand)
+        g, prot = s.auswerten_seite(text, MODELLE["af_ninja_af500"], QUELLEN["saturn"], "L", "Z")
+        self.assertEqual(g, [], prot)
 
 
 class Regeln(unittest.TestCase):
@@ -208,8 +226,8 @@ class Regeln(unittest.TestCase):
         self.assertEqual(len(s.jsonld_bloecke(text)), 1)
 
     def test_zahlen(self):
-        self.assertEqual([s.zahl(x) for x in (1599, "1599.00", "1.599,00", "219,99", "€ 9", True, "abc")],
-                         [1599.0, 1599.0, 1599.0, 219.99, 9.0, None, None])
+        self.assertEqual([s.zahl(x) for x in (1599, "1599.00", "1.599,00", "219,99", "€ 9", True, "abc", ".00", ".5")],
+                         [1599.0, 1599.0, 1599.0, 219.99, 9.0, None, None, 0.0, 0.5])
 
     def test_ean_normalisierung(self):
         self.assertEqual(s.norm_ean("0622356270373"), s.norm_ean("622356270373"))
@@ -241,6 +259,21 @@ class Bestpreis(unittest.TestCase):
 
     def test_leer(self):
         self.assertEqual(s.bestpreis([])[:2], (None, None))
+
+    def test_dublette_nur_bei_gleichem_haendler(self):
+        # D7-07: gleicher Wortanfang ist kein gleicher Händler
+        _, _, alle = s.bestpreis([self.a("heise", "Elektronik Nord", 500, 0), self.a("heise", "Elektronik Sued", 500, 0)])
+        self.assertEqual(len(alle), 2)
+
+    def test_dublette_behaelt_belegten_guenstigeren_gesamtpreis(self):
+        # D7-07: zwei direkte Alternate-Treffer zu 1.599 €: der mit kostenlosem Versand bleibt, nicht der zuerst gelieferte
+        best, _, alle = s.bestpreis([self.a("eigen", "Alternate", 1599, 69.99), self.a("eigen", "Alternate", 1599, 0)])
+        self.assertEqual((len(alle), best["gesamt"]), (1, 1599))
+
+    def test_alias_aus_quellen(self):
+        aliase = s.haendler_aliase(list(QUELLEN.values()))
+        _, _, alle = s.bestpreis([self.a("heise", "proshop.de", 969, 0), self.a("eigen", "Proshop", 969, 0)], aliase)
+        self.assertEqual([a["quelle"] for a in alle], ["eigen"])
 
 
 class Lauf(unittest.TestCase):
@@ -319,9 +352,84 @@ class Lauf(unittest.TestCase):
     def test_challenge_erkennung(self):
         robots_saturn = "User-Agent: *\nDisallow: /cdn-cgi/bm/cv/\nDisallow: /cdn-cgi/challenge-platform/\n"
         self.assertFalse(s.ist_challenge(robots_saturn, "text/plain"))  # Livelauf 21.11.2026: Fehlalarm
-        sperre = "<html><script src='/cdn-cgi/challenge-platform/h/b/orchestrate'></script></html>"
+        sperre = "<html><script src='/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1'></script></html>"
         self.assertTrue(s.ist_challenge(sperre, "text/html; charset=UTF-8"))
-        self.assertFalse(s.ist_challenge(sperre + seite(produkt()), "text/html"))
+        # D7-03: aktive Challenge und eindeutige Sperrtexte sperren auch mit JSON-LD
+        self.assertTrue(s.ist_challenge(sperre + seite(produkt()), "text/html"))
+        self.assertTrue(s.ist_challenge("<h1>Access Denied</h1>" + seite(produkt()), "text/html"))
+        # passiver Cloudflare-Skriptverweis auf normaler Produktseite mit JSON-LD: keine Sperre
+        passiv = "<script src='/cdn-cgi/challenge-platform/scripts/jsd/main.js'></script>"
+        self.assertFalse(s.ist_challenge(passiv + seite(produkt()), "text/html"))
+        self.assertTrue(s.ist_challenge(passiv, "text/html"))
+
+    def test_robots_html_oder_fliesstext_nicht_lesbar(self):
+        # D7-02: HTML-Wartungsseite mit HTTP 200 ist keine robots.txt
+        for text in ("<!doctype html><html><body>Wartung, bitte spaeter</body></html>",
+                     "Wir sind gleich wieder da.\nDanke fuer Ihre Geduld.", "", "Disallow: /x\n"):
+            rp = s.robots_fuer(QUELLEN["proshop"], holen=lambda url, t=text: t)
+            self.assertIsInstance(rp, str, repr(text))
+            self.assertIn("nicht lesbar", rp)
+        rp = s.robots_fuer(QUELLEN["proshop"], holen=lambda url: "# Kommentar\nUser-agent: *\nDisallow: /Basket/\n"
+                                                                  "Sitemap: https://www.proshop.de/sitemap.xml\n")
+        self.assertNotIsInstance(rp, str)
+
+    def test_keine_weiterleitung_kein_zweiter_abruf(self):
+        # D7-01: 3xx wird nicht verfolgt; das Ziel wird nie angefragt
+        import http.server
+        import threading
+        pfade = []
+
+        class H(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                pfade.append(self.path)
+                if self.path == "/start":
+                    self.send_response(302)
+                    self.send_header("Location", "/ziel")
+                    self.end_headers()
+                else:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html")
+                    self.end_headers()
+                    self.wfile.write(b"<html>Ziel</html>")
+
+            def log_message(self, *a):
+                pass
+        srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        try:
+            alt = os.environ.pop("NO_PROXY", None), os.environ.get("no_proxy")
+            os.environ["no_proxy"] = "127.0.0.1"
+            with self.assertRaises(s.Weitergeleitet):
+                s.abrufen("http://127.0.0.1:%d/start" % srv.server_address[1])
+        finally:
+            srv.shutdown()
+            srv.server_close()
+            if alt[0] is not None:
+                os.environ["NO_PROXY"] = alt[0]
+            if alt[1] is None:
+                os.environ.pop("no_proxy", None)
+            else:
+                os.environ["no_proxy"] = alt[1]
+        self.assertEqual(pfade, ["/start"])
+
+    def test_heise_alle_kandidaten_auswahl_nach_dubletten(self):
+        # D7-06: heise Alternate 1.500 € frei, Shop B 1.550 € frei; direkt Alternate 1.500 € + 50 € Versand.
+        # Nach Dublettenbereinigung (eigen vor heise) muss Shop B mit 1.550 € gewinnen, nicht Alternate mit 1.550 €+.
+        heise_seite = '<script>var x = {"offers": [' \
+                      '{"raw_price": 1500.0, "merchant_name": "ALTERNATE", "merchant_free_shipping": true}, ' \
+                      '{"raw_price": 1540.0, "merchant_name": "Shop B", "merchant_free_shipping": true}]};</script>'
+        sd = {"shippingRate": {"value": 50, "currency": "EUR"}, "shippingDestination": {"addressCountry": "DE"}}
+        alternate_seite = seite(produkt(price="1500.00", shippingDetails=sd))
+
+        def holen(url):
+            if url.endswith("robots.txt"):
+                return "User-agent: *\nDisallow: /redir/\n"
+            return heise_seite if "heise" in url else alternate_seite
+        quellen = [q for q in QUELLEN.values() if q["id"] in ("alternate", "heise", "idealo", "mediamarkt")]
+        erg = s.lauf(quellen, [MODELLE["lg_c6elb_65"]], holen=holen, pause=0)
+        m = erg["modelle"]["lg_c6elb_65"]
+        self.assertEqual(len(m["quellen"]["heise"]["angebote"]), 2)
+        self.assertEqual((m["bestpreis"]["haendler"], m["bestpreis"]["gesamt"]), ("Shop B", 1540.0))
 
     def test_url_pruefung(self):
         q = QUELLEN["proshop"]

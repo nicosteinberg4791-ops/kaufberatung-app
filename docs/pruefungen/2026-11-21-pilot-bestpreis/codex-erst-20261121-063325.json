@@ -1,0 +1,107 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Für den Push auf main fehlen zwei Voraussetzungen. Die Abrufgrenzen greifen bei Weiterleitungen und unbrauchbaren robots.txt-Antworten zu spät oder gar nicht. Außerdem kann der Pilot ungeprüfte Angebote und falsche Bestpreise ausgeben. Die 44 Shopabfrage-Tests bestanden mit Python 3.13.14 und 3.14.7.",
+  "befunde": [
+    {
+      "id": "D7-01",
+      "schwere": "schwer",
+      "titel": "Weiterleitungsziele werden vor der Freigabeprüfung abgerufen",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 352,
+      "beleg": "Kriterium „Nur Quellen mit \"automatisch\": true werden abgerufen“. Bei einer HTTP-Weiterleitung folgt `urlopen()` dem Ziel. Der Code liest in Zeile 353 bereits die Zielantwort und prüft die Ziel-URL erst in Zeile 356. Der Test in `tests/test_shopabfrage.py:301` simuliert nur die nachträgliche Ausnahme.",
+      "auswirkung": "Eine freigegebene URL kann einen Abruf auf einer nicht freigegebenen Domain oder einem laut robots.txt gesperrten Pfad auslösen. Das anschließende Verwerfen der Antwort verhindert diesen Abruf nicht.",
+      "vorschlag": "Weiterleitungen im HTTP-Client vor dem Zielabruf unterbinden und mit einer simulierten 3xx-Antwort prüfen, dass kein zweiter Request erfolgt.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-02",
+      "schwere": "schwer",
+      "titel": "Eine HTML-Fehlerseite mit HTTP 200 kann als robots.txt durchgehen",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 376,
+      "beleg": "Kriterium „robots.txt live gelesen, nicht lesbar = Quelle nicht abfragen“. Liefert `/robots.txt` eine HTML-Wartungsseite mit HTTP 200 ohne erkanntes Challenge-Merkmal, übergibt `robots_fuer()` sie ungeprüft an `RobotFileParser`. Im Offline-Test erlaubte `url_erlaubt()` danach die Produkt-URL.",
+      "auswirkung": "Eine vorübergehend nicht verfügbare robots.txt kann Produktabrufe freigeben, obwohl ihre Regeln unbekannt sind.",
+      "vorschlag": "Den Abruf von robots.txt separat validieren. HTML und erkennbar fehlerhafte oder abgeschnittene Antworten als nicht lesbar behandeln.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-03",
+      "schwere": "schwer",
+      "titel": "JSON-LD unterdrückt die Sperre nach einer erkannten Challenge",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 340,
+      "beleg": "Kriterium „403/429/503/Challenge = Quelle für den Lauf gesperrt, nie umgangen.“ Eine HTML-Antwort mit `Access Denied` und einem JSON-LD-Block ergab offline `ist_challenge() == False`. `tests/test_shopabfrage.py:324` erwartet dieses Verhalten sogar für das Cloudflare-Challenge-Skript der Testvorlage.",
+      "auswirkung": "Enthält eine Sperrseite zusätzlich strukturierte Daten, kann der Lauf weitere Produktseiten derselben Quelle abrufen.",
+      "vorschlag": "Eindeutige Sperrmerkmale unabhängig von JSON-LD behandeln. Für die Erkennung zwischen einem aktiven Challenge-Skript und bloßen Textreferenzen unterscheiden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-04",
+      "schwere": "schwer",
+      "titel": "Saturn-Preisnachweis kann Preis und Verkäuferstatus verschiedener Artikel vermischen",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 224,
+      "beleg": "Kriterium „Verkäufer = Shop (Saturn: Nachweis über eingebettetes Preisfeld, Marktplatz verworfen).“ Der Regex sucht nach dem SKU-Treffer in den nächsten 1.500 Zeichen weiter, auch über das Ende des Objekts hinweg. Im Offline-Test akzeptierte `pruefe_angebot()` ein verkäuferloses Angebot, dessen SKU-Objekt `false` und keinen Preis enthielt. Der passende Preis stammte aus dem folgenden Objekt einer anderen SKU mit Marktplatzstatus `true`.",
+      "auswirkung": "Ein Angebot kann als Saturn-Eigenangebot in den Bestpreis eingehen, obwohl das Preisfeld der passenden SKU den Verkäufer und den Angebotspreis nicht gemeinsam belegt.",
+      "vorschlag": "Den eingebetteten Zustand strukturiert auswerten und SKU, Marktplatzstatus, Betrag und Versand demselben Preisobjekt zuordnen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-05",
+      "schwere": "schwer",
+      "titel": "Heise-Angebote umgehen die Gültigkeitsprüfung des Piloten",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 319,
+      "beleg": "Kriterium „Angebot gültig nur bei passender EAN, NewCondition (oder fehlend), InStock, EUR, Preis im Korridor, Verkäufer = Shop“. `preiswecker.auswerten()` prüft in `werkzeuge/preiswecker.py:140` den Preiskorridor. Der Pilot übernimmt anschließend `sicher` und `roh` als gültige Angebote. EAN, Zustand, Verfügbarkeit, Währung und Verkäuferrolle werden in diesem Pfad nicht geprüft. `tests/test_shopabfrage.py:336` bestätigt die Übernahme eines Heise-Angebots ohne diese Nachweise.",
+      "auswirkung": "Ein Heise-Treffer kann den Bestpreis stellen, obwohl etwa Lieferbarkeit oder Händlerrolle unbelegt sind.",
+      "vorschlag": "Die verlangten Nachweise auch für Vergleichsangebote vor der Übernahme prüfen. Treffer ohne diese Nachweise als Vergleichslink führen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-06",
+      "schwere": "kritisch",
+      "titel": "Heise-Vorauswahl kann den günstigsten verbleibenden Treffer verlieren",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 321,
+      "beleg": "Offline-Reproduktion: Heise liefert Alternate für 100 € gesamt und Shop B für 110 € gesamt. Der direkte Alternate-Treffer kostet ebenfalls 100 € Artikelpreis, mit Versand insgesamt 150 €. Die Heise-Vorauswahl gibt nur Alternate zurück, das bei der Dublettenbereinigung dem direkten Treffer weicht. Ist: 150 € Bestpreis. Soll nach Dublettenbereinigung: 110 € bei Shop B.",
+      "auswirkung": "Der Pilot kann einen zu hohen Bestpreis ausgeben, obwohl die Heise-Seite einen günstigeren gültigen Kandidaten enthält.",
+      "vorschlag": "Die vollständige Liste gültiger Kandidaten an die Zusammenführung übergeben. Erst nach der Dublettenbereinigung nach Gesamtpreis auswählen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-07",
+      "schwere": "schwer",
+      "titel": "Dublettenprüfung verwirft verschiedene Händler und übernimmt beliebige Versandkosten",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 409,
+      "beleg": "Die Regel im Diff lautet „ohne Dubletten (gleicher Händler, gleicher Preis)“. Der Schlüssel verwendet nur die ersten acht Zeichen des normalisierten Händlers. Offline fielen `Elektronik Nord` und `Elektronik Sued` bei gleichem Artikelpreis zusammen. Bei zwei direkten Alternate-Treffern zu je 1.599 € blieb zudem der zuerst gelieferte Treffer mit 69,99 € Versand vor dem Treffer mit kostenlosem Versand erhalten.",
+      "auswirkung": "Ein selbstständiger Händler kann aus der Auswahl verschwinden. Bei mehreren Treffern desselben Händlers kann die Reihenfolge der Angebotsdaten den ausgegebenen Gesamtpreis bestimmen.",
+      "vorschlag": "Die vollständige Händleridentität mit expliziten Aliasen verwenden. Bei gleichem Quellenvorrang die Auswahl anhand belegter Gesamtpreise treffen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-08",
+      "schwere": "schwer",
+      "titel": "Die Proshop-Vorlage enthält einen Versandwert, den die Auswertung verliert",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 147,
+      "beleg": "Auslöser ist `tests/vorlagen/proshop_s26.html:4`. Dort steht für EUR-Versand nach Deutschland explizit `\"value\": \".00\"`. `zahl('.00')` ergab offline `None`, und `tests/test_shopabfrage.py:85` erwartet deshalb unbekannten Versand. Soll: 0,00 € aus JSON-LD und für dieses Angebot 969,00 € Gesamtpreis.",
+      "auswirkung": "Das vorhandene Proshop-Angebot wird wie ein Angebot ohne belegten Gesamtpreis behandelt und kann dadurch in der Bestpreisauswahl unterliegen.",
+      "vorschlag": "Dezimalbeträge ohne führende Null auswerten und den Vorlagentest auf Versand 0,00 €, Herkunft `json-ld` und Gesamtpreis 969,00 € korrigieren.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-09",
+      "schwere": "schwer",
+      "titel": "Saturn-Testvorlage enthält fremde Angebotstexte und einen Kontopfad",
+      "datei": "tests/vorlagen/saturn_s90h.html",
+      "zeile": 4,
+      "beleg": "Kriterium „Keine persönlichen Daten, Pfade, Konto-URLs oder fremden Shoptexte in versionierten Dateien (Repo öffentlich).“ Die aus der Originalseite gekürzte Vorlage enthält Saturns Service- und Garantietexte sowie die MySaturn-Konto-URL `/de/myaccount/loyalty-benefits`.",
+      "auswirkung": "Ein Push veröffentlicht kopierte Shoptexte und eine Konto-URL, die die Tests für EAN, SKU und Preisfeld nicht benötigen.",
+      "vorschlag": "Die Vorlagen auf synthetische Testdaten für die tatsächlich geprüften Felder reduzieren. Service- und Garantietexte sowie Konto-URLs entfernen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Geprüft wurde Commit 79daf34a3acdd1d528cf163e2dcb84134aa3711e. Die 44 Shopabfrage-Tests wurden unabhängig mit zwei lokal installierten Python-Versionen und deaktivierten Bytecode-Schreibzugriffen ausgeführt. Der vollständige PowerShell-Testlauf schreibt ein Laufprotokoll und verwendet Tests mit temporären Dateien. Sein Ergebnis „Fehler: 0“ stammt aus der Selbstprüfung. Die Workflow-Prüfung war statisch. Die dokumentierten Quellenfreigaben wurden als Ausgangspunkt verwendet. Live-Abrufe und eine eigenständige rechtliche Bewertung waren nicht Teil der Prüfung."
+}

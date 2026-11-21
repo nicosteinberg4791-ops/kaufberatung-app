@@ -52,8 +52,13 @@ UA_TOKEN = "Kaufberatung-Preispilot"  # Name für robots.txt-Regeln (sonst gilt 
 PAUSE = 3.0
 TIMEOUT = 25
 MAX_BYTES = 6_000_000
-CHALLENGE = re.compile(r"challenge-platform|cf-chl|captcha|px-captcha|_Incapsula_|Access Denied|Pardon Our Interruption",
-                       re.I)
+# Eindeutige Sperrmerkmale: sperren immer, auch wenn die Seite JSON-LD enthält (D7-03)
+SPERRE = re.compile(r"challenge-platform/h/[a-z]/orchestrate|chl_page|cf-chl|_cf_chl_opt|px-captcha|_Incapsula_|"
+                    r"Access Denied|Pardon Our Interruption|<title>\s*(Just a moment|Attention Required)", re.I)
+# Schwache Merkmale: auch normale Produktseiten verweisen passiv darauf (Cloudflare-Skript, Captcha im Formular);
+# nur ohne JSON-LD eine Sperrseite
+CHALLENGE_SCHWACH = re.compile(r"challenge-platform|captcha", re.I)
+ROBOTS_ZEILE = re.compile(r"\s*(#.*)?|\s*[A-Za-z][A-Za-z-]*\s*:.*")
 
 
 # ---------------------------------------------------------------- JSON-LD lesen
@@ -146,7 +151,7 @@ def zahl(x):
         return float(x)
     if isinstance(x, str):
         s = x.strip().replace("€", "").replace(" ", "").strip()
-        if re.fullmatch(r"\d+(\.\d+)?", s):
+        if re.fullmatch(r"\d+(\.\d+)?|\.\d+", s):  # auch ".00" (Proshop-Versand, D7-08)
             return float(s)
         if re.fullmatch(r"\d{1,3}(\.\d{3})*(,\d{1,2})?", s):
             return float(s.replace(".", "").replace(",", "."))
@@ -218,14 +223,24 @@ def mms_preisfeld(text, praefix, sku):
     if not sku:
         return None
     t = text.replace('\\"', '"')
+    dec = json.JSONDecoder()
     funde = set()
     for m in re.finditer(r'"id":"%s%s","currency":"EUR","isProductOfTypeMarketplace":(true|false)' %
                          (re.escape(praefix), re.escape(str(sku))), t):
-        seg = t[m.end():m.end() + 1500]
-        b = re.search(r'"price":\{"__typename":"CofrPriceFeaturePrice","amount":([0-9.]+)', seg)
-        v = re.search(r'"shippingCost":([0-9.]+|null)', seg)
-        funde.add((m.group(1) == "true", float(b.group(1)) if b else None,
-                   float(v.group(1)) if v and v.group(1) != "null" else None))
+        # Das Objekt endet spätestens dort, wo das nächste Artikelobjekt beginnt (D7-04: nie ins Folgeobjekt lesen)
+        rest = t[m.end():]
+        n = rest.find('{"id":"')
+        obj = rest[:n] if n >= 0 else rest
+        betrag = versand = None
+        for pm in re.finditer(r'"price":(?=\{)', obj):
+            try:
+                preis, _ = dec.raw_decode(obj, pm.end())
+            except ValueError:
+                continue
+            if isinstance(preis, dict) and preis.get("__typename") == "CofrPriceFeaturePrice":
+                betrag, versand = zahl(preis.get("amount")), zahl(preis.get("shippingCost"))
+                break
+        funde.add((m.group(1) == "true", betrag, versand))
     return funde.pop() if len(funde) == 1 else None
 
 
@@ -315,16 +330,20 @@ def versand_regel(quelle, preis):
 
 def heise_auswerten(text, modell, link, zeit):
     sys.path.insert(0, os.path.join(WURZEL, "werkzeuge"))
-    import preiswecker  # nur lesend genutzt
-    e = preiswecker.auswerten(text, tuple(modell["korridor"]))
+    import preiswecker  # nur lesend genutzt (angebote, versand wie in preiswecker.auswerten)
+    lo, hi = modell["korridor"]
     out = []
-    for art in ("sicher", "roh"):
-        a = e.get(art)
-        if a:
-            out.append({"quelle": "heise", "shop": "heise", "haendler": a["haendler"], "preis": a["artikel"],
-                        "versand": a["versand"], "versand_herkunft": "heise" if a["versand"] is not None else "unbekannt",
-                        "gesamt": a["gesamt"], "link": link, "zeit": zeit})
-    return out, [{"grund": f"heise: {e['angebote']} Angebote im Korridor"}]
+    # Alle Angebote im Korridor, keine Vorauswahl: ausgewählt wird erst nach der Dublettenbereinigung (D7-06)
+    for o in preiswecker.angebote(text):
+        preis = o.get("raw_price")
+        if isinstance(preis, bool) or not isinstance(preis, (int, float)) or not lo <= preis <= hi:
+            continue
+        v, _ = preiswecker.versand(o)
+        out.append({"quelle": "heise", "shop": "heise", "haendler": str(o.get("merchant_name") or "?")[:60],
+                    "preis": round(float(preis), 2), "versand": v,
+                    "versand_herkunft": "heise" if v is not None else "unbekannt",
+                    "gesamt": None if v is None else round(preis + v, 2), "link": link, "zeit": zeit})
+    return out, [{"grund": f"heise: {len(out)} Angebote im Korridor"}]
 
 
 # ---------------------------------------------------------------- Abruf
@@ -338,24 +357,41 @@ class Weitergeleitet(NichtAbrufbar):
 
 
 def ist_challenge(text, inhaltstyp):
-    """Sperr-/Challenge-Seite? Nur HTML-Antworten (robots.txt von Saturn nennt selbst /cdn-cgi/challenge-platform/)."""
-    return ("html" in (inhaltstyp or "").lower() and bool(CHALLENGE.search(text[:20000]))
-            and "application/ld+json" not in text)
+    """Sperr-/Challenge-Seite? Nur HTML-Antworten (robots.txt von Saturn nennt selbst /cdn-cgi/challenge-platform/).
+    Eindeutige Merkmale sperren immer; schwache nur, wenn die Seite kein JSON-LD hat."""
+    if "html" not in (inhaltstyp or "").lower():
+        return False
+    kopf = text[:20000]
+    if SPERRE.search(kopf):
+        return True
+    return bool(CHALLENGE_SCHWACH.search(kopf)) and "application/ld+json" not in text
+
+
+class _KeineWeiterleitung(urllib.request.HTTPRedirectHandler):
+    """3xx nicht verfolgen (D7-01): urllib löst dann HTTPError mit dem 3xx-Code aus, das Ziel wird nie abgerufen."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+_OPENER = urllib.request.build_opener(_KeineWeiterleitung)
 
 
 def abrufen(url):
-    """GET mit ehrlichem User-Agent. 403/429/503/Challenge -> NichtAbrufbar (nie umgehen)."""
+    """GET mit ehrlichem User-Agent, ohne Weiterleitungen. 403/429/503/Challenge -> NichtAbrufbar (nie umgehen)."""
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "de-DE,de;q=0.9",
                                                "Accept": "text/html,application/xhtml+xml"})
     for versuch in (1, 2):
         try:
-            with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+            with _OPENER.open(req, timeout=TIMEOUT) as r:
                 roh = r.read(MAX_BYTES)
                 text = roh.decode(r.headers.get_content_charset() or "utf-8", "replace")
                 typ = r.headers.get("Content-Type", "")
-                if r.geturl() != url:  # urllib folgt Weiterleitungen; geprüft wurde nur die Start-URL
+                if r.geturl() != url:  # zweite Sicherung, falls doch eine Weiterleitung verfolgt wurde
                     raise Weitergeleitet(f"Weiterleitung auf {r.geturl()[:120]}")
         except urllib.error.HTTPError as e:
+            if 300 <= e.code < 400:
+                raise Weitergeleitet(f"Weiterleitung (HTTP {e.code}) auf {str(e.headers.get('Location') or '?')[:120]}")
             if e.code in (401, 403, 429, 503):
                 raise NichtAbrufbar(f"HTTP {e.code}")
             if e.code >= 500 and versuch == 1:
@@ -380,9 +416,19 @@ def robots_fuer(quelle, holen=abrufen):
         text = holen(url)
     except NichtAbrufbar as e:
         return f"robots.txt nicht lesbar ({e})"
+    if not robots_gueltig(text):
+        return "robots.txt nicht lesbar (keine gültigen Regeln, z. B. HTML-Seite)"
     rp = urllib.robotparser.RobotFileParser()
     rp.parse(text.splitlines())
     return rp
+
+
+def robots_gueltig(text):
+    """D7-02: nur echte robots.txt auswerten. Jede Zeile leer, Kommentar oder „Feld: Wert“, mindestens eine
+    User-agent-Zeile. HTML-Wartungsseiten, Fließtext oder leere Antworten gelten als nicht lesbar."""
+    zeilen = (text or "").splitlines()
+    return (all(ROBOTS_ZEILE.fullmatch(z) for z in zeilen)
+            and any(re.match(r"\s*user-agent\s*:", z, re.I) for z in zeilen))
 
 
 def url_erlaubt(url, quelle, rp):
@@ -402,12 +448,27 @@ def url_erlaubt(url, quelle, rp):
 
 # ---------------------------------------------------------------- Zusammenführung
 
-def bestpreis(angebote):
+def haendler_aliase(quellen):
+    """Normalisierter Händlername -> Quellen-id, nur aus quellen.json (name, verkaeufer) der Shops (D7-07)."""
+    out = {}
+    for q in quellen:
+        if q.get("typ") == "shop":
+            for n in [q.get("name"), q.get("id")] + list(q.get("verkaeufer") or []):
+                if n and _name_norm(n):
+                    out[_name_norm(n)] = q["id"]
+    return out
+
+
+def bestpreis(angebote, aliase=None):
     """Günstigstes Angebot nach Gesamtpreis; ohne bekannten Versand nur, wenn kein Angebot mit Versand billiger ist.
-    Dubletten (gleicher Händler, gleicher Preis) fallen weg; das eigene Angebot hat Vorrang vor heise."""
+    Dubletten (gleicher Händler laut vollem Namen oder Alias, gleicher Artikelpreis) fallen weg; das eigene Angebot
+    hat Vorrang vor heise, bei gleichem Vorrang gewinnt der niedrigere belegte Gesamtpreis."""
+    aliase = aliase or {}
     gesehen, eindeutig = set(), []
-    for a in sorted(angebote, key=lambda a: (a["quelle"] != "eigen", a["preis"])):
-        k = (_name_norm(a["haendler"])[:8], a["preis"])
+    for a in sorted(angebote, key=lambda a: (a["quelle"] != "eigen", a["preis"], a["gesamt"] is None,
+                                             a["gesamt"] or 0)):
+        n = _name_norm(a["haendler"])
+        k = (aliase.get(n, n), a["preis"])
         if k in gesehen:
             continue
         gesehen.add(k)
@@ -422,6 +483,7 @@ def bestpreis(angebote):
 def lauf(quellen, modelle, holen=abrufen, pause=PAUSE, jetzt=None):
     zeit = jetzt or datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     qmap = {q["id"]: q for q in quellen}
+    aliase = haendler_aliase(quellen)
     status_quelle, robots = {}, {}
     letzter = {}
     for q in quellen:
@@ -473,7 +535,7 @@ def lauf(quellen, modelle, holen=abrufen, pause=PAUSE, jetzt=None):
             alle += gueltig
             je[qid] = {"status": "ok" if gueltig else "kein gültiges Angebot", "link": url,
                        "angebote": gueltig, "geprueft": prot[:10]}
-        best, hinweis, eindeutig = bestpreis(alle)
+        best, hinweis, eindeutig = bestpreis(alle, aliase)
         erg[m["id"]] = {"name": m["name"], "kategorie": m["kategorie"], "bestpreis": best, "hinweis_ohne_versand": hinweis,
                         "angebote": eindeutig, "quellen": je}
     return {"stand": zeit, "hinweis": "Pilot: günstigster Preis bei den geprüften Quellen, kein Marktbestpreis.",
