@@ -39,7 +39,7 @@ Erkenntnisse: Alternate sperrt nach ~15 schnellen Abrufen (429, Cloudflare), Pro
 
 ## Offen / blockiert
 
-- O11 Impeccable-Installation (`npx impeccable install --scope=project --providers=claude --no-hooks`, Telemetrie aus) von der automatischen Freigabe abgelehnt → Besitzer gibt frei oder entfällt mit Grund.
+- O11 Impeccable: **entschieden** (Besitzer 21.11.2026: „Installation freigeben“). `.impeccable/config.json` mit Telemetrie aus liegt im Worktree. Die Installation per `npx` hat die automatische Freigabe erneut abgelehnt; der Besitzer startet sie selbst (Befehl im Chat). README-Stand 21.11.: `--no-hooks` ist nicht mehr dokumentiert, der Installer fragt nach dem Hook (mit „nein“ beantworten); Telemetrie laut README per `npx impeccable telemetry off`, `DO_NOT_TRACK=1` oder `config.json`. Danach AGENTS-Vermerk „Design: Impeccable (Projekt, Telemetrie aus, ohne Hook)“.
 - O12 `listenpreis` ins Format aufnehmen (Preisstufe ohne Lieferbarkeit) oder streichen → Lead.
 - O13 `update_jahre`: EU-Mindestwert oder Herstellerzusage → Besitzer.
 - Pilot-Preisabruf (O9) wird in der Pilot-Sitzung nach Codex-R1 „nicht bestanden“ korrigiert; tägliche Finder-Preise hängen davon ab.
