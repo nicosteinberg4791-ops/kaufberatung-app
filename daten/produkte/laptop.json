@@ -1,0 +1,420 @@
+{
+ "kategorie": "laptop",
+ "stand": "2026-11-21",
+ "quellen": {
+  "apple-air-specs": {
+   "url": "https://www.apple.com/de/macbook-air/specs/",
+   "titel": "Apple: MacBook Air Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "apple-neo-specs": {
+   "url": "https://www.apple.com/de/macbook-neo/specs/",
+   "titel": "Apple: MacBook Neo Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "apple-pro-specs": {
+   "url": "https://www.apple.com/de/macbook-pro/specs/",
+   "titel": "Apple: MacBook Pro Technische Daten",
+   "gelesen": "2026-11-21"
+  }
+ },
+ "modelle": [
+  {
+   "id": "apple-macbook-neo",
+   "hersteller": "Apple",
+   "name": "MacBook Neo",
+   "werte": {
+    "akku_wh": 36.5,
+    "ram_gb": 8,
+    "gewicht_kg": 1.23,
+    "helligkeit_nits": 500,
+    "panel": "ips",
+    "aufloesung_vertikal": 1506,
+    "usb_c_laden": true,
+    "usb4_thunderbolt": false,
+    "wlan": "wifi6e",
+    "hdmi": false,
+    "webcam_1080p": true,
+    "display_zoll": 13,
+    "betriebssystem": "macos",
+    "grafik_dediziert": false
+   },
+   "belege": {
+    "akku_wh": "apple-neo-specs",
+    "ram_gb": "apple-neo-specs",
+    "gewicht_kg": "apple-neo-specs",
+    "helligkeit_nits": "apple-neo-specs",
+    "panel": "apple-neo-specs",
+    "aufloesung_vertikal": "apple-neo-specs",
+    "usb_c_laden": "apple-neo-specs",
+    "usb4_thunderbolt": "apple-neo-specs",
+    "wlan": "apple-neo-specs",
+    "hdmi": "apple-neo-specs",
+    "webcam_1080p": "apple-neo-specs",
+    "display_zoll": "apple-neo-specs",
+    "betriebssystem": "apple-neo-specs",
+    "grafik_dediziert": "apple-neo-specs"
+   },
+   "varianten": [
+    {
+     "id": "apple-macbook-neo-256",
+     "name": "8 GB / 256 GB",
+     "werte": {
+      "ssd_gb": 256
+     },
+     "belege": {
+      "ssd_gb": "apple-neo-specs"
+     },
+     "preis": null,
+     "listenpreis": {
+      "eur": 799.0,
+      "haendler": "Apple Store DE",
+      "url": "https://www.apple.com/de/shop/buy-mac/macbook-neo",
+      "stand": "2026-11-21",
+      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
+     },
+     "mpn": "MHFA4D/A"
+    },
+    {
+     "id": "apple-macbook-neo-512",
+     "name": "8 GB / 512 GB",
+     "werte": {
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ssd_gb": "apple-neo-specs"
+     },
+     "preis": null,
+     "listenpreis": {
+      "eur": 899.0,
+      "haendler": "Apple Store DE",
+      "url": "https://www.apple.com/de/shop/buy-mac/macbook-neo",
+      "stand": "2026-11-21",
+      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
+     },
+     "mpn": "MHFC4D/A"
+    }
+   ]
+  },
+  {
+   "id": "apple-macbook-air-13-m5",
+   "hersteller": "Apple",
+   "name": "MacBook Air 13 Zoll (M5)",
+   "werte": {
+    "helligkeit_nits": 500,
+    "panel": "ips",
+    "usb_c_laden": true,
+    "usb4_thunderbolt": true,
+    "wlan": "wifi7",
+    "hdmi": false,
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "betriebssystem": "macos",
+    "grafik_dediziert": false,
+    "akku_wh": 53.8,
+    "gewicht_kg": 1.23,
+    "aufloesung_vertikal": 1664,
+    "display_zoll": 13.6
+   },
+   "belege": {
+    "helligkeit_nits": "apple-air-specs",
+    "panel": "apple-air-specs",
+    "usb_c_laden": "apple-air-specs",
+    "usb4_thunderbolt": "apple-air-specs",
+    "wlan": "apple-air-specs",
+    "hdmi": "apple-air-specs",
+    "webcam_1080p": "apple-air-specs",
+    "tastaturbeleuchtung": "apple-air-specs",
+    "betriebssystem": "apple-air-specs",
+    "grafik_dediziert": "apple-air-specs",
+    "akku_wh": "apple-air-specs",
+    "gewicht_kg": "apple-air-specs",
+    "aufloesung_vertikal": "apple-air-specs",
+    "display_zoll": "apple-air-specs"
+   },
+   "varianten": [
+    {
+     "id": "apple-macbook-air-13-m5-16-512",
+     "name": "16 GB / 512 GB, 8-Core-GPU",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "apple-air-specs",
+      "ssd_gb": "apple-air-specs"
+     },
+     "preis": null,
+     "listenpreis": {
+      "eur": 1399.0,
+      "haendler": "Apple Store DE",
+      "url": "https://www.apple.com/de/shop/buy-mac/macbook-air",
+      "stand": "2026-11-21",
+      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
+     },
+     "mpn": "MDH74D/A"
+    },
+    {
+     "id": "apple-macbook-air-13-m5-16-1tb",
+     "name": "16 GB / 1 TB, 10-Core-GPU",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "apple-air-specs",
+      "ssd_gb": "apple-air-specs"
+     },
+     "preis": null,
+     "listenpreis": {
+      "eur": 1509.0,
+      "haendler": "Apple Store DE",
+      "url": "https://www.apple.com/de/shop/buy-mac/macbook-air",
+      "stand": "2026-11-21",
+      "hinweis": "Ab-Preis laut Konfigurator (niedrigste vorkonfigurierte Ausstattung mit 10-Core-GPU), nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "apple-macbook-air-15-m5",
+   "hersteller": "Apple",
+   "name": "MacBook Air 15 Zoll (M5)",
+   "werte": {
+    "helligkeit_nits": 500,
+    "panel": "ips",
+    "usb_c_laden": true,
+    "usb4_thunderbolt": true,
+    "wlan": "wifi7",
+    "hdmi": false,
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "betriebssystem": "macos",
+    "grafik_dediziert": false,
+    "akku_wh": 66.5,
+    "gewicht_kg": 1.51,
+    "aufloesung_vertikal": 1864,
+    "display_zoll": 15.3
+   },
+   "belege": {
+    "helligkeit_nits": "apple-air-specs",
+    "panel": "apple-air-specs",
+    "usb_c_laden": "apple-air-specs",
+    "usb4_thunderbolt": "apple-air-specs",
+    "wlan": "apple-air-specs",
+    "hdmi": "apple-air-specs",
+    "webcam_1080p": "apple-air-specs",
+    "tastaturbeleuchtung": "apple-air-specs",
+    "betriebssystem": "apple-air-specs",
+    "grafik_dediziert": "apple-air-specs",
+    "akku_wh": "apple-air-specs",
+    "gewicht_kg": "apple-air-specs",
+    "aufloesung_vertikal": "apple-air-specs",
+    "display_zoll": "apple-air-specs"
+   },
+   "varianten": [
+    {
+     "id": "apple-macbook-air-15-m5-16-512",
+     "name": "16 GB / 512 GB",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "apple-air-specs",
+      "ssd_gb": "apple-air-specs"
+     },
+     "preis": null,
+     "listenpreis": {
+      "eur": 1699.0,
+      "haendler": "Apple Store DE",
+      "url": "https://www.apple.com/de/shop/buy-mac/macbook-air",
+      "stand": "2026-11-21",
+      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
+     },
+     "mpn": "MDV94D/A"
+    }
+   ]
+  },
+  {
+   "id": "apple-macbook-pro-14-m6",
+   "hersteller": "Apple",
+   "name": "MacBook Pro 14 Zoll (M6)",
+   "werte": {
+    "helligkeit_nits": 1000,
+    "usb_c_laden": true,
+    "usb4_thunderbolt": true,
+    "wlan": "wifi7",
+    "hdmi": true,
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "display_hz": 120,
+    "betriebssystem": "macos",
+    "grafik_dediziert": false,
+    "akku_wh": 72.4,
+    "gewicht_kg": 1.55,
+    "aufloesung_vertikal": 1964,
+    "display_zoll": 14.2
+   },
+   "belege": {
+    "helligkeit_nits": "apple-pro-specs",
+    "usb_c_laden": "apple-pro-specs",
+    "usb4_thunderbolt": "apple-pro-specs",
+    "wlan": "apple-pro-specs",
+    "hdmi": "apple-pro-specs",
+    "webcam_1080p": "apple-pro-specs",
+    "tastaturbeleuchtung": "apple-pro-specs",
+    "display_hz": "apple-pro-specs",
+    "betriebssystem": "apple-pro-specs",
+    "grafik_dediziert": "apple-pro-specs",
+    "akku_wh": "apple-pro-specs",
+    "gewicht_kg": "apple-pro-specs",
+    "aufloesung_vertikal": "apple-pro-specs",
+    "display_zoll": "apple-pro-specs"
+   },
+   "varianten": [
+    {
+     "id": "apple-macbook-pro-14-m6-16-1tb",
+     "name": "16 GB / 1 TB",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "apple-pro-specs",
+      "ssd_gb": "apple-pro-specs"
+     },
+     "preis": null,
+     "listenpreis": {
+      "eur": 2299.0,
+      "haendler": "Apple Store DE",
+      "url": "https://www.apple.com/de/shop/buy-mac/macbook-pro",
+      "stand": "2026-11-21",
+      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
+     },
+     "mpn": "MHWW4D/A"
+    }
+   ]
+  },
+  {
+   "id": "apple-macbook-pro-14-m5-pro",
+   "hersteller": "Apple",
+   "name": "MacBook Pro 14 Zoll (M5 Pro)",
+   "werte": {
+    "helligkeit_nits": 1000,
+    "usb_c_laden": true,
+    "usb4_thunderbolt": true,
+    "wlan": "wifi7",
+    "hdmi": true,
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "display_hz": 120,
+    "betriebssystem": "macos",
+    "grafik_dediziert": false,
+    "akku_wh": 72.4,
+    "gewicht_kg": 1.6,
+    "aufloesung_vertikal": 1964,
+    "display_zoll": 14.2
+   },
+   "belege": {
+    "helligkeit_nits": "apple-pro-specs",
+    "usb_c_laden": "apple-pro-specs",
+    "usb4_thunderbolt": "apple-pro-specs",
+    "wlan": "apple-pro-specs",
+    "hdmi": "apple-pro-specs",
+    "webcam_1080p": "apple-pro-specs",
+    "tastaturbeleuchtung": "apple-pro-specs",
+    "display_hz": "apple-pro-specs",
+    "betriebssystem": "apple-pro-specs",
+    "grafik_dediziert": "apple-pro-specs",
+    "akku_wh": "apple-pro-specs",
+    "gewicht_kg": "apple-pro-specs",
+    "aufloesung_vertikal": "apple-pro-specs",
+    "display_zoll": "apple-pro-specs"
+   },
+   "varianten": [
+    {
+     "id": "apple-macbook-pro-14-m5-pro-24-1tb",
+     "name": "24 GB / 1 TB",
+     "werte": {
+      "ram_gb": 24,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "apple-pro-specs",
+      "ssd_gb": "apple-pro-specs"
+     },
+     "preis": null,
+     "listenpreis": {
+      "eur": 2899.0,
+      "haendler": "Apple Store DE",
+      "url": "https://www.apple.com/de/shop/buy-mac/macbook-pro",
+      "stand": "2026-11-21",
+      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
+     },
+     "mpn": "MGDN4D/A"
+    }
+   ]
+  },
+  {
+   "id": "apple-macbook-pro-16-m5-pro",
+   "hersteller": "Apple",
+   "name": "MacBook Pro 16 Zoll (M5 Pro)",
+   "werte": {
+    "helligkeit_nits": 1000,
+    "usb_c_laden": true,
+    "usb4_thunderbolt": true,
+    "wlan": "wifi7",
+    "hdmi": true,
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "display_hz": 120,
+    "betriebssystem": "macos",
+    "grafik_dediziert": false,
+    "akku_wh": 100,
+    "gewicht_kg": 2.14,
+    "aufloesung_vertikal": 2234,
+    "display_zoll": 16.2
+   },
+   "belege": {
+    "helligkeit_nits": "apple-pro-specs",
+    "usb_c_laden": "apple-pro-specs",
+    "usb4_thunderbolt": "apple-pro-specs",
+    "wlan": "apple-pro-specs",
+    "hdmi": "apple-pro-specs",
+    "webcam_1080p": "apple-pro-specs",
+    "tastaturbeleuchtung": "apple-pro-specs",
+    "display_hz": "apple-pro-specs",
+    "betriebssystem": "apple-pro-specs",
+    "grafik_dediziert": "apple-pro-specs",
+    "akku_wh": "apple-pro-specs",
+    "gewicht_kg": "apple-pro-specs",
+    "aufloesung_vertikal": "apple-pro-specs",
+    "display_zoll": "apple-pro-specs"
+   },
+   "varianten": [
+    {
+     "id": "apple-macbook-pro-16-m5-pro-24-1tb",
+     "name": "24 GB / 1 TB",
+     "werte": {
+      "ram_gb": 24,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "apple-pro-specs",
+      "ssd_gb": "apple-pro-specs"
+     },
+     "preis": null,
+     "listenpreis": {
+      "eur": 3399.0,
+      "haendler": "Apple Store DE",
+      "url": "https://www.apple.com/de/shop/buy-mac/macbook-pro",
+      "stand": "2026-11-21",
+      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
+     },
+     "mpn": "MGE44D/A"
+    }
+   ]
+  }
+ ]
+}

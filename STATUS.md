@@ -2,6 +2,10 @@
 
 Stand: 21.11.2026 · `main` c36205f lokal (origin/main 79daf34 gepusht) auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 090ac453670e, Inhalt Artifact-Version 30. Pilot Bestpreis-Mix (D7) gepusht und einmal auf Actions gelaufen; Prüfstand selbst geprüft · unabhängig: Codex 3 Runden, nicht bestanden · Besitzer: Push/Livegang 21.11. freigegeben.
 
+## Finder „Finden & Vergleichen“ (Zweig `datenbank`, 21.11.2026)
+
+Neue Startseite mit Preisrahmen, Aufpreis-/Spar-Hinweis und Produktdatenbank (14 Kategorien, 278 Modelle). Stand c20480f, selbst geprüft (datenbank.py 0 Fehler, node --test 30/30), unabhängig nein, noch nicht eingebaut und nicht live. Übergabe, Entscheidungen D8–D11, offene Punkte O11–O13 und nächste Schritte: `docs/uebergabe-finder.md`.
+
 ## „Für alle“ (seit Artifact-Version 28 veröffentlicht)
 
 - App-Hülle: Besitzerfunktionen (Wunschpreise, Treffer-Karte, „Push einrichten“, Hintergrundprüfung) nur mit lokalem Merker `kb-app:besitzer` (`app/app.js`); ohne Merker `isOwner()` = false, Wunschpreise unsichtbar und nicht setzbar. Sichtbarkeit, keine Sicherheit. Secret-Link aus der Pages-Adresse abgeleitet, keine Konto-URL im Code.

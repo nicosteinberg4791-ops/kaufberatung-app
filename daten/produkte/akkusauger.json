@@ -1,0 +1,909 @@
+{
+ "kategorie": "akkusauger",
+ "stand": "2026-11-21",
+ "quellen": {
+  "alt-rh6545wh": {
+   "url": "https://www.alternate.de/Rowenta/RH-6545WH-Stielstaubsauger/html/product/1429044",
+   "titel": "Alternate Datenblatt Rowenta RH6545WH",
+   "gelesen": "2026-11-21"
+  },
+  "alt-rh6737": {
+   "url": "https://www.alternate.de/Rowenta/Dual-Force-2-in-1-RH6737-Stielstaubsauger/html/product/1759936",
+   "titel": "Alternate Datenblatt Rowenta Dual Force RH6737",
+   "gelesen": "2026-11-21"
+  },
+  "alt-gorenje-222480": {
+   "url": "https://www.alternate.de/gorenje/SVC222480AA-Stielstaubsauger/html/product/100192734",
+   "titel": "Alternate Datenblatt gorenje SVC222480AA",
+   "gelesen": "2026-11-21"
+  },
+  "alt-medion-p400w": {
+   "url": "https://www.alternate.de/Medion/P400W-MD-12051-Stielstaubsauger/html/product/100220758",
+   "titel": "Alternate Datenblatt Medion P400W",
+   "gelesen": "2026-11-21"
+  },
+  "alt-rh6a31wo": {
+   "url": "https://www.alternate.de/Rowenta/X-PERT-7-60-RH6A31WO-Stielstaubsauger/html/product/100163889",
+   "titel": "Alternate Datenblatt Rowenta X-PERT 7.60",
+   "gelesen": "2026-11-21"
+  },
+  "alt-tineco-s50": {
+   "url": "https://www.alternate.de/Tineco/Pure-One-S50-Pro-Akku-Stielstaubsauger/html/product/100225731",
+   "titel": "Alternate Datenblatt Tineco Pure One S50 Pro",
+   "gelesen": "2026-11-21"
+  },
+  "alt-bks611mtb": {
+   "url": "https://www.alternate.de/Bosch-Home/Serie-6-BKS611MTB-Stielstaubsauger/html/product/1674055",
+   "titel": "Alternate Datenblatt Bosch BKS611MTB",
+   "gelesen": "2026-11-21"
+  },
+  "alt-kaercher-vc6": {
+   "url": "https://www.alternate.de/K%C3%A4rcher/VC-6-Cordless-ourFamily-Stielstaubsauger/html/product/100042689",
+   "titel": "Alternate Datenblatt Kärcher VC 6 Cordless ourFamily",
+   "gelesen": "2026-11-21"
+  },
+  "alt-roborock-h60": {
+   "url": "https://www.alternate.de/Roborock/H60-Hub-Ultra-Stielstaubsauger/html/product/100161829",
+   "titel": "Alternate Datenblatt Roborock H60 Hub Ultra",
+   "gelesen": "2026-11-21"
+  },
+  "alt-v8-absolute": {
+   "url": "https://www.alternate.de/Dyson/V8-Absolute-Stielstaubsauger/html/product/100228525",
+   "titel": "Alternate Datenblatt Dyson V8 Absolute",
+   "gelesen": "2026-11-21"
+  },
+  "alt-v10-konical": {
+   "url": "https://www.alternate.de/Dyson/V10-Konical-Stielstaubsauger/html/product/100214002",
+   "titel": "Alternate Datenblatt Dyson V10 Konical",
+   "gelesen": "2026-11-21"
+  },
+  "alt-rh9958": {
+   "url": "https://www.alternate.de/Rowenta/X-Force-Flex-14-60-Animal-RH9958-Stielstaubsauger/html/product/100194833",
+   "titel": "Alternate Datenblatt Rowenta X-Force Flex 14.60 Animal",
+   "gelesen": "2026-11-21"
+  },
+  "alt-gorenje-296749": {
+   "url": "https://www.alternate.de/gorenje/SVC296749NEBL-Stielstaubsauger/html/product/100192131",
+   "titel": "Alternate Datenblatt gorenje SVC296749NEBL",
+   "gelesen": "2026-11-21"
+  },
+  "alt-rh9cd9": {
+   "url": "https://www.alternate.de/Rowenta/X-Force-Flex-16-60-Animal-Aqua-RH9CD9-Stielstaubsauger/html/product/100194884",
+   "titel": "Alternate Datenblatt Rowenta X-Force Flex 16.60 Animal Aqua",
+   "gelesen": "2026-11-21"
+  },
+  "alt-v15-fluffy": {
+   "url": "https://www.alternate.de/Dyson/V15-Detect-Fluffy-Stielstaubsauger/html/product/100042277",
+   "titel": "Alternate Datenblatt Dyson V15 Detect Fluffy",
+   "gelesen": "2026-11-21"
+  },
+  "alt-gen5": {
+   "url": "https://www.alternate.de/Dyson/Gen5detect-Stielstaubsauger/html/product/100029114",
+   "titel": "Alternate Datenblatt Dyson Gen5detect",
+   "gelesen": "2026-11-21"
+  },
+  "alt-v16": {
+   "url": "https://www.alternate.de/Dyson/V16-Piston-Animal-mit-Spezialreinigungsset-Stielstaubsauger/html/product/100165767",
+   "titel": "Alternate Datenblatt Dyson V16 Piston Animal",
+   "gelesen": "2026-11-21"
+  },
+  "sat-r20se": {
+   "url": "https://www.saturn.de/de/product/_dreame-r20-se-stielsauger-akkubetrieb-3027478.html",
+   "titel": "Saturn Datenblatt Dreame R20 SE",
+   "gelesen": "2026-11-21"
+  },
+  "sat-v12slim": {
+   "url": "https://www.saturn.de/de/product/_dyson-v12-detecttm-slim-absolute-stielsauger-akkubetrieb-545-watt-3057439.html",
+   "titel": "Saturn Datenblatt Dyson V12 Detect Slim Absolute",
+   "gelesen": "2026-11-21"
+  },
+  "sat-hx3": {
+   "url": "https://www.saturn.de/de/product/_miele-triflex-hx3-stielsauger-akkubetrieb-192-watt-3013264.html",
+   "titel": "Saturn Datenblatt Miele Triflex HX3",
+   "gelesen": "2026-11-21"
+  },
+  "bosch-bks1042gqc": {
+   "url": "https://www.bosch-home.com/de/de/product/staubsauger/kabellose-handstaubsauger/unlimited/unlimited-10-akku-staubsauger/BKS1042GQC",
+   "titel": "Bosch Produktseite Unlimited 10 BKS1042GQC",
+   "gelesen": "2026-11-21"
+  },
+  "bosch-bks711mtb": {
+   "url": "https://www.bosch-home.com/de/de/product/staubsauger/kabellose-handstaubsauger/unlimited/unlimited-7-akku-staubsauger/BKS711MTB",
+   "titel": "Bosch Produktseite Unlimited 7 BKS711MTB",
+   "gelesen": "2026-11-21"
+  },
+  "bosch-bks711pet": {
+   "url": "https://www.bosch-home.com/de/de/product/staubsauger/kabellose-handstaubsauger/unlimited/unlimited-7-akku-staubsauger/BKS711PET",
+   "titel": "Bosch Produktseite Unlimited 7 ProAnimal BKS711PET",
+   "gelesen": "2026-11-21"
+  },
+  "bosch-bcs611am": {
+   "url": "https://www.bosch-home.com/de/de/product/staubsauger/kabellose-handstaubsauger/unlimited/unlimited-6-akku-staubsauger/BCS611AM",
+   "titel": "Bosch Produktseite Unlimited 6 BCS611AM",
+   "gelesen": "2026-11-21"
+  }
+ },
+ "modelle": [
+  {
+   "id": "rowenta-rh6545wh",
+   "hersteller": "Rowenta",
+   "name": "RH6545WH",
+   "werte": {
+    "gewicht_kg": 2.3,
+    "behaelter_l": 0.65,
+    "ladezeit_h": 5
+   },
+   "belege": {
+    "gewicht_kg": "alt-rh6545wh",
+    "behaelter_l": "alt-rh6545wh",
+    "ladezeit_h": "alt-rh6545wh"
+   },
+   "varianten": [
+    {
+     "id": "rowenta-rh6545wh",
+     "name": "Standard",
+     "mpn": "RH6545Wh",
+     "ean": [
+      "3221614001819"
+     ],
+     "preis": {
+      "eur": 94.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Rowenta/RH-6545WH-Stielstaubsauger/html/product/1429044",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "rowenta-dual-force-rh6737",
+   "hersteller": "Rowenta",
+   "name": "Dual Force 2-in-1 RH6737",
+   "werte": {
+    "laufzeit_min": 45,
+    "ladezeit_h": 5
+   },
+   "belege": {
+    "laufzeit_min": "alt-rh6737",
+    "ladezeit_h": "alt-rh6737"
+   },
+   "varianten": [
+    {
+     "id": "rowenta-dual-force-rh6737",
+     "name": "Standard",
+     "mpn": "RH6737",
+     "ean": [
+      "3221616007222"
+     ],
+     "preis": {
+      "eur": 136.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Rowenta/Dual-Force-2-in-1-RH6737-Stielstaubsauger/html/product/1759936",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "gorenje-svc222480aa",
+   "hersteller": "gorenje",
+   "name": "SVC222480AA",
+   "werte": {
+    "gewicht_kg": 2.7,
+    "behaelter_l": 0.7,
+    "geraeusch_db": 80,
+    "ladezeit_h": 4,
+    "anti_haar_buerste": true
+   },
+   "belege": {
+    "gewicht_kg": "alt-gorenje-222480",
+    "behaelter_l": "alt-gorenje-222480",
+    "geraeusch_db": "alt-gorenje-222480",
+    "ladezeit_h": "alt-gorenje-222480",
+    "anti_haar_buerste": "alt-gorenje-222480"
+   },
+   "varianten": [
+    {
+     "id": "gorenje-svc222480aa",
+     "name": "Standard",
+     "mpn": "747058",
+     "ean": [
+      "3838783048004"
+     ],
+     "preis": {
+      "eur": 117.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/gorenje/SVC222480AA-Stielstaubsauger/html/product/100192734",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "medion-p400w",
+   "hersteller": "Medion",
+   "name": "P400W (MD 12051)",
+   "werte": {
+    "laufzeit_min": 55,
+    "gewicht_kg": 2.4,
+    "wechselakku": true,
+    "behaelter_l": 0.7,
+    "filter": "hepa_h13_oder_besser",
+    "ladezeit_h": 5
+   },
+   "belege": {
+    "laufzeit_min": "alt-medion-p400w",
+    "gewicht_kg": "alt-medion-p400w",
+    "wechselakku": "alt-medion-p400w",
+    "behaelter_l": "alt-medion-p400w",
+    "filter": "alt-medion-p400w",
+    "ladezeit_h": "alt-medion-p400w"
+   },
+   "varianten": [
+    {
+     "id": "medion-p400w",
+     "name": "Standard",
+     "mpn": "50075608",
+     "ean": [
+      "4061275220315"
+     ],
+     "preis": {
+      "eur": 109.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Medion/P400W-MD-12051-Stielstaubsauger/html/product/100220758",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "rowenta-x-pert-760-rh6a31wo",
+   "hersteller": "Rowenta",
+   "name": "X-PERT 7.60 RH6A31WO",
+   "werte": {
+    "laufzeit_min": 45,
+    "gewicht_kg": 2,
+    "behaelter_l": 0.44,
+    "geraeusch_db": 81,
+    "ladezeit_h": 3,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "alt-rh6a31wo",
+    "gewicht_kg": "alt-rh6a31wo",
+    "behaelter_l": "alt-rh6a31wo",
+    "geraeusch_db": "alt-rh6a31wo",
+    "ladezeit_h": "alt-rh6a31wo",
+    "polsterduese": "alt-rh6a31wo"
+   },
+   "varianten": [
+    {
+     "id": "rowenta-x-pert-760-rh6a31wo",
+     "name": "Standard",
+     "mpn": "7211005172",
+     "ean": [
+      "3221616113398"
+     ],
+     "preis": {
+      "eur": 159.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Rowenta/X-PERT-7-60-RH6A31WO-Stielstaubsauger/html/product/100163889",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "tineco-pure-one-s50-pro",
+   "hersteller": "Tineco",
+   "name": "Pure One S50 Pro",
+   "werte": {
+    "laufzeit_min": 65,
+    "saugleistung_aw": 200,
+    "behaelter_l": 0.6,
+    "filter": "hepa_ohne_klasse",
+    "ladezeit_h": 4
+   },
+   "belege": {
+    "laufzeit_min": "alt-tineco-s50",
+    "saugleistung_aw": "alt-tineco-s50",
+    "behaelter_l": "alt-tineco-s50",
+    "filter": "alt-tineco-s50",
+    "ladezeit_h": "alt-tineco-s50"
+   },
+   "varianten": [
+    {
+     "id": "tineco-pure-one-s50-pro",
+     "name": "Standard",
+     "mpn": "VS220500DE",
+     "ean": [
+      "6932485006809"
+     ],
+     "preis": {
+      "eur": 199.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Tineco/Pure-One-S50-Pro-Akku-Stielstaubsauger/html/product/100225731",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bosch-serie-6-bks611mtb",
+   "hersteller": "Bosch",
+   "name": "Serie 6 BKS611MTB",
+   "werte": {
+    "laufzeit_min": 30,
+    "gewicht_kg": 2.3,
+    "wechselakku": true,
+    "ladezeit_h": 4
+   },
+   "belege": {
+    "laufzeit_min": "alt-bks611mtb",
+    "gewicht_kg": "alt-bks611mtb",
+    "wechselakku": "alt-bks611mtb",
+    "ladezeit_h": "alt-bks611mtb"
+   },
+   "varianten": [
+    {
+     "id": "bosch-serie-6-bks611mtb",
+     "name": "Standard",
+     "mpn": "BKS611MTB",
+     "ean": [
+      "4242005257898"
+     ],
+     "preis": {
+      "eur": 209.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Bosch-Home/Serie-6-BKS611MTB-Stielstaubsauger/html/product/1674055",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "karcher-vc6-cordless-ourfamily",
+   "hersteller": "Kärcher",
+   "name": "VC 6 Cordless ourFamily",
+   "werte": {
+    "laufzeit_min": 50,
+    "gewicht_kg": 2.6,
+    "behaelter_l": 0.8,
+    "filter": "hepa_ohne_klasse",
+    "ladezeit_h": 3.92,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "alt-kaercher-vc6",
+    "gewicht_kg": "alt-kaercher-vc6",
+    "behaelter_l": "alt-kaercher-vc6",
+    "filter": "alt-kaercher-vc6",
+    "ladezeit_h": "alt-kaercher-vc6",
+    "polsterduese": "alt-kaercher-vc6"
+   },
+   "varianten": [
+    {
+     "id": "karcher-vc6-cordless-ourfamily",
+     "name": "Standard",
+     "mpn": "1.198-670.0",
+     "ean": [
+      "4054278975399"
+     ],
+     "preis": {
+      "eur": 259.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/K%C3%A4rcher/VC-6-Cordless-ourFamily-Stielstaubsauger/html/product/100042689",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "roborock-h60-hub-ultra",
+   "hersteller": "Roborock",
+   "name": "H60 Hub Ultra",
+   "werte": {
+    "laufzeit_min": 90,
+    "saugleistung_aw": 115,
+    "filter": "hepa_ohne_klasse",
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "alt-roborock-h60",
+    "saugleistung_aw": "alt-roborock-h60",
+    "filter": "alt-roborock-h60",
+    "polsterduese": "alt-roborock-h60"
+   },
+   "varianten": [
+    {
+     "id": "roborock-h60-hub-ultra",
+     "name": "Standard",
+     "mpn": "H9A1A51-01",
+     "ean": [
+      "6974653813383"
+     ],
+     "preis": {
+      "eur": 239.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Roborock/H60-Hub-Ultra-Stielstaubsauger/html/product/100161829",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "dreame-r20-se",
+   "hersteller": "Dreame",
+   "name": "R20 SE",
+   "werte": {
+    "saugleistung_aw": 150,
+    "behaelter_l": 0.6,
+    "filter": "hepa_ohne_klasse",
+    "anti_haar_buerste": true
+   },
+   "belege": {
+    "saugleistung_aw": "sat-r20se",
+    "behaelter_l": "sat-r20se",
+    "filter": "sat-r20se",
+    "anti_haar_buerste": "sat-r20se"
+   },
+   "varianten": [
+    {
+     "id": "dreame-r20-se",
+     "name": "Standard",
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "bosch-unlimited-6-bcs611am",
+   "hersteller": "Bosch",
+   "name": "Unlimited 6 BCS611AM",
+   "werte": {
+    "laufzeit_min": 30,
+    "gewicht_kg": 2.4,
+    "wechselakku": true,
+    "behaelter_l": 0.3,
+    "geraeusch_db": 85,
+    "ladezeit_h": 4,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "bosch-bcs611am",
+    "gewicht_kg": "bosch-bcs611am",
+    "wechselakku": "bosch-bcs611am",
+    "behaelter_l": "bosch-bcs611am",
+    "geraeusch_db": "bosch-bcs611am",
+    "ladezeit_h": "bosch-bcs611am",
+    "polsterduese": "bosch-bcs611am"
+   },
+   "varianten": [
+    {
+     "id": "bosch-unlimited-6-bcs611am",
+     "name": "Standard",
+     "mpn": "BCS611AM",
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "bosch-unlimited-7-bks711mtb",
+   "hersteller": "Bosch",
+   "name": "Unlimited 7 BKS711MTB",
+   "werte": {
+    "laufzeit_min": 40,
+    "gewicht_kg": 2.9,
+    "wechselakku": true,
+    "behaelter_l": 0.3,
+    "geraeusch_db": 82,
+    "ladezeit_h": 5,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "bosch-bks711mtb",
+    "gewicht_kg": "bosch-bks711mtb",
+    "wechselakku": "bosch-bks711mtb",
+    "behaelter_l": "bosch-bks711mtb",
+    "geraeusch_db": "bosch-bks711mtb",
+    "ladezeit_h": "bosch-bks711mtb",
+    "polsterduese": "bosch-bks711mtb"
+   },
+   "varianten": [
+    {
+     "id": "bosch-unlimited-7-bks711mtb",
+     "name": "Standard",
+     "mpn": "BKS711MTB",
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "bosch-unlimited-7-proanimal-bks711pet",
+   "hersteller": "Bosch",
+   "name": "Unlimited 7 ProAnimal BKS711PET",
+   "werte": {
+    "laufzeit_min": 40,
+    "gewicht_kg": 2.9,
+    "wechselakku": true,
+    "behaelter_l": 0.3,
+    "anti_haar_buerste": true,
+    "geraeusch_db": 82,
+    "ladezeit_h": 1.65,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "bosch-bks711pet",
+    "gewicht_kg": "bosch-bks711pet",
+    "wechselakku": "bosch-bks711pet",
+    "behaelter_l": "bosch-bks711pet",
+    "anti_haar_buerste": "bosch-bks711pet",
+    "geraeusch_db": "bosch-bks711pet",
+    "ladezeit_h": "bosch-bks711pet",
+    "polsterduese": "bosch-bks711pet"
+   },
+   "varianten": [
+    {
+     "id": "bosch-unlimited-7-proanimal-bks711pet",
+     "name": "Standard",
+     "mpn": "BKS711PET",
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "dyson-v8-absolute",
+   "hersteller": "Dyson",
+   "name": "V8 Absolute",
+   "werte": {
+    "laufzeit_min": 40,
+    "saugleistung_aw": 115,
+    "gewicht_kg": 2.5,
+    "behaelter_l": 0.54,
+    "anti_haar_buerste": true,
+    "ladezeit_h": 5,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "alt-v8-absolute",
+    "saugleistung_aw": "alt-v8-absolute",
+    "gewicht_kg": "alt-v8-absolute",
+    "behaelter_l": "alt-v8-absolute",
+    "anti_haar_buerste": "alt-v8-absolute",
+    "ladezeit_h": "alt-v8-absolute",
+    "polsterduese": "alt-v8-absolute"
+   },
+   "varianten": [
+    {
+     "id": "dyson-v8-absolute",
+     "name": "Standard",
+     "mpn": "476547-01",
+     "ean": [
+      "5025155090152"
+     ],
+     "preis": {
+      "eur": 359.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Dyson/V8-Absolute-Stielstaubsauger/html/product/100228525",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "dyson-v10-konical",
+   "hersteller": "Dyson",
+   "name": "V10 Konical",
+   "werte": {
+    "laufzeit_min": 60,
+    "gewicht_kg": 2.7,
+    "wechselakku": true,
+    "behaelter_l": 0.5,
+    "filter": "hepa_ohne_klasse",
+    "anti_haar_buerste": true,
+    "ladezeit_h": 4,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "alt-v10-konical",
+    "gewicht_kg": "alt-v10-konical",
+    "wechselakku": "alt-v10-konical",
+    "behaelter_l": "alt-v10-konical",
+    "filter": "alt-v10-konical",
+    "anti_haar_buerste": "alt-v10-konical",
+    "ladezeit_h": "alt-v10-konical",
+    "polsterduese": "alt-v10-konical"
+   },
+   "varianten": [
+    {
+     "id": "dyson-v10-konical",
+     "name": "Standard",
+     "mpn": "419634-01",
+     "ean": [
+      "5025155125878"
+     ],
+     "preis": {
+      "eur": 449.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Dyson/V10-Konical-Stielstaubsauger/html/product/100214002",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "dyson-v12-detect-slim-absolute",
+   "hersteller": "Dyson",
+   "name": "V12 Detect Slim Absolute",
+   "werte": {
+    "laufzeit_min": 60,
+    "saugleistung_aw": 150,
+    "gewicht_kg": 2.2,
+    "wechselakku": true,
+    "anti_haar_buerste": true
+   },
+   "belege": {
+    "laufzeit_min": "sat-v12slim",
+    "saugleistung_aw": "sat-v12slim",
+    "gewicht_kg": "sat-v12slim",
+    "wechselakku": "sat-v12slim",
+    "anti_haar_buerste": "sat-v12slim"
+   },
+   "varianten": [
+    {
+     "id": "dyson-v12-detect-slim-absolute",
+     "name": "Standard",
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "rowenta-x-force-flex-1460-animal-rh9958",
+   "hersteller": "Rowenta",
+   "name": "X-Force Flex 14.60 Animal RH9958",
+   "werte": {
+    "laufzeit_min": 70,
+    "saugleistung_aw": 200,
+    "behaelter_l": 0.9,
+    "anti_haar_buerste": true,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "alt-rh9958",
+    "saugleistung_aw": "alt-rh9958",
+    "behaelter_l": "alt-rh9958",
+    "anti_haar_buerste": "alt-rh9958",
+    "polsterduese": "alt-rh9958"
+   },
+   "varianten": [
+    {
+     "id": "rowenta-x-force-flex-1460-animal-rh9958",
+     "name": "Standard",
+     "mpn": "RH9958",
+     "ean": [
+      "3221616004573"
+     ],
+     "preis": {
+      "eur": 389.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Rowenta/X-Force-Flex-14-60-Animal-RH9958-Stielstaubsauger/html/product/100194833",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "gorenje-svc296749nebl",
+   "hersteller": "gorenje",
+   "name": "SVC296749NEBL",
+   "werte": {
+    "behaelter_l": 0.6,
+    "filter": "hepa_h13_oder_besser",
+    "anti_haar_buerste": true,
+    "geraeusch_db": 84,
+    "ladezeit_h": 3,
+    "polsterduese": true
+   },
+   "belege": {
+    "behaelter_l": "alt-gorenje-296749",
+    "filter": "alt-gorenje-296749",
+    "anti_haar_buerste": "alt-gorenje-296749",
+    "geraeusch_db": "alt-gorenje-296749",
+    "ladezeit_h": "alt-gorenje-296749",
+    "polsterduese": "alt-gorenje-296749"
+   },
+   "varianten": [
+    {
+     "id": "gorenje-svc296749nebl",
+     "name": "Standard",
+     "mpn": "747436",
+     "ean": [
+      "3838783075833"
+     ],
+     "preis": {
+      "eur": 429.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/gorenje/SVC296749NEBL-Stielstaubsauger/html/product/100192131",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bosch-unlimited-10-bks1042gqc",
+   "hersteller": "Bosch",
+   "name": "Unlimited 10 BKS1042GQC",
+   "werte": {
+    "gewicht_kg": 3.7,
+    "wechselakku": true,
+    "behaelter_l": 0.4,
+    "filter": "hepa_ohne_klasse",
+    "anti_haar_buerste": true,
+    "geraeusch_db": 80,
+    "ladezeit_h": 1.08,
+    "polsterduese": true
+   },
+   "belege": {
+    "gewicht_kg": "bosch-bks1042gqc",
+    "wechselakku": "bosch-bks1042gqc",
+    "behaelter_l": "bosch-bks1042gqc",
+    "filter": "bosch-bks1042gqc",
+    "anti_haar_buerste": "bosch-bks1042gqc",
+    "geraeusch_db": "bosch-bks1042gqc",
+    "ladezeit_h": "bosch-bks1042gqc",
+    "polsterduese": "bosch-bks1042gqc"
+   },
+   "varianten": [
+    {
+     "id": "bosch-unlimited-10-bks1042gqc",
+     "name": "Standard",
+     "mpn": "BKS1042GQC",
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "rowenta-x-force-flex-1660-animal-aqua-rh9cd9",
+   "hersteller": "Rowenta",
+   "name": "X-Force Flex 16.60 Animal Aqua RH9CD9",
+   "werte": {
+    "laufzeit_min": 60,
+    "saugleistung_aw": 315,
+    "anti_haar_buerste": true,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "alt-rh9cd9",
+    "saugleistung_aw": "alt-rh9cd9",
+    "anti_haar_buerste": "alt-rh9cd9",
+    "polsterduese": "alt-rh9cd9"
+   },
+   "varianten": [
+    {
+     "id": "rowenta-x-force-flex-1660-animal-aqua-rh9cd9",
+     "name": "Standard",
+     "mpn": "RH9CD9",
+     "ean": [
+      "3221616163492"
+     ],
+     "preis": {
+      "eur": 699.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Rowenta/X-Force-Flex-16-60-Animal-Aqua-RH9CD9-Stielstaubsauger/html/product/100194884",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-triflex-hx3",
+   "hersteller": "Miele",
+   "name": "Triflex HX3",
+   "werte": {
+    "laufzeit_min": 70,
+    "filter": "hepa_ohne_klasse",
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "sat-hx3",
+    "filter": "sat-hx3",
+    "polsterduese": "sat-hx3"
+   },
+   "varianten": [
+    {
+     "id": "miele-triflex-hx3",
+     "name": "Standard",
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "dyson-v15-detect-fluffy",
+   "hersteller": "Dyson",
+   "name": "V15 Detect Fluffy",
+   "werte": {
+    "laufzeit_min": 60,
+    "gewicht_kg": 3.1,
+    "ladezeit_h": 4.5,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "alt-v15-fluffy",
+    "gewicht_kg": "alt-v15-fluffy",
+    "ladezeit_h": "alt-v15-fluffy",
+    "polsterduese": "alt-v15-fluffy"
+   },
+   "varianten": [
+    {
+     "id": "dyson-v15-detect-fluffy",
+     "name": "Standard",
+     "mpn": "476575-01",
+     "ean": [
+      "5025155089750"
+     ],
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "dyson-gen5detect",
+   "hersteller": "Dyson",
+   "name": "Gen5detect",
+   "werte": {
+    "laufzeit_min": 70,
+    "gewicht_kg": 3.5,
+    "behaelter_l": 0.77,
+    "filter": "hepa_ohne_klasse",
+    "ladezeit_h": 4.5
+   },
+   "belege": {
+    "laufzeit_min": "alt-gen5",
+    "gewicht_kg": "alt-gen5",
+    "behaelter_l": "alt-gen5",
+    "filter": "alt-gen5",
+    "ladezeit_h": "alt-gen5"
+   },
+   "varianten": [
+    {
+     "id": "dyson-gen5detect",
+     "name": "Standard",
+     "ean": [
+      "5025155081716"
+     ],
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "dyson-v16-piston-animal",
+   "hersteller": "Dyson",
+   "name": "V16 Piston Animal",
+   "werte": {
+    "laufzeit_min": 70,
+    "saugleistung_aw": 315,
+    "wechselakku": true,
+    "filter": "hepa_ohne_klasse",
+    "anti_haar_buerste": true,
+    "ladezeit_h": 4.5
+   },
+   "belege": {
+    "laufzeit_min": "alt-v16",
+    "saugleistung_aw": "alt-v16",
+    "wechselakku": "alt-v16",
+    "filter": "alt-v16",
+    "anti_haar_buerste": "alt-v16",
+    "ladezeit_h": "alt-v16"
+   },
+   "varianten": [
+    {
+     "id": "dyson-v16-piston-animal",
+     "name": "Standard",
+     "mpn": "495948-01",
+     "ean": [
+      "5025155114858"
+     ],
+     "preis": null
+    }
+   ]
+  }
+ ]
+}

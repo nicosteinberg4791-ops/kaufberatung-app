@@ -1,0 +1,377 @@
+/* Bewertungslogik der Startseite „Finden & Vergleichen“ (reine Rechnung, kein DOM).
+   Browser: window.KBBewertung · Node: require("./bewertung.js").
+   Regeln: daten/schema/kategorien.json (regeln, klassen, datenblatt_abschlag, aufpreis_regeln), Begründung docs/punkteschema.md.
+   Eingang: App-Daten aus werkzeuge/datenbank.py bauen() (finder-daten.json), optional finder-preise.json.
+   Festlegungen, die das Schema offen lässt (siehe Kopf der jeweiligen Funktion):
+   - Klasse wird aus der gerundeten, angezeigten Note bestimmt (sonst „75 Punkte – gut“ auf dem Bildschirm).
+   - Modell A (Empfehlung) muss alle Anforderungen belegt erfüllen; gibt es keins, zählt das beste im Budget mit
+     „nicht belegt“-Markierung (Status "unbelegt"); passt nichts ins Budget, das beste über Budget ("ueber_budget").
+   - B (Aufpreis) und C (Spar) müssen alle Anforderungen belegt erfüllen, eine Note und einen Preis haben.
+   - Schwellen werden mit ungerundeten Werten und einer Toleranz von 1e-9 geprüft (Gleitkomma bei Cent-Preisen). */
+(function (wurzel, fabrik) {
+  "use strict";
+  const api = fabrik();
+  if (typeof module === "object" && module && module.exports) module.exports = api;
+  else wurzel.KBBewertung = api;
+})(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
+
+  const EPS = 1e-9;
+  const ge = (a, b) => a >= b - EPS;
+  const le = (a, b) => a <= b + EPS;
+  const istZahl = x => typeof x === "number" && isFinite(x);
+  const istObjekt = x => x !== null && typeof x === "object" && !Array.isArray(x);
+  const DATUM = /^\d{4}-\d{2}-\d{2}$/;
+
+  /* Nicht anwendbare Felder (regeln.nicht_anwendbar): Gewicht entfällt ohne Abdeckungsverlust.
+     Das Datenformat kennt dafür keinen eigenen Wert; die bekannten Fälle stehen hier. */
+  const NICHT_ANWENDBAR = {
+    airfryer: { sync_funktion: w => w.koerbe === 1 },
+  };
+  function nichtAnwendbar(katId, fid, werte) {
+    const r = NICHT_ANWENDBAR[katId] && NICHT_ANWENDBAR[katId][fid];
+    return !!(r && werte && r(werte));
+  }
+
+  /* Gewichte nach Antworten: Faktoren aller gewählten Antworten multiplizieren, Faktor 0 schaltet ab,
+     Filterfelder (Gewicht 0) bleiben draußen, Rest auf Summe 100 normieren. antworten = {frageId: antwortId}. */
+  function gewichte(kat, antworten) {
+    const faktor = {};
+    for (const frage of kat.fragen || []) {
+      const aid = antworten && antworten[frage.id];
+      const antw = (frage.antworten || []).find(a => a.id === aid);
+      if (!antw) continue;
+      for (const [fid, f] of Object.entries(antw.gewichte || {})) {
+        if (istZahl(f) && f >= 0) faktor[fid] = (fid in faktor ? faktor[fid] : 1) * f;
+      }
+    }
+    const roh = {};
+    let summe = 0;
+    for (const feld of kat.felder || []) {
+      if (!istZahl(feld.gewicht) || feld.gewicht <= 0) continue;
+      const g = feld.gewicht * (feld.id in faktor ? faktor[feld.id] : 1);
+      if (g > 0) { roh[feld.id] = g; summe += g; }
+    }
+    const aus = {};
+    if (summe > 0) for (const [fid, g] of Object.entries(roh)) aus[fid] = g / summe * 100;
+    return aus;
+  }
+
+  /* Anforderungen aus Antworten (mindest, hoechst) und Oberflächenfiltern.
+     filter = {feldId: {mindest?: Zahl, hoechst?: Zahl, liste?: [Stufen], ja?: true}}.
+     Ergebnis: [{feld, art: "mindest"|"hoechst"|"ja"|"liste", wert, quelle: "frage"|"filter"}]. */
+  function anforderungen(kat, antworten, filter) {
+    const liste = [];
+    const dazu = (feld, art, wert, quelle) => liste.push({ feld, art, wert, quelle });
+    for (const frage of kat.fragen || []) {
+      const aid = antworten && antworten[frage.id];
+      const antw = (frage.antworten || []).find(a => a.id === aid);
+      if (!antw) continue;
+      for (const [fid, w] of Object.entries(antw.mindest || {})) {
+        if (istZahl(w)) dazu(fid, "mindest", w, "frage");
+        else if (w === true) dazu(fid, "ja", true, "frage");
+        else if (Array.isArray(w)) dazu(fid, "liste", w.slice(), "frage");
+      }
+      for (const [fid, w] of Object.entries(antw.hoechst || {})) if (istZahl(w)) dazu(fid, "hoechst", w, "frage");
+    }
+    for (const [fid, f] of Object.entries(filter || {})) {
+      if (!istObjekt(f)) continue;
+      if (istZahl(f.mindest)) dazu(fid, "mindest", f.mindest, "filter");
+      if (istZahl(f.hoechst)) dazu(fid, "hoechst", f.hoechst, "filter");
+      if (Array.isArray(f.liste) && f.liste.length) dazu(fid, "liste", f.liste.slice(), "filter");
+      if (f.ja === true) dazu(fid, "ja", true, "filter");
+    }
+    return liste;
+  }
+
+  /* Eine Anforderung gegen die Werte eines Modells: "ok" | "nein" | "unbelegt" (Wert fehlt oder passt nicht zum Typ). */
+  function pruefe(werte, anf) {
+    const w = werte ? werte[anf.feld] : undefined;
+    if (w === undefined || w === null) return "unbelegt";
+    switch (anf.art) {
+      case "mindest": return istZahl(w) ? (ge(w, anf.wert) ? "ok" : "nein") : "unbelegt";
+      case "hoechst": return istZahl(w) ? (le(w, anf.wert) ? "ok" : "nein") : "unbelegt";
+      case "ja": return typeof w === "boolean" ? (w ? "ok" : "nein") : "unbelegt";
+      case "liste": return anf.wert.indexOf(w) >= 0 ? "ok" : "nein";
+      default: return "unbelegt";
+    }
+  }
+
+  /* Klasse zur Note (klassen: [{ab, name}]); maßgeblich ist die gerundete Note, wie sie angezeigt wird. */
+  function klasse(note, klassen) {
+    if (!istZahl(note)) return null;
+    const n = Math.round(note);
+    const sortiert = (klassen || []).slice().sort((a, b) => b.ab - a.ab);
+    for (const k of sortiert) if (n >= k.ab) return k.name;
+    return sortiert.length ? sortiert[sortiert.length - 1].name : null;
+  }
+  function klassenRang(name, klassen) {
+    const sortiert = (klassen || []).slice().sort((a, b) => a.ab - b.ab);
+    return sortiert.findIndex(k => k.name === name);
+  }
+
+  /* Datenblatt-Note mit Abschlag: min(kappung, anker + (R − anker) × faktor − abzug − (1 − abdeckung) × 20),
+     unter abdeckung_mindest keine Note (null). Ergebnis auf 0..100 begrenzt. */
+  function datenblattNote(R, abdeckung, db) {
+    if (!istZahl(R) || !istZahl(abdeckung)) return null;
+    if (abdeckung < db.abdeckung_mindest - EPS) return null;
+    const n = Math.min(db.kappung, db.anker + (R - db.anker) * db.faktor - db.abzug - (1 - abdeckung) * 20);
+    return Math.max(0, Math.min(100, n));
+  }
+
+  /* Ein Modell bewerten: Rohwert R über belegte Felder, Abdeckung, angezeigte Note, Klasse, Beiträge je Feld.
+     Getestete Modelle nur, wenn ein Testeintrag eine Zahl "punkte" (0..100) trägt (heute: Tests sind nur Links). */
+  function bewerteModell(modell, kat, gew, regeln) {
+    const db = regeln.datenblatt_abschlag;
+    const werte = modell.werte || {};
+    const tp = modell.teilpunkte || {};
+    let summeG = 0, summeBel = 0, zaehler = 0;
+    const beitraege = [];
+    for (const [fid, g] of Object.entries(gew)) {
+      if (nichtAnwendbar(kat.id, fid, werte)) continue;
+      summeG += g;
+      const t = tp[fid];
+      if (istZahl(t)) {
+        summeBel += g; zaehler += g * t;
+        beitraege.push({ feld: fid, gewicht: g, teilpunkte: t, beitrag: g * t });
+      }
+    }
+    const R = summeBel > 0 ? zaehler / summeBel : null;
+    const abdeckung = summeG > 0 ? summeBel / summeG : 0;
+    let note = null, art = "zu_wenig_daten", spanne = null;
+    const test = (modell.tests || []).find(t => t && istZahl(t.punkte) && t.punkte >= 0 && t.punkte <= 100);
+    if (test && db.getestet) {
+      const m = db.getestet.mischung;
+      note = istZahl(R) ? m.test * test.punkte + m.datenblatt_roh * R : test.punkte;
+      art = "getestet";
+    } else {
+      note = datenblattNote(R, abdeckung, db);
+      if (note !== null) { art = "datenblatt"; spanne = db.spanne_plus_minus; }
+    }
+    beitraege.sort((a, b) => b.beitrag - a.beitrag);
+    return { R, abdeckung, note, art, spanne, klasse: klasse(note, regeln.klassen), beitraege };
+  }
+
+  const preisVon = m => (m.preis && istZahl(m.preis.eur) && m.preis.eur > 0 ? m.preis.eur : null);
+
+  function vergleichNote(a, b) {
+    const na = a.note === null ? -Infinity : a.note, nb = b.note === null ? -Infinity : b.note;
+    if (nb !== na) return nb - na;
+    return vergleichPreis(a, b, true);
+  }
+  function vergleichPreis(a, b, ohneNote) {
+    const pa = a.preis === null ? Infinity : a.preis, pb = b.preis === null ? Infinity : b.preis;
+    if (pa !== pb) return pa - pb;
+    if (!ohneNote) { const n = vergleichNote(a, b); if (n) return n; }
+    return String(a.modell.id).localeCompare(String(b.modell.id));
+  }
+  function effizienz(e) { return e.note !== null && e.preis !== null ? e.note / e.preis : null; }
+
+  /* Rangfolge: "note" (Note absteigend, dann Preis), "preis" (aufsteigend, dann Note), "effizienz" (Punkte je Euro). */
+  function sortiere(liste, art) {
+    const l = liste.slice();
+    if (art === "preis") l.sort((a, b) => vergleichPreis(a, b, false));
+    else if (art === "effizienz") l.sort((a, b) => {
+      const ea = effizienz(a), eb = effizienz(b);
+      if (ea === null && eb === null) return vergleichNote(a, b);
+      if (ea === null) return 1;
+      if (eb === null) return -1;
+      return eb - ea || vergleichNote(a, b);
+    });
+    else l.sort(vergleichNote);
+    return l;
+  }
+
+  function fuelle(text, werte) {
+    return String(text).replace(/\{(\w+)\}/g, (m, k) => (k in werte ? String(werte[k]) : m));
+  }
+
+  /* Aufpreis-Hinweis (aufpreis_regeln.aufpreis). A, kandidaten: Einträge aus auswerten() mit note, preis, art, klasse.
+     Kandidaten müssen schon „alle Anforderungen erfüllt“ sein. Ohne Budget (egal) kein Hinweis. */
+  function aufpreisHinweis(A, kandidaten, budget, regeln) {
+    const r = regeln.aufpreis_regeln.aufpreis;
+    if (!A || A.preis === null || !istZahl(A.note) || !istZahl(budget)) return null;
+    const grenze = budget * r.budget_faktor_max;
+    let best = null;
+    for (const B of kandidaten) {
+      if (B === A || B.modell.id === A.modell.id || B.preis === null || !istZahl(B.note)) continue;
+      if (!(B.preis > A.preis + EPS) || !le(B.preis, grenze)) continue;
+      const dp = B.preis - A.preis;
+      if (!ge(dp, r.aufpreis_min_eur)) continue;
+      const dN = B.note - A.note;
+      const min = A.art === "datenblatt" || B.art === "datenblatt" ? r.punkte_min_datenblatt : r.punkte_min;
+      if (!ge(dN, min)) continue;
+      const E = dN / dp * 100;
+      const sprung = klassenRang(B.klasse, regeln.klassen) > klassenRang(A.klasse, regeln.klassen);
+      if (!(ge(E, r.effizienz_min_je_100eur) || (sprung && ge(E, r.effizienz_min_klassensprung)))) continue;
+      if (!best || E > best.E + EPS || (Math.abs(E - best.E) <= EPS && dp < best.dp)) best = { B, dp, dN, E, sprung };
+    }
+    if (!best) return null;
+    const aufpreis = Math.round(best.dp);
+    const dNAnzeige = Math.round(best.B.note) - Math.round(A.note);
+    const klasseText = best.sprung ? fuelle(r.klasse_text, { klasse_B: best.B.klasse, klasse_A: A.klasse }) : "";
+    return {
+      modell: best.B, aufpreis, punkte: dNAnzeige, effizienz: best.E, klassensprung: best.sprung,
+      text: fuelle(r.text, { aufpreis: aufpreis.toLocaleString("de-DE"), dN: dNAnzeige, klasse_text: klasseText }),
+    };
+  }
+
+  /* Spar-Hinweis (aufpreis_regeln.spar): größte Ersparnis, bei Gleichstand kleinerer Punktverlust. */
+  function sparHinweis(A, kandidaten, regeln) {
+    const r = regeln.aufpreis_regeln.spar;
+    if (!A || A.preis === null || !istZahl(A.note)) return null;
+    const minS = Math.max(r.ersparnis_min_eur, r.ersparnis_min_anteil * A.preis);
+    let best = null;
+    for (const C of kandidaten) {
+      if (C === A || C.modell.id === A.modell.id || C.preis === null || !istZahl(C.note)) continue;
+      if (!(C.preis < A.preis - EPS)) continue;
+      const S = A.preis - C.preis;
+      if (!ge(S, minS)) continue;
+      const verlust = A.note - C.note;
+      const gleich = le(verlust, r.verlust_max_gleich) && C.klasse === A.klasse;
+      const schwaecher = le(verlust, r.verlust_max_schwaecher) && ge(S, r.ersparnis_anteil_schwaecher * A.preis);
+      if (!gleich && !schwaecher) continue;
+      if (!best || S > best.S + EPS || (Math.abs(S - best.S) <= EPS && verlust < best.verlust)) {
+        best = { C, S, verlust, art: gleich ? "gleich" : "schwaecher" };
+      }
+    }
+    if (!best) return null;
+    const ersparnis = Math.round(best.S);
+    const w = { ersparnis: ersparnis.toLocaleString("de-DE"), N_C: Math.round(best.C.note), N_A: Math.round(A.note) };
+    return {
+      modell: best.C, ersparnis, verlust: best.verlust, art: best.art,
+      text: fuelle(best.art === "gleich" ? r.text_gleich : r.text_schwaecher, w),
+    };
+  }
+
+  /* Gesamtauswertung einer Kategorie.
+     eingabe = {antworten: {frageId: antwortId}, budget: Zahl|null (null = egal), filter: {…}, sortierung: "note"|"preis"|"effizienz"}
+     Ergebnis: {gewichte, anforderungen, rang, empfehlung, status, aufpreis, spar, ausgeschlossen, ohneNote, anzahl} */
+  function auswerten(kat, regeln, eingabe) {
+    const e = eingabe || {};
+    const budget = istZahl(e.budget) && e.budget > 0 ? e.budget : null;
+    const gew = gewichte(kat, e.antworten);
+    const anf = anforderungen(kat, e.antworten, e.filter);
+    const alle = (kat.modelle || []).map(m => {
+      const b = bewerteModell(m, kat, gew, regeln);
+      const pruefungen = anf.map(a => Object.assign({}, a, { ergebnis: pruefe(m.werte, a) }));
+      const preis = preisVon(m);
+      return Object.assign({ modell: m, preis }, b, {
+        verletzt: pruefungen.filter(p => p.ergebnis === "nein"),
+        unbelegt: pruefungen.filter(p => p.ergebnis === "unbelegt"),
+        imBudget: budget === null ? true : preis === null ? null : le(preis, budget),
+      });
+    });
+    const passend = alle.filter(x => x.verletzt.length === 0);
+    const nachNote = sortiere(passend, "note");
+    const mitNote = nachNote.filter(x => x.note !== null);
+    const voll = x => x.unbelegt.length === 0;
+    let A = mitNote.find(x => x.imBudget === true && voll(x)) || null;
+    let status = A ? "passt" : null;
+    if (!A) { A = mitNote.find(x => x.imBudget === true) || null; if (A) status = "unbelegt"; }
+    if (!A && budget !== null) {
+      A = mitNote.find(x => voll(x) && x.preis !== null) || mitNote.find(x => x.preis !== null) || null;
+      if (A) status = "ueber_budget";
+    }
+    let aufpreis = null, spar = null;
+    if (A && status !== "ueber_budget") {
+      const kand = mitNote.filter(x => voll(x) && x.preis !== null && x !== A);
+      aufpreis = aufpreisHinweis(A, kand, budget, regeln);
+      spar = sparHinweis(A, kand, regeln);
+    }
+    return {
+      gewichte: gew, anforderungen: anf, rang: sortiere(passend, e.sortierung || "note"),
+      empfehlung: A, status: status || "leer", aufpreis, spar, budget,
+      ausgeschlossen: alle.length - passend.length, ohneNote: passend.length - mitNote.length, anzahl: alle.length,
+    };
+  }
+
+  /* Felder, in denen ein Modell vorn liegt (für den Vergleich): je Feld die höchsten Teilpunkte unter den Gewählten.
+     Ergebnis {feldId: [modellIds]}; bei Gleichstand aller Gewählten kein Gewinner. */
+  function feldSieger(eintraege, felder) {
+    const aus = {};
+    for (const f of felder) {
+      if (!(f.gewicht > 0)) continue;
+      const werte = eintraege.map(e => (e.modell.teilpunkte || {})[f.id]).filter(istZahl);
+      if (werte.length < 2) continue;
+      const max = Math.max.apply(null, werte), min = Math.min.apply(null, werte);
+      if (max - min <= EPS) continue;
+      aus[f.id] = eintraege.filter(e => istZahl((e.modell.teilpunkte || {})[f.id]) && Math.abs(e.modell.teilpunkte[f.id] - max) <= EPS).map(e => e.modell.id);
+    }
+    return aus;
+  }
+
+  /* Stärken: die höchsten Beiträge (Gewicht × Teilpunkte) mit guten Teilpunkten (mindestens 60). */
+  function staerken(eintrag, n) {
+    return (eintrag.beitraege || []).filter(b => b.teilpunkte >= 60).slice(0, n || 3);
+  }
+
+  /* Budget-Schnellwahl aus vorhandenen Preisen: Quartile und Höchstpreis, auf runde Beträge aufgerundet. */
+  function budgetStufen(modelle) {
+    const p = (modelle || []).map(preisVon).filter(x => x !== null).sort((a, b) => a - b);
+    if (!p.length) return [];
+    const rund = x => {
+      const s = x < 100 ? 10 : x < 300 ? 25 : x < 1000 ? 50 : x < 3000 ? 100 : 250;
+      return Math.ceil(x / s - EPS) * s;
+    };
+    const q = f => p[Math.min(p.length - 1, Math.max(0, Math.ceil(f * p.length) - 1))];
+    const stufen = [q(0.25), q(0.5), q(0.75), p[p.length - 1]].map(rund);
+    return stufen.filter((x, i) => stufen.indexOf(x) === i);
+  }
+
+  /* Nur https-Adressen zulassen (fremde Daten); sonst null. */
+  function sichereUrl(u) {
+    if (typeof u !== "string" || u.length > 2000) return null;
+    try { const x = new URL(u); return x.protocol === "https:" ? x.href : null; } catch (err) { return null; }
+  }
+
+  function preisOk(p) {
+    return istObjekt(p) && istZahl(p.eur) && p.eur >= 1 && p.eur <= 100000 && typeof p.haendler === "string"
+      && p.haendler.trim() !== "" && p.haendler.length <= 80 && sichereUrl(p.url) !== null
+      && typeof p.stand === "string" && DATUM.test(p.stand);
+  }
+
+  /* Aktuelle Preise überlagern (finder-preise.json: {stand, preise: {variantenId: {eur, haendler, url, stand}}}).
+     Ersetzt den Preis nur, wenn der Eintrag gültig und neuer ist (stand später) oder bisher kein Preis da war.
+     Ändert daten an Ort und Stelle; Rückgabe: Zahl ersetzter Preise. */
+  function preiseUeberlagern(daten, datei) {
+    if (!istObjekt(daten) || !istObjekt(datei) || !istObjekt(datei.preise)) return 0;
+    let n = 0;
+    for (const kat of daten.kategorien || []) {
+      for (const m of kat.modelle || []) {
+        if (!Object.prototype.hasOwnProperty.call(datei.preise, m.id)) continue;
+        const neu = datei.preise[m.id];
+        if (!preisOk(neu)) continue;
+        const alt = m.preis;
+        if (alt && preisOk(alt) && !(neu.stand > alt.stand)) continue;
+        m.preis = { eur: neu.eur, haendler: neu.haendler.trim(), url: neu.url, stand: neu.stand };
+        n++;
+      }
+    }
+    return n;
+  }
+
+  /* Grobe Strukturprüfung der App-Daten (fremde Datei): wirft bei unbrauchbarem Format. */
+  function datenPruefen(d) {
+    if (!istObjekt(d) || !Array.isArray(d.kategorien) || !istObjekt(d.regeln)) throw new Error("format");
+    const r = d.regeln;
+    if (!Array.isArray(r.klassen) || !istObjekt(r.datenblatt_abschlag) || !istObjekt(r.aufpreis_regeln)) throw new Error("regeln");
+    for (const k of d.kategorien) {
+      if (!istObjekt(k) || typeof k.id !== "string" || !Array.isArray(k.felder) || !Array.isArray(k.modelle)) throw new Error("kategorie");
+      k.fragen = Array.isArray(k.fragen) ? k.fragen : [];
+      k.modelle = k.modelle.filter(m => istObjekt(m) && typeof m.id === "string" && istObjekt(m.werte || {}) && istObjekt(m.teilpunkte || {}));
+      for (const m of k.modelle) {
+        m.werte = m.werte || {}; m.teilpunkte = m.teilpunkte || {};
+        if (m.preis !== null && m.preis !== undefined && !preisOk(m.preis)) m.preis = null;
+        m.tests = Array.isArray(m.tests) ? m.tests : [];
+      }
+    }
+    return d;
+  }
+
+  return {
+    gewichte, anforderungen, pruefe, klasse, datenblattNote, bewerteModell, sortiere, auswerten,
+    aufpreisHinweis, sparHinweis, feldSieger, staerken, budgetStufen, sichereUrl, preiseUeberlagern, datenPruefen,
+    nichtAnwendbar,
+  };
+});

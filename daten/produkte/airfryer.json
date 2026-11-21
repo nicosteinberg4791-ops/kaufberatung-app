@@ -1,0 +1,1269 @@
+{
+ "kategorie": "airfryer",
+ "stand": "2026-11-21",
+ "quellen": {
+  "proshop-3507928": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Gorenje-AF1409DB-hot-air-fryer/3507928",
+   "titel": "Proshop Produktseite mit Datenblatt: Gorenje AF1409DB",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3419934": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Philips-1000-Series-NA120-hot-air-fryer-black/3419934",
+   "titel": "Proshop Produktseite mit Datenblatt: Philips Airfryer 1000 Serie NA120",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3197353": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Philips-Series-3000-HD9270-Airfryer-XL/3197353",
+   "titel": "Proshop Produktseite mit Datenblatt: Philips Airfryer XL 3000 Serie HD9270",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3345761": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Philips-2000-Series-NA231-hot-air-fryer-black-silver/3345761",
+   "titel": "Proshop Produktseite mit Datenblatt: Philips Airfryer 2000 Serie NA231",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3434983": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Xiaomi-Air-Fryer-65L/3434983",
+   "titel": "Proshop Produktseite mit Datenblatt: Xiaomi Air Fryer 6,5 L",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3306911": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Philips-2000-Series-NA221-hot-air-fryer-black-silver/3306911",
+   "titel": "Proshop Produktseite mit Datenblatt: Philips Airfryer 2000 Serie NA221",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3406194": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Philips-2000-series-airfryer-62-L/3406194",
+   "titel": "Proshop Produktseite mit Datenblatt: Philips Airfryer 2000 Serie 6,2 L NA230",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3243982": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-Foodi-AF180EU/3243982",
+   "titel": "Proshop Produktseite mit Datenblatt: Ninja Foodi AF180EU",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3069265": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-Max-AF160EU/3069265",
+   "titel": "Proshop Produktseite mit Datenblatt: Ninja Max AF160EU",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3410509": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Bosch-Serie-6-MAF671B1/3410509",
+   "titel": "Proshop Produktseite mit Datenblatt: Bosch Serie 6 MAF671B1",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3417598": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Tefal-Easy-Fry-Silence-Coal-EY551HE0-hot-air-fryer-dark-grey/3417598",
+   "titel": "Proshop Produktseite mit Datenblatt: Tefal Easy Fry Silence EY551HE0",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3289305": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Philips-3000-series-NA35100-fryer/3289305",
+   "titel": "Proshop Produktseite mit Datenblatt: Philips Airfryer 3000 Serie NA351",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3461408": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Tefal-Dual-Easy-Fry-83L-Black/3461408",
+   "titel": "Proshop Produktseite mit Datenblatt: Tefal Dual Easy Fry AG901NS0",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3440966": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-DZ300EU-fryer/3440966",
+   "titel": "Proshop Produktseite mit Datenblatt: Ninja Dual Zone DZ300EU",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3310153": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-Premium-55-Litre/3310153",
+   "titel": "Proshop Produktseite mit Datenblatt: Cosori Premium 5,5 L CS158-AF-RXB",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3100073": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-Foodi-MAX-Dual-Zone-AF400EU-Schwarz/3100073",
+   "titel": "Proshop Produktseite mit Datenblatt: Ninja Foodi MAX Dual Zone AF400EU",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3243985": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-AF500EU-Flex-Drawer/3243985",
+   "titel": "Proshop Produktseite mit Datenblatt: Ninja Flex Drawer AF500EU",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3344741": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-SL300EU/3344741",
+   "titel": "Proshop Produktseite mit Datenblatt: Ninja Double Stack SL300EU",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3271504": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-SL400EU/3271504",
+   "titel": "Proshop Produktseite mit Datenblatt: Ninja Double Stack XL SL400EU",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3343545": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Electrolux-EAF7SB-fryer/3343545",
+   "titel": "Proshop Produktseite mit Datenblatt: Electrolux EAF7SB",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3519208": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-Iconic-Single/3519208",
+   "titel": "Proshop Produktseite mit Datenblatt: Cosori Iconic Single CAF-SE601S-CEU",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3250562": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Philips-7000-Series-HD9880-Airfryer-Combi-XXL/3250562",
+   "titel": "Proshop Produktseite mit Datenblatt: Philips Airfryer Combi XXL 7000 Serie HD9880",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3519205": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-TwinFry-Compact/3519205",
+   "titel": "Proshop Produktseite mit Datenblatt: Cosori TwinFry Compact CAF-TF801-CEUR",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3505653": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Philips-Airfryer-4000-Series-Stacked-Dual-Basket-NA46100/3505653",
+   "titel": "Proshop Produktseite mit Datenblatt: Philips Airfryer 4000 Serie Stacked Dual Basket NA461",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3191327": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Philips-Series-5000-HD9285-XXL-Connected/3191327",
+   "titel": "Proshop Produktseite mit Datenblatt: Philips Airfryer 5000 Serie XXL Connected HD9285",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3519206": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-TwinFry/3519206",
+   "titel": "Proshop Produktseite mit Datenblatt: Cosori TwinFry CAF-TF101S-AEUR",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-3517310": {
+   "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-Turbo-Tower-Pro-Smart-Black/3517310",
+   "titel": "Proshop Produktseite mit Datenblatt: Cosori Turbo Tower Pro Smart CAF-DC123S-DEUR",
+   "gelesen": "2026-11-21"
+  },
+  "cosori-iconic-launch": {
+   "url": "https://cosori.de/pages/iconic-dual-launch",
+   "titel": "Cosori Herstellerseite ICONIC Single und Dual (Vergleichstabelle)",
+   "gelesen": "2026-11-21"
+  }
+ },
+ "modelle": [
+  {
+   "id": "gorenje-af1409db",
+   "hersteller": "Gorenje",
+   "name": "AF1409DB",
+   "werte": {
+    "volumen_l": 3.5,
+    "koerbe": 1,
+    "leistung_w": 1400,
+    "temp_max_c": 200,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3507928",
+    "koerbe": "proshop-3507928",
+    "leistung_w": "proshop-3507928",
+    "temp_max_c": "proshop-3507928",
+    "sync_funktion": "proshop-3507928"
+   },
+   "varianten": [
+    {
+     "id": "af1409db",
+     "name": "Standard",
+     "mpn": "AF1409DB",
+     "ean": [
+      "3838782424984"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 54.3,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Gorenje-AF1409DB-hot-air-fryer/3507928",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "philips-airfryer-1000-serie-na120",
+   "hersteller": "Philips",
+   "name": "Airfryer 1000 Serie NA120",
+   "werte": {
+    "volumen_l": 4.2,
+    "koerbe": 1,
+    "leistung_w": 1500,
+    "temp_max_c": 200,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3419934",
+    "koerbe": "proshop-3419934",
+    "leistung_w": "proshop-3419934",
+    "temp_max_c": "proshop-3419934",
+    "spuelmaschinenfest": "proshop-3419934",
+    "sync_funktion": "proshop-3419934"
+   },
+   "varianten": [
+    {
+     "id": "na120-00",
+     "name": "Standard",
+     "mpn": "NA120/00",
+     "ean": [
+      "8720389033827"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 61.53,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Philips-1000-Series-NA120-hot-air-fryer-black/3419934",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "philips-airfryer-xl-3000-serie-hd9270",
+   "hersteller": "Philips",
+   "name": "Airfryer XL 3000 Serie HD9270",
+   "werte": {
+    "volumen_l": 6.2,
+    "koerbe": 1,
+    "leistung_w": 2000,
+    "sync_funktion": false,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3197353",
+    "koerbe": "proshop-3197353",
+    "leistung_w": "proshop-3197353",
+    "sync_funktion": "proshop-3197353",
+    "doerren": "proshop-3197353"
+   },
+   "varianten": [
+    {
+     "id": "hd9270-00",
+     "name": "Standard",
+     "mpn": "HD9270/00",
+     "ean": [
+      "8720389021961"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 71.15,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Philips-Series-3000-HD9270-Airfryer-XL/3197353",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "philips-airfryer-2000-serie-na231",
+   "hersteller": "Philips",
+   "name": "Airfryer 2000 Serie NA231",
+   "werte": {
+    "volumen_l": 6.2,
+    "koerbe": 1,
+    "temp_max_c": 200,
+    "spuelmaschinenfest": true,
+    "sichtfenster": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3345761",
+    "koerbe": "proshop-3345761",
+    "temp_max_c": "proshop-3345761",
+    "spuelmaschinenfest": "proshop-3345761",
+    "sichtfenster": "proshop-3345761",
+    "sync_funktion": "proshop-3345761"
+   },
+   "varianten": [
+    {
+     "id": "na231-00",
+     "name": "Standard",
+     "mpn": "NA231/00",
+     "ean": [
+      "8720389035074"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 78.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Philips-2000-Series-NA231-hot-air-fryer-black-silver/3345761",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "xiaomi-air-fryer-6-5-l",
+   "hersteller": "Xiaomi",
+   "name": "Air Fryer 6,5 L",
+   "werte": {
+    "volumen_l": 6.5,
+    "koerbe": 1,
+    "leistung_w": 1700,
+    "temp_max_c": 210,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3434983",
+    "koerbe": "proshop-3434983",
+    "leistung_w": "proshop-3434983",
+    "temp_max_c": "proshop-3434983",
+    "spuelmaschinenfest": "proshop-3434983",
+    "sync_funktion": "proshop-3434983"
+   },
+   "varianten": [
+    {
+     "id": "bhr083meu",
+     "name": "Standard",
+     "mpn": "BHR083MEU",
+     "ean": [
+      "6932554440572"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 68.63,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Xiaomi-Air-Fryer-65L/3434983",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "philips-airfryer-2000-serie-na221",
+   "hersteller": "Philips",
+   "name": "Airfryer 2000 Serie NA221",
+   "werte": {
+    "volumen_l": 4.2,
+    "koerbe": 1,
+    "temp_max_c": 200,
+    "spuelmaschinenfest": true,
+    "sichtfenster": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3306911",
+    "koerbe": "proshop-3306911",
+    "temp_max_c": "proshop-3306911",
+    "spuelmaschinenfest": "proshop-3306911",
+    "sichtfenster": "proshop-3306911",
+    "sync_funktion": "proshop-3306911"
+   },
+   "varianten": [
+    {
+     "id": "na221-00",
+     "name": "Standard",
+     "mpn": "NA221/00",
+     "ean": [
+      "8720389034770"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 82.98,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Philips-2000-Series-NA221-hot-air-fryer-black-silver/3306911",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "philips-airfryer-2000-serie-6-2-l-na230",
+   "hersteller": "Philips",
+   "name": "Airfryer 2000 Serie 6,2 L NA230",
+   "werte": {
+    "volumen_l": 6.2,
+    "koerbe": 1,
+    "temp_max_c": 200,
+    "spuelmaschinenfest": true,
+    "sichtfenster": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3406194",
+    "koerbe": "proshop-3406194",
+    "temp_max_c": "proshop-3406194",
+    "spuelmaschinenfest": "proshop-3406194",
+    "sichtfenster": "proshop-3406194",
+    "sync_funktion": "proshop-3406194"
+   },
+   "varianten": [
+    {
+     "id": "na230-00",
+     "name": "Standard",
+     "mpn": "NA230/00",
+     "ean": [
+      "8720389035173"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 84.82,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Philips-2000-series-airfryer-62-L/3406194",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ninja-foodi-af180eu",
+   "hersteller": "Ninja",
+   "name": "Foodi AF180EU",
+   "werte": {
+    "volumen_l": 6.2,
+    "koerbe": 1,
+    "leistung_w": 2000,
+    "temp_max_c": 240,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3243982",
+    "koerbe": "proshop-3243982",
+    "leistung_w": "proshop-3243982",
+    "temp_max_c": "proshop-3243982",
+    "spuelmaschinenfest": "proshop-3243982",
+    "sync_funktion": "proshop-3243982",
+    "doerren": "proshop-3243982"
+   },
+   "varianten": [
+    {
+     "id": "af180eu",
+     "name": "Standard",
+     "mpn": "AF180EU",
+     "ean": [
+      "0622356278782"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 94.57,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-Foodi-AF180EU/3243982",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ninja-max-af160eu",
+   "hersteller": "Ninja",
+   "name": "Max AF160EU",
+   "werte": {
+    "volumen_l": 5.2,
+    "koerbe": 1,
+    "leistung_w": 1750,
+    "temp_max_c": 240,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3069265",
+    "koerbe": "proshop-3069265",
+    "leistung_w": "proshop-3069265",
+    "temp_max_c": "proshop-3069265",
+    "spuelmaschinenfest": "proshop-3069265",
+    "sync_funktion": "proshop-3069265",
+    "doerren": "proshop-3069265"
+   },
+   "varianten": [
+    {
+     "id": "af160eu",
+     "name": "Standard",
+     "mpn": "AF160EU",
+     "ean": [
+      "0622356232715"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 101.28,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-Max-AF160EU/3069265",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bosch-serie-6-maf671b1",
+   "hersteller": "Bosch",
+   "name": "Serie 6 MAF671B1",
+   "werte": {
+    "volumen_l": 7.2,
+    "koerbe": 1,
+    "temp_max_c": 200,
+    "spuelmaschinenfest": true,
+    "sichtfenster": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3410509",
+    "koerbe": "proshop-3410509",
+    "temp_max_c": "proshop-3410509",
+    "spuelmaschinenfest": "proshop-3410509",
+    "sichtfenster": "proshop-3410509",
+    "sync_funktion": "proshop-3410509"
+   },
+   "varianten": [
+    {
+     "id": "maf671b1",
+     "name": "Standard",
+     "mpn": "MAF671B1",
+     "ean": [
+      "4242005525997"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 94.9,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Bosch-Serie-6-MAF671B1/3410509",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "tefal-easy-fry-silence-ey551he0",
+   "hersteller": "Tefal",
+   "name": "Easy Fry Silence EY551HE0",
+   "werte": {
+    "volumen_l": 5,
+    "koerbe": 1,
+    "temp_max_c": 220,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3417598",
+    "koerbe": "proshop-3417598",
+    "temp_max_c": "proshop-3417598",
+    "spuelmaschinenfest": "proshop-3417598",
+    "sync_funktion": "proshop-3417598"
+   },
+   "varianten": [
+    {
+     "id": "ey551he0",
+     "name": "Standard",
+     "mpn": "EY551HE0",
+     "ean": [
+      "3045387293772"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 98.13,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Tefal-Easy-Fry-Silence-Coal-EY551HE0-hot-air-fryer-dark-grey/3417598",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "philips-airfryer-3000-serie-na351",
+   "hersteller": "Philips",
+   "name": "Airfryer 3000 Serie NA351",
+   "werte": {
+    "volumen_l": 9,
+    "koerbe": 1,
+    "leistung_w": 2750,
+    "temp_max_c": 200,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3289305",
+    "koerbe": "proshop-3289305",
+    "leistung_w": "proshop-3289305",
+    "temp_max_c": "proshop-3289305",
+    "spuelmaschinenfest": "proshop-3289305",
+    "sync_funktion": "proshop-3289305"
+   },
+   "varianten": [
+    {
+     "id": "na351-00",
+     "name": "Standard",
+     "mpn": "NA351/00",
+     "ean": [
+      "8720389033001"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 107.91,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Philips-3000-series-NA35100-fryer/3289305",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "tefal-dual-easy-fry-ag901ns0",
+   "hersteller": "Tefal",
+   "name": "Dual Easy Fry AG901NS0",
+   "werte": {
+    "volumen_l": 8.3,
+    "koerbe": 2,
+    "leistung_w": 2700,
+    "temp_max_c": 200,
+    "spuelmaschinenfest": true,
+    "sync_funktion": true,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3461408",
+    "koerbe": "proshop-3461408",
+    "leistung_w": "proshop-3461408",
+    "temp_max_c": "proshop-3461408",
+    "spuelmaschinenfest": "proshop-3461408",
+    "sync_funktion": "proshop-3461408",
+    "doerren": "proshop-3461408"
+   },
+   "varianten": [
+    {
+     "id": "ag901ns0",
+     "name": "Standard",
+     "mpn": "AG901NS0",
+     "ean": [
+      "3045380026650"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 105.9,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Tefal-Dual-Easy-Fry-83L-Black/3461408",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ninja-dual-zone-dz300eu",
+   "hersteller": "Ninja",
+   "name": "Dual Zone DZ300EU",
+   "werte": {
+    "volumen_l": 7.6,
+    "koerbe": 2,
+    "leistung_w": 2400,
+    "spuelmaschinenfest": true,
+    "sync_funktion": true,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3440966",
+    "koerbe": "proshop-3440966",
+    "leistung_w": "proshop-3440966",
+    "spuelmaschinenfest": "proshop-3440966",
+    "sync_funktion": "proshop-3440966",
+    "doerren": "proshop-3440966"
+   },
+   "varianten": [
+    {
+     "id": "dz300eu",
+     "name": "Standard",
+     "mpn": "DZ300EU",
+     "ean": [
+      "0622356322690"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 120.83,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-DZ300EU-fryer/3440966",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cosori-premium-5-5-l-cs158-af-rxb",
+   "hersteller": "Cosori",
+   "name": "Premium 5,5 L CS158-AF-RXB",
+   "werte": {
+    "volumen_l": 5.5,
+    "koerbe": 1,
+    "leistung_w": 1700,
+    "temp_max_c": 205,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3310153",
+    "koerbe": "proshop-3310153",
+    "leistung_w": "proshop-3310153",
+    "temp_max_c": "proshop-3310153",
+    "spuelmaschinenfest": "proshop-3310153",
+    "sync_funktion": "proshop-3310153"
+   },
+   "varianten": [
+    {
+     "id": "cs158-af-rxb",
+     "name": "Standard",
+     "mpn": "CS158-AF-RXB",
+     "ean": [
+      "0810043370066"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 91.6,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-Premium-55-Litre/3310153",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ninja-foodi-max-dual-zone-af400eu",
+   "hersteller": "Ninja",
+   "name": "Foodi MAX Dual Zone AF400EU",
+   "werte": {
+    "volumen_l": 9.5,
+    "koerbe": 2,
+    "leistung_w": 2470,
+    "temp_max_c": 240,
+    "spuelmaschinenfest": true,
+    "sync_funktion": true,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3100073",
+    "koerbe": "proshop-3100073",
+    "leistung_w": "proshop-3100073",
+    "temp_max_c": "proshop-3100073",
+    "spuelmaschinenfest": "proshop-3100073",
+    "sync_funktion": "proshop-3100073",
+    "doerren": "proshop-3100073"
+   },
+   "varianten": [
+    {
+     "id": "af400eu",
+     "name": "Standard",
+     "mpn": "AF400EU",
+     "ean": [
+      "0622356245272"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 170.1,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-Foodi-MAX-Dual-Zone-AF400EU-Schwarz/3100073",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ninja-flex-drawer-af500eu",
+   "hersteller": "Ninja",
+   "name": "Flex Drawer AF500EU",
+   "werte": {
+    "volumen_l": 10.4,
+    "koerbe": 2,
+    "leistung_w": 2470,
+    "temp_max_c": 240,
+    "spuelmaschinenfest": true,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3243985",
+    "koerbe": "proshop-3243985",
+    "leistung_w": "proshop-3243985",
+    "temp_max_c": "proshop-3243985",
+    "spuelmaschinenfest": "proshop-3243985",
+    "doerren": "proshop-3243985"
+   },
+   "varianten": [
+    {
+     "id": "af500eu",
+     "name": "Standard",
+     "mpn": "AF500EU",
+     "ean": [
+      "0622356270373"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 174.05,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-AF500EU-Flex-Drawer/3243985",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ninja-double-stack-sl300eu",
+   "hersteller": "Ninja",
+   "name": "Double Stack SL300EU",
+   "werte": {
+    "volumen_l": 7.6,
+    "koerbe": 2,
+    "leistung_w": 2470,
+    "spuelmaschinenfest": true,
+    "sync_funktion": true,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3344741",
+    "koerbe": "proshop-3344741",
+    "leistung_w": "proshop-3344741",
+    "spuelmaschinenfest": "proshop-3344741",
+    "sync_funktion": "proshop-3344741",
+    "doerren": "proshop-3344741"
+   },
+   "varianten": [
+    {
+     "id": "sl300eu",
+     "name": "Standard",
+     "mpn": "SL300EU",
+     "ean": [
+      "0622356297868"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 163.96,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-SL300EU/3344741",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ninja-double-stack-xl-sl400eu",
+   "hersteller": "Ninja",
+   "name": "Double Stack XL SL400EU",
+   "werte": {
+    "volumen_l": 9.5,
+    "koerbe": 2,
+    "leistung_w": 2470,
+    "temp_max_c": 240,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3271504",
+    "koerbe": "proshop-3271504",
+    "leistung_w": "proshop-3271504",
+    "temp_max_c": "proshop-3271504",
+    "doerren": "proshop-3271504"
+   },
+   "varianten": [
+    {
+     "id": "sl400eu",
+     "name": "Standard",
+     "mpn": "SL400EU",
+     "ean": [
+      "0622356280822"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 214.91,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Ninja-SL400EU/3271504",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "electrolux-eaf7sb",
+   "hersteller": "Electrolux",
+   "name": "EAF7SB",
+   "werte": {
+    "volumen_l": 6.9,
+    "koerbe": 1,
+    "leistung_w": 1700,
+    "temp_max_c": 200,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3343545",
+    "koerbe": "proshop-3343545",
+    "leistung_w": "proshop-3343545",
+    "temp_max_c": "proshop-3343545",
+    "spuelmaschinenfest": "proshop-3343545",
+    "sync_funktion": "proshop-3343545",
+    "doerren": "proshop-3343545"
+   },
+   "varianten": [
+    {
+     "id": "eaf7sb",
+     "name": "Standard",
+     "mpn": "EAF7SB",
+     "ean": [
+      "7333394032603"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 163.13,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Electrolux-EAF7SB-fryer/3343545",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cosori-iconic-single-caf-se601s-ceu",
+   "hersteller": "Cosori",
+   "name": "Iconic Single CAF-SE601S-CEU",
+   "werte": {
+    "volumen_l": 6.2,
+    "koerbe": 1,
+    "leistung_w": 1725,
+    "temp_max_c": 230,
+    "spuelmaschinenfest": true,
+    "beschichtung": "keramik",
+    "sync_funktion": false,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "cosori-iconic-launch",
+    "koerbe": "cosori-iconic-launch",
+    "leistung_w": "cosori-iconic-launch",
+    "temp_max_c": "proshop-3519208",
+    "spuelmaschinenfest": "proshop-3519208",
+    "beschichtung": "cosori-iconic-launch",
+    "sync_funktion": "proshop-3519208",
+    "doerren": "proshop-3519208"
+   },
+   "varianten": [
+    {
+     "id": "caf-se601s-ceu",
+     "name": "Standard",
+     "mpn": "CAF-SE601S-CEU",
+     "ean": [
+      "0810123677696"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 224.9,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-Iconic-Single/3519208",
+      "stand": "2026-11-21"
+     },
+     "listenpreis_hersteller": {
+      "eur": 239.99,
+      "haendler": "Cosori Herstellershop",
+      "url": "https://cosori.de/pages/iconic-dual-launch",
+      "stand": "2026-11-21",
+      "hinweis": "Angebotspreis laut Vergleichstabelle, keine Produktseite"
+     }
+    }
+   ]
+  },
+  {
+   "id": "philips-airfryer-combi-xxl-7000-serie-hd9880",
+   "hersteller": "Philips",
+   "name": "Airfryer Combi XXL 7000 Serie HD9880",
+   "werte": {
+    "volumen_l": 8.3,
+    "koerbe": 1,
+    "leistung_w": 2200,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3250562",
+    "koerbe": "proshop-3250562",
+    "leistung_w": "proshop-3250562",
+    "spuelmaschinenfest": "proshop-3250562",
+    "sync_funktion": "proshop-3250562",
+    "doerren": "proshop-3250562"
+   },
+   "varianten": [
+    {
+     "id": "hd9880-90",
+     "name": "Standard",
+     "mpn": "HD9880/90",
+     "ean": [
+      "8720389015373"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 224.49,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Philips-7000-Series-HD9880-Airfryer-Combi-XXL/3250562",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cosori-twinfry-compact-caf-tf801-ceur",
+   "hersteller": "Cosori",
+   "name": "TwinFry Compact CAF-TF801-CEUR",
+   "werte": {
+    "volumen_l": 8.6,
+    "koerbe": 2,
+    "temp_max_c": 240,
+    "spuelmaschinenfest": true,
+    "beschichtung": "keramik",
+    "sync_funktion": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3519205",
+    "koerbe": "proshop-3519205",
+    "temp_max_c": "proshop-3519205",
+    "spuelmaschinenfest": "proshop-3519205",
+    "beschichtung": "proshop-3519205",
+    "sync_funktion": "proshop-3519205"
+   },
+   "varianten": [
+    {
+     "id": "caf-tf801-ceur",
+     "name": "Standard",
+     "mpn": "CAF-TF801-CEUR",
+     "ean": [
+      "0810123678037"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 236.24,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-TwinFry-Compact/3519205",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "philips-airfryer-4000-serie-stacked-dual-basket-na461",
+   "hersteller": "Philips",
+   "name": "Airfryer 4000 Serie Stacked Dual Basket NA461",
+   "werte": {
+    "volumen_l": 10,
+    "koerbe": 2,
+    "leistung_w": 2750,
+    "temp_max_c": 200,
+    "sichtfenster": true,
+    "beschichtung": "keramik"
+   },
+   "belege": {
+    "volumen_l": "proshop-3505653",
+    "koerbe": "proshop-3505653",
+    "leistung_w": "proshop-3505653",
+    "temp_max_c": "proshop-3505653",
+    "sichtfenster": "proshop-3505653",
+    "beschichtung": "proshop-3505653"
+   },
+   "varianten": [
+    {
+     "id": "na461-00",
+     "name": "Standard",
+     "mpn": "NA461/00",
+     "ean": [
+      "8720389072215"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 229.53,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Philips-Airfryer-4000-Series-Stacked-Dual-Basket-NA46100/3505653",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "philips-airfryer-5000-serie-xxl-connected-hd9285",
+   "hersteller": "Philips",
+   "name": "Airfryer 5000 Serie XXL Connected HD9285",
+   "werte": {
+    "volumen_l": 7.2,
+    "koerbe": 1,
+    "temp_max_c": 200,
+    "spuelmaschinenfest": true,
+    "sync_funktion": false
+   },
+   "belege": {
+    "volumen_l": "proshop-3191327",
+    "koerbe": "proshop-3191327",
+    "temp_max_c": "proshop-3191327",
+    "spuelmaschinenfest": "proshop-3191327",
+    "sync_funktion": "proshop-3191327"
+   },
+   "varianten": [
+    {
+     "id": "hd9285-93",
+     "name": "Standard",
+     "mpn": "HD9285/93",
+     "ean": [
+      "8720389015045"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 181.92,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Philips-Series-5000-HD9285-XXL-Connected/3191327",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cosori-twinfry-caf-tf101s-aeur",
+   "hersteller": "Cosori",
+   "name": "TwinFry CAF-TF101S-AEUR",
+   "werte": {
+    "volumen_l": 10,
+    "koerbe": 2,
+    "temp_max_c": 240,
+    "spuelmaschinenfest": true,
+    "sichtfenster": false,
+    "beschichtung": "ptfe",
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3519206",
+    "koerbe": "proshop-3519206",
+    "temp_max_c": "proshop-3519206",
+    "spuelmaschinenfest": "proshop-3519206",
+    "sichtfenster": "proshop-3519206",
+    "beschichtung": "proshop-3519206",
+    "doerren": "proshop-3519206"
+   },
+   "varianten": [
+    {
+     "id": "caf-tf101s-aeur",
+     "name": "Standard",
+     "mpn": "CAF-TF101S-AEUR",
+     "ean": [
+      "0810123678457"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": {
+      "eur": 299.47,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-TwinFry/3519206",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cosori-turbo-tower-pro-smart-caf-dc123s-deur",
+   "hersteller": "Cosori",
+   "name": "Turbo Tower Pro Smart CAF-DC123S-DEUR",
+   "werte": {
+    "volumen_l": 10.8,
+    "temp_max_c": 230,
+    "spuelmaschinenfest": true,
+    "sichtfenster": false,
+    "doerren": true
+   },
+   "belege": {
+    "volumen_l": "proshop-3517310",
+    "temp_max_c": "proshop-3517310",
+    "spuelmaschinenfest": "proshop-3517310",
+    "sichtfenster": "proshop-3517310",
+    "doerren": "proshop-3517310"
+   },
+   "varianten": [
+    {
+     "id": "caf-dc123s-deur",
+     "name": "Standard",
+     "mpn": "CAF-DC123S-DEUR",
+     "ean": [
+      "0810123675210"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 355.12,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Heissluftfritteusen/Cosori-Turbo-Tower-Pro-Smart-Black/3517310",
+      "stand": "2026-11-21",
+      "hinweis": "nicht lieferbar (Vorbestellung), nur zur Preisstufe"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cosori-iconic-dual",
+   "hersteller": "Cosori",
+   "name": "Iconic Dual CAF-SE901S-CEU",
+   "werte": {
+    "volumen_l": 8.6,
+    "koerbe": 2,
+    "leistung_w": 2700,
+    "beschichtung": "keramik"
+   },
+   "belege": {
+    "volumen_l": "cosori-iconic-launch",
+    "koerbe": "cosori-iconic-launch",
+    "leistung_w": "cosori-iconic-launch",
+    "beschichtung": "cosori-iconic-launch"
+   },
+   "varianten": [
+    {
+     "id": "caf-se901s-ceu",
+     "name": "Standard",
+     "mpn": "CAF-SE901S-CEU",
+     "ean": [
+      "0810123677719"
+     ],
+     "werte": {},
+     "belege": {},
+     "preis": null,
+     "listenpreis": {
+      "eur": 369.0,
+      "haendler": "Cosori Herstellershop",
+      "url": "https://cosori.de/pages/iconic-dual-launch",
+      "stand": "2026-11-21",
+      "hinweis": "Angebotspreis laut Herstellerseite (Vergleichstabelle, keine Produktseite), nur zur Preisstufe"
+     }
+    }
+   ]
+  }
+ ]
+}
