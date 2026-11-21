@@ -92,7 +92,7 @@ class Vorlagen(unittest.TestCase):
         # D7-09: nur Felder, die die Tests brauchen; keine Konto-URLs, keine Service-/Garantietexte
         for name in os.listdir(VORLAGEN):
             t = vorlage(name)
-            for verboten in ("myaccount", "loyalty", '"addOn"', "Garantie", "MerchantReturnPolicy"):
+            for verboten in ("myaccount", "loyalty", '"addOn"', "Garantie", "MerchantReturnPolicy", "BreadcrumbList", "Media Markt"):
                 self.assertNotIn(verboten, t, f"{name}: {verboten}")
 
     def test_saturn_produktgruppe_nur_passende_ean_und_eigenes_angebot(self):
@@ -552,6 +552,82 @@ class Runde2(unittest.TestCase):
             self.assertTrue(s.abrufen(basis + "/gross").startswith("User-agent"))
         finally:
             s.MAX_BYTES = alt_grenze
+            srv.shutdown()
+            srv.server_close()
+            if alt_proxy is None:
+                os.environ.pop("no_proxy", None)
+            else:
+                os.environ["no_proxy"] = alt_proxy
+
+
+class Runde3(unittest.TestCase):
+    """Regressionstests zur Codex-Nachprüfung r3 (21.11.2026)."""
+    m = MODELLE["af_ninja_af500"]
+
+    def test_d7_14_doppelter_marktplatzschluessel_kein_nachweis(self):
+        roh = ('{"id":"Saturn:de:111","currency":"EUR","isProductOfTypeMarketplace":true,'
+               '"isProductOfTypeMarketplace":false,'
+               '"price":{"__typename":"CofrPriceFeaturePrice","amount":219.99,"shippingCost":0}}')
+        p = produkt(ean="0622356270373", price="219.99")
+        del p["offers"]["seller"]
+        p["sku"] = "111"
+        text = seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(roh)
+        self.assertIsNone(s.mms_preisfeld(text, "Saturn:de:", "111"))
+        g, prot = s.auswerten_seite(text, self.m, QUELLEN["saturn"], "L", "Z")
+        self.assertEqual(g, [], prot)
+        # Gegenprobe: ohne Dublette bleibt das Eigenangebot gültig
+        ok = roh.replace('"isProductOfTypeMarketplace":true,', "", 1)
+        text = seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(ok)
+        self.assertEqual(s.mms_preisfeld(text, "Saturn:de:", "111"), (False, 219.99, 0.0))
+
+    def test_d7_11_captcha_aufforderung_und_robots_pfad(self):
+        for sperr in ("Please complete the CAPTCHA to continue.", "Bitte bestätigen Sie, dass Sie kein Roboter sind.",
+                      "I'm not a robot", "Verify you are human"):
+            self.assertTrue(s.ist_challenge(sperr, "text/plain"), sperr)
+            self.assertTrue(s.ist_challenge("x" * 30000 + "<h1>%s</h1>" % sperr + seite(produkt()), "text/html"), sperr)
+        robots = ("User-agent: *\nDisallow: /cdn-cgi/challenge-platform/h/b/orchestrate/\n"
+                  "Disallow: /cdn-cgi/chl_page\nAllow: /\n")
+        self.assertFalse(s.ist_challenge(robots, "text/plain"))
+        self.assertFalse(s.ist_challenge(seite(produkt()) + '<form><div class="g-recaptcha"></div></form>', "text/html"))
+
+    def test_d7_02_gekuerzte_200_antwort(self):
+        import http.server
+        import socket
+        import threading
+
+        class H(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                voll = b"User-agent: *\nDisallow: /de/product/\n"
+                body = voll[:24] if self.path == "/kurz" else voll
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain")
+                if self.path == "/chunk":
+                    self.send_header("Transfer-Encoding", "chunked")
+                    self.end_headers()
+                    self.wfile.write(b"%x\r\n" % len(voll) + voll[:10])  # Chunk endet vorzeitig
+                else:
+                    self.send_header("Content-Length", str(len(voll)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                self.wfile.flush()
+                self.connection.shutdown(socket.SHUT_WR)
+                self.close_connection = True
+
+            def log_message(self, *a):
+                pass
+        srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        basis = "http://127.0.0.1:%d" % srv.server_address[1]
+        alt_proxy = os.environ.get("no_proxy")
+        os.environ["no_proxy"] = "127.0.0.1"
+        try:
+            for pfad in ("/kurz", "/chunk"):
+                with self.assertRaises(s.NichtAbrufbar, msg=pfad):
+                    s.abrufen(basis + pfad)
+            self.assertIn("Disallow: /de/product/", s.abrufen(basis + "/voll"))
+            r = s.robots_fuer({"domain": "x"}, holen=lambda u: s.abrufen(basis + "/kurz"))
+            self.assertIsInstance(r, str)  # nicht lesbar -> Quelle nicht abfragen
+        finally:
             srv.shutdown()
             srv.server_close()
             if alt_proxy is None:

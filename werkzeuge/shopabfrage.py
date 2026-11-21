@@ -32,6 +32,7 @@ Nur Standardbibliothek.
 """
 import argparse
 import html
+import http.client
 import json
 import math
 import os
@@ -55,7 +56,13 @@ TIMEOUT = 25
 MAX_BYTES = 6_000_000
 # Eindeutige Sperrmerkmale: sperren immer, auch wenn die Seite JSON-LD enthält (D7-03)
 SPERRE = re.compile(r"challenge-platform/h/[a-z]/orchestrate|chl_page|cf-chl|_cf_chl_opt|px-captcha|_Incapsula_|"
-                    r"Access Denied|Pardon Our Interruption|<title>\s*(Just a moment|Attention Required)", re.I)
+                    r"Access Denied|Pardon Our Interruption|<title>\s*(Just a moment|Attention Required)|"
+                    # D7-11: ausdrückliche Captcha-/Roboter-Aufforderungen
+                    r"complete the captcha|solve the captcha|captcha (eingeben|lösen|ausfüllen)|"
+                    r"Ich bin kein Roboter|I'?m not a robot|"
+                    r"verify (that )?you are (a )?human|(bestätigen|beweisen) Sie, dass Sie kein Roboter sind", re.I)
+# robots.txt-Anweisungen nennen Sperrpfade nur passiv (D7-11): vor der Sperrprüfung entfernen
+ROBOTS_ANWEISUNG = re.compile(r"^\s*(allow|disallow|sitemap|crawl-delay|user-agent)\s*:.*$", re.I | re.M)
 # Schwache Merkmale: auch normale Produktseiten verweisen passiv darauf (Cloudflare-Skript, Captcha im Formular);
 # nur ohne JSON-LD eine Sperrseite
 CHALLENGE_SCHWACH = re.compile(r"challenge-platform|captcha", re.I)
@@ -222,6 +229,20 @@ def _name_norm(s):
     return re.sub(r"[^a-z0-9]", "", s.lower())
 
 
+class DoppelterSchluessel(ValueError):
+    pass
+
+
+def _ohne_doppelte(paare):
+    """object_pairs_hook: doppelte Schlüssel im selben Objekt sind mehrdeutig (D7-14)."""
+    obj = {}
+    for k, v in paare:
+        if k in obj:
+            raise DoppelterSchluessel(k)
+        obj[k] = v
+    return obj
+
+
 def mms_preisfeld(text, praefix, sku):
     """Saturn/MediaMarkt (Plattform MMS): JSON-LD nennt keinen Verkäufer. Der eingebettete Seitenzustand enthält je
     Artikel ein Preisfeld „CofrPriceFeature“ mit id "<praefix><sku>" und isProductOfTypeMarketplace. Rückgabe
@@ -229,7 +250,7 @@ def mms_preisfeld(text, praefix, sku):
     if not sku:
         return None
     t = text.replace('\\"', '"')
-    dec = json.JSONDecoder()
+    dec = json.JSONDecoder(object_pairs_hook=_ohne_doppelte)
     funde = set()
     # D7-04: Anker ist die Feldfolge des Preisfelds; von dort zur umschließenden Klammer zurück und das vollständige
     # Artikelobjekt dekodieren. Ausgewertet werden nur dessen eigene Felder, nie ein Folgeobjekt.
@@ -242,6 +263,8 @@ def mms_preisfeld(text, praefix, sku):
                 break
             try:
                 kandidat, ende = dec.raw_decode(t, pos)
+            except DoppelterSchluessel:
+                break  # D7-14: widersprüchliches Objekt -> kein Nachweis
             except ValueError:
                 continue
             if isinstance(kandidat, dict) and kandidat.get("id") == ziel and ende > m.end():
@@ -378,7 +401,7 @@ class Weitergeleitet(NichtAbrufbar):
 def ist_challenge(text, inhaltstyp):
     """Sperr-/Challenge-Seite? Nur HTML-Antworten (robots.txt von Saturn nennt selbst /cdn-cgi/challenge-platform/).
     Eindeutige Merkmale sperren immer; schwache nur, wenn die Seite kein JSON-LD hat."""
-    if SPERRE.search(text):  # D7-11: ganzer Text, auch bei falsch deklariertem Inhaltstyp
+    if SPERRE.search(ROBOTS_ANWEISUNG.sub("", text)):  # D7-11: ganzer Text, auch bei falsch deklariertem Inhaltstyp
         return True
     if "html" not in (inhaltstyp or "").lower():
         return False
@@ -407,10 +430,15 @@ def abrufen(url):
                     raise NichtAbrufbar(f"HTTP {r.status} (keine vollständige Antwort)")
                 if len(roh) > MAX_BYTES:
                     raise NichtAbrufbar("Antwort über der Lesegrenze (abgeschnitten)")
+                laenge = r.headers.get("Content-Length")
+                if laenge is not None and (not laenge.strip().isdigit() or int(laenge) != len(roh)):
+                    raise NichtAbrufbar("Antwort unvollständig (Länge passt nicht zu Content-Length)")  # D7-02
                 text = roh.decode(r.headers.get_content_charset() or "utf-8", "replace")
                 typ = r.headers.get("Content-Type", "")
                 if r.geturl() != url:  # zweite Sicherung, falls doch eine Weiterleitung verfolgt wurde
                     raise Weitergeleitet(f"Weiterleitung auf {r.geturl()[:120]}")
+        except http.client.IncompleteRead:  # D7-02: vorzeitiges Ende (auch chunked)
+            raise NichtAbrufbar("Antwort unvollständig (vorzeitiges Ende)")
         except urllib.error.HTTPError as e:
             if 300 <= e.code < 400:
                 raise Weitergeleitet(f"Weiterleitung (HTTP {e.code}) auf {str(e.headers.get('Location') or '?')[:120]}")
