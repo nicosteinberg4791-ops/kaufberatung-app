@@ -17,7 +17,7 @@ import app_bauen  # noqa: E402
 
 WURZEL = Path(__file__).resolve().parent.parent
 SEITEN = WURZEL / ".veroeffentlichung"
-BEHALTEN = {".git", "preise.json"}
+BEHALTEN = {".git", "preise.json", "finder-preise.json"}
 
 
 def git(*a, cwd=WURZEL, check=True):
@@ -41,7 +41,7 @@ def spiegeln():
         if p.name not in BEHALTEN:
             shutil.rmtree(p) if p.is_dir() else p.unlink()
     for p in (WURZEL / "dist").iterdir():
-        if p.name == "preise.json" and (SEITEN / "preise.json").exists():
+        if p.name in ("preise.json", "finder-preise.json") and (SEITEN / p.name).exists():
             continue
         ziel = SEITEN / p.name
         shutil.copytree(p, ziel) if p.is_dir() else shutil.copyfile(p, ziel)

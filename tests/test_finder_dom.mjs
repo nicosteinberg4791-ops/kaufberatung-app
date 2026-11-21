@@ -161,6 +161,18 @@ test("Zurück-Knopf des Browsers stellt den Schritt wieder her", async () => {
   assert.ok(text(app.dok.body).includes("Was suchst du?"));
 });
 
+test("Budget aus der Adresse im Ergebnis: Feld und Schnellwahl ziehen nach (Browserbefund 21.11.)", async () => {
+  const app = await starte("#k=fernseher&s=ergebnis&b=500");
+  const feld = app.dok.getElementById("budget-fernseher-oben");
+  assert.equal(feld.value, "500");
+  await app.zurueck("#k=fernseher&s=ergebnis&b=1500");
+  assert.equal(app.dok.getElementById("budget-fernseher-oben"), feld, "Feld bleibt dasselbe Element");
+  assert.equal(feld.value, "1500", "Eingabefeld zeigt das Budget aus der Adresse");
+  assert.ok(text(app.dok.body).includes("Unsere Empfehlung bis 1.500 €"));
+  const gedrueckt = alle(app.dok.body).filter(e => e.getAttribute("aria-pressed") === "true" && e.getAttribute("data-budget"));
+  assert.ok(gedrueckt.every(e => e.getAttribute("data-budget") === "1500"), "keine alte Schnellwahl bleibt markiert");
+});
+
 test("Leere Kategorie, Ladefehler, ungültige Adresse", async () => {
   const leer = await starte("#k=laptop");
   assert.ok(text(leer.dok.body).includes("Hier kommen bald Modelle."));

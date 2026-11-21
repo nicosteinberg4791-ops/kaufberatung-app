@@ -20,7 +20,7 @@ Vorlagenversion: 2
 
 ## Harte Regeln
 
-- Inhalte nie hier pflegen: Quelle ist das fertige `kaufberatung.html` der Kaufberatung (claude.ai-Artifact), übernommen nur über `werkzeuge/app_bauen.py --quelle`. Änderungen nur in `app/` (Hülle).
+- Ratgeber-Inhalt (`ratgeber.html`) nie hier pflegen: Quelle ist das fertige `kaufberatung.html` der Kaufberatung (claude.ai-Artifact), übernommen nur über `werkzeuge/app_bauen.py --quelle`; Änderungen dort nur in `app/` (Hülle). Der Finder (Startseite, D8) wird hier gepflegt: Oberfläche `app/finder/`, Produktdaten `daten/produkte/` nur mit Beleg, Schranke `python -I werkzeuge/datenbank.py pruefen`.
 - Repo und Seite sind öffentlich: keine Zugangsdaten, keine Wunschpreise, keine persönlichen Daten (Namen, E-Mail, lokale Pfade, Konto-URLs) in versionierten Dateien; Platzhalter wie `<arbeitsordner>`, `<konto>` verwenden.
 - Besitzerfunktionen (Wunschpreise, „Push einrichten“) nur mit lokalem Merker `kb-app:besitzer` (`app/app.js`); das ist Sichtbarkeit, keine Sicherheit.
 - Wunschpreise nur per `localStorage` auf dem Gerät; alle fremden Daten (preise.json, localStorage) prüfen und nur als Text ausgeben.
@@ -46,3 +46,4 @@ Benötigt: keine (GitHub über `gh`, Konto des Besitzers).
 | Offene Fragen | docs/offene-punkte.md |
 | Gestaltung der Hülle | docs/DESIGN.md |
 | Inhalt nachziehen, Preise | werkzeuge/app_bauen.py, werkzeuge/preise_aktualisieren.py (Kopf) |
+| Finder, Produktdatenbank | docs/uebergabe-finder.md, daten/produkte/FORMAT.md, docs/punkteschema.md |

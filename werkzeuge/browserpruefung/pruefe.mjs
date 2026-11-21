@@ -1,5 +1,6 @@
 // Browserprüfung der Kaufberatungs-App mit Chrome headless über das DevTools-Protokoll (nur node + vorhandenes Chrome).
 // Aufruf: node pruefe.mjs <dist-Ordner> <Ausgabeordner> [--url https://…]  (ohne --url: eigener Server, Offline = Server stoppen)
+// Seiten (D8): Startseite = Finder (index.html), Ratgeber = ratgeber.html (Artifact-Inhalt mit Hülle app.js).
 import { spawn } from "node:child_process";
 import http from "node:http";
 import fs from "node:fs";
@@ -61,6 +62,7 @@ await cdp("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints:
 await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
 
 const ergebnis = { basis };
+const ratgeber = new URL("ratgeber.html", basis).href;
 const messen = `
   const sichtbar = e => { const r = e.getBoundingClientRect(); const s = getComputedStyle(e); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
   const klein = [...document.querySelectorAll('.tabs button, .segx button, .seg button, .chip, .navlinks a, .brand, .kbapp-knoepfe button, .kbapp-wecker button, nav a, button')]
@@ -78,8 +80,27 @@ ergebnis.ersterBesuch = await js(`return { marke: window.__marke === 1, controll
   appDateien: (await (await caches.open((await caches.keys()).find(k=>k.startsWith('kb-app-')))).keys()).map(r=>r.url.replace(location.origin,'')) }`);
 ergebnis.manifest = await cdp("Page.getAppManifest").then(m => ({ fehler: m.errors, url: m.url })).catch(e => e.message);
 ergebnis.installierbar = await cdp("Page.getInstallabilityErrors").then(m => m.installabilityErrors).catch(e => e.message);
-// 2. hell
-await neu();
+// 1b. Finder: Kacheln, Ablauf bis Ergebnis mit Aufpreis-Hinweis (Fernseher, Filme, 700 €), hell und dunkel
+const finderStand = `const t = document.querySelector('main') ? document.querySelector('main').textContent : '';
+  return { titel: document.title, kacheln: document.querySelectorAll('.kachel').length, fehler: /Produktdaten fehlen/.test(t),
+    empfehlung: (t.match(/Unsere Empfehlung bis [\\d.]+ €/) || [null])[0], aufpreis: (document.querySelector('.hinweis-text') || {}).textContent || null,
+    stand: (document.getElementById('datenstand') || {}).textContent || null, neuHinweis: !!document.getElementById('app-neu') }`;
+ergebnis.finder = { start: await js(finderStand), hell: await js(messen) };
+await bild("finder-start.png");
+await js(`location.hash = '#k=fernseher&s=ergebnis&b=700&a=zweck.filme'; return 1`); await sleep(800);
+ergebnis.finder.ergebnis = await js(finderStand);
+ergebnis.finder.ergebnisMessung = await js(messen);
+await bild("finder-ergebnis-hell.png");
+await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
+await sleep(800);
+ergebnis.finder.dunkel = await js(messen);
+await bild("finder-ergebnis-dunkel.png");
+await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
+// Alte Sprungmarke führt auf den Ratgeber
+await laden(new URL("#preiswecker", basis).href);
+ergebnis.finder.weiterleitung = await js(`return { url: location.pathname + location.hash, preiswecker: !!document.getElementById('preiswecker') }`);
+// 2. hell (Ratgeber)
+await laden(ratgeber);
 ergebnis.hell = await js(messen);
 ergebnis.weckerHinweis = await js(`const b = document.getElementById('kbapp-wecker'); return b ? b.textContent.slice(0,120) : null`);
 await bild("hell-oben.png");
@@ -128,7 +149,11 @@ if (await js(`return !!document.getElementById('preiswecker')`)) {
 if (server) { server.closeAllConnections?.(); await new Promise(r => server.close(r)); }
 await cdp("Network.emulateNetworkConditions", { offline: true, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
 const vorOffline = meldungen.length;
-await neu();
+await laden(basis);
+ergebnis.offlineFinder = await js(`return { titel: document.title, kacheln: document.querySelectorAll('.kachel').length,
+  fehler: /Produktdaten fehlen/.test((document.querySelector('main')||{}).textContent||''), controller: !!navigator.serviceWorker.controller }`);
+await bild("offline-finder.png");
+await laden(ratgeber);
 ergebnis.offline = await js(`return { titel: document.title, reiter: !!document.getElementById('tab-tv'), controller: !!navigator.serviceWorker.controller,
   preise: Object.keys((await window.__kbApp.ladePreise()).preise).length, scrollW: document.documentElement.scrollWidth }`);
 await bild("offline.png");

@@ -318,7 +318,19 @@
     }).catch(e => console.warn("Service Worker nicht angemeldet:", e && e.message));
   }
 
+  /* Rückweg zur Startseite (D8: Finder auf ./, Ratgeber auf ratgeber.html), schlicht am Seitenanfang */
+  function finderLink() {
+    try {   // nie den Start (Wunschpreise, Service Worker) aufhalten
+      if (document.getElementById("kbapp-finder")) return;
+      const a = document.createElement("a");
+      a.id = "kbapp-finder"; a.className = "kbapp-finder"; a.href = "./";
+      a.textContent = "‹ Finden & Vergleichen";
+      document.body.insertBefore(a, document.body.firstChild);
+    } catch (e) { /* ohne Link bleibt der Systemzurück-Weg */ }
+  }
+
   function start() {
+    finderLink();
     wunschSpiegeln(wunschAlle());
     swAnmelden();
     weckerErgaenzen();

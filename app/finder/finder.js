@@ -313,6 +313,13 @@
   function budgetSetzen(b, quelle) {
     zustand = Object.assign({}, zustand, { b });
     try { history.replaceState(null, "", alsAdresse(zustand)); } catch (e) { /* ohne Verlauf */ }
+    budgetAnzeigen(b, quelle);
+    const kat = katVon(zustand.k);
+    const koerper = document.getElementById("ergebnis-koerper");
+    if (kat && koerper && zustand.s === "ergebnis") fuelleErgebnis(kat, koerper);
+  }
+  /* Eingabefeld (außer der gerade tippenden Quelle) und Schnellwahl auf Budget b setzen */
+  function budgetAnzeigen(b, quelle) {
     for (const t of budgetTeile) {
       if (t.tagName === "INPUT") { if (t !== quelle) t.value = b ? String(b) : ""; continue; }
       for (const c of Array.from(t.childNodes)) {
@@ -320,9 +327,6 @@
         c.setAttribute("aria-pressed", (w === "egal" ? !b : w === String(b)) ? "true" : "false");
       }
     }
-    const kat = katVon(zustand.k);
-    const koerper = document.getElementById("ergebnis-koerper");
-    if (kat && koerper && zustand.s === "ergebnis") fuelleErgebnis(kat, koerper);
   }
   function schirmBudget(kat) {
     const teile = [
@@ -643,6 +647,9 @@
     // Im Ergebnis nur den Körper neu füllen, damit Budgetfeld, Schreibmarke und Fokus bleiben
     const koerper = document.getElementById("ergebnis-koerper");
     if (schluessel === letzterSchirm && schluessel.indexOf("ergebnis:") === 0 && koerper) {
+      // Budget kann sich über die Adresse geändert haben (Zurück, Link): Feld und Schnellwahl nachziehen,
+      // ein Feld, in dem gerade getippt wird, behält seinen Text
+      budgetAnzeigen(zustand.b, document.activeElement);
       fuelleErgebnis(kat, koerper);
       return;
     }

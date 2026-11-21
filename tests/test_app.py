@@ -27,13 +27,13 @@ def png_groesse(pfad):
 
 
 class Bau(unittest.TestCase):
-    """Baut einmal in einer Kopie (app/, quelle/, werkzeuge/), damit dist/ im Projekt unberührt bleibt."""
+    """Baut einmal in einer Kopie (app/, quelle/, werkzeuge/, daten/), damit dist/ im Projekt unberührt bleibt."""
 
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
         cls.kopie = Path(cls.tmp.name) / "kb"
-        for d in ("app", "quelle", "werkzeuge"):
+        for d in ("app", "quelle", "werkzeuge", "daten"):
             shutil.copytree(WURZEL / d, cls.kopie / d, ignore=shutil.ignore_patterns("__pycache__"))
         cls.lauf = subprocess.run([sys.executable, "-I", str(cls.kopie / "werkzeuge" / "app_bauen.py")],
                                   capture_output=True, text=True, encoding="utf-8")
@@ -89,7 +89,7 @@ class Bau(unittest.TestCase):
 
     def test_seite_verweist_auf_versionierte_dateien(self):
         liste, _ = self.dateien()
-        seite = (self.dist / "index.html").read_text(encoding="utf-8")
+        seite = (self.dist / "ratgeber.html").read_text(encoding="utf-8")
         for d in liste:
             if d.startswith(("app.js", "app.css")):
                 self.assertIn(d, seite)
@@ -100,7 +100,7 @@ class Bau(unittest.TestCase):
     def test_inhalt_unveraendert(self):
         f = (WURZEL / "quelle" / "kaufberatung.html").read_text(encoding="utf-8")
         f = f.replace('<meta charset="utf-8">\n', "", 1).replace("<title>Kaufberatung</title>\n", "", 1)
-        seite = (self.dist / "index.html").read_text(encoding="utf-8")
+        seite = (self.dist / "ratgeber.html").read_text(encoding="utf-8")
         self.assertIn(f, seite, "Inhalt der Kaufberatung wurde verändert")
         # Hülle vor dem Inhalt: app.js muss vor den Seitenskripten laufen
         self.assertLess(seite.index("app.js?v="), seite.index(f[:200]))
@@ -109,7 +109,7 @@ class Bau(unittest.TestCase):
         node = shutil.which("node")
         if not node:
             self.skipTest("node nicht vorhanden")
-        for d in ("app.js", "sw.js"):
+        for d in ("app.js", "sw.js", "finder-app.js", "finder.js", "bewertung.js"):
             r = subprocess.run([node, "--check", str(self.dist / d)], capture_output=True, text=True, encoding="utf-8")
             self.assertEqual(r.returncode, 0, f"{d}: {r.stderr}")
 
@@ -119,6 +119,47 @@ class Bau(unittest.TestCase):
                 t = p.read_text(encoding="utf-8")
                 self.assertNotRegex(t, r"gh[pousr]_[A-Za-z0-9]{20,}", p.name)
                 self.assertNotRegex(t, r"sk-[A-Za-z0-9]{20,}", p.name)
+
+
+    def test_finder_startseite(self):
+        """D8: index.html ist der Finder mit Hülle und versionierten Verweisen; alle Verweise sind im App-Cache."""
+        liste, _ = self.dateien()
+        seite = (self.dist / "index.html").read_text(encoding="utf-8")
+        version = json.loads((self.dist / "version.json").read_text(encoding="utf-8"))["app"]
+        self.assertIn('<main id="inhalt"', seite)
+        self.assertIn('<link rel="manifest" href="manifest.webmanifest">', seite)
+        self.assertNotIn("Manifest, Symbole und app.js", seite, "Anker der Hülle steht noch in der Seite")
+        for d in ("finder.css", "bewertung.js", "finder-app.js", "finder.js"):
+            self.assertIn(f"{d}?v={version}", seite)
+            self.assertIn(f"{d}?v={version}", liste)
+        for d in ("index.html", "ratgeber.html"):
+            self.assertIn(d, liste)
+        # finder-app.js (Weiterleitung, Service Worker) vor finder.js
+        self.assertLess(seite.index("finder-app.js?v="), seite.index("finder.js?v="))
+        self.assertEqual(seite.count("<title>"), 1)
+
+    def test_finder_daten(self):
+        j = json.loads((self.dist / "finder-daten.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(j["kategorien"]), 14)
+        self.assertGreater(sum(len(k["modelle"]) for k in j["kategorien"]), 200)
+        liste, _ = self.dateien()
+        for d in ("finder-daten.json", "finder-preise.json", "preise.json"):
+            self.assertNotIn(d, liste, f"{d} gehört nicht in den App-Cache (netz-zuerst)")
+
+    def test_sw_ziele_ratgeber(self):
+        _, sw = self.dateien()
+        self.assertNotIn('ziel: "./#preiswecker"', sw)
+        self.assertIn('"ratgeber.html#preiswecker"', sw)
+
+    def test_preise_bleiben_beim_neubau(self):
+        for d in ("preise.json", "finder-preise.json"):
+            (self.dist / d).write_text('{"test": 1}', encoding="utf-8")
+        r = subprocess.run([sys.executable, "-I", str(self.kopie / "werkzeuge" / "app_bauen.py")],
+                           capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        for d in ("preise.json", "finder-preise.json"):
+            self.assertEqual((self.dist / d).read_text(encoding="utf-8"), '{"test": 1}')
+            (self.dist / d).unlink()
 
 
 class Rahmen(unittest.TestCase):

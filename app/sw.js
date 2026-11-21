@@ -1,11 +1,13 @@
 /* Service Worker der Kaufberatungs-App. Der Build setzt VERSION und DATEIEN ein (werkzeuge/app_bauen.py).
-   Strategie: App-Dateien aus dem versionierten Cache (offline), preise.json zuerst vom Netz (frisch, sonst Cache),
+   Seiten: index.html = Finder, ratgeber.html = Kaufberatung (Artifact-Inhalt); Navigation je Pfad aus dem Cache.
+   Strategie: App-Dateien aus dem versionierten Cache (offline); preise.json, finder-daten.json und finder-preise.json
+   zuerst vom Netz (frisch, sonst letzter gültiger Stand aus dem Cache),
    Google-Schrift aus dem Laufzeit-Cache (veraltet-und-erneuern). Neue Fassung wartet, bis die Seite "jetzt" sagt. */
 "use strict";
 const VERSION = "__VERSION__";
 const APP = "kb-app-" + VERSION;
 const LAUFZEIT = "kb-laufzeit";
-const DATEN = "kb-daten";            // preise.json, Wunschpreise (Spiegel aus der Seite), gemeldete Treffer
+const DATEN = "kb-daten";            // preise.json, finder-*.json, Wunschpreise (Spiegel aus der Seite), gemeldete Treffer
 const DATEIEN = __DATEIEN__;
 const SCHRIFT = ["https://fonts.googleapis.com", "https://fonts.gstatic.com"];
 
@@ -18,7 +20,7 @@ self.addEventListener("activate", e => {
     for (const k of await caches.keys()) if (k.startsWith("kb-app-") && k !== APP) await caches.delete(k);
     await self.clients.claim();
     // Beim ersten Besuch lädt die Seite preise.json noch ohne Worker: einmal selbst holen, damit offline Preise da sind
-    await netzZuerst(new Request("preise.json")).catch(() => {});
+    for (const n of Object.keys(NETZ)) await netzZuerst(new Request(n), n).catch(() => {});
   })());
 });
 
@@ -26,7 +28,21 @@ self.addEventListener("message", e => {
   if (e.data === "jetzt") self.skipWaiting();
 });
 
-async function netzZuerst(req) {
+const zahlOk = x => typeof x === "number" && isFinite(x) && x > 0 && x < 100000;
+const istObjekt = x => !!x && typeof x === "object" && !Array.isArray(x);
+// Nur gültige Daten ersetzen den letzten verwendbaren Stand (z. B. keine HTML-Fehlerseite mit Status 200)
+const NETZ = {
+  "preise.json": j => {
+    const eintraege = istObjekt(j) && istObjekt(j.preise) ? Object.values(j.preise) : [];
+    return eintraege.length > 0 && eintraege.every(p => istObjekt(p) && p.aktuell && zahlOk(p.aktuell.gesamt));
+  },
+  // Grobprüfung; die Seite prüft jeden Eintrag selbst (bewertung.js datenPruefen)
+  "finder-daten.json": j => istObjekt(j) && Array.isArray(j.kategorien) && j.kategorien.length > 0 &&
+    j.kategorien.every(k => istObjekt(k) && typeof k.id === "string" && Array.isArray(k.modelle)),
+  "finder-preise.json": j => istObjekt(j) && istObjekt(j.preise)
+};
+
+async function netzZuerst(req, name) {
   const c = await caches.open(DATEN);
   try {
     const ctl = new AbortController();
@@ -34,15 +50,11 @@ async function netzZuerst(req) {
     const r = await fetch(req, { cache: "no-store", signal: ctl.signal });
     clearTimeout(t);
     if (!r.ok) throw new Error("HTTP " + r.status);
-    // Nur gültige Preisdaten ersetzen den letzten verwendbaren Stand (z. B. keine HTML-Fehlerseite mit Status 200)
-    const j = await r.clone().json();
-    const zahlOk = x => typeof x === "number" && isFinite(x) && x > 0 && x < 100000;
-    const eintraege = j && typeof j === "object" && j.preise && typeof j.preise === "object" && !Array.isArray(j.preise) ? Object.values(j.preise) : [];
-    if (!eintraege.length || !eintraege.every(p => p && typeof p === "object" && p.aktuell && zahlOk(p.aktuell.gesamt))) throw new Error("ungültig");
-    await c.put("preise.json", r.clone());
+    if (!NETZ[name](await r.clone().json())) throw new Error("ungültig");
+    await c.put(name, r.clone());
     return r;
   } catch (err) {
-    const alt = await c.match("preise.json");
+    const alt = await c.match(name);
     return alt || new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } });
   }
 }
@@ -59,10 +71,11 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin === location.origin) {
-    if (url.pathname.endsWith("/preise.json")) { e.respondWith(netzZuerst(req)); return; }
+    const name = url.pathname.slice(url.pathname.lastIndexOf("/") + 1);
+    if (Object.prototype.hasOwnProperty.call(NETZ, name)) { e.respondWith(netzZuerst(req, name)); return; }
     e.respondWith((async () => {
       const c = await caches.open(APP);
-      if (req.mode === "navigate") return (await c.match("./")) || fetch(req);
+      if (req.mode === "navigate") return (await c.match(name === "ratgeber.html" ? "ratgeber.html" : "./")) || fetch(req);
       return (await c.match(req, { ignoreSearch: true })) || fetch(req);
     })());
     return;
@@ -74,7 +87,7 @@ self.addEventListener("fetch", e => {
 async function pruefePreise() {
   const c = await caches.open(DATEN);
   let preise = null, wunsch = {}, gemeldet = {};
-  try { const r = await netzZuerst(new Request("preise.json")); preise = await r.json(); } catch (e) { return; }
+  try { const r = await netzZuerst(new Request("preise.json"), "preise.json"); preise = await r.json(); } catch (e) { return; }
   try { wunsch = (await (await c.match("wunsch.json")).json()) || {}; } catch (e) { wunsch = {}; }
   try { gemeldet = (await (await c.match("gemeldet.json")).json()) || {}; } catch (e) { gemeldet = {}; }
   const treffer = [], namen = [];
@@ -96,7 +109,7 @@ async function pruefePreise() {
       : "Preisalarm: " + treffer.length + " Modelle unter deinem Wunschpreis";
     await self.registration.showNotification(titel, {
       body: treffer.join(" · ").slice(0, 180), icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png",
-      tag: "kb-preiswecker", data: { ziel: "./#preiswecker" }
+      tag: "kb-preiswecker", data: { ziel: "ratgeber.html#preiswecker" }
     });
   }
 }
@@ -113,7 +126,9 @@ self.addEventListener("push", e => {
   if (!d || typeof d !== "object") d = {};
   const titel = typeof d.titel === "string" && d.titel.trim() ? d.titel.slice(0, 60) : "Kaufberatung";
   const text = typeof d.text === "string" && d.text.trim() ? d.text.slice(0, 1000) : "Neue Meldung aus der Preisabfrage.";
-  const ziel = typeof d.ziel === "string" && /^\.\/(#[A-Za-z0-9_-]+)?$/.test(d.ziel) ? d.ziel : "./#preiswecker";
+  // Ziele der Abfrage heißen "./#abschnitt" (Ratgeber-Abschnitt, D8: Ratgeber liegt jetzt auf ratgeber.html)
+  const m = typeof d.ziel === "string" ? /^\.\/(#[A-Za-z0-9_-]+)?$/.exec(d.ziel) : null;
+  const ziel = m ? (m[1] ? "ratgeber.html" + m[1] : "./") : "ratgeber.html#preiswecker";
   // Treffer ohne Tag: jede Meldung bleibt einzeln stehen; nur Tests ersetzen einander (Codex B3)
   const opt = { body: text, icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", data: { ziel } };
   if (d.art === "test") { opt.tag = "kb-push-test"; opt.renotify = true; }
@@ -125,7 +140,7 @@ self.addEventListener("push", e => {
 self.addEventListener("pushsubscriptionchange", e => {
   e.waitUntil(self.registration.showNotification("Push neu einrichten", {
     body: "Die Push-Anmeldung dieses Geräts wurde erneuert. App öffnen → Preiswecker → „Push einrichten“.",
-    icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", tag: "kb-push-abo", data: { ziel: "./#preiswecker" }
+    icon: "icons/icon-192.png", badge: "icons/icon-maskable-192.png", tag: "kb-push-abo", data: { ziel: "ratgeber.html#preiswecker" }
   }).catch(() => {}));
 });
 

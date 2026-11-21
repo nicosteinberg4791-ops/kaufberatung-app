@@ -67,3 +67,12 @@
   @starting-style { .kbapp-karte { opacity: 0; transform: none; } }
   .kbapp-knoepfe button:active, .kbapp-wecker button:active { transform: none; }
 }
+
+/* Rückweg zum Finder (app.js finderLink): ruhige Textzeile am Seitenanfang, 44 px Trefferfläche */
+.kbapp-finder {
+  display: flex; align-items: center; min-height: 44px; padding: 0 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  color: var(--muted, #5a6472); font-size: 14px; text-decoration: none;
+}
+.kbapp-finder:hover { color: var(--ink, #0e1218); text-decoration: underline; text-underline-offset: .18em; }
+.kbapp-finder:focus-visible { outline: 3px solid #1f5fd1; outline-offset: -3px; }
