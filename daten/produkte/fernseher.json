@@ -341,6 +341,61 @@
    "url": "https://www.philips.de/c-p/85PQS8501_12/qled-4k-ambilight-tv",
    "titel": "Philips Produktseite 85PQS8501/12",
    "gelesen": "2026-11-21"
+  },
+  "sat-lg-oled65c67la": {
+   "url": "https://www.saturn.de/de/product/_lg-oled65c67la-lg-oled-evo-tv-c6-flat-65-zoll-165-cm-oled-4k-smart-tv-3038883.html",
+   "titel": "Saturn Produktseite LG OLED65C67LA (Datenblatt C6)",
+   "gelesen": "2026-11-21"
+  },
+  "sat-lg-oled65b68la": {
+   "url": "https://www.saturn.de/de/product/_lg-oled65b68la-lg-oled-tv-flat-65-zoll-165-cm-oled-4k-smart-tv-3038856.html",
+   "titel": "Saturn Produktseite LG OLED65B68LA (Datenblatt B6)",
+   "gelesen": "2026-11-21"
+  },
+  "sat-lg-oled65g67lw": {
+   "url": "https://www.saturn.de/de/product/_lg-oled65g67lw-lg-oled-tv-flat-65-zoll-165-cm-oled-4k-smart-tv-3064088.html",
+   "titel": "Saturn Produktseite LG OLED65G67LW (Datenblatt G6)",
+   "gelesen": "2026-11-21"
+  },
+  "sat-sony-k55s35": {
+   "url": "https://www.saturn.de/de/product/_sony-bravia-3-k55-s-35-led-tv-55-zoll-139-cm-uhd-4k-smart-tv-2989440.html",
+   "titel": "Saturn Produktseite Sony BRAVIA 3 K55S35 (Datenblatt)",
+   "gelesen": "2026-11-21"
+  },
+  "sony-at-k55xr80": {
+   "url": "https://www.sony.at/electronics/support/televisions-projectors-oled-tvs-android-/k-55xr80/specifications",
+   "titel": "Sony Support K-55XR80 BRAVIA 8 Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "mm-tcl-65c7k": {
+   "url": "https://www.mediamarkt.de/de/product/_tcl-65c7k-qd-mini-led-tv-flat-65-zoll-164-cm-uhd-4k-smart-tv-2989211.html",
+   "titel": "MediaMarkt Produktseite TCL 65C7K (Datenblatt)",
+   "gelesen": "2026-11-21"
+  },
+  "mm-tcl-55p7l": {
+   "url": "https://www.mediamarkt.de/de/product/_tcl-55p7l-qled-tv-flat-55-zoll-1397-cm-qled-4k-smart-tv-3045313.html",
+   "titel": "MediaMarkt Produktseite TCL 55P7L (Datenblatt)",
+   "gelesen": "2026-11-21"
+  },
+  "atlas-tv-55z90be6a": {
+   "url": "https://www.atlasfernsehdienst.de/shop/panasonic-tv-55z90be6a-55-zoll-4k-master-oled-pro-fire-tv-2026/",
+   "titel": "Atlas Vision Store Panasonic TV-55Z90BE6A (Datenblatt)",
+   "gelesen": "2026-11-21"
+  },
+  "atlas-tv-65z90be6a": {
+   "url": "https://www.atlasfernsehdienst.de/shop/panasonic-tv-65z90be6a-65-zoll-4k-master-oled-pro-fire-tv-2026/",
+   "titel": "Atlas Vision Store Panasonic TV-65Z90BE6A (Datenblatt)",
+   "gelesen": "2026-11-21"
+  },
+  "atlas-tv-77z90be6a": {
+   "url": "https://www.atlasfernsehdienst.de/shop/panasonic-tv-77z90be6a-77-zoll-4k-master-oled-pro-fire-tv-2026/",
+   "titel": "Atlas Vision Store Panasonic TV-77Z90BE6A (Datenblatt)",
+   "gelesen": "2026-11-21"
+  },
+  "atlas-tv-65z95bega": {
+   "url": "https://www.atlasfernsehdienst.de/shop/panasonic-tv-65z95bega-65-zoll-oled-z95b-2026/",
+   "titel": "Atlas Vision Store Panasonic TV-65Z95BEGA (Datenblatt)",
+   "gelesen": "2026-11-21"
   }
  },
  "modelle": [
@@ -778,12 +833,20 @@
    "werte": {
     "bildtechnik": "oled",
     "hdr_formate": "dolby_vision",
-    "aufloesung": "4k"
+    "aufloesung": "4k",
+    "bildwiederholrate_hz": 120,
+    "hdmi_4k120_anzahl": 4,
+    "earc": true,
+    "tuner_triple": true
    },
    "belege": {
     "bildtechnik": "lg-oled42c6elb",
     "hdr_formate": "lg-oled42c6elb",
-    "aufloesung": "alt-100198061"
+    "aufloesung": "alt-100198061",
+    "bildwiederholrate_hz": "sat-lg-oled65c67la",
+    "hdmi_4k120_anzahl": "sat-lg-oled65c67la",
+    "earc": "sat-lg-oled65c67la",
+    "tuner_triple": "sat-lg-oled65c67la"
    },
    "varianten": [
     {
@@ -917,11 +980,19 @@
    "name": "OLED evo G6",
    "werte": {
     "bildtechnik": "oled",
-    "hdr_formate": "dolby_vision"
+    "hdr_formate": "dolby_vision",
+    "aufloesung": "4k",
+    "bildwiederholrate_hz": 120,
+    "hdmi_4k120_anzahl": 4,
+    "tuner_triple": true
    },
    "belege": {
     "bildtechnik": "lg-oled55g67lw",
-    "hdr_formate": "lg-oled55g67lw"
+    "hdr_formate": "lg-oled55g67lw",
+    "aufloesung": "sat-lg-oled65g67lw",
+    "bildwiederholrate_hz": "sat-lg-oled65g67lw",
+    "hdmi_4k120_anzahl": "sat-lg-oled65g67lw",
+    "tuner_triple": "sat-lg-oled65g67lw"
    },
    "varianten": [
     {
@@ -943,11 +1014,19 @@
      "mpn": "OLED65G67LW",
      "werte": {
       "diagonale_zoll": 65,
-      "energieklasse_sdr": "E"
+      "energieklasse_sdr": "E",
+      "lautsprecher_w": 60
      },
      "belege": {
       "diagonale_zoll": "lg-oled65g67lw",
-      "energieklasse_sdr": "lg-oled65g67lw"
+      "energieklasse_sdr": "lg-oled65g67lw",
+      "lautsprecher_w": "sat-lg-oled65g67lw"
+     },
+     "preis": {
+      "eur": 1799.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_lg-oled65g67lw-lg-oled-tv-flat-65-zoll-165-cm-oled-4k-smart-tv-3064088.html",
+      "stand": "2026-11-21"
      }
     },
     {
@@ -990,11 +1069,23 @@
    "name": "OLED B6",
    "werte": {
     "bildtechnik": "oled",
-    "hdr_formate": "dolby_vision"
+    "hdr_formate": "dolby_vision",
+    "aufloesung": "4k",
+    "bildwiederholrate_hz": 120,
+    "hdmi_4k120_anzahl": 4,
+    "earc": true,
+    "tuner_triple": true,
+    "vrr": true
    },
    "belege": {
     "bildtechnik": "lg-oled48b68la",
-    "hdr_formate": "lg-oled48b68la"
+    "hdr_formate": "lg-oled48b68la",
+    "aufloesung": "sat-lg-oled65b68la",
+    "bildwiederholrate_hz": "sat-lg-oled65b68la",
+    "hdmi_4k120_anzahl": "sat-lg-oled65b68la",
+    "earc": "sat-lg-oled65b68la",
+    "tuner_triple": "sat-lg-oled65b68la",
+    "vrr": "sat-lg-oled65b68la"
    },
    "varianten": [
     {
@@ -1035,11 +1126,13 @@
      "mpn": "OLED65B68LA",
      "werte": {
       "diagonale_zoll": 65,
-      "energieklasse_sdr": "F"
+      "energieklasse_sdr": "F",
+      "lautsprecher_w": 20
      },
      "belege": {
       "diagonale_zoll": "lg-oled65b68la",
-      "energieklasse_sdr": "lg-oled65b68la"
+      "energieklasse_sdr": "lg-oled65b68la",
+      "lautsprecher_w": "sat-lg-oled65b68la"
      },
      "preis": {
       "eur": 1111,
@@ -1079,12 +1172,7 @@
       "diagonale_zoll": "lg-oled83b68la",
       "energieklasse_sdr": "lg-oled83b68la"
      },
-     "preis": {
-      "eur": 2099.01,
-      "haendler": "LG Electronics Deutschland",
-      "url": "https://www.lg.com/de/tvs-und-soundbars/oled/oled83b68la/",
-      "stand": "2026-11-21"
-     }
+     "preis": null
     }
    ]
   },
@@ -1095,12 +1183,14 @@
    "werte": {
     "bildtechnik": "oled",
     "hdr_formate": "hdr10plus",
-    "aufloesung": "4k"
+    "aufloesung": "4k",
+    "hdmi_4k120_anzahl": 4
    },
    "belege": {
     "bildtechnik": "sam-gq48s90haexzg",
     "hdr_formate": "sam-gq48s90haexzg",
-    "aufloesung": "sam-gq48s90haexzg"
+    "aufloesung": "sam-gq48s90haexzg",
+    "hdmi_4k120_anzahl": "sam-gq65s90haexzg"
    },
    "varianten": [
     {
@@ -2261,6 +2351,305 @@
       "tuner_triple": "ph-85pqs8501",
       "bildtechnik": "ph-85pqs8501"
      }
+    }
+   ]
+  },
+  {
+   "id": "sony-bravia-3",
+   "hersteller": "Sony",
+   "name": "BRAVIA 3 (K-S35)",
+   "jahr": 2025,
+   "werte": {
+    "bildtechnik": "lcd",
+    "hdr_formate": "dolby_vision",
+    "aufloesung": "4k",
+    "bildwiederholrate_hz": 50,
+    "lautsprecher_w": 20,
+    "tuner_triple": true
+   },
+   "belege": {
+    "bildtechnik": "sat-sony-k55s35",
+    "hdr_formate": "sat-sony-k55s35",
+    "aufloesung": "sat-sony-k55s35",
+    "bildwiederholrate_hz": "sat-sony-k55s35",
+    "lautsprecher_w": "sat-sony-k55s35",
+    "tuner_triple": "sat-sony-k55s35"
+   },
+   "varianten": [
+    {
+     "id": "sony-bravia-3-55",
+     "name": "55 Zoll",
+     "mpn": "K55S35B",
+     "ean": [
+      "4548736167902"
+     ],
+     "werte": {
+      "diagonale_zoll": 55,
+      "energieklasse_sdr": "F"
+     },
+     "belege": {
+      "diagonale_zoll": "sat-sony-k55s35",
+      "energieklasse_sdr": "sat-sony-k55s35"
+     },
+     "preis": {
+      "eur": 669.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_sony-bravia-3-k55-s-35-led-tv-55-zoll-139-cm-uhd-4k-smart-tv-2989440.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sony-bravia-8",
+   "hersteller": "Sony",
+   "name": "BRAVIA 8 (K-XR80)",
+   "jahr": 2024,
+   "werte": {
+    "bildtechnik": "oled",
+    "hdr_formate": "dolby_vision",
+    "aufloesung": "4k",
+    "bildwiederholrate_hz": 120,
+    "vrr": true,
+    "earc": true,
+    "lautsprecher_w": 50,
+    "tuner_triple": true
+   },
+   "belege": {
+    "bildtechnik": "sony-at-k55xr80",
+    "hdr_formate": "sony-at-k55xr80",
+    "aufloesung": "sony-at-k55xr80",
+    "bildwiederholrate_hz": "sony-at-k55xr80",
+    "vrr": "sony-at-k55xr80",
+    "earc": "sony-at-k55xr80",
+    "lautsprecher_w": "sony-at-k55xr80",
+    "tuner_triple": "sony-at-k55xr80"
+   },
+   "varianten": [
+    {
+     "id": "sony-bravia-8-55",
+     "name": "55 Zoll",
+     "mpn": "K-55XR80",
+     "werte": {
+      "diagonale_zoll": 55
+     },
+     "belege": {
+      "diagonale_zoll": "sony-at-k55xr80"
+     }
+    }
+   ]
+  },
+  {
+   "id": "tcl-c7k",
+   "hersteller": "TCL",
+   "name": "C7K QD-Mini LED",
+   "jahr": 2025,
+   "werte": {
+    "bildtechnik": "miniled",
+    "hdr_formate": "beide",
+    "aufloesung": "4k",
+    "bildwiederholrate_hz": 120,
+    "lautsprecher_w": 60,
+    "tuner_triple": true
+   },
+   "belege": {
+    "bildtechnik": "mm-tcl-65c7k",
+    "hdr_formate": "mm-tcl-65c7k",
+    "aufloesung": "mm-tcl-65c7k",
+    "bildwiederholrate_hz": "mm-tcl-65c7k",
+    "lautsprecher_w": "mm-tcl-65c7k",
+    "tuner_triple": "mm-tcl-65c7k"
+   },
+   "varianten": [
+    {
+     "id": "tcl-c7k-65",
+     "name": "65 Zoll",
+     "mpn": "65C7K",
+     "ean": [
+      "5901292525736"
+     ],
+     "werte": {
+      "diagonale_zoll": 65,
+      "energieklasse_sdr": "F"
+     },
+     "belege": {
+      "diagonale_zoll": "mm-tcl-65c7k",
+      "energieklasse_sdr": "mm-tcl-65c7k"
+     },
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "tcl-p7l",
+   "hersteller": "TCL",
+   "name": "P7L QLED",
+   "jahr": 2026,
+   "werte": {
+    "bildtechnik": "lcd_quantum_dot",
+    "hdr_formate": "beide",
+    "aufloesung": "4k",
+    "bildwiederholrate_hz": 60,
+    "vrr": true,
+    "earc": true,
+    "lautsprecher_w": 20,
+    "tuner_triple": true
+   },
+   "belege": {
+    "bildtechnik": "mm-tcl-55p7l",
+    "hdr_formate": "mm-tcl-55p7l",
+    "aufloesung": "mm-tcl-55p7l",
+    "bildwiederholrate_hz": "mm-tcl-55p7l",
+    "vrr": "mm-tcl-55p7l",
+    "earc": "mm-tcl-55p7l",
+    "lautsprecher_w": "mm-tcl-55p7l",
+    "tuner_triple": "mm-tcl-55p7l"
+   },
+   "varianten": [
+    {
+     "id": "tcl-p7l-55",
+     "name": "55 Zoll",
+     "mpn": "55P7L",
+     "ean": [
+      "5901292530242"
+     ],
+     "werte": {
+      "diagonale_zoll": 55,
+      "energieklasse_sdr": "F"
+     },
+     "belege": {
+      "diagonale_zoll": "mm-tcl-55p7l",
+      "energieklasse_sdr": "mm-tcl-55p7l"
+     },
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "panasonic-z90b",
+   "hersteller": "Panasonic",
+   "name": "OLED Z90B",
+   "jahr": 2025,
+   "werte": {
+    "bildtechnik": "oled",
+    "hdr_formate": "beide",
+    "aufloesung": "4k",
+    "bildwiederholrate_hz": 120,
+    "hdmi_4k120_anzahl": 2,
+    "vrr": true,
+    "earc": true,
+    "lautsprecher_w": 60,
+    "tuner_triple": true
+   },
+   "belege": {
+    "bildtechnik": "atlas-tv-65z90be6a",
+    "hdr_formate": "atlas-tv-65z90be6a",
+    "aufloesung": "atlas-tv-65z90be6a",
+    "bildwiederholrate_hz": "atlas-tv-65z90be6a",
+    "hdmi_4k120_anzahl": "atlas-tv-65z90be6a",
+    "vrr": "atlas-tv-65z90be6a",
+    "earc": "atlas-tv-65z90be6a",
+    "lautsprecher_w": "atlas-tv-65z90be6a",
+    "tuner_triple": "atlas-tv-65z90be6a"
+   },
+   "varianten": [
+    {
+     "id": "panasonic-z90b-55",
+     "name": "55 Zoll",
+     "mpn": "TV-55Z90BE6A",
+     "ean": [
+      "5025232995967"
+     ],
+     "werte": {
+      "diagonale_zoll": 55,
+      "energieklasse_sdr": "G"
+     },
+     "belege": {
+      "diagonale_zoll": "atlas-tv-55z90be6a",
+      "energieklasse_sdr": "atlas-tv-55z90be6a"
+     },
+     "preis": null
+    },
+    {
+     "id": "panasonic-z90b-65",
+     "name": "65 Zoll",
+     "mpn": "TV-65Z90BE6A",
+     "ean": [
+      "5025232995950"
+     ],
+     "werte": {
+      "diagonale_zoll": 65,
+      "energieklasse_sdr": "G"
+     },
+     "belege": {
+      "diagonale_zoll": "atlas-tv-65z90be6a",
+      "energieklasse_sdr": "atlas-tv-65z90be6a"
+     },
+     "preis": null
+    },
+    {
+     "id": "panasonic-z90b-77",
+     "name": "77 Zoll",
+     "mpn": "TV-77Z90BE6A",
+     "ean": [
+      "5025232995943"
+     ],
+     "werte": {
+      "diagonale_zoll": 77,
+      "energieklasse_sdr": "G"
+     },
+     "belege": {
+      "diagonale_zoll": "atlas-tv-77z90be6a",
+      "energieklasse_sdr": "atlas-tv-77z90be6a"
+     },
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "panasonic-z95b",
+   "hersteller": "Panasonic",
+   "name": "OLED Z95B",
+   "jahr": 2025,
+   "werte": {
+    "bildtechnik": "oled",
+    "hdr_formate": "dolby_vision",
+    "aufloesung": "4k",
+    "bildwiederholrate_hz": 120,
+    "hdmi_4k120_anzahl": 2,
+    "vrr": true,
+    "earc": true,
+    "lautsprecher_w": 170,
+    "tuner_triple": true
+   },
+   "belege": {
+    "bildtechnik": "atlas-tv-65z95bega",
+    "hdr_formate": "atlas-tv-65z95bega",
+    "aufloesung": "atlas-tv-65z95bega",
+    "bildwiederholrate_hz": "atlas-tv-65z95bega",
+    "hdmi_4k120_anzahl": "atlas-tv-65z95bega",
+    "vrr": "atlas-tv-65z95bega",
+    "earc": "atlas-tv-65z95bega",
+    "lautsprecher_w": "atlas-tv-65z95bega",
+    "tuner_triple": "atlas-tv-65z95bega"
+   },
+   "varianten": [
+    {
+     "id": "panasonic-z95b-65",
+     "name": "65 Zoll",
+     "mpn": "TV-65Z95BEGA",
+     "ean": [
+      "5025232995875"
+     ],
+     "werte": {
+      "diagonale_zoll": 65,
+      "energieklasse_sdr": "G"
+     },
+     "belege": {
+      "diagonale_zoll": "atlas-tv-65z95bega",
+      "energieklasse_sdr": "atlas-tv-65z95bega"
+     },
+     "preis": null
     }
    ]
   }

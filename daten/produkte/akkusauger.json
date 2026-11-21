@@ -121,6 +121,16 @@
    "url": "https://www.bosch-home.com/de/de/product/staubsauger/kabellose-handstaubsauger/unlimited/unlimited-6-akku-staubsauger/BCS611AM",
    "titel": "Bosch Produktseite Unlimited 6 BCS611AM",
    "gelesen": "2026-11-21"
+  },
+  "rowenta-rh9958": {
+   "url": "https://www.rowenta.de/p/x-force-flex-1460-animal-rh9958/2211401147",
+   "titel": "Rowenta X-Force Flex 14.60 Animal RH9958 Produktseite",
+   "gelesen": "2026-11-21"
+  },
+  "kaercher-vc6": {
+   "url": "https://www.karcher.com/de/de/home-and-garden/produkte/vc-6-cordless-ourfamily-p11986700",
+   "titel": "Kärcher VC 6 Cordless ourFamily Produktseite",
+   "gelesen": "2026-11-21"
   }
  },
  "modelle": [
@@ -371,7 +381,8 @@
     "behaelter_l": 0.8,
     "filter": "hepa_ohne_klasse",
     "ladezeit_h": 3.92,
-    "polsterduese": true
+    "polsterduese": true,
+    "geraeusch_db": 78
    },
    "belege": {
     "laufzeit_min": "alt-kaercher-vc6",
@@ -379,7 +390,8 @@
     "behaelter_l": "alt-kaercher-vc6",
     "filter": "alt-kaercher-vc6",
     "ladezeit_h": "alt-kaercher-vc6",
-    "polsterduese": "alt-kaercher-vc6"
+    "polsterduese": "alt-kaercher-vc6",
+    "geraeusch_db": "kaercher-vc6"
    },
    "varianten": [
     {
@@ -482,7 +494,12 @@
      "id": "bosch-unlimited-6-bcs611am",
      "name": "Standard",
      "mpn": "BCS611AM",
-     "preis": null
+     "preis": {
+      "eur": 239.0,
+      "haendler": "Bosch Hausgeräte (BSH)",
+      "url": "https://www.bosch-home.com/de/de/product/staubsauger/kabellose-handstaubsauger/unlimited/unlimited-6-akku-staubsauger/BCS611AM",
+      "stand": "2026-11-21"
+     }
     }
    ]
   },
@@ -513,7 +530,12 @@
      "id": "bosch-unlimited-7-bks711mtb",
      "name": "Standard",
      "mpn": "BKS711MTB",
-     "preis": null
+     "preis": {
+      "eur": 399.0,
+      "haendler": "Bosch Hausgeräte (BSH)",
+      "url": "https://www.bosch-home.com/de/de/product/staubsauger/kabellose-handstaubsauger/unlimited/unlimited-7-akku-staubsauger/BKS711MTB",
+      "stand": "2026-11-21"
+     }
     }
    ]
   },
@@ -546,7 +568,12 @@
      "id": "bosch-unlimited-7-proanimal-bks711pet",
      "name": "Standard",
      "mpn": "BKS711PET",
-     "preis": null
+     "preis": {
+      "eur": 439.0,
+      "haendler": "Bosch Hausgeräte (BSH)",
+      "url": "https://www.bosch-home.com/de/de/product/staubsauger/kabellose-handstaubsauger/unlimited/unlimited-7-akku-staubsauger/BKS711PET",
+      "stand": "2026-11-21"
+     }
     }
    ]
   },
@@ -665,14 +692,22 @@
     "saugleistung_aw": 200,
     "behaelter_l": 0.9,
     "anti_haar_buerste": true,
-    "polsterduese": true
+    "polsterduese": true,
+    "gewicht_kg": 3.2,
+    "geraeusch_db": 84,
+    "wechselakku": true,
+    "ladezeit_h": 3
    },
    "belege": {
     "laufzeit_min": "alt-rh9958",
     "saugleistung_aw": "alt-rh9958",
     "behaelter_l": "alt-rh9958",
     "anti_haar_buerste": "alt-rh9958",
-    "polsterduese": "alt-rh9958"
+    "polsterduese": "alt-rh9958",
+    "gewicht_kg": "rowenta-rh9958",
+    "geraeusch_db": "rowenta-rh9958",
+    "wechselakku": "rowenta-rh9958",
+    "ladezeit_h": "rowenta-rh9958"
    },
    "varianten": [
     {

@@ -186,6 +186,26 @@
    "url": "https://regulatoryinfo.apple.com/cwt/api/ext/file?fileId=energyLabels/A3355_V1/A3355/A3355_Product_Information_Sheet_DE_German.pdf",
    "titel": "Apple Produktdatenblatt EU-Energielabel Modell A3355 (Verordnung 2023/1669)",
    "gelesen": "2026-11-21"
+  },
+  "eprel-2583821": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2583821",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2583821 (Lenovo Idea Tab Pro Gen 2, TB390FU)",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se": {
+   "url": "https://www.proshop.de/iPad-Tablet/Lenovo-Idea-Tab-Pro-Gen-2-8GB-128GB/3453545",
+   "titel": "Proshop Produktseite Lenovo Idea Tab Pro Gen 2 8GB/128GB (ZAHD0631SE) - ppi aus Aufloesung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se": {
+   "url": "https://www.proshop.de/iPad-Tablet/Lenovo-Idea-Tab-Pro-Gen-2-ZAHC-tablet-Android-16-or-later-256-GB-13/3484809",
+   "titel": "Proshop Produktseite Lenovo Idea Tab Pro Gen 2 ZAHC 256 GB (ZAHC0169SE)",
+   "gelesen": "2026-11-21"
+  },
+  "alternate-redmi-pad-2-100151233": {
+   "url": "https://www.alternate.de/Xiaomi/Redmi-Pad-2-Tablet-PC/html/product/100151233",
+   "titel": "Alternate Produktseite Xiaomi Redmi Pad 2 (VHU5659EU): Datenblatt und EU-Energielabel-Angaben; ppi aus Aufloesung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
   }
  },
  "modelle": [
@@ -311,7 +331,13 @@
      },
      "ean": [
       "8806097855040"
-     ]
+     ],
+     "preis": {
+      "eur": 209.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-plus-gray-128gb-sm-x230nzareub/",
+      "stand": "2026-11-21"
+     }
     },
     {
      "id": "samsung-galaxy-tab-a11-plus-256gb",
@@ -347,7 +373,13 @@
      },
      "ean": [
       "8806097855088"
-     ]
+     ],
+     "preis": {
+      "eur": 259.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-plus-gray-256gb-sm-x230nzapeub/",
+      "stand": "2026-11-21"
+     }
     },
     {
      "id": "samsung-galaxy-tab-a11-plus-128gb-lte",
@@ -385,7 +417,13 @@
      },
      "ean": [
       "8806097854845"
-     ]
+     ],
+     "preis": {
+      "eur": 239.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub/",
+      "stand": "2026-11-21"
+     }
     }
    ]
   },
@@ -506,6 +544,12 @@
       "ppi": "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub",
       "mobilfunk": "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub",
       "stift": "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub"
+     },
+     "preis": {
+      "eur": 409.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub/",
+      "stand": "2026-11-21"
      }
     },
     {
@@ -541,6 +585,12 @@
       "ppi": "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub",
       "mobilfunk": "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub",
       "stift": "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub"
+     },
+     "preis": {
+      "eur": 489.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub/",
+      "stand": "2026-11-21"
      }
     }
    ]
@@ -586,7 +636,13 @@
      },
      "ean": [
       "8806097197508"
-     ]
+     ],
+     "preis": {
+      "eur": 529.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub/",
+      "stand": "2026-11-21"
+     }
     },
     {
      "id": "samsung-galaxy-tab-s10-fe-plus-256gb",
@@ -669,7 +725,13 @@
      },
      "ean": [
       "8806097712237"
-     ]
+     ],
+     "preis": {
+      "eur": 799.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s11-gray-128gb-sm-x730nzareub/",
+      "stand": "2026-11-21"
+     }
     },
     {
      "id": "samsung-galaxy-tab-s11-256gb",
@@ -707,7 +769,13 @@
      },
      "ean": [
       "8806097712282"
-     ]
+     ],
+     "preis": {
+      "eur": 869.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s11-gray-256gb-sm-x730nzapeub/",
+      "stand": "2026-11-21"
+     }
     }
    ]
   },
@@ -751,6 +819,12 @@
       "mobilfunk": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub",
       "stift": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub",
       "lautsprecher_anzahl": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub"
+     },
+     "preis": {
+      "eur": 1299.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub/",
+      "stand": "2026-11-21"
      }
     },
     {
@@ -788,6 +862,12 @@
       "mobilfunk": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub",
       "stift": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub",
       "lautsprecher_anzahl": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub"
+     },
+     "preis": {
+      "eur": 1499.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub/",
+      "stand": "2026-11-21"
      }
     }
    ]
@@ -832,6 +912,12 @@
       "mobilfunk": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub",
       "stift": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub",
       "lautsprecher_anzahl": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub"
+     },
+     "preis": {
+      "eur": 1539.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub/",
+      "stand": "2026-11-21"
      }
     },
     {
@@ -869,6 +955,12 @@
       "mobilfunk": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub",
       "stift": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub",
       "lautsprecher_anzahl": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub"
+     },
+     "preis": {
+      "eur": 1739.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub/",
+      "stand": "2026-11-21"
      }
     }
    ]
@@ -906,6 +998,12 @@
       "fallklasse": "apple-pis-a3354",
       "update_jahre": "apple-pis-a3354",
       "reparierbarkeit": "apple-pis-a3354"
+     },
+     "preis": {
+      "eur": 539.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/iPad-Tablet/Apple-iPad-A16-11-Wi-Fi-128GB-Silver/3348696",
+      "stand": "2026-11-21"
      }
     },
     {
@@ -1056,6 +1154,136 @@
       "fallklasse": "apple-pis-a3355",
       "update_jahre": "apple-pis-a3355",
       "reparierbarkeit": "apple-pis-a3355"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lenovo-idea-tab-pro-gen-2",
+   "hersteller": "Lenovo",
+   "name": "Idea Tab Pro Gen 2",
+   "jahr": 2026,
+   "werte": {
+    "akku_ausdauer_h": 105.28,
+    "ladezyklen": 1000,
+    "reparierbarkeit": "A",
+    "fallklasse": "E",
+    "energieklasse": "F",
+    "ip_schutz": "IP52",
+    "display_zoll": 13.0,
+    "ppi": 318,
+    "display_hz": 144,
+    "lautsprecher_anzahl": 4,
+    "tastatur_anschluss": true
+   },
+   "belege": {
+    "akku_ausdauer_h": "eprel-2583821",
+    "ladezyklen": "eprel-2583821",
+    "reparierbarkeit": "eprel-2583821",
+    "fallklasse": "eprel-2583821",
+    "energieklasse": "eprel-2583821",
+    "ip_schutz": "eprel-2583821",
+    "display_zoll": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se",
+    "ppi": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se",
+    "display_hz": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se",
+    "lautsprecher_anzahl": "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se",
+    "tastatur_anschluss": "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se"
+   },
+   "varianten": [
+    {
+     "id": "lenovo-idea-tab-pro-gen-2-128gb",
+     "name": "128 GB",
+     "mpn": "ZAHD0631SE",
+     "ean": [
+      "199273487431"
+     ],
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 8
+     },
+     "belege": {
+      "speicher_gb": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se",
+      "ram_gb": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se"
+     },
+     "preis": {
+      "eur": 399.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/iPad-Tablet/Lenovo-Idea-Tab-Pro-Gen-2-8GB-128GB/3453545",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "lenovo-idea-tab-pro-gen-2-256gb",
+     "name": "256 GB",
+     "mpn": "ZAHC0169SE",
+     "ean": [
+      "199275552304"
+     ],
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 8
+     },
+     "belege": {
+      "speicher_gb": "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se",
+      "ram_gb": "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se"
+     },
+     "preis": {
+      "eur": 487.29,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/iPad-Tablet/Lenovo-Idea-Tab-Pro-Gen-2-ZAHC-tablet-Android-16-or-later-256-GB-13/3484809",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "xiaomi-redmi-pad-2",
+   "hersteller": "Xiaomi",
+   "name": "Redmi Pad 2",
+   "jahr": 2025,
+   "werte": {
+    "akku_ausdauer_h": 114.67,
+    "ladezyklen": 1000,
+    "reparierbarkeit": "C",
+    "fallklasse": "B",
+    "energieklasse": "E",
+    "ip_schutz": "IP52",
+    "display_zoll": 11.0,
+    "ppi": 274,
+    "display_hz": 90,
+    "ram_gb": 4
+   },
+   "belege": {
+    "akku_ausdauer_h": "alternate-redmi-pad-2-100151233",
+    "ladezyklen": "alternate-redmi-pad-2-100151233",
+    "reparierbarkeit": "alternate-redmi-pad-2-100151233",
+    "fallklasse": "alternate-redmi-pad-2-100151233",
+    "energieklasse": "alternate-redmi-pad-2-100151233",
+    "ip_schutz": "alternate-redmi-pad-2-100151233",
+    "display_zoll": "alternate-redmi-pad-2-100151233",
+    "ppi": "alternate-redmi-pad-2-100151233",
+    "display_hz": "alternate-redmi-pad-2-100151233",
+    "ram_gb": "alternate-redmi-pad-2-100151233"
+   },
+   "varianten": [
+    {
+     "id": "xiaomi-redmi-pad-2-128gb",
+     "name": "128 GB",
+     "mpn": "VHU5659EU",
+     "ean": [
+      "6932554433383"
+     ],
+     "werte": {
+      "speicher_gb": 128
+     },
+     "belege": {
+      "speicher_gb": "alternate-redmi-pad-2-100151233"
+     },
+     "preis": {
+      "eur": 167.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Xiaomi/Redmi-Pad-2-Tablet-PC/html/product/100151233",
+      "stand": "2026-11-21"
      }
     }
    ]

@@ -66,13 +66,6 @@
       "ssd_gb": "apple-neo-specs"
      },
      "preis": null,
-     "listenpreis": {
-      "eur": 799.0,
-      "haendler": "Apple Store DE",
-      "url": "https://www.apple.com/de/shop/buy-mac/macbook-neo",
-      "stand": "2026-11-21",
-      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
-     },
      "mpn": "MHFA4D/A"
     },
     {
@@ -85,13 +78,6 @@
       "ssd_gb": "apple-neo-specs"
      },
      "preis": null,
-     "listenpreis": {
-      "eur": 899.0,
-      "haendler": "Apple Store DE",
-      "url": "https://www.apple.com/de/shop/buy-mac/macbook-neo",
-      "stand": "2026-11-21",
-      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
-     },
      "mpn": "MHFC4D/A"
     }
    ]
@@ -145,13 +131,6 @@
       "ssd_gb": "apple-air-specs"
      },
      "preis": null,
-     "listenpreis": {
-      "eur": 1399.0,
-      "haendler": "Apple Store DE",
-      "url": "https://www.apple.com/de/shop/buy-mac/macbook-air",
-      "stand": "2026-11-21",
-      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
-     },
      "mpn": "MDH74D/A"
     },
     {
@@ -165,14 +144,7 @@
       "ram_gb": "apple-air-specs",
       "ssd_gb": "apple-air-specs"
      },
-     "preis": null,
-     "listenpreis": {
-      "eur": 1509.0,
-      "haendler": "Apple Store DE",
-      "url": "https://www.apple.com/de/shop/buy-mac/macbook-air",
-      "stand": "2026-11-21",
-      "hinweis": "Ab-Preis laut Konfigurator (niedrigste vorkonfigurierte Ausstattung mit 10-Core-GPU), nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
-     }
+     "preis": null
     }
    ]
   },
@@ -225,13 +197,6 @@
       "ssd_gb": "apple-air-specs"
      },
      "preis": null,
-     "listenpreis": {
-      "eur": 1699.0,
-      "haendler": "Apple Store DE",
-      "url": "https://www.apple.com/de/shop/buy-mac/macbook-air",
-      "stand": "2026-11-21",
-      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
-     },
      "mpn": "MDV94D/A"
     }
    ]
@@ -285,13 +250,6 @@
       "ssd_gb": "apple-pro-specs"
      },
      "preis": null,
-     "listenpreis": {
-      "eur": 2299.0,
-      "haendler": "Apple Store DE",
-      "url": "https://www.apple.com/de/shop/buy-mac/macbook-pro",
-      "stand": "2026-11-21",
-      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
-     },
      "mpn": "MHWW4D/A"
     }
    ]
@@ -345,13 +303,6 @@
       "ssd_gb": "apple-pro-specs"
      },
      "preis": null,
-     "listenpreis": {
-      "eur": 2899.0,
-      "haendler": "Apple Store DE",
-      "url": "https://www.apple.com/de/shop/buy-mac/macbook-pro",
-      "stand": "2026-11-21",
-      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
-     },
      "mpn": "MGDN4D/A"
     }
    ]
@@ -405,13 +356,6 @@
       "ssd_gb": "apple-pro-specs"
      },
      "preis": null,
-     "listenpreis": {
-      "eur": 3399.0,
-      "haendler": "Apple Store DE",
-      "url": "https://www.apple.com/de/shop/buy-mac/macbook-pro",
-      "stand": "2026-11-21",
-      "hinweis": "Herstellerpreis laut Konfigurator, nicht auf Lieferbarkeit geprüft; nur zur Preisstufe"
-     },
      "mpn": "MGE44D/A"
     }
    ]

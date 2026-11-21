@@ -18,6 +18,11 @@ SCHEMA = WURZEL / "daten" / "schema" / "kategorien.json"
 PRODUKTE = WURZEL / "daten" / "produkte"
 ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 DATUM = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+QUELLENFREIGABE = WURZEL / "daten" / "quellen.json"
+# Erlaubte Schlüssel laut FORMAT.md; alles andere (z. B. „listenpreis“) ist ein Fehler, damit nichts Unbelegtes durchrutscht.
+MODELL_SCHLUESSEL = {"id", "hersteller", "name", "jahr", "werte", "belege", "tests", "varianten"}
+VARIANTE_SCHLUESSEL = {"id", "name", "mpn", "ean", "werte", "belege", "preis"}
+PREIS_SCHLUESSEL = {"eur", "haendler", "url", "stand"}
 PERSOENLICH = [re.compile(p, re.I) for p in (r"[\w.+-]+@[\w-]+\.[\w.]+", r"[a-z]:\\\\users\\\\", r"/users/[a-z]", r"github\.com/[a-z0-9-]+/")]
 
 
@@ -67,7 +72,16 @@ def teilpunkte(feld, wert):
     return None
 
 
-def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen):
+def nur_link_domains():
+    """Domains, die laut daten/quellen.json nicht automatisch abgefragt werden dürfen (Preis dort nur als Link)."""
+    try:
+        q = json.loads(QUELLENFREIGABE.read_text(encoding="utf-8"))
+        return {e["domain"] for e in q.get("quellen", []) if not e.get("automatisch") and e.get("domain")}
+    except (OSError, ValueError, KeyError, TypeError):
+        return set()
+
+
+def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen, gesperrt=frozenset()):
     ort = Path(pfad).name
     try:
         roh = Path(pfad).read_text(encoding="utf-8")
@@ -125,6 +139,8 @@ def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen):
         if mid in ids_gesamt:
             fehler.append(f"{wo}: ID doppelt")
         ids_gesamt.add(mid)
+        for s in sorted(set(m) - MODELL_SCHLUESSEL):
+            fehler.append(f"{wo}: unbekannter Schlüssel {s!r} (FORMAT.md)")
         for pf in ("hersteller", "name"):
             if not isinstance(m.get(pf), str) or not m[pf].strip():
                 fehler.append(f"{wo}: {pf} fehlt")
@@ -146,6 +162,8 @@ def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen):
             if vid in ids_gesamt and vid != mid:
                 fehler.append(f"{wv}: ID doppelt")
             ids_gesamt.add(vid)
+            for s in sorted(set(v) - VARIANTE_SCHLUESSEL):
+                fehler.append(f"{wv}: unbekannter Schlüssel {s!r} (FORMAT.md)")
             if not isinstance(v.get("name"), str) or not v["name"].strip():
                 fehler.append(f"{wv}: name fehlt")
             for e in v.get("ean", []) or []:
@@ -159,6 +177,12 @@ def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen):
                       and str(p.get("url", "")).startswith("https://") and ist_datum(p.get("stand")))
                 if not ok:
                     fehler.append(f"{wv}: preis braucht eur (1–100000), haendler, url (https), stand")
+                if isinstance(p, dict):
+                    for s in sorted(set(p) - PREIS_SCHLUESSEL):
+                        fehler.append(f"{wv}: preis mit unbekanntem Schlüssel {s!r}")
+                    host = re.sub(r"^https://([^/:?#]+).*$", r"\1", str(p.get("url", ""))).lower()
+                    if host in gesperrt:
+                        fehler.append(f"{wv}: Preisquelle {host} laut daten/quellen.json nur als Link erlaubt")
             # Abdeckung der Note (Grundgewichte, ohne Fragen)
             zus = {**m.get("werte", {}), **v.get("werte", {})}
             g_ges = sum(f["gewicht"] for f in felder.values() if f["gewicht"] > 0)
@@ -175,8 +199,9 @@ def alle_pruefen(dateien=None):
     _, kats = lade_schema()
     fehler, warnungen, daten, ids = [], [], [], set()
     pfade = [Path(p) for p in dateien] if dateien else sorted(PRODUKTE.glob("*.json"))
+    gesperrt = frozenset(nur_link_domains())
     for p in pfade:
-        d = pruefe_datei(p, kats, ids, fehler, warnungen)
+        d = pruefe_datei(p, kats, ids, fehler, warnungen, gesperrt)
         if d:
             daten.append(d)
     return daten, fehler, warnungen

@@ -86,6 +86,46 @@
    "url": "https://www.saturn.de/de/product/_bowers-and-wilkins-px8-s2-over-ear-kopfhorer-bluetooth-warm-stone-3019366.html",
    "titel": "Saturn Produktseite Bowers & Wilkins Px8 S2",
    "gelesen": "2026-11-21"
+  },
+  "soundcore-space-one-hersteller": {
+   "url": "https://www.soundcore.com/products/space-one-a3035011",
+   "titel": "soundcore Produktseite Space One (Spezifikationen, FAQ)",
+   "gelesen": "2026-11-21"
+  },
+  "soundcore-space-one-pro-hersteller": {
+   "url": "https://www.soundcore.com/products/a3062-noise-cancelling-headphones",
+   "titel": "soundcore Produktseite Space One Pro (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "soundcore-space-2-pro-hersteller": {
+   "url": "https://www.soundcore.com/products/d1406-space-2-pro-over-ear-headphones-for-clear-calls",
+   "titel": "soundcore Produktseite Space 2 Pro (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "marshall-monitor-iii-hersteller": {
+   "url": "https://www.marshall.com/us/en/product/monitor-iii-anc?pid=1006861",
+   "titel": "Marshall Produktseite Monitor III A.N.C. (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "beyerdynamic-aventho-300-hersteller": {
+   "url": "https://europe.beyerdynamic.com/p/aventho-300",
+   "titel": "beyerdynamic Produktseite Aventho 300 (Technische Daten)",
+   "gelesen": "2026-11-21"
+  },
+  "sony-wh-1000xm6-sony": {
+   "url": "https://www.sony.de/electronics/support/wireless-headphones-bluetooth-headphones/wh-1000xm6/specifications",
+   "titel": "Sony Support Technische Daten WH-1000XM6",
+   "gelesen": "2026-11-21"
+  },
+  "bowers-wilkins-px8-hersteller": {
+   "url": "https://www.bowerswilkins.com/en-us/product/over-ear-headphones/px8/300494.html",
+   "titel": "Bowers & Wilkins Produktseite Px8 (Details & Specifications)",
+   "gelesen": "2026-11-21"
+  },
+  "bowers-wilkins-px8-s2-hersteller": {
+   "url": "https://www.bowerswilkins.com/en-us/product/over-ear-headphones/px8-s2/301021.html",
+   "titel": "Bowers & Wilkins Produktseite Px8 S2 (Details & Specifications)",
+   "gelesen": "2026-11-21"
   }
  },
  "modelle": [
@@ -96,12 +136,16 @@
    "werte": {
     "anc": true,
     "akku_h": 40,
-    "transparenzmodus": true
+    "transparenzmodus": true,
+    "gewicht_g": 246,
+    "faltbar": false
    },
    "belege": {
     "anc": "soundcore-q21i-nc-datenblatt",
     "akku_h": "soundcore-q21i-nc-datenblatt",
-    "transparenzmodus": "soundcore-q21i-nc-datenblatt"
+    "transparenzmodus": "soundcore-q21i-nc-datenblatt",
+    "gewicht_g": "soundcore-q21i-nc-datenblatt",
+    "faltbar": "soundcore-q21i-nc-datenblatt"
    },
    "varianten": [
     {
@@ -124,13 +168,23 @@
     "anc": true,
     "akku_h": 40,
     "codecs": "ldac",
-    "transparenzmodus": true
+    "transparenzmodus": true,
+    "multipoint": true,
+    "app_eq": true,
+    "kabelbetrieb": true,
+    "gewicht_g": 265,
+    "faltbar": true
    },
    "belege": {
     "anc": "soundcore-space-one-datenblatt",
     "akku_h": "soundcore-space-one-datenblatt",
     "codecs": "soundcore-space-one-datenblatt",
-    "transparenzmodus": "soundcore-space-one-datenblatt"
+    "transparenzmodus": "soundcore-space-one-datenblatt",
+    "multipoint": "soundcore-space-one-hersteller",
+    "app_eq": "soundcore-space-one-hersteller",
+    "kabelbetrieb": "soundcore-space-one-hersteller",
+    "gewicht_g": "soundcore-space-one-hersteller",
+    "faltbar": "soundcore-space-one-hersteller"
    },
    "varianten": [
     {
@@ -150,10 +204,16 @@
    "hersteller": "Sennheiser",
    "name": "Accentum Wireless",
    "werte": {
-    "anc": true
+    "anc": true,
+    "gewicht_g": 222,
+    "akku_h": 50,
+    "codecs": "aptx"
    },
    "belege": {
-    "anc": "sennheiser-accentum-wireless-datenblatt"
+    "anc": "sennheiser-accentum-wireless-datenblatt",
+    "gewicht_g": "sennheiser-accentum-wireless-datenblatt",
+    "akku_h": "sennheiser-accentum-wireless-datenblatt",
+    "codecs": "sennheiser-accentum-wireless-datenblatt"
    },
    "varianten": [
     {
@@ -175,12 +235,20 @@
    "werte": {
     "anc": true,
     "multipoint": true,
-    "faltbar": true
+    "faltbar": true,
+    "akku_h": 44,
+    "gewicht_g": 232,
+    "kabelbetrieb": true,
+    "transparenzmodus": true
    },
    "belege": {
     "anc": "jbl-tune-770nc-datenblatt",
     "multipoint": "jbl-tune-770nc-datenblatt",
-    "faltbar": "jbl-tune-770nc-datenblatt"
+    "faltbar": "jbl-tune-770nc-datenblatt",
+    "akku_h": "jbl-tune-770nc-datenblatt",
+    "gewicht_g": "jbl-tune-770nc-datenblatt",
+    "kabelbetrieb": "jbl-tune-770nc-datenblatt",
+    "transparenzmodus": "jbl-tune-770nc-datenblatt"
    },
    "varianten": [
     {
@@ -203,13 +271,17 @@
     "anc": true,
     "akku_h": 40,
     "kabelbetrieb": true,
-    "faltbar": true
+    "faltbar": true,
+    "multipoint": true,
+    "app_eq": true
    },
    "belege": {
     "anc": "soundcore-space-one-pro-datenblatt",
     "akku_h": "soundcore-space-one-pro-datenblatt",
     "kabelbetrieb": "soundcore-space-one-pro-datenblatt",
-    "faltbar": "soundcore-space-one-pro-datenblatt"
+    "faltbar": "soundcore-space-one-pro-datenblatt",
+    "multipoint": "soundcore-space-one-pro-hersteller",
+    "app_eq": "soundcore-space-one-pro-hersteller"
    },
    "varianten": [
     {
@@ -231,12 +303,20 @@
    "werte": {
     "anc": true,
     "codecs": "aptx_adaptive",
-    "transparenzmodus": true
+    "transparenzmodus": true,
+    "akku_h": 60,
+    "gewicht_g": 293,
+    "app_eq": true,
+    "kabelbetrieb": true
    },
    "belege": {
     "anc": "sennheiser-momentum-4-wireless-datenblatt",
     "codecs": "sennheiser-momentum-4-wireless-datenblatt",
-    "transparenzmodus": "sennheiser-momentum-4-wireless-datenblatt"
+    "transparenzmodus": "sennheiser-momentum-4-wireless-datenblatt",
+    "akku_h": "sennheiser-momentum-4-wireless-datenblatt",
+    "gewicht_g": "sennheiser-momentum-4-wireless-datenblatt",
+    "app_eq": "sennheiser-momentum-4-wireless-datenblatt",
+    "kabelbetrieb": "sennheiser-momentum-4-wireless-datenblatt"
    },
    "varianten": [
     {
@@ -259,13 +339,17 @@
     "anc": true,
     "kabelbetrieb": true,
     "transparenzmodus": true,
-    "app_eq": true
+    "app_eq": true,
+    "gewicht_g": 430,
+    "faltbar": true
    },
    "belege": {
     "anc": "bose-quietcomfort-headphones-datenblatt",
     "kabelbetrieb": "bose-quietcomfort-headphones-datenblatt",
     "transparenzmodus": "bose-quietcomfort-headphones-datenblatt",
-    "app_eq": "bose-quietcomfort-headphones-datenblatt"
+    "app_eq": "bose-quietcomfort-headphones-datenblatt",
+    "gewicht_g": "bose-quietcomfort-headphones-datenblatt",
+    "faltbar": "bose-quietcomfort-headphones-datenblatt"
    },
    "varianten": [
     {
@@ -285,10 +369,22 @@
    "hersteller": "Soundcore",
    "name": "Space 2 Pro",
    "werte": {
-    "anc": true
+    "anc": true,
+    "akku_h": 30,
+    "gewicht_g": 262,
+    "multipoint": true,
+    "app_eq": true,
+    "kabelbetrieb": true,
+    "faltbar": true
    },
    "belege": {
-    "anc": "soundcore-space-2-pro-datenblatt"
+    "anc": "soundcore-space-2-pro-datenblatt",
+    "akku_h": "soundcore-space-2-pro-hersteller",
+    "gewicht_g": "soundcore-space-2-pro-hersteller",
+    "multipoint": "soundcore-space-2-pro-hersteller",
+    "app_eq": "soundcore-space-2-pro-hersteller",
+    "kabelbetrieb": "soundcore-space-2-pro-hersteller",
+    "faltbar": "soundcore-space-2-pro-datenblatt"
    },
    "varianten": [
     {
@@ -311,13 +407,23 @@
     "anc": true,
     "akku_h": 70,
     "faltbar": true,
-    "transparenzmodus": true
+    "transparenzmodus": true,
+    "gewicht_g": 250,
+    "multipoint": true,
+    "app_eq": true,
+    "codecs": "aac",
+    "kabelbetrieb": true
    },
    "belege": {
     "anc": "marshall-monitor-iii-datenblatt",
     "akku_h": "marshall-monitor-iii-datenblatt",
     "faltbar": "marshall-monitor-iii-datenblatt",
-    "transparenzmodus": "marshall-monitor-iii-datenblatt"
+    "transparenzmodus": "marshall-monitor-iii-datenblatt",
+    "gewicht_g": "marshall-monitor-iii-hersteller",
+    "multipoint": "marshall-monitor-iii-hersteller",
+    "app_eq": "marshall-monitor-iii-hersteller",
+    "codecs": "marshall-monitor-iii-hersteller",
+    "kabelbetrieb": "marshall-monitor-iii-hersteller"
    },
    "varianten": [
     {
@@ -340,13 +446,19 @@
     "anc": true,
     "akku_h": 50,
     "multipoint": true,
-    "transparenzmodus": true
+    "transparenzmodus": true,
+    "gewicht_g": 319,
+    "app_eq": true,
+    "codecs": "aptx_adaptive"
    },
    "belege": {
     "anc": "beyerdynamic-aventho-300-datenblatt",
     "akku_h": "beyerdynamic-aventho-300-datenblatt",
     "multipoint": "beyerdynamic-aventho-300-datenblatt",
-    "transparenzmodus": "beyerdynamic-aventho-300-datenblatt"
+    "transparenzmodus": "beyerdynamic-aventho-300-datenblatt",
+    "gewicht_g": "beyerdynamic-aventho-300-hersteller",
+    "app_eq": "beyerdynamic-aventho-300-hersteller",
+    "codecs": "beyerdynamic-aventho-300-hersteller"
    },
    "varianten": [
     {
@@ -394,13 +506,23 @@
     "anc": true,
     "multipoint": true,
     "faltbar": true,
-    "app_eq": true
+    "app_eq": true,
+    "akku_h": 30,
+    "gewicht_g": 254,
+    "codecs": "ldac",
+    "kabelbetrieb": true,
+    "transparenzmodus": true
    },
    "belege": {
     "anc": "sony-wh-1000xm6-datenblatt",
     "multipoint": "sony-wh-1000xm6-datenblatt",
     "faltbar": "sony-wh-1000xm6-datenblatt",
-    "app_eq": "sony-wh-1000xm6-datenblatt"
+    "app_eq": "sony-wh-1000xm6-datenblatt",
+    "akku_h": "sony-wh-1000xm6-sony",
+    "gewicht_g": "sony-wh-1000xm6-sony",
+    "codecs": "sony-wh-1000xm6-sony",
+    "kabelbetrieb": "sony-wh-1000xm6-sony",
+    "transparenzmodus": "sony-wh-1000xm6-sony"
    },
    "varianten": [
     {
@@ -423,13 +545,17 @@
     "anc": true,
     "multipoint": true,
     "kabelbetrieb": true,
-    "app_eq": true
+    "app_eq": true,
+    "gewicht_g": 300,
+    "codecs": "aptx_adaptive"
    },
    "belege": {
     "anc": "bowers-wilkins-px7-s3-datenblatt",
     "multipoint": "bowers-wilkins-px7-s3-datenblatt",
     "kabelbetrieb": "bowers-wilkins-px7-s3-datenblatt",
-    "app_eq": "bowers-wilkins-px7-s3-datenblatt"
+    "app_eq": "bowers-wilkins-px7-s3-datenblatt",
+    "gewicht_g": "bowers-wilkins-px7-s3-datenblatt",
+    "codecs": "bowers-wilkins-px7-s3-datenblatt"
    },
    "varianten": [
     {
@@ -451,12 +577,16 @@
    "werte": {
     "anc": true,
     "akku_h": 57,
-    "transparenzmodus": true
+    "transparenzmodus": true,
+    "gewicht_g": 290,
+    "faltbar": true
    },
    "belege": {
     "anc": "sennheiser-momentum-5-datenblatt",
     "akku_h": "sennheiser-momentum-5-datenblatt",
-    "transparenzmodus": "sennheiser-momentum-5-datenblatt"
+    "transparenzmodus": "sennheiser-momentum-5-datenblatt",
+    "gewicht_g": "sennheiser-momentum-5-datenblatt",
+    "faltbar": "sennheiser-momentum-5-datenblatt"
    },
    "varianten": [
     {
@@ -476,10 +606,20 @@
    "hersteller": "Bowers & Wilkins",
    "name": "Px8",
    "werte": {
-    "anc": true
+    "anc": true,
+    "gewicht_g": 320,
+    "codecs": "aptx_adaptive",
+    "kabelbetrieb": true,
+    "transparenzmodus": true,
+    "faltbar": false
    },
    "belege": {
-    "anc": "bowers-wilkins-px8-datenblatt"
+    "anc": "bowers-wilkins-px8-datenblatt",
+    "gewicht_g": "bowers-wilkins-px8-hersteller",
+    "codecs": "bowers-wilkins-px8-hersteller",
+    "kabelbetrieb": "bowers-wilkins-px8-hersteller",
+    "transparenzmodus": "bowers-wilkins-px8-hersteller",
+    "faltbar": "bowers-wilkins-px8-datenblatt"
    },
    "varianten": [
     {
@@ -530,10 +670,20 @@
    "hersteller": "Bowers & Wilkins",
    "name": "Px8 S2",
    "werte": {
-    "anc": true
+    "anc": true,
+    "gewicht_g": 310,
+    "multipoint": true,
+    "app_eq": true,
+    "codecs": "aptx_adaptive",
+    "kabelbetrieb": true
    },
    "belege": {
-    "anc": "bowers-wilkins-px8-s2-datenblatt"
+    "anc": "bowers-wilkins-px8-s2-datenblatt",
+    "gewicht_g": "bowers-wilkins-px8-s2-hersteller",
+    "multipoint": "bowers-wilkins-px8-s2-hersteller",
+    "app_eq": "bowers-wilkins-px8-s2-hersteller",
+    "codecs": "bowers-wilkins-px8-s2-hersteller",
+    "kabelbetrieb": "bowers-wilkins-px8-s2-hersteller"
    },
    "varianten": [
     {

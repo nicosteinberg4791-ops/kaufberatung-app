@@ -81,6 +81,41 @@
    "url": "https://www.saturn.de/de/product/_sennheiser-momentum-tws-in-ear-kopfhorer-bluetooth-graphite-3064584.html",
    "titel": "Saturn Produktseite Sennheiser Momentum True Wireless 5",
    "gelesen": "2026-11-21"
+  },
+  "soundcore-liberty-buds-hersteller": {
+   "url": "https://www.soundcore.com/products/d1200-liberty-buds-wireless-semi-in-ear",
+   "titel": "soundcore Produktseite Liberty Buds (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "sony-wf-c710n-sony": {
+   "url": "https://www.sony.de/electronics/support/wireless-headphones-bluetooth-headphones/wf-c710n/specifications",
+   "titel": "Sony Support Technische Daten WF-C710N",
+   "gelesen": "2026-11-21"
+  },
+  "soundcore-liberty-5-hersteller": {
+   "url": "https://www.soundcore.com/products/a3957-liberty-5-tws-earbuds",
+   "titel": "soundcore Produktseite Liberty 5 (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "soundcore-sport-x20-hersteller": {
+   "url": "https://www.soundcore.com/products/a3968-sport-x20-earbuds",
+   "titel": "soundcore Produktseite Sport X20 (Spezifikationen, FAQ)",
+   "gelesen": "2026-11-21"
+  },
+  "nothing-ear-a-hersteller": {
+   "url": "https://us.nothing.tech/products/ear-a",
+   "titel": "Nothing Produktseite Ear (a)",
+   "gelesen": "2026-11-21"
+  },
+  "sony-wf-1000xm5-sony": {
+   "url": "https://www.sony.de/electronics/support/wireless-headphones-bluetooth-headphones/wf-1000xm5/specifications",
+   "titel": "Sony Support Technische Daten WF-1000XM5",
+   "gelesen": "2026-11-21"
+  },
+  "sony-wf-1000xm6-sony": {
+   "url": "https://www.sony.de/electronics/support/wireless-headphones-bluetooth-headphones/wf-1000xm6/specifications",
+   "titel": "Sony Support Technische Daten WF-1000XM6",
+   "gelesen": "2026-11-21"
   }
  },
  "modelle": [
@@ -92,13 +127,19 @@
     "anc": true,
     "akku_h": 6,
     "akku_gesamt_h": 25,
-    "transparenzmodus": true
+    "transparenzmodus": true,
+    "codecs": "aac",
+    "kabellos_laden": false,
+    "bluetooth_version": 5.4
    },
    "belege": {
     "anc": "soundcore-p30i-v2-datenblatt",
     "akku_h": "soundcore-p30i-v2-datenblatt",
     "akku_gesamt_h": "soundcore-p30i-v2-datenblatt",
-    "transparenzmodus": "soundcore-p30i-v2-datenblatt"
+    "transparenzmodus": "soundcore-p30i-v2-datenblatt",
+    "codecs": "soundcore-p30i-v2-datenblatt",
+    "kabellos_laden": "soundcore-p30i-v2-datenblatt",
+    "bluetooth_version": "soundcore-p30i-v2-datenblatt"
    },
    "varianten": [
     {
@@ -120,12 +161,22 @@
    "werte": {
     "anc": true,
     "akku_h": 6,
-    "akku_gesamt_h": 27
+    "akku_gesamt_h": 26,
+    "multipoint": true,
+    "ip_schutz": "IP55",
+    "app_eq": true,
+    "codecs": "ldac",
+    "bluetooth_version": 6.1
    },
    "belege": {
     "anc": "soundcore-liberty-buds-datenblatt",
     "akku_h": "soundcore-liberty-buds-datenblatt",
-    "akku_gesamt_h": "soundcore-liberty-buds-datenblatt"
+    "akku_gesamt_h": "soundcore-liberty-buds-hersteller",
+    "multipoint": "soundcore-liberty-buds-hersteller",
+    "ip_schutz": "soundcore-liberty-buds-hersteller",
+    "app_eq": "soundcore-liberty-buds-hersteller",
+    "codecs": "soundcore-liberty-buds-hersteller",
+    "bluetooth_version": "soundcore-liberty-buds-hersteller"
    },
    "varianten": [
     {
@@ -150,7 +201,10 @@
     "ip_schutz": "IPX4",
     "transparenzmodus": true,
     "app_eq": true,
-    "akku_gesamt_h": 40
+    "akku_gesamt_h": 40,
+    "akku_h": 8.5,
+    "codecs": "aac",
+    "bluetooth_version": 5.3
    },
    "belege": {
     "anc": "sony-wf-c710n-datenblatt",
@@ -158,7 +212,10 @@
     "ip_schutz": "sony-wf-c710n-datenblatt",
     "transparenzmodus": "sony-wf-c710n-datenblatt",
     "app_eq": "sony-wf-c710n-datenblatt",
-    "akku_gesamt_h": "sony-wf-c710n-datenblatt"
+    "akku_gesamt_h": "sony-wf-c710n-datenblatt",
+    "akku_h": "sony-wf-c710n-sony",
+    "codecs": "sony-wf-c710n-sony",
+    "bluetooth_version": "sony-wf-c710n-sony"
    },
    "varianten": [
     {
@@ -179,11 +236,25 @@
    "name": "Liberty 5",
    "werte": {
     "anc": true,
-    "codecs": "ldac"
+    "codecs": "ldac",
+    "akku_h": 8,
+    "akku_gesamt_h": 32,
+    "multipoint": true,
+    "ip_schutz": "IP55",
+    "app_eq": true,
+    "transparenzmodus": true,
+    "bluetooth_version": 5.4
    },
    "belege": {
     "anc": "soundcore-liberty-5-datenblatt",
-    "codecs": "soundcore-liberty-5-datenblatt"
+    "codecs": "soundcore-liberty-5-datenblatt",
+    "akku_h": "soundcore-liberty-5-hersteller",
+    "akku_gesamt_h": "soundcore-liberty-5-hersteller",
+    "multipoint": "soundcore-liberty-5-hersteller",
+    "ip_schutz": "soundcore-liberty-5-hersteller",
+    "app_eq": "soundcore-liberty-5-hersteller",
+    "transparenzmodus": "soundcore-liberty-5-hersteller",
+    "bluetooth_version": "soundcore-liberty-5-hersteller"
    },
    "varianten": [
     {
@@ -204,11 +275,25 @@
    "name": "Sport X20",
    "werte": {
     "anc": true,
-    "ip_schutz": "IP68"
+    "ip_schutz": "IP68",
+    "akku_h": 7,
+    "akku_gesamt_h": 28,
+    "multipoint": true,
+    "transparenzmodus": true,
+    "codecs": "aac",
+    "bluetooth_version": 5.3,
+    "kabellos_laden": false
    },
    "belege": {
     "anc": "soundcore-sport-x20-datenblatt",
-    "ip_schutz": "soundcore-sport-x20-datenblatt"
+    "ip_schutz": "soundcore-sport-x20-datenblatt",
+    "akku_h": "soundcore-sport-x20-hersteller",
+    "akku_gesamt_h": "soundcore-sport-x20-hersteller",
+    "multipoint": "soundcore-sport-x20-hersteller",
+    "transparenzmodus": "soundcore-sport-x20-hersteller",
+    "codecs": "soundcore-sport-x20-hersteller",
+    "bluetooth_version": "soundcore-sport-x20-hersteller",
+    "kabellos_laden": "soundcore-sport-x20-datenblatt"
    },
    "varianten": [
     {
@@ -230,12 +315,20 @@
    "werte": {
     "anc": true,
     "codecs": "ldac",
-    "app_eq": true
+    "app_eq": true,
+    "akku_gesamt_h": 42.5,
+    "multipoint": true,
+    "bluetooth_version": 5.3,
+    "kabellos_laden": false
    },
    "belege": {
     "anc": "nothing-ear-a-datenblatt",
     "codecs": "nothing-ear-a-datenblatt",
-    "app_eq": "nothing-ear-a-datenblatt"
+    "app_eq": "nothing-ear-a-datenblatt",
+    "akku_gesamt_h": "nothing-ear-a-hersteller",
+    "multipoint": "nothing-ear-a-hersteller",
+    "bluetooth_version": "nothing-ear-a-datenblatt",
+    "kabellos_laden": "nothing-ear-a-datenblatt"
    },
    "varianten": [
     {
@@ -259,14 +352,16 @@
     "akku_h": 10,
     "multipoint": true,
     "ip_schutz": "IP54",
-    "transparenzmodus": true
+    "transparenzmodus": true,
+    "bluetooth_version": 5.3
    },
    "belege": {
     "anc": "jbl-tune-buds-2-datenblatt",
     "akku_h": "jbl-tune-buds-2-datenblatt",
     "multipoint": "jbl-tune-buds-2-datenblatt",
     "ip_schutz": "jbl-tune-buds-2-datenblatt",
-    "transparenzmodus": "jbl-tune-buds-2-datenblatt"
+    "transparenzmodus": "jbl-tune-buds-2-datenblatt",
+    "bluetooth_version": "jbl-tune-buds-2-datenblatt"
    },
    "varianten": [
     {
@@ -286,10 +381,12 @@
    "hersteller": "Bose",
    "name": "QuietComfort Earbuds",
    "werte": {
-    "anc": true
+    "anc": true,
+    "ip_schutz": "IPX4"
    },
    "belege": {
-    "anc": "bose-quietcomfort-earbuds-datenblatt"
+    "anc": "bose-quietcomfort-earbuds-datenblatt",
+    "ip_schutz": "bose-quietcomfort-earbuds-datenblatt"
    },
    "varianten": [
     {
@@ -313,14 +410,22 @@
     "multipoint": true,
     "ip_schutz": "IPX4",
     "akku_gesamt_h": 24,
-    "kabellos_laden": true
+    "kabellos_laden": true,
+    "akku_h": 8,
+    "codecs": "ldac",
+    "bluetooth_version": 5.3,
+    "transparenzmodus": true
    },
    "belege": {
     "anc": "sony-wf-1000xm5-datenblatt",
     "multipoint": "sony-wf-1000xm5-datenblatt",
     "ip_schutz": "sony-wf-1000xm5-datenblatt",
     "akku_gesamt_h": "sony-wf-1000xm5-datenblatt",
-    "kabellos_laden": "sony-wf-1000xm5-datenblatt"
+    "kabellos_laden": "sony-wf-1000xm5-datenblatt",
+    "akku_h": "sony-wf-1000xm5-sony",
+    "codecs": "sony-wf-1000xm5-sony",
+    "bluetooth_version": "sony-wf-1000xm5-sony",
+    "transparenzmodus": "sony-wf-1000xm5-sony"
    },
    "varianten": [
     {
@@ -384,13 +489,17 @@
     "anc": true,
     "ip_schutz": "IP55",
     "akku_gesamt_h": 40,
-    "kabellos_laden": true
+    "kabellos_laden": true,
+    "bluetooth_version": 5.3,
+    "akku_h": 8
    },
    "belege": {
     "anc": "jbl-live-buds-3-datenblatt",
     "ip_schutz": "jbl-live-buds-3-datenblatt",
     "akku_gesamt_h": "jbl-live-buds-3-datenblatt",
-    "kabellos_laden": "jbl-live-buds-3-datenblatt"
+    "kabellos_laden": "jbl-live-buds-3-datenblatt",
+    "bluetooth_version": "jbl-live-buds-3-datenblatt",
+    "akku_h": "jbl-live-buds-3-datenblatt"
    },
    "varianten": [
     {
@@ -413,13 +522,15 @@
     "anc": true,
     "multipoint": true,
     "transparenzmodus": true,
-    "app_eq": true
+    "app_eq": true,
+    "akku_h": 6
    },
    "belege": {
     "anc": "bose-quietcomfort-ultra-earbuds-2-datenblatt",
     "multipoint": "bose-quietcomfort-ultra-earbuds-2-datenblatt",
     "transparenzmodus": "bose-quietcomfort-ultra-earbuds-2-datenblatt",
-    "app_eq": "bose-quietcomfort-ultra-earbuds-2-datenblatt"
+    "app_eq": "bose-quietcomfort-ultra-earbuds-2-datenblatt",
+    "akku_h": "bose-quietcomfort-ultra-earbuds-2-datenblatt"
    },
    "varianten": [
     {
@@ -439,10 +550,14 @@
    "hersteller": "Google",
    "name": "Pixel Buds 2a",
    "werte": {
-    "anc": true
+    "anc": true,
+    "akku_gesamt_h": 20,
+    "bluetooth_version": 5.4
    },
    "belege": {
-    "anc": "google-pixel-buds-2a-datenblatt"
+    "anc": "google-pixel-buds-2a-datenblatt",
+    "akku_gesamt_h": "google-pixel-buds-2a-datenblatt",
+    "bluetooth_version": "google-pixel-buds-2a-datenblatt"
    },
    "varianten": [
     {
@@ -501,13 +616,25 @@
     "anc": true,
     "akku_gesamt_h": 24,
     "app_eq": true,
-    "kabellos_laden": true
+    "kabellos_laden": true,
+    "akku_h": 8,
+    "multipoint": true,
+    "ip_schutz": "IPX4",
+    "transparenzmodus": true,
+    "codecs": "ldac",
+    "bluetooth_version": 5.3
    },
    "belege": {
     "anc": "sony-wf-1000xm6-datenblatt",
     "akku_gesamt_h": "sony-wf-1000xm6-datenblatt",
     "app_eq": "sony-wf-1000xm6-datenblatt",
-    "kabellos_laden": "sony-wf-1000xm6-datenblatt"
+    "kabellos_laden": "sony-wf-1000xm6-datenblatt",
+    "akku_h": "sony-wf-1000xm6-sony",
+    "multipoint": "sony-wf-1000xm6-sony",
+    "ip_schutz": "sony-wf-1000xm6-sony",
+    "transparenzmodus": "sony-wf-1000xm6-sony",
+    "codecs": "sony-wf-1000xm6-sony",
+    "bluetooth_version": "sony-wf-1000xm6-sony"
    },
    "varianten": [
     {

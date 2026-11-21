@@ -229,7 +229,7 @@
   },
   "eprel-2647669": {
    "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2647669",
-   "titel": "EU-Produktdatenbank EPREL, Registrierung 2647669 (Google GM45K)",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2647669 (Google GM45K); Modellnummer GM45K laut Googles Sicherheits- und Rechtshinweisen (support.google.com, Antwort 17033799) = Pixel 11 Pro",
    "gelesen": "2026-11-21"
   },
   "google-store-pixel-11-pro-und-pro-xl-technische-daten": {
@@ -239,7 +239,7 @@
   },
   "eprel-2647670": {
    "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2647670",
-   "titel": "EU-Produktdatenbank EPREL, Registrierung 2647670 (Google G4HCD)",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2647670 (Google G4HCD); Modellnummer G4HCD laut Googles Sicherheits- und Rechtshinweisen (support.google.com, Antwort 17033799) = Pixel 11 Pro XL",
    "gelesen": "2026-11-21"
   },
   "eprel-2523882": {
@@ -252,14 +252,29 @@
    "titel": "Xiaomi Deutschland Xiaomi 17 Spezifikationen",
    "gelesen": "2026-11-21"
   },
-  "eprel-2648677": {
-   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2648677",
-   "titel": "EU-Produktdatenbank EPREL, Registrierung 2648677 (Xiaomi 2602DPT53G)",
-   "gelesen": "2026-11-21"
-  },
   "xiaomi-deutschland-xiaomi-17t-spezifikationen": {
    "url": "https://www.mi.com/de/product/xiaomi-17t/specs/",
    "titel": "Xiaomi Deutschland Xiaomi 17T Spezifikationen",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2402623": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2402623",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2402623 (Apple A3520, iPhone 17)",
+   "gelesen": "2026-11-21"
+  },
+  "apple-iphone-17-technische-daten": {
+   "url": "https://support.apple.com/de-de/125089",
+   "titel": "Apple Support iPhone 17 Technische Daten (Modell A3520)",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2564902": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2564902",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2564902 (Motorola g67, XT2621-2)",
+   "gelesen": "2026-11-21"
+  },
+  "alternate-moto-g67-128gb-100188302": {
+   "url": "https://www.alternate.de/Motorola/moto-g67-128GB-Handy/html/product/100188302",
+   "titel": "Alternate Produktseite Motorola moto g67 128GB (PBAU0003SE)",
    "gelesen": "2026-11-21"
   }
  },
@@ -623,6 +638,12 @@
       "update_jahre": "fiche-sm-a576bzabeub",
       "fuenf_g": "sam-galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub",
       "betriebssystem": "fiche-sm-a576bzabeub"
+     },
+     "preis": {
+      "eur": 409.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub/",
+      "stand": "2026-11-21"
      }
     },
     {
@@ -658,6 +679,12 @@
       "update_jahre": "fiche-sm-a576bzadeub",
       "fuenf_g": "sam-galaxy-a57-5g-awesome-gray-256gb-sm-a576bzadeub",
       "betriebssystem": "fiche-sm-a576bzadeub"
+     },
+     "preis": {
+      "eur": 403.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-A57-5G-256GB-Handy/html/product/100197796",
+      "stand": "2026-11-21"
      }
     }
    ]
@@ -826,6 +853,12 @@
       "fuenf_g": "sam-galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub",
       "optischer_zoom": "sam-galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub",
       "betriebssystem": "fiche-sm-s741bzkgeub"
+     },
+     "preis": {
+      "eur": 799.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/smartphones/galaxy-s/galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub/",
+      "stand": "2026-11-21"
      }
     }
    ]
@@ -1621,72 +1654,152 @@
      "id": "xiaomi-17t-256gb",
      "name": "256 GB",
      "werte": {
-      "akku_ausdauer_h": 65.67,
-      "ladezyklen": 1000,
-      "reparierbarkeit": "C",
-      "fallklasse": "B",
-      "energieklasse": "A",
-      "ip_schutz": "IP68",
-      "update_jahre": 5,
-      "betriebssystem": "android",
       "speicher_gb": 256,
       "ram_gb": 12,
       "display_zoll": 6.59,
       "display_hz": 120,
       "fuenf_g": true,
-      "ladeleistung_w": 67
+      "ladeleistung_w": 67,
+      "ip_schutz": "IP68"
      },
      "belege": {
-      "akku_ausdauer_h": "eprel-2648677",
-      "ladezyklen": "eprel-2648677",
-      "reparierbarkeit": "eprel-2648677",
-      "fallklasse": "eprel-2648677",
-      "energieklasse": "eprel-2648677",
-      "ip_schutz": "eprel-2648677",
-      "update_jahre": "eprel-2648677",
-      "betriebssystem": "eprel-2648677",
       "speicher_gb": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "ram_gb": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "display_zoll": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "display_hz": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "fuenf_g": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
-      "ladeleistung_w": "xiaomi-deutschland-xiaomi-17t-spezifikationen"
+      "ladeleistung_w": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "ip_schutz": "xiaomi-deutschland-xiaomi-17t-spezifikationen"
      }
     },
     {
      "id": "xiaomi-17t-512gb",
      "name": "512 GB",
      "werte": {
-      "akku_ausdauer_h": 65.67,
-      "ladezyklen": 1000,
-      "reparierbarkeit": "C",
-      "fallklasse": "B",
-      "energieklasse": "A",
-      "ip_schutz": "IP68",
-      "update_jahre": 5,
-      "betriebssystem": "android",
       "speicher_gb": 512,
       "ram_gb": 12,
       "display_zoll": 6.59,
       "display_hz": 120,
       "fuenf_g": true,
-      "ladeleistung_w": 67
+      "ladeleistung_w": 67,
+      "ip_schutz": "IP68"
      },
      "belege": {
-      "akku_ausdauer_h": "eprel-2648677",
-      "ladezyklen": "eprel-2648677",
-      "reparierbarkeit": "eprel-2648677",
-      "fallklasse": "eprel-2648677",
-      "energieklasse": "eprel-2648677",
-      "ip_schutz": "eprel-2648677",
-      "update_jahre": "eprel-2648677",
-      "betriebssystem": "eprel-2648677",
       "speicher_gb": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "ram_gb": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "display_zoll": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "display_hz": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "fuenf_g": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
-      "ladeleistung_w": "xiaomi-deutschland-xiaomi-17t-spezifikationen"
+      "ladeleistung_w": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "ip_schutz": "xiaomi-deutschland-xiaomi-17t-spezifikationen"
+     }
+    }
+   ]
+  },
+  {
+   "id": "apple-iphone-17",
+   "hersteller": "Apple",
+   "name": "iPhone 17",
+   "jahr": 2025,
+   "werte": {
+    "akku_ausdauer_h": 41,
+    "ladezyklen": 1000,
+    "reparierbarkeit": "C",
+    "fallklasse": "B",
+    "energieklasse": "A",
+    "ip_schutz": "IP68",
+    "betriebssystem": "ios",
+    "display_zoll": 6.3,
+    "display_hz": 120,
+    "fuenf_g": true,
+    "optischer_zoom": 2,
+    "kabellos_laden": true
+   },
+   "belege": {
+    "akku_ausdauer_h": "eprel-2402623",
+    "ladezyklen": "eprel-2402623",
+    "reparierbarkeit": "eprel-2402623",
+    "fallklasse": "eprel-2402623",
+    "energieklasse": "eprel-2402623",
+    "ip_schutz": "eprel-2402623",
+    "betriebssystem": "eprel-2402623",
+    "display_zoll": "apple-iphone-17-technische-daten",
+    "display_hz": "apple-iphone-17-technische-daten",
+    "fuenf_g": "apple-iphone-17-technische-daten",
+    "optischer_zoom": "apple-iphone-17-technische-daten",
+    "kabellos_laden": "apple-iphone-17-technische-daten"
+   },
+   "varianten": [
+    {
+     "id": "apple-iphone-17-256gb",
+     "name": "256 GB",
+     "werte": {
+      "speicher_gb": 256
+     },
+     "belege": {
+      "speicher_gb": "apple-iphone-17-technische-daten"
+     },
+     "preis": {
+      "eur": 1099.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Handys-Smartphones/Apple-iPhone-17-256GB-Sage/3405243",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "apple-iphone-17-512gb",
+     "name": "512 GB",
+     "werte": {
+      "speicher_gb": 512
+     },
+     "belege": {
+      "speicher_gb": "apple-iphone-17-technische-daten"
+     }
+    }
+   ]
+  },
+  {
+   "id": "motorola-moto-g67",
+   "hersteller": "Motorola",
+   "name": "moto g67",
+   "jahr": 2026,
+   "werte": {
+    "akku_ausdauer_h": 59.43,
+    "ladezyklen": 1200,
+    "reparierbarkeit": "A",
+    "fallklasse": "B",
+    "energieklasse": "A",
+    "betriebssystem": "android",
+    "display_zoll": 6.78,
+    "display_hz": 120,
+    "fuenf_g": true,
+    "ram_gb": 4
+   },
+   "belege": {
+    "akku_ausdauer_h": "eprel-2564902",
+    "ladezyklen": "eprel-2564902",
+    "reparierbarkeit": "eprel-2564902",
+    "fallklasse": "eprel-2564902",
+    "energieklasse": "eprel-2564902",
+    "betriebssystem": "eprel-2564902",
+    "display_zoll": "alternate-moto-g67-128gb-100188302",
+    "display_hz": "alternate-moto-g67-128gb-100188302",
+    "fuenf_g": "alternate-moto-g67-128gb-100188302",
+    "ram_gb": "alternate-moto-g67-128gb-100188302"
+   },
+   "varianten": [
+    {
+     "id": "motorola-moto-g67-128gb",
+     "name": "128 GB",
+     "mpn": "PBAU0003SE",
+     "ean": [
+      "840493610283"
+     ],
+     "werte": {
+      "speicher_gb": 128
+     },
+     "belege": {
+      "speicher_gb": "alternate-moto-g67-128gb-100188302"
      }
     }
    ]

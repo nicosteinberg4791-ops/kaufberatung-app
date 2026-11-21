@@ -51,6 +51,26 @@
    "url": "https://www.samsung.com/de/audio-devices/soundbar/q990h-black-hw-q995gh-zg/",
    "titel": "Samsung Produktseite HW-Q995GH",
    "gelesen": "2026-11-21"
+  },
+  "alt-jbl-bar800": {
+   "url": "https://www.alternate.de/JBL/Bar-800-Soundbar/html/product/1850564",
+   "titel": "Alternate Datenblatt JBL Bar 800",
+   "gelesen": "2026-11-21"
+  },
+  "alt-sony-htsf150": {
+   "url": "https://www.alternate.de/Sony/HTSF150-Soundbar/html/product/1439781",
+   "titel": "Alternate Datenblatt Sony HT-SF150",
+   "gelesen": "2026-11-21"
+  },
+  "yamaha-srb30a-b40a": {
+   "url": "https://de.yamaha.com/de/audio/home-audio/products/sound-bar/sr-b30a/specs.html",
+   "titel": "Yamaha SR-B30A/SR-B40A Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "sat-yamaha-srb30a": {
+   "url": "https://www.saturn.de/de/product/_yamaha-sr-b30a-dolby-atmos-soundbar-soundbar-schwarz-2904980.html",
+   "titel": "Saturn Produktseite Yamaha SR-B30A (Ausstattung)",
+   "gelesen": "2026-11-21"
   }
  },
  "modelle": [
@@ -460,6 +480,146 @@
       "haendler": "Samsung Deutschland",
       "url": "https://www.samsung.com/de/audio-devices/soundbar/q990h-black-hw-q995gh-zg/",
       "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "jbl-bar-800",
+   "hersteller": "JBL",
+   "name": "Bar 800",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "jbl-bar-800-standard",
+     "name": "Soundbar",
+     "mpn": "JBLBAR800PROBLKEP",
+     "ean": [
+      "6925281996719"
+     ],
+     "werte": {
+      "kanaele": "5.1.2",
+      "subwoofer": "extern_kabellos",
+      "dolby_atmos": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "leistung_w": 720
+     },
+     "belege": {
+      "kanaele": "alt-jbl-bar800",
+      "subwoofer": "alt-jbl-bar800",
+      "dolby_atmos": "alt-jbl-bar800",
+      "wlan_streaming": "alt-jbl-bar800",
+      "sprachmodus": "alt-jbl-bar800",
+      "leistung_w": "alt-jbl-bar800"
+     },
+     "preis": {
+      "eur": 459.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/JBL/Bar-800-Soundbar/html/product/1850564",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sony-ht-sf150",
+   "hersteller": "Sony",
+   "name": "HT-SF150",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "sony-ht-sf150-standard",
+     "name": "Soundbar",
+     "mpn": "HTSF150.CEL",
+     "ean": [
+      "4548736067325"
+     ],
+     "werte": {
+      "kanaele": "2.0",
+      "subwoofer": "keiner",
+      "wlan_streaming": false,
+      "leistung_w": 120,
+      "breite_cm": 90.0
+     },
+     "belege": {
+      "kanaele": "alt-sony-htsf150",
+      "subwoofer": "alt-sony-htsf150",
+      "wlan_streaming": "alt-sony-htsf150",
+      "leistung_w": "alt-sony-htsf150",
+      "breite_cm": "alt-sony-htsf150"
+     },
+     "preis": {
+      "eur": 77.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Sony/HTSF150-Soundbar/html/product/1439781",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "yamaha-sr-b40a",
+   "hersteller": "Yamaha",
+   "name": "SR-B40A",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "yamaha-sr-b40a-standard",
+     "name": "Soundbar",
+     "werte": {
+      "kanaele": "2.1",
+      "subwoofer": "extern_kabellos",
+      "dolby_atmos": true,
+      "earc": true,
+      "wlan_streaming": false,
+      "leistung_w": 200,
+      "breite_cm": 91.0
+     },
+     "belege": {
+      "kanaele": "yamaha-srb30a-b40a",
+      "subwoofer": "yamaha-srb30a-b40a",
+      "dolby_atmos": "yamaha-srb30a-b40a",
+      "earc": "yamaha-srb30a-b40a",
+      "wlan_streaming": "yamaha-srb30a-b40a",
+      "leistung_w": "yamaha-srb30a-b40a",
+      "breite_cm": "yamaha-srb30a-b40a"
+     }
+    }
+   ]
+  },
+  {
+   "id": "yamaha-sr-b30a",
+   "hersteller": "Yamaha",
+   "name": "SR-B30A",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "yamaha-sr-b30a-standard",
+     "name": "Soundbar",
+     "werte": {
+      "kanaele": "2.1",
+      "subwoofer": "integriert",
+      "dolby_atmos": true,
+      "earc": true,
+      "wlan_streaming": false,
+      "leistung_w": 120,
+      "breite_cm": 91.0,
+      "sprachmodus": true
+     },
+     "belege": {
+      "kanaele": "yamaha-srb30a-b40a",
+      "subwoofer": "yamaha-srb30a-b40a",
+      "dolby_atmos": "yamaha-srb30a-b40a",
+      "earc": "yamaha-srb30a-b40a",
+      "wlan_streaming": "yamaha-srb30a-b40a",
+      "leistung_w": "yamaha-srb30a-b40a",
+      "breite_cm": "yamaha-srb30a-b40a",
+      "sprachmodus": "sat-yamaha-srb30a"
      }
     }
    ]

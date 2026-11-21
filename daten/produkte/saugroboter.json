@@ -66,6 +66,51 @@
    "url": "https://www.sharkninja.de/shark-powerdetect-uv-reveal-2-in-1-saug--und-wischroboter%C2%A0-weiss/RV3020XEEUWH.html",
    "titel": "Shark Produktseite PowerDetect UV Reveal RV3020XEEUWH",
    "gelesen": "2026-11-21"
+  },
+  "a-saros20sonic": {
+   "url": "https://www.alternate.de/Roborock/Saros-20-Sonic-Complete-Saugroboter/html/product/100193279",
+   "titel": "Alternate Produktseite Roborock Saros 20 Sonic Complete (weiß)",
+   "gelesen": "2026-11-21"
+  },
+  "a-saros20flow": {
+   "url": "https://www.alternate.de/Roborock/Saros-20-Flow-Complete-Saugroboter/html/product/100225435",
+   "titel": "Alternate Produktseite Roborock Saros 20 Flow Complete",
+   "gelesen": "2026-11-21"
+  },
+  "a-saros10": {
+   "url": "https://www.alternate.de/Roborock/Saros-10-Saugroboter/html/product/100132662",
+   "titel": "Alternate Produktseite Roborock Saros 10",
+   "gelesen": "2026-11-21"
+  },
+  "a-sarosz70": {
+   "url": "https://www.alternate.de/Roborock/Saros-Z70-Saugroboter/html/product/100132666",
+   "titel": "Alternate Produktseite Roborock Saros Z70",
+   "gelesen": "2026-11-21"
+  },
+  "a-qrevo5ae": {
+   "url": "https://www.alternate.de/Roborock/Qrevo-5AE-Saugroboter/html/product/100144528",
+   "titel": "Alternate Produktseite Roborock Qrevo 5AE (weiß)",
+   "gelesen": "2026-11-21"
+  },
+  "a-qrevoedge2x": {
+   "url": "https://www.alternate.de/Roborock/Qrevo-Edge-2X-Saugroboter/html/product/100204868",
+   "titel": "Alternate Produktseite Roborock Qrevo Edge 2X (weiß)",
+   "gelesen": "2026-11-21"
+  },
+  "a-dreamel60": {
+   "url": "https://www.alternate.de/Dreame/L60-Ultra-Saugroboter/html/product/100219542",
+   "titel": "Alternate Produktseite Dreame L60 Ultra",
+   "gelesen": "2026-11-21"
+  },
+  "a-dreameaqua10": {
+   "url": "https://www.alternate.de/Dreame/Aqua-10-Ultra-Roller-Complete-Saugroboter/html/product/100199294",
+   "titel": "Alternate Produktseite Dreame Aqua 10 Ultra Roller Complete",
+   "gelesen": "2026-11-21"
+  },
+  "a-xiaomi5": {
+   "url": "https://www.alternate.de/Xiaomi/5-EU-Saugroboter/html/product/100164016",
+   "titel": "Alternate Produktseite Xiaomi 5 EU",
+   "gelesen": "2026-11-21"
   }
  },
  "modelle": [
@@ -189,7 +234,8 @@
     "absaugstation": true,
     "schwelle_mm": 20,
     "geraeusch_db": 63,
-    "hoehe_cm": 9.8
+    "hoehe_cm": 9.8,
+    "navigation": "lidar"
    },
    "belege": {
     "saugleistung_pa": "e-t80s",
@@ -197,7 +243,8 @@
     "absaugstation": "e-t80s",
     "schwelle_mm": "e-t80s",
     "geraeusch_db": "e-t80s",
-    "hoehe_cm": "e-t80s"
+    "hoehe_cm": "e-t80s",
+    "navigation": "e-t80s"
    },
    "varianten": [
     {
@@ -301,7 +348,8 @@
     "schwelle_mm": 25,
     "mopp_anheben_mm": 15,
     "geraeusch_db": 60,
-    "hoehe_cm": 9.5
+    "hoehe_cm": 9.5,
+    "navigation": "lidar"
    },
    "belege": {
     "saugleistung_pa": "e-t90s",
@@ -310,7 +358,8 @@
     "schwelle_mm": "e-t90s",
     "mopp_anheben_mm": "e-t90s",
     "geraeusch_db": "e-t90s",
-    "hoehe_cm": "e-t90s"
+    "hoehe_cm": "e-t90s",
+    "navigation": "e-t90s"
    },
    "varianten": [
     {
@@ -335,7 +384,8 @@
     "schwelle_mm": 24,
     "mopp_anheben_mm": 15,
     "geraeusch_db": 64.4,
-    "hoehe_cm": 9.8
+    "hoehe_cm": 9.8,
+    "navigation": "lidar"
    },
    "belege": {
     "saugleistung_pa": "e-x12",
@@ -343,7 +393,8 @@
     "schwelle_mm": "e-x12",
     "mopp_anheben_mm": "e-x12",
     "geraeusch_db": "e-x12",
-    "hoehe_cm": "e-x12"
+    "hoehe_cm": "e-x12",
+    "navigation": "e-x12"
    },
    "varianten": [
     {
@@ -363,7 +414,8 @@
     "schwelle_mm": 25,
     "mopp_anheben_mm": 15,
     "geraeusch_db": 60.2,
-    "hoehe_cm": 9.8
+    "hoehe_cm": 9.8,
+    "navigation": "lidar"
    },
    "belege": {
     "wischsystem": "e-x12s",
@@ -371,7 +423,8 @@
     "schwelle_mm": "e-x12s",
     "mopp_anheben_mm": "e-x12s",
     "geraeusch_db": "e-x12s",
-    "hoehe_cm": "e-x12s"
+    "hoehe_cm": "e-x12s",
+    "navigation": "e-x12s"
    },
    "varianten": [
     {
@@ -396,7 +449,8 @@
     "wischsystem": "rotierend_oder_walze",
     "schwelle_mm": 24,
     "mopp_anheben_mm": 15,
-    "hoehe_cm": 9.5
+    "hoehe_cm": 9.5,
+    "navigation": "lidar"
    },
    "belege": {
     "saugleistung_pa": "e-x11s",
@@ -404,7 +458,8 @@
     "wischsystem": "e-x11s",
     "schwelle_mm": "e-x11s",
     "mopp_anheben_mm": "e-x11s",
-    "hoehe_cm": "e-x11s"
+    "hoehe_cm": "e-x11s",
+    "navigation": "e-x11s"
    },
    "varianten": [
     {
@@ -498,6 +553,336 @@
       "eur": 599.99,
       "haendler": "Shark",
       "url": "https://www.sharkninja.de/shark-powerdetect-uv-reveal-2-in-1-saug--und-wischroboter%C2%A0-weiss/RV3020XEEUWH.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "roborock-saros-20-sonic-complete",
+   "hersteller": "Roborock",
+   "name": "Saros 20 Sonic Complete",
+   "werte": {
+    "saugleistung_pa": 36000,
+    "hinderniserkennung": "strukturiertes_licht",
+    "wischsystem": "vibrierend",
+    "absaugstation": true,
+    "laufzeit_min": 190,
+    "schwelle_mm": 88,
+    "geraeusch_db": 64,
+    "hoehe_cm": 7.98
+   },
+   "belege": {
+    "saugleistung_pa": "a-saros20sonic",
+    "hinderniserkennung": "a-saros20sonic",
+    "wischsystem": "a-saros20sonic",
+    "absaugstation": "a-saros20sonic",
+    "laufzeit_min": "a-saros20sonic",
+    "schwelle_mm": "a-saros20sonic",
+    "geraeusch_db": "a-saros20sonic",
+    "hoehe_cm": "a-saros20sonic"
+   },
+   "varianten": [
+    {
+     "id": "roborock-saros-20-sonic-complete",
+     "name": "Standard",
+     "mpn": "8508110000",
+     "ean": [
+      "6936905905758"
+     ],
+     "preis": {
+      "eur": 1299.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Roborock/Saros-20-Sonic-Complete-Saugroboter/html/product/100193279",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "roborock-saros-20-flow-complete",
+   "hersteller": "Roborock",
+   "name": "Saros 20 Flow Complete",
+   "werte": {
+    "navigation": "lidar",
+    "saugleistung_pa": 36000,
+    "hinderniserkennung": "kamera_ki",
+    "wischsystem": "rotierend_oder_walze",
+    "absaugstation": true,
+    "hoehe_cm": 8.98
+   },
+   "belege": {
+    "navigation": "a-saros20flow",
+    "saugleistung_pa": "a-saros20flow",
+    "hinderniserkennung": "a-saros20flow",
+    "wischsystem": "a-saros20flow",
+    "absaugstation": "a-saros20flow",
+    "hoehe_cm": "a-saros20flow"
+   },
+   "varianten": [
+    {
+     "id": "roborock-saros-20-flow-complete",
+     "name": "Standard",
+     "mpn": "6936905908155",
+     "ean": [
+      "6936905908155"
+     ],
+     "preis": {
+      "eur": 1299.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Roborock/Saros-20-Flow-Complete-Saugroboter/html/product/100225435",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "roborock-saros-10",
+   "hersteller": "Roborock",
+   "name": "Saros 10",
+   "werte": {
+    "navigation": "lidar",
+    "saugleistung_pa": 22000,
+    "hinderniserkennung": "kamera_ki",
+    "wischsystem": "vibrierend",
+    "absaugstation": true,
+    "schwelle_mm": 30,
+    "hoehe_cm": 7.98
+   },
+   "belege": {
+    "navigation": "a-saros10",
+    "saugleistung_pa": "a-saros10",
+    "hinderniserkennung": "a-saros10",
+    "wischsystem": "a-saros10",
+    "absaugstation": "a-saros10",
+    "schwelle_mm": "a-saros10",
+    "hoehe_cm": "a-saros10"
+   },
+   "varianten": [
+    {
+     "id": "roborock-saros-10",
+     "name": "Standard",
+     "mpn": "S1002-00",
+     "preis": {
+      "eur": 919.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Roborock/Saros-10-Saugroboter/html/product/100132662",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "roborock-saros-z70",
+   "hersteller": "Roborock",
+   "name": "Saros Z70",
+   "werte": {
+    "navigation": "lidar",
+    "saugleistung_pa": 22000,
+    "absaugstation": true,
+    "laufzeit_min": 180,
+    "schwelle_mm": 30,
+    "geraeusch_db": 65,
+    "hoehe_cm": 7.98
+   },
+   "belege": {
+    "navigation": "a-sarosz70",
+    "saugleistung_pa": "a-sarosz70",
+    "absaugstation": "a-sarosz70",
+    "laufzeit_min": "a-sarosz70",
+    "schwelle_mm": "a-sarosz70",
+    "geraeusch_db": "a-sarosz70",
+    "hoehe_cm": "a-sarosz70"
+   },
+   "varianten": [
+    {
+     "id": "roborock-saros-z70",
+     "name": "Standard",
+     "mpn": "SZ7052-00",
+     "ean": [
+      "6936905900753"
+     ],
+     "preis": {
+      "eur": 679.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Roborock/Saros-Z70-Saugroboter/html/product/100132666",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "roborock-qrevo-5ae",
+   "hersteller": "Roborock",
+   "name": "Qrevo 5AE",
+   "werte": {
+    "navigation": "lidar",
+    "saugleistung_pa": 12000,
+    "hinderniserkennung": "strukturiertes_licht",
+    "wischsystem": "rotierend_oder_walze",
+    "absaugstation": true,
+    "mopp_anheben_mm": 10,
+    "hoehe_cm": 9.65
+   },
+   "belege": {
+    "navigation": "a-qrevo5ae",
+    "saugleistung_pa": "a-qrevo5ae",
+    "hinderniserkennung": "a-qrevo5ae",
+    "wischsystem": "a-qrevo5ae",
+    "absaugstation": "a-qrevo5ae",
+    "mopp_anheben_mm": "a-qrevo5ae",
+    "hoehe_cm": "a-qrevo5ae"
+   },
+   "varianten": [
+    {
+     "id": "roborock-qrevo-5ae",
+     "name": "Standard",
+     "mpn": "QRSP02-00",
+     "ean": [
+      "6936905900913"
+     ],
+     "preis": {
+      "eur": 379.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Roborock/Qrevo-5AE-Saugroboter/html/product/100144528",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "roborock-qrevo-edge-2x",
+   "hersteller": "Roborock",
+   "name": "Qrevo Edge 2X",
+   "werte": {
+    "navigation": "lidar",
+    "saugleistung_pa": 25000,
+    "hinderniserkennung": "kamera_ki",
+    "absaugstation": true,
+    "laufzeit_min": 188,
+    "hoehe_cm": 7.98
+   },
+   "belege": {
+    "navigation": "a-qrevoedge2x",
+    "saugleistung_pa": "a-qrevoedge2x",
+    "hinderniserkennung": "a-qrevoedge2x",
+    "absaugstation": "a-qrevoedge2x",
+    "laufzeit_min": "a-qrevoedge2x",
+    "hoehe_cm": "a-qrevoedge2x"
+   },
+   "varianten": [
+    {
+     "id": "roborock-qrevo-edge-2x",
+     "name": "Standard",
+     "mpn": "QE2X02-00",
+     "ean": [
+      "6936905906564"
+     ],
+     "preis": {
+      "eur": 899.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Roborock/Qrevo-Edge-2X-Saugroboter/html/product/100204868",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "dreame-l60-ultra",
+   "hersteller": "Dreame",
+   "name": "L60 Ultra",
+   "werte": {
+    "navigation": "lidar",
+    "saugleistung_pa": 35000,
+    "schwelle_mm": 40
+   },
+   "belege": {
+    "navigation": "a-dreamel60",
+    "saugleistung_pa": "a-dreamel60",
+    "schwelle_mm": "a-dreamel60"
+   },
+   "varianten": [
+    {
+     "id": "dreame-l60-ultra",
+     "name": "Standard",
+     "mpn": "L60 Ultra",
+     "ean": [
+      "6979181927960"
+     ],
+     "preis": {
+      "eur": 899.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Dreame/L60-Ultra-Saugroboter/html/product/100219542",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "dreame-aqua10-ultra-roller-complete",
+   "hersteller": "Dreame",
+   "name": "Aqua10 Ultra Roller Complete",
+   "werte": {
+    "saugleistung_pa": 30000,
+    "absaugstation": true,
+    "laufzeit_min": 120,
+    "schwelle_mm": 80,
+    "hoehe_cm": 9.75
+   },
+   "belege": {
+    "saugleistung_pa": "a-dreameaqua10",
+    "absaugstation": "a-dreameaqua10",
+    "laufzeit_min": "a-dreameaqua10",
+    "schwelle_mm": "a-dreameaqua10",
+    "hoehe_cm": "a-dreameaqua10"
+   },
+   "varianten": [
+    {
+     "id": "dreame-aqua10-ultra-roller-complete",
+     "name": "Standard",
+     "mpn": "Aqua 10 Ultra Roller Complete",
+     "ean": [
+      "6978515253768"
+     ],
+     "preis": {
+      "eur": 649.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Dreame/Aqua-10-Ultra-Roller-Complete-Saugroboter/html/product/100199294",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "xiaomi-robot-vacuum-5-eu",
+   "hersteller": "Xiaomi",
+   "name": "Robot Vacuum 5 EU",
+   "werte": {
+    "navigation": "lidar",
+    "saugleistung_pa": 20000,
+    "hinderniserkennung": "strukturiertes_licht",
+    "absaugstation": true,
+    "hoehe_cm": 8.8
+   },
+   "belege": {
+    "navigation": "a-xiaomi5",
+    "saugleistung_pa": "a-xiaomi5",
+    "hinderniserkennung": "a-xiaomi5",
+    "absaugstation": "a-xiaomi5",
+    "hoehe_cm": "a-xiaomi5"
+   },
+   "varianten": [
+    {
+     "id": "xiaomi-robot-vacuum-5-eu",
+     "name": "Standard",
+     "mpn": "BHR0834EU",
+     "ean": [
+      "6932554439897"
+     ],
+     "preis": {
+      "eur": 549.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Xiaomi/5-EU-Saugroboter/html/product/100164016",
       "stand": "2026-11-21"
      }
     }
