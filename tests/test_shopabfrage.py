@@ -458,5 +458,107 @@ class Lauf(unittest.TestCase):
         self.assertNotIn("/redir/", b["link"])
 
 
+def saturn_text(zustand_objekte, preis="219.99", sku="111"):
+    p = produkt(ean="0622356270373", price=preis)
+    del p["offers"]["seller"]
+    p["sku"] = sku
+    z = json.dumps(zustand_objekte, separators=(",", ":"))
+    return seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(z)
+
+
+class Runde2(unittest.TestCase):
+    """Regressionstests zur Codex-Nachprüfung r2 (21.11.2026)."""
+    m = MODELLE["af_ninja_af500"]
+
+    def saturn(self, objekte, **kw):
+        return s.auswerten_seite(saturn_text(objekte, **kw), self.m, QUELLEN["saturn"], "L", "Z")
+
+    def obj(self, sku="111", mp=False, amount=219.99, versand=0, erst_typename=False):
+        o = {"id": "Saturn:de:" + sku, "currency": "EUR", "isProductOfTypeMarketplace": mp,
+             "price": {"__typename": "CofrPriceFeaturePrice", "amount": amount, "shippingCost": versand}}
+        return dict({"__typename": "CofrPriceFeature"}, **o) if erst_typename else o
+
+    def test_saturn_gueltig_mit_vollstaendigem_objekt(self):
+        g, prot = self.saturn([self.obj()])
+        self.assertEqual([(a["preis"], a["versand"], a["versand_herkunft"]) for a in g], [(219.99, 0.0, "seitenzustand")], prot)
+        # echte Saturn-Seite 21.11.2026: das Preisobjekt beginnt mit __typename, id folgt danach
+        g, prot = self.saturn([{"id": "Saturn:de:111", "price": {"installment": None}}, self.obj(erst_typename=True)])
+        self.assertEqual([a["gesamt"] for a in g], [219.99], prot)
+
+    def test_d7_10_negativer_versand_und_nan(self):
+        g, _ = self.saturn([self.obj(versand=-500)])
+        self.assertTrue(all(a["gesamt"] is None or a["gesamt"] >= a["preis"] for a in g), g)
+        z = saturn_text([self.obj()]).replace("219.99,", "NaN,", 1)  # amount im Seitenzustand
+        self.assertIn("NaN", z)
+        g, _ = s.auswerten_seite(z, self.m, QUELLEN["saturn"], "L", "Z")
+        self.assertEqual(g, [])
+        self.assertFalse(s.betrag_ok(float("nan")))
+        self.assertFalse(s.betrag_ok(-1.0))
+
+    def test_d7_04_folgeobjekt_mit_anderer_feldreihenfolge(self):
+        ohne_preis = {"id": "Saturn:de:111", "currency": "EUR", "isProductOfTypeMarketplace": False, "price": None}
+        g, _ = self.saturn([ohne_preis, self.obj(sku="222", mp=True, erst_typename=True)])
+        self.assertEqual(g, [])
+
+    def test_d7_11_sperrtext_spaet_oder_als_text_plain(self):
+        self.assertTrue(s.ist_challenge("<h1>Access Denied</h1>", "text/plain"))
+        self.assertTrue(s.ist_challenge("x" * 30000 + "<h1>Access Denied</h1>" + seite(produkt()), "text/html"))
+        robots_saturn = "User-Agent: *\nDisallow: /cdn-cgi/challenge-platform/\n"
+        self.assertFalse(s.ist_challenge(robots_saturn, "text/plain"))
+
+    def test_d7_12_automatisch_nur_echtes_true(self):
+        quellen = copy.deepcopy(list(QUELLEN.values()))
+        for q in quellen:
+            if q["id"] == "mediamarkt":
+                q["automatisch"] = "false"
+        self.assertTrue(any("true oder false" in f for f in s.pruefe_daten(quellen, list(MODELLE.values()))))
+        aufrufe = []
+        erg = s.lauf(quellen, [MODELLE["lg_c6elb_65"]], holen=lambda u: aufrufe.append(u) or "User-agent: *\n", pause=0)
+        self.assertFalse([u for u in aufrufe if "mediamarkt" in u])
+        self.assertEqual(erg["modelle"]["lg_c6elb_65"]["quellen"]["mediamarkt"]["status"], "nur Link")
+
+    def test_d7_07_aehnliche_namen_ohne_alias_getrennt(self):
+        a = lambda h, v: {"quelle": "heise", "haendler": h, "preis": 969, "versand": v, "gesamt": 969 + v}
+        best, _, alle = s.bestpreis([a("Proshop", 50), a("Pro-Shop", 0)])
+        self.assertEqual((len(alle), best["gesamt"]), (2, 969))
+
+    def test_d7_02_teilantwort_und_lesegrenze(self):
+        import http.server
+        import threading
+
+        class H(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                body = b"User-agent: *\nDisallow: " if self.path == "/teil" else b"User-agent: *\n" + b"#" * 200
+                self.send_response(206 if self.path == "/teil" else 200)
+                self.send_header("Content-Type", "text/plain")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *a):
+                pass
+        srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        basis = "http://127.0.0.1:%d" % srv.server_address[1]
+        alt_grenze, alt_proxy = s.MAX_BYTES, os.environ.get("no_proxy")
+        os.environ["no_proxy"] = "127.0.0.1"
+        try:
+            with self.assertRaises(s.NichtAbrufbar):
+                s.abrufen(basis + "/teil")
+            s.MAX_BYTES = 100
+            with self.assertRaises(s.NichtAbrufbar):
+                s.abrufen(basis + "/gross")
+            s.MAX_BYTES = alt_grenze
+            self.assertTrue(s.abrufen(basis + "/gross").startswith("User-agent"))
+        finally:
+            s.MAX_BYTES = alt_grenze
+            srv.shutdown()
+            srv.server_close()
+            if alt_proxy is None:
+                os.environ.pop("no_proxy", None)
+            else:
+                os.environ["no_proxy"] = alt_proxy
+
+
 if __name__ == "__main__":
     unittest.main()

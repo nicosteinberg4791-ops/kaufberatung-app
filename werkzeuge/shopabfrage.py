@@ -33,6 +33,7 @@ Nur Standardbibliothek.
 import argparse
 import html
 import json
+import math
 import os
 import re
 import sys
@@ -160,6 +161,11 @@ def zahl(x):
     return None
 
 
+def betrag_ok(x):
+    """Endlicher, nicht negativer Betrag (D7-10: NaN, Unendlich, negative Werte verwerfen)."""
+    return x is not None and math.isfinite(x) and x >= 0
+
+
 def _endung(x):
     return str(x or "").rsplit("/", 1)[-1].strip()
 
@@ -206,7 +212,7 @@ def versand_von(o):
             if isinstance(rr, dict):
                 w = zahl(rr.get("value"))
                 cur = str(rr.get("currency") or "EUR")
-                if w is not None and cur == "EUR":
+                if betrag_ok(w) and cur == "EUR":
                     werte.append(w)
     # Mehrere verschiedene Sätze (z. B. Abholung 0 € neben Spedition): nicht raten, Versand bleibt unbekannt
     return werte[0] if werte and len(set(werte)) == 1 else None
@@ -225,23 +231,36 @@ def mms_preisfeld(text, praefix, sku):
     t = text.replace('\\"', '"')
     dec = json.JSONDecoder()
     funde = set()
-    for m in re.finditer(r'"id":"%s%s","currency":"EUR","isProductOfTypeMarketplace":(true|false)' %
-                         (re.escape(praefix), re.escape(str(sku))), t):
-        # Das Objekt endet spätestens dort, wo das nächste Artikelobjekt beginnt (D7-04: nie ins Folgeobjekt lesen)
-        rest = t[m.end():]
-        n = rest.find('{"id":"')
-        obj = rest[:n] if n >= 0 else rest
-        betrag = versand = None
-        for pm in re.finditer(r'"price":(?=\{)', obj):
+    # D7-04: Anker ist die Feldfolge des Preisfelds; von dort zur umschließenden Klammer zurück und das vollständige
+    # Artikelobjekt dekodieren. Ausgewertet werden nur dessen eigene Felder, nie ein Folgeobjekt.
+    ziel = f"{praefix}{sku}"
+    for m in re.finditer(r'"id":"%s","currency":"EUR","isProductOfTypeMarketplace":(true|false)' % re.escape(ziel), t):
+        obj, pos = None, m.start()
+        for _ in range(60):
+            pos = t.rfind("{", 0, pos)
+            if pos < 0:
+                break
             try:
-                preis, _ = dec.raw_decode(obj, pm.end())
+                kandidat, ende = dec.raw_decode(t, pos)
             except ValueError:
                 continue
-            if isinstance(preis, dict) and preis.get("__typename") == "CofrPriceFeaturePrice":
-                betrag, versand = zahl(preis.get("amount")), zahl(preis.get("shippingCost"))
+            if isinstance(kandidat, dict) and kandidat.get("id") == ziel and ende > m.end():
+                obj = kandidat
                 break
-        funde.add((m.group(1) == "true", betrag, versand))
-    return funde.pop() if len(funde) == 1 else None
+        if obj is None:
+            funde.add(None)  # nicht lesbar: kein Nachweis
+            continue
+        preis = obj.get("price") if isinstance(obj, dict) else None
+        if (obj.get("id") != f"{praefix}{sku}" or obj.get("currency") != "EUR"
+                or not isinstance(obj.get("isProductOfTypeMarketplace"), bool)):
+            funde.add(None)
+            continue
+        betrag = versand = None
+        if isinstance(preis, dict) and preis.get("__typename") == "CofrPriceFeaturePrice":
+            betrag, versand = zahl(preis.get("amount")), zahl(preis.get("shippingCost"))
+        funde.add((obj["isProductOfTypeMarketplace"], betrag if betrag_ok(betrag) else None,
+                   versand if betrag_ok(versand) else None))
+    return funde.pop() if len(funde) == 1 and None not in funde else None
 
 
 def pruefe_angebot(o, modell, quelle, text="", sku=None):
@@ -258,13 +277,13 @@ def pruefe_angebot(o, modell, quelle, text="", sku=None):
             daten["verkaeufer"] = None
         elif f[0]:
             return False, "Marktplatzangebot (Seitenzustand)", daten
-        elif f[1] is None or abs(f[1] - preis) > 0.005:
+        elif f[1] is None or not betrag_ok(preis) or abs(f[1] - preis) > 0.005:
             return False, f"Preis im Seitenzustand ({f[1]}) passt nicht zum JSON-LD", daten
         else:
             verk = quelle["name"]
             daten["verkaeufer"] = verk + " (Seitenzustand: kein Marktplatz)"
             daten["versand_seite"] = f[2]
-    if preis is None:
+    if not betrag_ok(preis):
         return False, "kein Preis", daten
     if cur != "EUR":
         return False, f"Währung {cur or 'fehlt'}", daten
@@ -359,12 +378,11 @@ class Weitergeleitet(NichtAbrufbar):
 def ist_challenge(text, inhaltstyp):
     """Sperr-/Challenge-Seite? Nur HTML-Antworten (robots.txt von Saturn nennt selbst /cdn-cgi/challenge-platform/).
     Eindeutige Merkmale sperren immer; schwache nur, wenn die Seite kein JSON-LD hat."""
+    if SPERRE.search(text):  # D7-11: ganzer Text, auch bei falsch deklariertem Inhaltstyp
+        return True
     if "html" not in (inhaltstyp or "").lower():
         return False
-    kopf = text[:20000]
-    if SPERRE.search(kopf):
-        return True
-    return bool(CHALLENGE_SCHWACH.search(kopf)) and "application/ld+json" not in text
+    return bool(CHALLENGE_SCHWACH.search(text[:20000])) and "application/ld+json" not in text
 
 
 class _KeineWeiterleitung(urllib.request.HTTPRedirectHandler):
@@ -384,7 +402,11 @@ def abrufen(url):
     for versuch in (1, 2):
         try:
             with _OPENER.open(req, timeout=TIMEOUT) as r:
-                roh = r.read(MAX_BYTES)
+                roh = r.read(MAX_BYTES + 1)
+                if getattr(r, "status", 200) != 200:  # D7-02: Teilantworten (206) u. ä. nicht auswerten
+                    raise NichtAbrufbar(f"HTTP {r.status} (keine vollständige Antwort)")
+                if len(roh) > MAX_BYTES:
+                    raise NichtAbrufbar("Antwort über der Lesegrenze (abgeschnitten)")
                 text = roh.decode(r.headers.get_content_charset() or "utf-8", "replace")
                 typ = r.headers.get("Content-Type", "")
                 if r.geturl() != url:  # zweite Sicherung, falls doch eine Weiterleitung verfolgt wurde
@@ -448,14 +470,19 @@ def url_erlaubt(url, quelle, rp):
 
 # ---------------------------------------------------------------- Zusammenführung
 
+def _haendler_norm(s):
+    """D7-07: nur Groß-/Kleinschreibung und Leerraum angleichen; andere Schreibweisen nur über Aliase."""
+    return " ".join(str(s or "").lower().split())
+
+
 def haendler_aliase(quellen):
     """Normalisierter Händlername -> Quellen-id, nur aus quellen.json (name, verkaeufer) der Shops (D7-07)."""
     out = {}
     for q in quellen:
         if q.get("typ") == "shop":
             for n in [q.get("name"), q.get("id")] + list(q.get("verkaeufer") or []):
-                if n and _name_norm(n):
-                    out[_name_norm(n)] = q["id"]
+                if _haendler_norm(n):
+                    out[_haendler_norm(n)] = q["id"]
     return out
 
 
@@ -467,7 +494,7 @@ def bestpreis(angebote, aliase=None):
     gesehen, eindeutig = set(), []
     for a in sorted(angebote, key=lambda a: (a["quelle"] != "eigen", a["preis"], a["gesamt"] is None,
                                              a["gesamt"] or 0)):
-        n = _name_norm(a["haendler"])
+        n = _haendler_norm(a["haendler"])
         k = (aliase.get(n, n), a["preis"])
         if k in gesehen:
             continue
@@ -487,7 +514,7 @@ def lauf(quellen, modelle, holen=abrufen, pause=PAUSE, jetzt=None):
     status_quelle, robots = {}, {}
     letzter = {}
     for q in quellen:
-        if not q.get("automatisch"):
+        if q.get("automatisch") is not True:
             status_quelle[q["id"]] = "nur Link (nicht freigegeben)"
     erg = {}
     for m in modelle:
@@ -497,7 +524,7 @@ def lauf(quellen, modelle, holen=abrufen, pause=PAUSE, jetzt=None):
             if q is None:
                 je[qid] = {"status": "unbekannte Quelle", "link": url}
                 continue
-            if not q.get("automatisch"):
+            if q.get("automatisch") is not True:
                 je[qid] = {"status": "nur Link", "link": url}
                 continue
             if qid in status_quelle:
@@ -555,7 +582,9 @@ def pruefe_daten(quellen, modelle):
         for k in ("id", "name", "domain", "automatisch", "pruefung"):
             if k not in q:
                 fehler.append(f"Quelle {q.get('id', '?')}: {k} fehlt")
-        if q.get("automatisch") and not (q.get("pruefung") or {}).get("datum"):
+        if not isinstance(q.get("automatisch"), bool):
+            fehler.append(f"Quelle {q.get('id')}: automatisch muss true oder false sein")
+        if q.get("automatisch") is True and not (q.get("pruefung") or {}).get("datum"):
             fehler.append(f"Quelle {q.get('id')}: automatisch ohne Prüfdatum")
         ids.add(q.get("id"))
     for m in modelle:
@@ -590,7 +619,7 @@ def main(argv=None):
         if os.path.exists(ziel):
             text = open(ziel, encoding="utf-8").read()
         else:  # Abruf nur wie im Lauf: freigegebene Quelle, robots.txt und URL-Regeln
-            rp = robots_fuer(q) if q.get("automatisch") else "Quelle nicht freigegeben"
+            rp = robots_fuer(q) if q.get("automatisch") is True else "Quelle nicht freigegeben"
             ok, grund = (False, rp) if isinstance(rp, str) else url_erlaubt(ziel, q, rp)
             if not ok:
                 print("nicht abgerufen:", grund, file=sys.stderr)

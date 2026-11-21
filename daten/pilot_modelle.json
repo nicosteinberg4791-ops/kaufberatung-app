@@ -1,5 +1,5 @@
 {
- "hinweis": "Pilotmodelle Bestpreis-Mix (D7). EAN und Produkt-URLs am 21.11.2026 aus dem JSON-LD der jeweiligen Produktseite selbst geprüft (werkzeuge/shopabfrage.py). URLs gefunden über Websuche bzw. Proshop-Suche (?s=, laut robots.txt erlaubt); Saturn-Suche ist laut robots.txt gesperrt und wurde nicht genutzt. Quellen ohne Freigabe (heise, idealo, MediaMarkt) stehen nur als Link. Korridor = plausibler Artikelpreis in €, verwirft Zubehör und Fehlwerte.",
+ "hinweis": "Pilotmodelle Bestpreis-Mix (D7). EAN und Produkt-URLs am 21.11.2026 aus dem JSON-LD der jeweiligen Produktseite selbst geprüft (werkzeuge/shopabfrage.py). URLs gefunden über Websuche bzw. Proshop-Suche (?s=, laut robots.txt erlaubt); Saturn-Suche ist laut robots.txt gesperrt und wurde nicht genutzt. Welche Quelle automatisch abgefragt wird, steht in daten/quellen.json (automatisch: Saturn, Alternate, Proshop, heise; nur Link: idealo, MediaMarkt). Korridor = plausibler Artikelpreis in €, verwirft Zubehör und Fehlwerte.",
  "modelle": [
   {
    "id": "lg_c6elb_65",
@@ -60,7 +60,7 @@
     "idealo": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=Dreame+Z30",
     "mediamarkt": "https://www.mediamarkt.de/de/search.html?query=Dreame%20Z30"
    },
-   "luecken": "Alternate: keine Produktseite gefunden. heise-Seite nicht ermittelt (heise derzeit ohnehin nur Link)."
+   "luecken": "Alternate: keine Produktseite gefunden. heise-Produktseite noch nicht ermittelt."
   },
   {
    "id": "phone_s26_ultra_256",

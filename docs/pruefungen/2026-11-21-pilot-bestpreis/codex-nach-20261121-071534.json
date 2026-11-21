@@ -1,0 +1,112 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Keine Freigabe für den Push auf main. Der Pilot kann trotz unvollständiger robots.txt abrufen und ungeprüfte Heise- oder Saturn-Angebote als Bestpreis ausgeben. Alle 52 Shopabfrage-Tests bestanden. Die im Auftrag genannten 44 Tests entsprechen dem Stand vor der Nachprüfung.",
+  "befunde": [
+    {
+      "id": "D7-02",
+      "schwere": "schwer",
+      "titel": "Unvollständige robots.txt kann Produktabrufe freigeben",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 386,
+      "beleg": "Kriterium „robots.txt live gelesen, nicht lesbar = Quelle nicht abfragen“. Die HTML-Wartungsseite aus Runde 1 wird abgewiesen. Eine simulierte HTTP-206-Antwort mit Content-Range und dem Teilinhalt `User-agent: *\\nDisallow: ` akzeptierte `robots_fuer()` jedoch. `url_erlaubt()` gab die Saturn-Produkt-URL frei. Der Abruf prüft weder den Erfolgsstatus auf Vollständigkeit noch, ob die Lesegrenze die Antwort abgeschnitten hat.",
+      "auswirkung": "Ein fehlender Teil der robots.txt kann eine Sperrregel enthalten. Der Pilot ruft die Seite trotzdem ab.",
+      "vorschlag": "robots.txt nur aus einer vollständigen Antwort auswerten. Teilantworten, Lesefehler und Antworten oberhalb der Lesegrenze ablehnen und mit einem Abruf-Test abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-04",
+      "schwere": "schwer",
+      "titel": "Saturn-Preisnachweis reicht weiterhin über Objektgrenzen hinweg",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 232,
+      "beleg": "Kriterium „Verkäufer = Shop (Saturn: Nachweis über eingebettetes Preisfeld, Marktplatz verworfen).“ Der neue Test deckt ein Folgeobjekt ab, das unmittelbar mit `id` beginnt. Beginnt es mit `__typename` und enthält `id` erst danach, greift die Abgrenzung nicht. Offline akzeptierte `pruefe_angebot()` die SKU 111 mit `false` und `price: null`, indem es 219,99 € aus dem folgenden Marktplatzobjekt für SKU 222 übernahm.",
+      "auswirkung": "Ein verkäuferloses Angebot kann ohne eigenen Preisnachweis als Saturn-Angebot in den Bestpreis gelangen.",
+      "vorschlag": "Das vollständige Artikelobjekt dekodieren und SKU, Währung, Marktplatzstatus, Preis und Versand über dessen eigene Felder prüfen. Den Regressionstest mit vertauschter Feldreihenfolge ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-05",
+      "schwere": "schwer",
+      "titel": "Heise-Angebote gelangen ohne Gültigkeitsnachweis in die Auswahl",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 337,
+      "beleg": "Kriterium „Angebot gültig nur bei passender EAN, NewCondition (oder fehlend), InStock, EUR, Preis im Korridor, Verkäufer = Shop“. Offline gab `heise_auswerten()` einen Treffer mit `delivery_time: \"nicht lieferbar\"` als Angebot für 190,00 € inklusive Versand zurück. Die Funktion prüft Preis und Korridor, ignoriert die Lieferangabe und verlangt keinen Nachweis für EAN, Zustand, Währung oder Verkäuferrolle.",
+      "auswirkung": "Ein nicht lieferbarer oder anderweitig ungeprüfter Vergleichstreffer kann ein gültiges Shopangebot als Bestpreis verdrängen.",
+      "vorschlag": "Heise weiterhin gemäß Quellenfreigabe abfragen. Treffer bis zum geforderten Gültigkeitsnachweis als Vergleichslinks führen oder das Abnahmekriterium durch einen ausdrücklichen Besitzerentscheid ändern.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-07",
+      "schwere": "schwer",
+      "titel": "Händlernormalisierung kann unterschiedliche Händler zusammenlegen",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 470,
+      "beleg": "Die Dublettenregel lautet „gleicher Händler laut vollem Namen oder Alias, gleicher Artikelpreis“. Die alten Fälle mit gleichem Wortanfang und zwei direkten Versandpreisen sind korrigiert. `_name_norm()` löscht jedoch Satzzeichen und alle Nicht-ASCII-Buchstaben. In einem Offline-Fall mit zwei als verschieden angesetzten Händlern wurden `Proshop` und `Pro-Shop` ohne ausdrücklichen Alias zusammengelegt. Bei je 969 € Artikelpreis blieb der direkte Treffer für 1.019 € gesamt übrig. Erwartet waren zwei Angebote und 969 € als Bestpreis.",
+      "auswirkung": "Die Dublettenprüfung kann einen günstigeren Treffer als vermeintliches Duplikat entfernen.",
+      "vorschlag": "Händlernamen konservativ normalisieren und abweichende Schreibweisen nur über ausdrücklich bestätigte Aliase zusammenführen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-09",
+      "schwere": "schwer",
+      "titel": "Saturn-Vorlage enthält weiterhin übernommene Werbetexte",
+      "datei": "tests/vorlagen/saturn_s90h.html",
+      "zeile": 4,
+      "beleg": "Kriterium „Keine persönlichen Daten, Pfade, Konto-URLs oder fremden Shoptexte in versionierten Dateien (Repo öffentlich).“ Die Zusatzangebote und der Kontopfad wurden aus dem aktuellen Stand entfernt. Die laut Kopfkommentar aus der echten Shopseite gekürzte Vorlage enthält im Feld `name` weiterhin Werbezusätze wie „Glare Free mit Real Black & Real Color, Ultimate Gaming Pack“. Der frühere Kontopfad ist außerdem in dem Commit vorhanden, auf den die lokale Referenz `origin/main` zeigt.",
+      "auswirkung": "Der zur Veröffentlichung vorgesehene Dateistand enthält weiterhin Shoptexte. Der Korrekturcommit entfernt den früheren Kontopfad aus der aktuellen Datei, während der ältere Commit erreichbar bleibt.",
+      "vorschlag": "Die Vorlage auf synthetische Namen und die für EAN, Varianten, Angebot und Preisnachweis benötigten Felder kürzen. Die bereits veröffentlichte Historie bei der Freigabe berücksichtigen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-10",
+      "schwere": "kritisch",
+      "titel": "Geänderter Saturn-Parser akzeptiert ungültige Beträge",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 241,
+      "beleg": "`raw_decode()` und `zahl()` übernehmen Beträge, die der frühere Regex nicht erfasste. Offline akzeptierte `pruefe_angebot()` bei 219,99 € Artikelpreis `shippingCost: -500`, woraus Zeile 313 ohne JSON-LD-Versand −280,01 € Gesamtpreis berechnet. Auch `amount: NaN` wurde als passender Preisnachweis akzeptiert, weil der Vergleich in Zeile 261 dabei falsch ergibt.",
+      "auswirkung": "Der Pilot kann einen negativen Bestpreis ausgeben oder einen ungültigen Betrag als Verkäufernachweis verwenden.",
+      "vorschlag": "Endliche eingebettete Beträge verlangen, negative Versandkosten verwerfen und den Preisabgleich mit beiden Fällen testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-11",
+      "schwere": "schwer",
+      "titel": "Eindeutige Challenge-Merkmale werden außerhalb des HTML-Präfixes ignoriert",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 362,
+      "beleg": "Kriterium „403/429/503/Challenge = Quelle für den Lauf gesperrt, nie umgangen.“ Offline lieferte `ist_challenge()` für `<h1>Access Denied</h1>` mit Content-Type `text/plain` sowie für dasselbe Sperrmerkmal nach Zeichen 20.000 mit Content-Type `text/html` jeweils `False`. Die Lauf-Sperre für die Quelle greift in beiden Fällen nicht.",
+      "auswirkung": "Nach einer solchen HTTP-200-Sperrantwort kann der Pilot beim nächsten Modell weitere Seiten der Quelle abrufen.",
+      "vorschlag": "Eindeutige Sperrmerkmale im vollständig gelesenen Antwortkörper berücksichtigen und sowohl falsch deklarierte Antworten als auch späte Sperrmerkmale testen. Passive Erwähnungen in robots.txt weiterhin zulassen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-12",
+      "schwere": "schwer",
+      "titel": "Quellenfreigabe akzeptiert auch Werte wie den String „false“",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 500,
+      "beleg": "Kriterium „Nur Quellen mit \\\"automatisch\\\": true werden abgerufen“. `--quellen` lädt eine alternative JSON-Datei. `pruefe_daten()` prüft in Zeile 555 das Vorhandensein des Felds, jedoch nicht seinen Typ. Mit vorhandenem Prüfdatum passiert der JSON-String `\"false\"` die Prüfung und gilt in `lauf()` sowie im `--zeige`-Pfad als wahr. Die eingecheckte Konfiguration verwendet boolesche Werte.",
+      "auswirkung": "Ein Konfigurationsfehler kann die Freigabe einer Quelle auslösen und zum Abruf ihrer robots.txt und nachgelagerter Produktseiten führen.",
+      "vorschlag": "Für `automatisch` einen JSON-Boolean verlangen und Abrufe ausschließlich bei `is True` freigeben.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-13",
+      "schwere": "gering",
+      "titel": "Modelldaten beschreiben die Heise-Freigabe widersprüchlich",
+      "datei": "daten/pilot_modelle.json",
+      "zeile": 2,
+      "beleg": "Der Kopfhinweis und die Dreame-Notiz in Zeile 63 bezeichnen Heise als reine Linkquelle. `daten/quellen.json` setzt für Heise `automatisch` auf `true` und dokumentiert die Freigabe.",
+      "auswirkung": "Die Modelldokumentation gibt den tatsächlichen Abrufstatus falsch wieder.",
+      "vorschlag": "Im Kopfhinweis auf die Freigaben in `daten/quellen.json` verweisen und beim Dreame nur die fehlende Produktseite nennen.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": [
+    "D7-01",
+    "D7-03",
+    "D7-06",
+    "D7-08"
+  ],
+  "pruefgrenzen": "Geprüft am Commit 10b88978c7da29c06a75bb2b2afd15e087218056. Die Shopabfrage-Tests liefen mit dem vorhandenen Python 3.13.14 und deaktivierten Bytecode-Dateien. `tests/alle-tests.ps1` wurde wegen seiner Datei- und Protokollschreibvorgänge im Nur-Lese-Auftrag nicht ausgeführt. Shopantworten wurden offline geprüft. Quellenfreigaben und Workflow wurden anhand der versionierten Dateien geprüft. Live-Abrufe, rechtliche Neubewertung und ein Actions-Lauf waren nicht Teil dieser Nachprüfung."
+}
