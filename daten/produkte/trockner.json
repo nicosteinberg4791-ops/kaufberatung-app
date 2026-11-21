@@ -1,0 +1,1460 @@
+{
+ "kategorie": "trockner",
+ "stand": "2026-11-21",
+ "quellen": {
+  "saturn-3004105": {
+   "url": "https://www.saturn.de/de/product/_beko-b5t68219-kondenstrockner-8-kg-b-weiss-3004105.html",
+   "titel": "Beko B5T68219 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2990854": {
+   "url": "https://www.saturn.de/de/product/_siemens-wq46b2dfcb-warmepumpentrockner-iq700-90-kg-weiss-2990854.html",
+   "titel": "Siemens WQ46B2DFCB Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2950481": {
+   "url": "https://www.saturn.de/de/product/_hisense-dh3s802bw3-warmepumpentrockner-80-kg-a-weiss-warmepumpentrockner-8-kg-a-weiss-2950481.html",
+   "titel": "Hisense DH3S802BW3 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2808039": {
+   "url": "https://www.saturn.de/de/product/_bosch-wqg-235-d-00-trockner-80-kg-a-2808039.html",
+   "titel": "Bosch WQG235D00 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2940775": {
+   "url": "https://www.saturn.de/de/product/_hisense-dh5s102bw-warmepumpentrockner-10-kg-a-weiss-warmepumpentrockner-10-kg-a-weiss-2940775.html",
+   "titel": "Hisense DH5S102BW Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2975633": {
+   "url": "https://www.saturn.de/de/product/_bosch-wqg-241031-trockner-serie-6-90-kg-weiss-2975633.html",
+   "titel": "Bosch WQG241031 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2998644": {
+   "url": "https://www.saturn.de/de/product/_siemens-wq43g2d0em-warmepumpentrockner-iq500-90-kg-weiss-2998644.html",
+   "titel": "Siemens WQ43G2D0EM Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-162669690": {
+   "url": "https://www.saturn.de/de/product/_aeg-series-9000-tr9m75680-waschetrockner-c-162669690.html",
+   "titel": "AEG TR9M75680 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3047845": {
+   "url": "https://www.saturn.de/de/product/_lg-rt80x7-warmepumpentrockner-x7-8-kg-essence-white-3047845.html",
+   "titel": "LG RT80X7 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2971013": {
+   "url": "https://www.saturn.de/de/product/_samsung-dv90dg52a0teeg-warmepumpentrockner-9-kg-c-weiss-2971013.html",
+   "titel": "Samsung DV90DG52A0TEEG Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3072098": {
+   "url": "https://www.saturn.de/de/product/_miele-tk100c-wp-warmepumpentrockner-8-kg-lotosweiss-3072098.html",
+   "titel": "Miele TK100C WP Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3008790": {
+   "url": "https://www.saturn.de/de/product/_bosch-wrb247c40-warmepumpentrockner-serie-8-90-kg-weiss-3008790.html",
+   "titel": "Bosch WRB247C40 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2979948": {
+   "url": "https://www.saturn.de/de/product/_samsung-dv90db7845gwu2-trockner-9-kg-a-weiss-2979948.html",
+   "titel": "Samsung DV90DB7845GWU2 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2755993": {
+   "url": "https://www.saturn.de/de/product/_miele-twh-780-wp-d-lw-ecospeedand9kg-trockner-9-kg-a-2755993.html",
+   "titel": "Miele TWH780WP Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2956593": {
+   "url": "https://www.saturn.de/de/product/_miele-twc-640-wp-trockner-8-kg-a-lotosweiss-2956593.html",
+   "titel": "Miele TWC640WP Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2982550": {
+   "url": "https://www.saturn.de/de/product/_siemens-wt45hva4-warmepumpentrockner-iq300-80-kg-weiss-2982550.html",
+   "titel": "Siemens WT45HVA4 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2971012": {
+   "url": "https://www.saturn.de/de/product/_samsung-dv90dg52a0abeg-trockner-9-kg-c-schwarz-2971012.html",
+   "titel": "Samsung DV90DG52A0ABEG Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2974051": {
+   "url": "https://www.saturn.de/de/product/_miele-tq-1000-wp-nova-edition-trockner-9-kg-a-lotosweiss-2974051.html",
+   "titel": "Miele TQ 1000 WP Nova Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3063216": {
+   "url": "https://www.saturn.de/de/product/_aeg-tr7t5e685-trockner-7000-8-kg-weiss-3063216.html",
+   "titel": "AEG TR7T5E685 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2993019": {
+   "url": "https://www.saturn.de/de/product/_aeg-tr7t65695-trockner-7000-9-kg-a-weiss-2993019.html",
+   "titel": "AEG TR7T65695 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3046777": {
+   "url": "https://www.saturn.de/de/product/_gorenje-d5g2p7d-warmepumpentrockner-7-kg-weiss-3046777.html",
+   "titel": "Gorenje D5G2P7D Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2989405": {
+   "url": "https://www.saturn.de/de/product/_siemens-wt45hv0em-warmepumpentrockner-iq300-80-kg-weiss-2989405.html",
+   "titel": "Siemens WT45HV0EM Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3008940": {
+   "url": "https://www.saturn.de/de/product/_lg-rt90x8b-warmepumpentrockner-9-kg-metallic-black-3008940.html",
+   "titel": "LG RT90X8B Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3065581": {
+   "url": "https://www.saturn.de/de/product/_samsung-dv90f09f4wt2-warmepumpentrockner-neat-white-3065581.html",
+   "titel": "Samsung DV90F09F4WT2 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3072101": {
+   "url": "https://www.saturn.de/de/product/_miele-tk310i-wp-warmepumpentrockner-9-kg-lotosweiss-3072101.html",
+   "titel": "Miele TK310I WP Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3021317": {
+   "url": "https://www.saturn.de/de/product/_miele-tel785wp-steamand9kg-warmepumpentrockner-t1-chrome-edition-9-kg-lotosweiss-3021317.html",
+   "titel": "Miele TEL785WP Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3039341": {
+   "url": "https://www.saturn.de/de/product/_haier-hd80-d637-warmepumpentrockner-g3-8-kg-weiss-3039341.html",
+   "titel": "Haier HD80-D637 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3072102": {
+   "url": "https://www.saturn.de/de/product/_miele-tk510i-wp-warmepumpentrockner-9-kg-lotosweiss-3072102.html",
+   "titel": "Miele TK510I WP Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2697457": {
+   "url": "https://www.saturn.de/de/product/_beko-de8544rx2-2697457.html",
+   "titel": "Beko DE8544RX2 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  }
+ },
+ "modelle": [
+  {
+   "id": "beko-b5t68219",
+   "hersteller": "Beko",
+   "name": "B5T68219",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "beko-b5t68219-v1",
+     "name": "B5T68219",
+     "mpn": "B5T68219",
+     "ean": [
+      "8690842791147"
+     ],
+     "werte": {
+      "energieklasse": "B",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 174,
+      "ablauf_anschluss": true,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3004105",
+      "kondensationsklasse": "saturn-3004105",
+      "geraeusch_db": "saturn-3004105",
+      "kapazitaet_kg": "saturn-3004105",
+      "feuchtesensor": "saturn-3004105",
+      "filter_selbstreinigend": "saturn-3004105",
+      "dauer_eco_min": "saturn-3004105",
+      "ablauf_anschluss": "saturn-3004105",
+      "knitterschutz": "saturn-3004105"
+     },
+     "preis": {
+      "eur": 433.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_beko-b5t68219-kondenstrockner-8-kg-b-weiss-3004105.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "siemens-wq46b2dfcb",
+   "hersteller": "Siemens",
+   "name": "WQ46B2DFCB",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "siemens-wq46b2dfcb-v1",
+     "name": "WQ46B2DFCB",
+     "mpn": "WQ46B2DFCB",
+     "ean": [
+      "4242003978955"
+     ],
+     "werte": {
+      "energieklasse": "B",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 59.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 265,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2990854",
+      "kondensationsklasse": "saturn-2990854",
+      "geraeusch_db": "saturn-2990854",
+      "kapazitaet_kg": "saturn-2990854",
+      "feuchtesensor": "saturn-2990854",
+      "filter_selbstreinigend": "saturn-2990854",
+      "dauer_eco_min": "saturn-2990854",
+      "ablauf_anschluss": "saturn-2990854",
+      "garantie_jahre": "saturn-2990854",
+      "knitterschutz": "saturn-2990854"
+     },
+     "preis": {
+      "eur": 699.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_siemens-wq46b2dfcb-warmepumpentrockner-iq700-90-kg-weiss-2990854.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hisense-dh3s802bw3",
+   "hersteller": "Hisense",
+   "name": "DH3S802BW3",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "hisense-dh3s802bw3-v1",
+     "name": "DH3S802BW3",
+     "mpn": "DH3S802BW3",
+     "ean": [
+      "6901101829627"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 188,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2950481",
+      "kondensationsklasse": "saturn-2950481",
+      "geraeusch_db": "saturn-2950481",
+      "kapazitaet_kg": "saturn-2950481",
+      "feuchtesensor": "saturn-2950481",
+      "filter_selbstreinigend": "saturn-2950481",
+      "dauer_eco_min": "saturn-2950481",
+      "ablauf_anschluss": "saturn-2950481",
+      "garantie_jahre": "saturn-2950481",
+      "knitterschutz": "saturn-2950481"
+     },
+     "preis": {
+      "eur": 399.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_hisense-dh3s802bw3-warmepumpentrockner-80-kg-a-weiss-warmepumpentrockner-8-kg-a-weiss-2950481.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bosch-wqg235d00",
+   "hersteller": "Bosch",
+   "name": "WQG235D00",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "bosch-wqg235d00-v1",
+     "name": "WQG235D00",
+     "mpn": "WQG235D00",
+     "ean": [
+      "4242005314560"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 61.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 179,
+      "ablauf_anschluss": false,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2808039",
+      "kondensationsklasse": "saturn-2808039",
+      "geraeusch_db": "saturn-2808039",
+      "kapazitaet_kg": "saturn-2808039",
+      "feuchtesensor": "saturn-2808039",
+      "filter_selbstreinigend": "saturn-2808039",
+      "dauer_eco_min": "saturn-2808039",
+      "ablauf_anschluss": "saturn-2808039",
+      "garantie_jahre": "saturn-2808039",
+      "knitterschutz": "saturn-2808039"
+     },
+     "preis": {
+      "eur": 579.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bosch-wqg-235-d-00-trockner-80-kg-a-2808039.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hisense-dh5s102bw",
+   "hersteller": "Hisense",
+   "name": "DH5S102BW",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "hisense-dh5s102bw-v1",
+     "name": "DH5S102BW",
+     "mpn": "DH5S102BW",
+     "ean": [
+      "6901101825612"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 10.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 227,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2940775",
+      "kondensationsklasse": "saturn-2940775",
+      "geraeusch_db": "saturn-2940775",
+      "kapazitaet_kg": "saturn-2940775",
+      "feuchtesensor": "saturn-2940775",
+      "filter_selbstreinigend": "saturn-2940775",
+      "dauer_eco_min": "saturn-2940775",
+      "ablauf_anschluss": "saturn-2940775",
+      "garantie_jahre": "saturn-2940775",
+      "knitterschutz": "saturn-2940775"
+     },
+     "preis": {
+      "eur": 449.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_hisense-dh5s102bw-warmepumpentrockner-10-kg-a-weiss-warmepumpentrockner-10-kg-a-weiss-2940775.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bosch-wqg241031",
+   "hersteller": "Bosch",
+   "name": "WQG241031",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "bosch-wqg241031-v1",
+     "name": "WQG241031",
+     "mpn": "WQG241031",
+     "ean": [
+      "4242005468966"
+     ],
+     "werte": {
+      "energieklasse": "D",
+      "kondensationsklasse": "C",
+      "geraeusch_db": 62.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": false
+     },
+     "belege": {
+      "energieklasse": "saturn-2975633",
+      "kondensationsklasse": "saturn-2975633",
+      "geraeusch_db": "saturn-2975633",
+      "kapazitaet_kg": "saturn-2975633",
+      "feuchtesensor": "saturn-2975633",
+      "filter_selbstreinigend": "saturn-2975633",
+      "ablauf_anschluss": "saturn-2975633",
+      "garantie_jahre": "saturn-2975633",
+      "knitterschutz": "saturn-2975633"
+     },
+     "preis": {
+      "eur": 549.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bosch-wqg-241031-trockner-serie-6-90-kg-weiss-2975633.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "siemens-wq43g2d0em",
+   "hersteller": "Siemens",
+   "name": "WQ43G2D0EM",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "siemens-wq43g2d0em-v1",
+     "name": "WQ43G2D0EM",
+     "mpn": "WQ43G2D0EM",
+     "ean": [
+      "4242003978535"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 63.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 180,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2998644",
+      "kondensationsklasse": "saturn-2998644",
+      "geraeusch_db": "saturn-2998644",
+      "kapazitaet_kg": "saturn-2998644",
+      "feuchtesensor": "saturn-2998644",
+      "filter_selbstreinigend": "saturn-2998644",
+      "dauer_eco_min": "saturn-2998644",
+      "ablauf_anschluss": "saturn-2998644",
+      "garantie_jahre": "saturn-2998644",
+      "knitterschutz": "saturn-2998644"
+     },
+     "preis": {
+      "eur": 599.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_siemens-wq43g2d0em-warmepumpentrockner-iq500-90-kg-weiss-2998644.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "aeg-tr9m75680",
+   "hersteller": "AEG",
+   "name": "TR9M75680",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "aeg-tr9m75680-v1",
+     "name": "TR9M75680",
+     "mpn": "TR9M75680",
+     "ean": [
+      "7333394061399"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 63.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 167,
+      "ablauf_anschluss": false,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-162669690",
+      "kondensationsklasse": "saturn-162669690",
+      "geraeusch_db": "saturn-162669690",
+      "kapazitaet_kg": "saturn-162669690",
+      "feuchtesensor": "saturn-162669690",
+      "filter_selbstreinigend": "saturn-162669690",
+      "dauer_eco_min": "saturn-162669690",
+      "ablauf_anschluss": "saturn-162669690",
+      "garantie_jahre": "saturn-162669690",
+      "knitterschutz": "saturn-162669690"
+     },
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "lg-rt80x7",
+   "hersteller": "LG",
+   "name": "RT80X7",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "lg-rt80x7-v1",
+     "name": "RT80X7",
+     "mpn": "RT80X7",
+     "ean": [
+      "8806096721469"
+     ],
+     "werte": {
+      "energieklasse": "B",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 62.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "dauer_eco_min": 253,
+      "ablauf_anschluss": false,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3047845",
+      "kondensationsklasse": "saturn-3047845",
+      "geraeusch_db": "saturn-3047845",
+      "kapazitaet_kg": "saturn-3047845",
+      "feuchtesensor": "saturn-3047845",
+      "dauer_eco_min": "saturn-3047845",
+      "ablauf_anschluss": "saturn-3047845",
+      "knitterschutz": "saturn-3047845"
+     },
+     "preis": {
+      "eur": 649.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_lg-rt80x7-warmepumpentrockner-x7-8-kg-essence-white-3047845.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-dv90dg52a0teeg",
+   "hersteller": "Samsung",
+   "name": "DV90DG52A0TEEG",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-dv90dg52a0teeg-v1",
+     "name": "DV90DG52A0TEEG",
+     "mpn": "DV90DG52A0TEEG",
+     "ean": [
+      "8806097064619"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "C",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 220,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2971013",
+      "kondensationsklasse": "saturn-2971013",
+      "geraeusch_db": "saturn-2971013",
+      "kapazitaet_kg": "saturn-2971013",
+      "feuchtesensor": "saturn-2971013",
+      "filter_selbstreinigend": "saturn-2971013",
+      "dauer_eco_min": "saturn-2971013",
+      "ablauf_anschluss": "saturn-2971013",
+      "garantie_jahre": "saturn-2971013",
+      "knitterschutz": "saturn-2971013"
+     },
+     "preis": {
+      "eur": 489.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_samsung-dv90dg52a0teeg-warmepumpentrockner-9-kg-c-weiss-2971013.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-tk100c-wp",
+   "hersteller": "Miele",
+   "name": "TK100C WP",
+   "jahr": 2026,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-tk100c-wp-v1",
+     "name": "TK100C WP",
+     "mpn": "TK100C WP",
+     "ean": [
+      "4002517001965"
+     ],
+     "werte": {
+      "energieklasse": "B",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "dauer_eco_min": 168,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3072098",
+      "kondensationsklasse": "saturn-3072098",
+      "geraeusch_db": "saturn-3072098",
+      "kapazitaet_kg": "saturn-3072098",
+      "feuchtesensor": "saturn-3072098",
+      "dauer_eco_min": "saturn-3072098",
+      "knitterschutz": "saturn-3072098"
+     },
+     "preis": {
+      "eur": 899.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-tk100c-wp-warmepumpentrockner-8-kg-lotosweiss-3072098.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bosch-wrb247c40",
+   "hersteller": "Bosch",
+   "name": "WRB247C40",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "bosch-wrb247c40-v1",
+     "name": "WRB247C40",
+     "mpn": "WRB247C40",
+     "ean": [
+      "4242005526604"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 57.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": true,
+      "dauer_eco_min": 265,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3008790",
+      "kondensationsklasse": "saturn-3008790",
+      "geraeusch_db": "saturn-3008790",
+      "kapazitaet_kg": "saturn-3008790",
+      "feuchtesensor": "saturn-3008790",
+      "filter_selbstreinigend": "saturn-3008790",
+      "dauer_eco_min": "saturn-3008790",
+      "ablauf_anschluss": "saturn-3008790",
+      "garantie_jahre": "saturn-3008790",
+      "knitterschutz": "saturn-3008790"
+     },
+     "preis": {
+      "eur": 999.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bosch-wrb247c40-warmepumpentrockner-serie-8-90-kg-weiss-3008790.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-dv90db7845gwu2",
+   "hersteller": "Samsung",
+   "name": "DV90DB7845GWU2",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-dv90db7845gwu2-v1",
+     "name": "DV90DB7845GWU2",
+     "mpn": "DV90DB7845GWU2",
+     "ean": [
+      "8806097341840"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 285,
+      "ablauf_anschluss": true,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2979948",
+      "kondensationsklasse": "saturn-2979948",
+      "geraeusch_db": "saturn-2979948",
+      "kapazitaet_kg": "saturn-2979948",
+      "feuchtesensor": "saturn-2979948",
+      "filter_selbstreinigend": "saturn-2979948",
+      "dauer_eco_min": "saturn-2979948",
+      "ablauf_anschluss": "saturn-2979948",
+      "knitterschutz": "saturn-2979948"
+     },
+     "preis": {
+      "eur": 849.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_samsung-dv90db7845gwu2-trockner-9-kg-a-weiss-2979948.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-twh780wp",
+   "hersteller": "Miele",
+   "name": "TWH780WP",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-twh780wp-v1",
+     "name": "TWH780WP",
+     "mpn": "TWH780WP",
+     "ean": [
+      "4002516463306"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 62.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 184,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2755993",
+      "kondensationsklasse": "saturn-2755993",
+      "geraeusch_db": "saturn-2755993",
+      "kapazitaet_kg": "saturn-2755993",
+      "feuchtesensor": "saturn-2755993",
+      "filter_selbstreinigend": "saturn-2755993",
+      "dauer_eco_min": "saturn-2755993",
+      "garantie_jahre": "saturn-2755993",
+      "knitterschutz": "saturn-2755993"
+     },
+     "preis": {
+      "eur": 1239.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-twh-780-wp-d-lw-ecospeedand9kg-trockner-9-kg-a-2755993.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-twc640wp",
+   "hersteller": "Miele",
+   "name": "TWC640WP",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-twc640wp-v1",
+     "name": "TWC640WP",
+     "mpn": "TWC640WP",
+     "ean": [
+      "4002516858249"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 170,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2956593",
+      "kondensationsklasse": "saturn-2956593",
+      "geraeusch_db": "saturn-2956593",
+      "kapazitaet_kg": "saturn-2956593",
+      "feuchtesensor": "saturn-2956593",
+      "filter_selbstreinigend": "saturn-2956593",
+      "dauer_eco_min": "saturn-2956593",
+      "ablauf_anschluss": "saturn-2956593",
+      "garantie_jahre": "saturn-2956593",
+      "knitterschutz": "saturn-2956593"
+     },
+     "preis": {
+      "eur": 999.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-twc-640-wp-trockner-8-kg-a-lotosweiss-2956593.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "siemens-wt45hva4",
+   "hersteller": "Siemens",
+   "name": "WT45HVA4",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "siemens-wt45hva4-v1",
+     "name": "WT45HVA4",
+     "mpn": "WT45HVA4",
+     "ean": [
+      "4242003960066"
+     ],
+     "werte": {
+      "energieklasse": "D",
+      "kondensationsklasse": "C",
+      "geraeusch_db": 62.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 205,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2982550",
+      "kondensationsklasse": "saturn-2982550",
+      "geraeusch_db": "saturn-2982550",
+      "kapazitaet_kg": "saturn-2982550",
+      "feuchtesensor": "saturn-2982550",
+      "filter_selbstreinigend": "saturn-2982550",
+      "dauer_eco_min": "saturn-2982550",
+      "ablauf_anschluss": "saturn-2982550",
+      "garantie_jahre": "saturn-2982550",
+      "knitterschutz": "saturn-2982550"
+     },
+     "preis": {
+      "eur": 549.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_siemens-wt45hva4-warmepumpentrockner-iq300-80-kg-weiss-2982550.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-dv90dg52a0abeg",
+   "hersteller": "Samsung",
+   "name": "DV90DG52A0ABEG",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-dv90dg52a0abeg-v1",
+     "name": "DV90DG52A0ABEG",
+     "mpn": "DV90DG52A0ABEG",
+     "ean": [
+      "8806097064336"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "C",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 220,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2971012",
+      "kondensationsklasse": "saturn-2971012",
+      "geraeusch_db": "saturn-2971012",
+      "kapazitaet_kg": "saturn-2971012",
+      "feuchtesensor": "saturn-2971012",
+      "filter_selbstreinigend": "saturn-2971012",
+      "dauer_eco_min": "saturn-2971012",
+      "ablauf_anschluss": "saturn-2971012",
+      "garantie_jahre": "saturn-2971012",
+      "knitterschutz": "saturn-2971012"
+     },
+     "preis": {
+      "eur": 519.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_samsung-dv90dg52a0abeg-trockner-9-kg-c-schwarz-2971012.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-tq-1000-wp-nova",
+   "hersteller": "Miele",
+   "name": "TQ 1000 WP Nova",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-tq-1000-wp-nova-v1",
+     "name": "TQ 1000 WP Nova",
+     "mpn": "TQ 1000 WP Nova",
+     "ean": [
+      "4002516859963"
+     ],
+     "werte": {
+      "energieklasse": "B",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 60.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 231,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2974051",
+      "kondensationsklasse": "saturn-2974051",
+      "geraeusch_db": "saturn-2974051",
+      "kapazitaet_kg": "saturn-2974051",
+      "feuchtesensor": "saturn-2974051",
+      "filter_selbstreinigend": "saturn-2974051",
+      "dauer_eco_min": "saturn-2974051",
+      "ablauf_anschluss": "saturn-2974051",
+      "garantie_jahre": "saturn-2974051",
+      "knitterschutz": "saturn-2974051"
+     },
+     "preis": {
+      "eur": 1979.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-tq-1000-wp-nova-edition-trockner-9-kg-a-lotosweiss-2974051.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "aeg-tr7t5e685",
+   "hersteller": "AEG",
+   "name": "TR7T5E685",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "aeg-tr7t5e685-v1",
+     "name": "TR7T5E685",
+     "mpn": "TR7T5E685",
+     "ean": [
+      "9315540426342"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "C",
+      "geraeusch_db": 66.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "ablauf_anschluss": false,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3063216",
+      "kondensationsklasse": "saturn-3063216",
+      "geraeusch_db": "saturn-3063216",
+      "kapazitaet_kg": "saturn-3063216",
+      "feuchtesensor": "saturn-3063216",
+      "filter_selbstreinigend": "saturn-3063216",
+      "ablauf_anschluss": "saturn-3063216",
+      "knitterschutz": "saturn-3063216"
+     },
+     "preis": {
+      "eur": 477.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_aeg-tr7t5e685-trockner-7000-8-kg-weiss-3063216.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "aeg-tr7t65695",
+   "hersteller": "AEG",
+   "name": "TR7T65695",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "aeg-tr7t65695-v1",
+     "name": "TR7T65695",
+     "mpn": "TR7T65695",
+     "ean": [
+      "7333394116839"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "dauer_eco_min": 219,
+      "ablauf_anschluss": false,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2993019",
+      "kondensationsklasse": "saturn-2993019",
+      "geraeusch_db": "saturn-2993019",
+      "kapazitaet_kg": "saturn-2993019",
+      "feuchtesensor": "saturn-2993019",
+      "dauer_eco_min": "saturn-2993019",
+      "ablauf_anschluss": "saturn-2993019",
+      "knitterschutz": "saturn-2993019"
+     },
+     "preis": {
+      "eur": 549.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_aeg-tr7t65695-trockner-7000-9-kg-a-weiss-2993019.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "gorenje-d5g2p7d",
+   "hersteller": "Gorenje",
+   "name": "D5G2P7D",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "gorenje-d5g2p7d-v1",
+     "name": "D5G2P7D",
+     "mpn": "D5G2P7D",
+     "ean": [
+      "3838783145765"
+     ],
+     "werte": {
+      "energieklasse": "D",
+      "kondensationsklasse": "C",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 7.0,
+      "feuchtesensor": true,
+      "dauer_eco_min": 168,
+      "ablauf_anschluss": true,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3046777",
+      "kondensationsklasse": "saturn-3046777",
+      "geraeusch_db": "saturn-3046777",
+      "kapazitaet_kg": "saturn-3046777",
+      "feuchtesensor": "saturn-3046777",
+      "dauer_eco_min": "saturn-3046777",
+      "ablauf_anschluss": "saturn-3046777",
+      "knitterschutz": "saturn-3046777"
+     },
+     "preis": {
+      "eur": 369.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_gorenje-d5g2p7d-warmepumpentrockner-7-kg-weiss-3046777.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "siemens-wt45hv0em",
+   "hersteller": "Siemens",
+   "name": "WT45HV0EM",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "siemens-wt45hv0em-v1",
+     "name": "WT45HV0EM",
+     "mpn": "WT45HV0EM",
+     "werte": {
+      "energieklasse": "D",
+      "kondensationsklasse": "C",
+      "geraeusch_db": 62.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 205,
+      "ablauf_anschluss": false,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2989405",
+      "kondensationsklasse": "saturn-2989405",
+      "geraeusch_db": "saturn-2989405",
+      "kapazitaet_kg": "saturn-2989405",
+      "feuchtesensor": "saturn-2989405",
+      "filter_selbstreinigend": "saturn-2989405",
+      "dauer_eco_min": "saturn-2989405",
+      "ablauf_anschluss": "saturn-2989405",
+      "garantie_jahre": "saturn-2989405",
+      "knitterschutz": "saturn-2989405"
+     },
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "lg-rt90x8b",
+   "hersteller": "LG",
+   "name": "RT90X8B",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "lg-rt90x8b-v1",
+     "name": "RT90X8B",
+     "mpn": "RT90X8B",
+     "ean": [
+      "8806096513651"
+     ],
+     "werte": {
+      "energieklasse": "B",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 62.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": true,
+      "dauer_eco_min": 269,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3008940",
+      "kondensationsklasse": "saturn-3008940",
+      "geraeusch_db": "saturn-3008940",
+      "kapazitaet_kg": "saturn-3008940",
+      "feuchtesensor": "saturn-3008940",
+      "filter_selbstreinigend": "saturn-3008940",
+      "dauer_eco_min": "saturn-3008940",
+      "garantie_jahre": "saturn-3008940",
+      "knitterschutz": "saturn-3008940"
+     },
+     "preis": {
+      "eur": 849.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_lg-rt90x8b-warmepumpentrockner-9-kg-metallic-black-3008940.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-dv90f09f4wt2",
+   "hersteller": "Samsung",
+   "name": "DV90F09F4WT2",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-dv90f09f4wt2-v1",
+     "name": "DV90F09F4WT2",
+     "mpn": "DV90F09F4WT2",
+     "ean": [
+      "8806099142711"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 60.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 285,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 5,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3065581",
+      "kondensationsklasse": "saturn-3065581",
+      "geraeusch_db": "saturn-3065581",
+      "kapazitaet_kg": "saturn-3065581",
+      "feuchtesensor": "saturn-3065581",
+      "filter_selbstreinigend": "saturn-3065581",
+      "dauer_eco_min": "saturn-3065581",
+      "ablauf_anschluss": "saturn-3065581",
+      "garantie_jahre": "saturn-3065581",
+      "knitterschutz": "saturn-3065581"
+     },
+     "preis": {
+      "eur": 1179.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_samsung-dv90f09f4wt2-warmepumpentrockner-neat-white-3065581.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-tk310i-wp",
+   "hersteller": "Miele",
+   "name": "TK310I WP",
+   "jahr": 2026,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-tk310i-wp-v1",
+     "name": "TK310I WP",
+     "mpn": "TK310I WP",
+     "ean": [
+      "4002517011407"
+     ],
+     "werte": {
+      "energieklasse": "B",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 64.0,
+      "kapazitaet_kg": 9.0,
+      "dauer_eco_min": 194,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3072101",
+      "kondensationsklasse": "saturn-3072101",
+      "geraeusch_db": "saturn-3072101",
+      "kapazitaet_kg": "saturn-3072101",
+      "dauer_eco_min": "saturn-3072101",
+      "knitterschutz": "saturn-3072101"
+     },
+     "preis": {
+      "eur": 1199.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-tk310i-wp-warmepumpentrockner-9-kg-lotosweiss-3072101.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-tel785wp",
+   "hersteller": "Miele",
+   "name": "TEL785WP",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-tel785wp-v1",
+     "name": "TEL785WP",
+     "mpn": "TEL785WP",
+     "ean": [
+      "4002516944744"
+     ],
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 62.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "dauer_eco_min": 184,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3021317",
+      "kondensationsklasse": "saturn-3021317",
+      "geraeusch_db": "saturn-3021317",
+      "kapazitaet_kg": "saturn-3021317",
+      "feuchtesensor": "saturn-3021317",
+      "dauer_eco_min": "saturn-3021317",
+      "knitterschutz": "saturn-3021317"
+     },
+     "preis": {
+      "eur": 1599.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-tel785wp-steamand9kg-warmepumpentrockner-t1-chrome-edition-9-kg-lotosweiss-3021317.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "haier-hd80-d637",
+   "hersteller": "Haier",
+   "name": "HD80-D637",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "haier-hd80-d637-v1",
+     "name": "HD80-D637",
+     "mpn": "HD80-D637",
+     "ean": [
+      "6921081522585"
+     ],
+     "werte": {
+      "energieklasse": "D",
+      "kondensationsklasse": "B",
+      "geraeusch_db": 62.0,
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "dauer_eco_min": 176,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3039341",
+      "kondensationsklasse": "saturn-3039341",
+      "geraeusch_db": "saturn-3039341",
+      "kapazitaet_kg": "saturn-3039341",
+      "feuchtesensor": "saturn-3039341",
+      "dauer_eco_min": "saturn-3039341",
+      "ablauf_anschluss": "saturn-3039341",
+      "garantie_jahre": "saturn-3039341",
+      "knitterschutz": "saturn-3039341"
+     },
+     "preis": {
+      "eur": 349.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_haier-hd80-d637-warmepumpentrockner-g3-8-kg-weiss-3039341.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-tk510i-wp",
+   "hersteller": "Miele",
+   "name": "TK510I WP",
+   "jahr": 2026,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-tk510i-wp-v1",
+     "name": "TK510I WP",
+     "mpn": "TK510I WP",
+     "ean": [
+      "4002517012657"
+     ],
+     "werte": {
+      "energieklasse": "B",
+      "kondensationsklasse": "A",
+      "geraeusch_db": 61.0,
+      "kapazitaet_kg": 9.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-3072102",
+      "kondensationsklasse": "saturn-3072102",
+      "geraeusch_db": "saturn-3072102",
+      "kapazitaet_kg": "saturn-3072102",
+      "feuchtesensor": "saturn-3072102",
+      "filter_selbstreinigend": "saturn-3072102",
+      "knitterschutz": "saturn-3072102"
+     },
+     "preis": {
+      "eur": 1399.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-tk510i-wp-warmepumpentrockner-9-kg-lotosweiss-3072102.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "beko-de8544rx2",
+   "hersteller": "Beko",
+   "name": "DE8544RX2",
+   "jahr": 2020,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "beko-de8544rx2-v1",
+     "name": "DE8544RX2",
+     "mpn": "DE8544RX2",
+     "werte": {
+      "energieklasse": "C",
+      "kondensationsklasse": "B",
+      "kapazitaet_kg": 8.0,
+      "feuchtesensor": true,
+      "filter_selbstreinigend": false,
+      "dauer_eco_min": 174,
+      "ablauf_anschluss": true,
+      "garantie_jahre": 2,
+      "knitterschutz": true
+     },
+     "belege": {
+      "energieklasse": "saturn-2697457",
+      "kondensationsklasse": "saturn-2697457",
+      "kapazitaet_kg": "saturn-2697457",
+      "feuchtesensor": "saturn-2697457",
+      "filter_selbstreinigend": "saturn-2697457",
+      "dauer_eco_min": "saturn-2697457",
+      "ablauf_anschluss": "saturn-2697457",
+      "garantie_jahre": "saturn-2697457",
+      "knitterschutz": "saturn-2697457"
+     },
+     "preis": null
+    }
+   ]
+  }
+ ]
+}

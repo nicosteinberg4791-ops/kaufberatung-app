@@ -1,0 +1,552 @@
+{
+ "kategorie": "kopfhoerer_overear",
+ "stand": "2026-11-21",
+ "quellen": {
+  "soundcore-q21i-nc-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_soundcore-by-anker-q21i-nc-over-ear-kopfhorer-schwarz-2930824.html",
+   "titel": "Saturn Produktseite Soundcore Q21i NC",
+   "gelesen": "2026-11-21"
+  },
+  "soundcore-space-one-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_soundcore-by-anker-space-one-over-ear-kopfhorer-bluetooth-nachtschwarz-2887968.html",
+   "titel": "Saturn Produktseite Soundcore Space One",
+   "gelesen": "2026-11-21"
+  },
+  "sennheiser-accentum-wireless-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_sennheiser-accentum-wireless-over-ear-kopfhorer-bluetooth-black-2894841.html",
+   "titel": "Saturn Produktseite Sennheiser Accentum Wireless",
+   "gelesen": "2026-11-21"
+  },
+  "jbl-tune-770nc-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_jbl-tune-770nc-over-ear-kopfhorer-weiss-2892019.html",
+   "titel": "Saturn Produktseite JBL Tune 770NC",
+   "gelesen": "2026-11-21"
+  },
+  "soundcore-space-one-pro-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_soundcore-by-anker-space-one-pro-over-ear-kopfhorer-bluetooth-jet-black-2987421.html",
+   "titel": "Saturn Produktseite Soundcore Space One Pro",
+   "gelesen": "2026-11-21"
+  },
+  "sennheiser-momentum-4-wireless-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_sennheiser-momentum-4-wireless-over-ear-kopfhorer-bluetooth-black-2818316.html",
+   "titel": "Saturn Produktseite Sennheiser Momentum 4 Wireless",
+   "gelesen": "2026-11-21"
+  },
+  "bose-quietcomfort-headphones-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_bose-quietcomfortr-headphones-noise-cancelling-over-ear-kopfhorer-bluetooth-schwarz-2891470.html",
+   "titel": "Saturn Produktseite Bose QuietComfort Headphones",
+   "gelesen": "2026-11-21"
+  },
+  "soundcore-space-2-pro-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_soundcore-by-anker-space-2-pro-schwarz-over-ear-kopfhorer-bluetooth-schwarz-3072860.html",
+   "titel": "Saturn Produktseite Soundcore Space 2 Pro",
+   "gelesen": "2026-11-21"
+  },
+  "marshall-monitor-iii-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_marshall-monitor-iii-over-ear-kopfhorer-bluetooth-schwarz-2955836.html",
+   "titel": "Saturn Produktseite Marshall Monitor III",
+   "gelesen": "2026-11-21"
+  },
+  "beyerdynamic-aventho-300-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_beyerdynamic-aventho-300-over-ear-kopfhorer-bluetooth-schwarz-2960638.html",
+   "titel": "Saturn Produktseite beyerdynamic Aventho 300",
+   "gelesen": "2026-11-21"
+  },
+  "bose-quietcomfort-ultra-headphones-2-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_bose-quietcomfort-ultra-kopfhorer-2-gen-kabellose-noise-cancelling-over-ear-kopfhorer-black-3007379.html",
+   "titel": "Saturn Produktseite Bose QuietComfort Ultra Kopfhörer (2. Gen.)",
+   "gelesen": "2026-11-21"
+  },
+  "sony-wh-1000xm6-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_sony-wh-1000xm6-over-ear-kopfhorer-bluetooth-schwarz-2991263.html",
+   "titel": "Saturn Produktseite Sony WH-1000XM6",
+   "gelesen": "2026-11-21"
+  },
+  "bowers-wilkins-px7-s3-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_bowers-and-wilkins-px7-s3-over-ear-kopfhorer-bluetooth-anthracite-black-2990969.html",
+   "titel": "Saturn Produktseite Bowers & Wilkins Px7 S3",
+   "gelesen": "2026-11-21"
+  },
+  "sennheiser-momentum-5-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_sennheiser-momentum-5-over-ear-kopfhorer-bluetooth-schwarz-3046931.html",
+   "titel": "Saturn Produktseite Sennheiser Momentum 5",
+   "gelesen": "2026-11-21"
+  },
+  "bowers-wilkins-px8-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_bowers-and-wilkins-px8-over-ear-kopfhorer-bluetooth-dark-forest-2952007.html",
+   "titel": "Saturn Produktseite Bowers & Wilkins Px8",
+   "gelesen": "2026-11-21"
+  },
+  "apple-airpods-max-2-datenblatt": {
+   "url": "https://www.apple.com/de/airpods-max/specs/",
+   "titel": "Apple Technische Daten AirPods Max 2",
+   "gelesen": "2026-11-21"
+  },
+  "bowers-wilkins-px8-s2-datenblatt": {
+   "url": "https://www.saturn.de/de/product/_bowers-and-wilkins-px8-s2-over-ear-kopfhorer-bluetooth-warm-stone-3019366.html",
+   "titel": "Saturn Produktseite Bowers & Wilkins Px8 S2",
+   "gelesen": "2026-11-21"
+  }
+ },
+ "modelle": [
+  {
+   "id": "soundcore-q21i-nc",
+   "hersteller": "Soundcore",
+   "name": "Q21i NC",
+   "werte": {
+    "anc": true,
+    "akku_h": 40,
+    "transparenzmodus": true
+   },
+   "belege": {
+    "anc": "soundcore-q21i-nc-datenblatt",
+    "akku_h": "soundcore-q21i-nc-datenblatt",
+    "transparenzmodus": "soundcore-q21i-nc-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "soundcore-q21i-nc-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 29.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_soundcore-by-anker-q21i-nc-over-ear-kopfhorer-schwarz-2930824.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "soundcore-space-one",
+   "hersteller": "Soundcore",
+   "name": "Space One",
+   "werte": {
+    "anc": true,
+    "akku_h": 40,
+    "codecs": "ldac",
+    "transparenzmodus": true
+   },
+   "belege": {
+    "anc": "soundcore-space-one-datenblatt",
+    "akku_h": "soundcore-space-one-datenblatt",
+    "codecs": "soundcore-space-one-datenblatt",
+    "transparenzmodus": "soundcore-space-one-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "soundcore-space-one-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 65.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_soundcore-by-anker-space-one-over-ear-kopfhorer-bluetooth-nachtschwarz-2887968.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sennheiser-accentum-wireless",
+   "hersteller": "Sennheiser",
+   "name": "Accentum Wireless",
+   "werte": {
+    "anc": true
+   },
+   "belege": {
+    "anc": "sennheiser-accentum-wireless-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "sennheiser-accentum-wireless-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 92.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_sennheiser-accentum-wireless-over-ear-kopfhorer-bluetooth-black-2894841.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "jbl-tune-770nc",
+   "hersteller": "JBL",
+   "name": "Tune 770NC",
+   "werte": {
+    "anc": true,
+    "multipoint": true,
+    "faltbar": true
+   },
+   "belege": {
+    "anc": "jbl-tune-770nc-datenblatt",
+    "multipoint": "jbl-tune-770nc-datenblatt",
+    "faltbar": "jbl-tune-770nc-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "jbl-tune-770nc-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 129.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_jbl-tune-770nc-over-ear-kopfhorer-weiss-2892019.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "soundcore-space-one-pro",
+   "hersteller": "Soundcore",
+   "name": "Space One Pro",
+   "werte": {
+    "anc": true,
+    "akku_h": 40,
+    "kabelbetrieb": true,
+    "faltbar": true
+   },
+   "belege": {
+    "anc": "soundcore-space-one-pro-datenblatt",
+    "akku_h": "soundcore-space-one-pro-datenblatt",
+    "kabelbetrieb": "soundcore-space-one-pro-datenblatt",
+    "faltbar": "soundcore-space-one-pro-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "soundcore-space-one-pro-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 129.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_soundcore-by-anker-space-one-pro-over-ear-kopfhorer-bluetooth-jet-black-2987421.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sennheiser-momentum-4-wireless",
+   "hersteller": "Sennheiser",
+   "name": "Momentum 4 Wireless",
+   "werte": {
+    "anc": true,
+    "codecs": "aptx_adaptive",
+    "transparenzmodus": true
+   },
+   "belege": {
+    "anc": "sennheiser-momentum-4-wireless-datenblatt",
+    "codecs": "sennheiser-momentum-4-wireless-datenblatt",
+    "transparenzmodus": "sennheiser-momentum-4-wireless-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "sennheiser-momentum-4-wireless-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 169.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_sennheiser-momentum-4-wireless-over-ear-kopfhorer-bluetooth-black-2818316.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bose-quietcomfort-headphones",
+   "hersteller": "Bose",
+   "name": "QuietComfort Headphones",
+   "werte": {
+    "anc": true,
+    "kabelbetrieb": true,
+    "transparenzmodus": true,
+    "app_eq": true
+   },
+   "belege": {
+    "anc": "bose-quietcomfort-headphones-datenblatt",
+    "kabelbetrieb": "bose-quietcomfort-headphones-datenblatt",
+    "transparenzmodus": "bose-quietcomfort-headphones-datenblatt",
+    "app_eq": "bose-quietcomfort-headphones-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "bose-quietcomfort-headphones-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 169.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bose-quietcomfortr-headphones-noise-cancelling-over-ear-kopfhorer-bluetooth-schwarz-2891470.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "soundcore-space-2-pro",
+   "hersteller": "Soundcore",
+   "name": "Space 2 Pro",
+   "werte": {
+    "anc": true
+   },
+   "belege": {
+    "anc": "soundcore-space-2-pro-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "soundcore-space-2-pro-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 169.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_soundcore-by-anker-space-2-pro-schwarz-over-ear-kopfhorer-bluetooth-schwarz-3072860.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "marshall-monitor-iii",
+   "hersteller": "Marshall",
+   "name": "Monitor III A.N.C.",
+   "werte": {
+    "anc": true,
+    "akku_h": 70,
+    "faltbar": true,
+    "transparenzmodus": true
+   },
+   "belege": {
+    "anc": "marshall-monitor-iii-datenblatt",
+    "akku_h": "marshall-monitor-iii-datenblatt",
+    "faltbar": "marshall-monitor-iii-datenblatt",
+    "transparenzmodus": "marshall-monitor-iii-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "marshall-monitor-iii-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 189.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_marshall-monitor-iii-over-ear-kopfhorer-bluetooth-schwarz-2955836.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "beyerdynamic-aventho-300",
+   "hersteller": "beyerdynamic",
+   "name": "Aventho 300",
+   "werte": {
+    "anc": true,
+    "akku_h": 50,
+    "multipoint": true,
+    "transparenzmodus": true
+   },
+   "belege": {
+    "anc": "beyerdynamic-aventho-300-datenblatt",
+    "akku_h": "beyerdynamic-aventho-300-datenblatt",
+    "multipoint": "beyerdynamic-aventho-300-datenblatt",
+    "transparenzmodus": "beyerdynamic-aventho-300-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "beyerdynamic-aventho-300-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 199.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_beyerdynamic-aventho-300-over-ear-kopfhorer-bluetooth-schwarz-2960638.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bose-quietcomfort-ultra-headphones-2",
+   "hersteller": "Bose",
+   "name": "QuietComfort Ultra Headphones (2. Gen.)",
+   "werte": {
+    "anc": true,
+    "kabelbetrieb": true
+   },
+   "belege": {
+    "anc": "bose-quietcomfort-ultra-headphones-2-datenblatt",
+    "kabelbetrieb": "bose-quietcomfort-ultra-headphones-2-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "bose-quietcomfort-ultra-headphones-2-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 319.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bose-quietcomfort-ultra-kopfhorer-2-gen-kabellose-noise-cancelling-over-ear-kopfhorer-black-3007379.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sony-wh-1000xm6",
+   "hersteller": "Sony",
+   "name": "WH-1000XM6",
+   "werte": {
+    "anc": true,
+    "multipoint": true,
+    "faltbar": true,
+    "app_eq": true
+   },
+   "belege": {
+    "anc": "sony-wh-1000xm6-datenblatt",
+    "multipoint": "sony-wh-1000xm6-datenblatt",
+    "faltbar": "sony-wh-1000xm6-datenblatt",
+    "app_eq": "sony-wh-1000xm6-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "sony-wh-1000xm6-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 327.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_sony-wh-1000xm6-over-ear-kopfhorer-bluetooth-schwarz-2991263.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bowers-wilkins-px7-s3",
+   "hersteller": "Bowers & Wilkins",
+   "name": "Px7 S3",
+   "werte": {
+    "anc": true,
+    "multipoint": true,
+    "kabelbetrieb": true,
+    "app_eq": true
+   },
+   "belege": {
+    "anc": "bowers-wilkins-px7-s3-datenblatt",
+    "multipoint": "bowers-wilkins-px7-s3-datenblatt",
+    "kabelbetrieb": "bowers-wilkins-px7-s3-datenblatt",
+    "app_eq": "bowers-wilkins-px7-s3-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "bowers-wilkins-px7-s3-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 299.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bowers-and-wilkins-px7-s3-over-ear-kopfhorer-bluetooth-anthracite-black-2990969.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sennheiser-momentum-5",
+   "hersteller": "Sennheiser",
+   "name": "Momentum 5",
+   "werte": {
+    "anc": true,
+    "akku_h": 57,
+    "transparenzmodus": true
+   },
+   "belege": {
+    "anc": "sennheiser-momentum-5-datenblatt",
+    "akku_h": "sennheiser-momentum-5-datenblatt",
+    "transparenzmodus": "sennheiser-momentum-5-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "sennheiser-momentum-5-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 349.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_sennheiser-momentum-5-over-ear-kopfhorer-bluetooth-schwarz-3046931.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bowers-wilkins-px8",
+   "hersteller": "Bowers & Wilkins",
+   "name": "Px8",
+   "werte": {
+    "anc": true
+   },
+   "belege": {
+    "anc": "bowers-wilkins-px8-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "bowers-wilkins-px8-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 399.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bowers-and-wilkins-px8-over-ear-kopfhorer-bluetooth-dark-forest-2952007.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "apple-airpods-max-2",
+   "hersteller": "Apple",
+   "name": "AirPods Max 2",
+   "werte": {
+    "anc": true,
+    "akku_h": 20,
+    "gewicht_g": 386.2,
+    "kabelbetrieb": true,
+    "transparenzmodus": true
+   },
+   "belege": {
+    "anc": "apple-airpods-max-2-datenblatt",
+    "akku_h": "apple-airpods-max-2-datenblatt",
+    "gewicht_g": "apple-airpods-max-2-datenblatt",
+    "kabelbetrieb": "apple-airpods-max-2-datenblatt",
+    "transparenzmodus": "apple-airpods-max-2-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "apple-airpods-max-2-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 499.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_apple-airpods-max-2-over-ear-kopfhorer-bluetooth-mitternacht-3043684.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bowers-wilkins-px8-s2",
+   "hersteller": "Bowers & Wilkins",
+   "name": "Px8 S2",
+   "werte": {
+    "anc": true
+   },
+   "belege": {
+    "anc": "bowers-wilkins-px8-s2-datenblatt"
+   },
+   "varianten": [
+    {
+     "id": "bowers-wilkins-px8-s2-standard",
+     "name": "Standard",
+     "preis": {
+      "eur": 659.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bowers-and-wilkins-px8-s2-over-ear-kopfhorer-bluetooth-warm-stone-3019366.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  }
+ ]
+}

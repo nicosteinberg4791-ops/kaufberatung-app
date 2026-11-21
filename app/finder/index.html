@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Finden &amp; Vergleichen – Kaufberatung</title>
+<meta name="description" content="In unter einer Minute das passende Gerät finden: Kategorie wählen, Budget nennen, ein paar Fragen beantworten.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef1f5">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+<link rel="stylesheet" href="finder.css">
+<!-- Manifest, Symbole und app.js (Service Worker) setzt der App-Bau ein. -->
+</head>
+<body>
+<a class="sprung" href="#inhalt">Zum Inhalt springen</a>
+<header class="leiste">
+  <a class="leiste-marke" href="./">Kaufberatung</a>
+  <a class="leiste-link" href="ratgeber.html">Ausführlicher Ratgeber</a>
+</header>
+
+<main id="inhalt" class="haupt" tabindex="-1" aria-busy="true">
+  <p class="laden" role="status">Modellliste wird geladen …</p>
+  <noscript><p class="laden">Diese Seite braucht JavaScript. Ohne JavaScript hilft der <a href="ratgeber.html">ausführliche Ratgeber</a>.</p></noscript>
+</main>
+
+<div id="ablage" class="ablage" role="region" aria-label="Auswahl zum Vergleich" hidden></div>
+
+<footer class="fuss">
+  <details class="methode">
+    <summary>Wie wir bewerten</summary>
+    <p>Die Punkte kommen aus Herstellerangaben: Datenblatt und EU-Energielabel. Es sind keine Testnoten. Jedes Merkmal bekommt 0 bis 100 Teilpunkte, deine Antworten legen fest, wie stark es zählt.</p>
+    <p>Ein Datenblatt zeigt die Ausstattung, aber nicht, wie gut Bild, Ton oder Saugen wirklich sind. Deshalb ziehen wir Datenblatt-Noten zur Mitte hin, ziehen etwas ab und vergeben ohne unabhängigen Test höchstens <span id="m-kappung">84</span> Punkte. Fehlen Angaben, sinkt die Note; fehlt zu viel, gibt es keine.</p>
+    <p>Preise sind ohne Gewähr. Wir nennen Händler und Datum der Abfrage; seitdem kann sich der Preis geändert haben.</p>
+  </details>
+  <p id="datenstand" class="fuss-stand"></p>
+  <p><a href="ratgeber.html">Ausführlicher Ratgeber mit Erklärungen und Hintergründen</a></p>
+</footer>
+
+<script src="bewertung.js"></script>
+<script src="finder.js"></script>
+</body>
+</html>

@@ -1,0 +1,638 @@
+{
+  "schema_version": 1,
+  "stand": "2026-11-21",
+  "hinweis": "Entwurf. Schwellen und Gewichte sind begründete Vorschläge (siehe docs/punkteschema.md), keine Messwerte. Kurven vor Einsatz mit echten Datenblattwerten (EPREL, Pilotdaten) kalibrieren.",
+  "regeln": {
+    "kurvenarten": {
+      "linear": "Zwischen den Stützpunkten [wert, teilpunkte] linear interpolieren, außerhalb auf den ersten bzw. letzten Stützpunkt begrenzen.",
+      "stufen": "Wert wird exakt einem Stützpunkt zugeordnet; unbekannter Wert = Feld fehlt.",
+      "ja_nein": "true/false auf Teilpunkte abbilden."
+    },
+    "note": "Note = Summe(Gewicht x Teilpunkte) / Summe(Gewicht) über alle belegten Felder mit Gewicht > 0; Gewichte nach Fragen-Faktoren neu auf 100 normieren.",
+    "fragen_faktoren": "Faktoren mehrerer Antworten werden multipliziert; Faktor 0 schaltet ein Feld ab. Danach Normierung auf Summe 100.",
+    "mindest": "Zahl: Wert muss >= sein (bei fallender Kurve als Höchstwert gemeint, siehe Schlüssel hoechst). true: Feld muss true sein. Liste: Wert muss in der Liste stehen. Unbekannter Wert: Modell bleibt, wird aber als 'Anforderung nicht belegt' markiert.",
+    "hoechst": "Zahl: Wert muss <= sein.",
+    "gewicht_null": "Felder mit Gewicht 0 sind reine Filterfelder (Größe, Bauart, Betriebssystem) und zählen nicht in die Note.",
+    "nicht_anwendbar": "Gilt ein Feld für ein Modell nicht (z. B. Sync-Funktion bei einem Korb), entfällt sein Gewicht und die übrigen werden normiert."
+  },
+  "klassen": [
+    {"ab": 85, "name": "hervorragend"},
+    {"ab": 75, "name": "sehr gut"},
+    {"ab": 60, "name": "gut"},
+    {"ab": 45, "name": "ordentlich"},
+    {"ab": 0, "name": "einfach"}
+  ],
+  "unterschiedsschwelle_punkte": 3,
+  "datenblatt_abschlag": {
+    "methode": "schrumpfen_abziehen_kappen",
+    "formel": "N_db = min(kappung, anker + (R - anker) * faktor - abzug - abdeckungsabzug); abdeckungsabzug = (1 - abdeckung) * 20",
+    "anker": 50,
+    "faktor": 0.85,
+    "abzug": 3,
+    "kappung": 84,
+    "abdeckung_mindest": 0.7,
+    "abdeckung_erklaerung": "Anteil der Gewichte (nach Fragen-Faktoren) mit belegtem Datenblattwert. Unter 0,7: keine Note, Anzeige 'zu wenig Daten'.",
+    "spanne_plus_minus": 8,
+    "kennzeichnung": "aus Datenblatt",
+    "kalibrierung": "Sobald mindestens 15 Modelle einer Kategorie Test- und Datenblattwert haben: abzug = mittlere Abweichung (Test - Datenblatt), spanne = 1,5 x Standardabweichung.",
+    "getestet": {
+      "kennzeichnung": "getestet",
+      "mischung": {"test": 0.6, "datenblatt_roh": 0.4},
+      "erklaerung": "Getestete Modelle: Note = 0,6 x Testpunkte + 0,4 x Datenblatt-Rohwert R, damit die Nutzerfragen auch bei getesteten Modellen wirken. Kein Abschlag, keine Kappung.",
+      "umrechnung_warentest": {"formel": "T = 100 - (Note - 0,5) x 20, begrenzt auf 0..100", "status": "Vorschlag; Skala 0,5..5,5 belegt, Bandgrenzen der Notenstufen nicht belegt"},
+      "umrechnung_zehnerskala": {"formel": "T = Wert x 10", "status": "Vorschlag für 0-10-Skalen (z. B. RTINGS)"}
+    }
+  },
+  "aufpreis_regeln": {
+    "bezug": "A = bestes Modell (höchste angezeigte Note) mit Preis <= Budget, das alle Mindestanforderungen erfüllt. Verglichen wird immer mit der angezeigten Note (Datenblatt-Noten mit Abschlag).",
+    "aufpreis": {
+      "bedingungen": [
+        "Preis_B > Preis_A und Preis_B <= Budget x 1,25",
+        "Preis_B - Preis_A >= 20 EUR",
+        "dN = N_B - N_A >= 3 (bei mindestens einem Modell 'aus Datenblatt': >= 5)",
+        "B erfüllt alle Mindestanforderungen",
+        "E = dN / (Preis_B - Preis_A) x 100 >= 3 Punkte je 100 EUR, oder Klassensprung und E >= 1,5"
+      ],
+      "auswahl": "Höchstens ein Hinweis: größtes E, bei Gleichstand kleinerer Aufpreis.",
+      "budget_faktor_max": 1.25,
+      "aufpreis_min_eur": 20,
+      "punkte_min": 3,
+      "punkte_min_datenblatt": 5,
+      "effizienz_min_je_100eur": 3,
+      "effizienz_min_klassensprung": 1.5,
+      "text": "Für {aufpreis} € mehr bekommst du +{dN} Punkte{klasse_text}.",
+      "klasse_text": " (Klasse „{klasse_B}“ statt „{klasse_A}“)"
+    },
+    "spar": {
+      "bedingungen": [
+        "Preis_C < Preis_A",
+        "Ersparnis S = Preis_A - Preis_C >= max(30 EUR, 10 % von Preis_A)",
+        "N_A - N_C <= 3 und gleiche Klasse  ->  'fast gleich gut'",
+        "oder N_A - N_C <= 5 und S >= 25 % von Preis_A  ->  'etwas schwächer, deutlich günstiger'",
+        "C erfüllt alle Mindestanforderungen"
+      ],
+      "auswahl": "Höchstens ein Hinweis: größte Ersparnis S, bei Gleichstand kleinerer Punktverlust.",
+      "ersparnis_min_eur": 30,
+      "ersparnis_min_anteil": 0.10,
+      "verlust_max_gleich": 3,
+      "verlust_max_schwaecher": 5,
+      "ersparnis_anteil_schwaecher": 0.25,
+      "text_gleich": "Für {ersparnis} € weniger fast gleich gut ({N_C} statt {N_A} Punkte).",
+      "text_schwaecher": "Für {ersparnis} € weniger etwas schwächer ({N_C} statt {N_A} Punkte)."
+    },
+    "rundung": "Preise auf ganze Euro, Punkte auf ganze Zahlen für die Anzeige; Bedingungen mit ungerundeten Werten prüfen."
+  },
+  "kategorien": [
+    {
+      "id": "fernseher",
+      "name": "Fernseher",
+      "felder": [
+        {"id": "bildtechnik", "name": "Bildtechnik", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["oled", 100], ["miniled", 85], ["lcd_local_dimming", 65], ["lcd_quantum_dot", 50], ["lcd", 40]]}, "gewicht": 30},
+        {"id": "bildwiederholrate_hz", "name": "Native Bildwiederholrate", "einheit": "Hz", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[50, 40], [60, 40], [100, 85], [120, 85], [144, 100]]}, "gewicht": 15},
+        {"id": "hdr_formate", "name": "HDR-Formate über HDR10 hinaus", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["nur_hdr10", 40], ["dolby_vision", 75], ["hdr10plus", 75], ["beide", 100]]}, "gewicht": 10},
+        {"id": "aufloesung", "name": "Auflösung", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["hd", 10], ["fullhd", 40], ["4k", 100], ["8k", 100]]}, "gewicht": 8},
+        {"id": "energieklasse_sdr", "name": "Energieeffizienzklasse SDR", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 100], ["C", 95], ["D", 85], ["E", 70], ["F", 50], ["G", 30]]}, "gewicht": 10},
+        {"id": "hdmi_4k120_anzahl", "name": "HDMI-Eingänge mit 4K/120 Hz (HDMI 2.1)", "einheit": "Stück", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [1, 50], [2, 80], [4, 100]]}, "gewicht": 10},
+        {"id": "vrr", "name": "Variable Bildwiederholrate (VRR)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 5},
+        {"id": "earc", "name": "eARC", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 4},
+        {"id": "lautsprecher_w", "name": "Lautsprecherleistung", "einheit": "W", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[10, 20], [20, 50], [40, 80], [60, 100]]}, "gewicht": 5},
+        {"id": "tuner_triple", "name": "Empfang Antenne, Kabel und Satellit (DVB-T2 HD/C/S2)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 30]]}, "gewicht": 3},
+        {"id": "diagonale_zoll", "name": "Bildschirmdiagonale", "einheit": "Zoll", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [100, 0]]}, "gewicht": 0}
+      ],
+      "fragen": [
+        {"id": "zweck", "text": "Wofür nutzt du den Fernseher meistens?", "antworten": [
+          {"id": "filme", "text": "Filme und Serien", "gewichte": {"bildtechnik": 1.3, "hdr_formate": 1.4, "hdmi_4k120_anzahl": 0.5, "vrr": 0.5}, "mindest": {}},
+          {"id": "sport", "text": "Sport", "gewichte": {"bildwiederholrate_hz": 1.6}, "mindest": {}},
+          {"id": "spiele", "text": "Spielkonsole oder PC", "gewichte": {"bildwiederholrate_hz": 1.5, "hdmi_4k120_anzahl": 2.0, "vrr": 2.0}, "mindest": {"hdmi_4k120_anzahl": 1}},
+          {"id": "alltag", "text": "Nachrichten und Alltags-TV", "gewichte": {"bildtechnik": 0.8, "hdr_formate": 0.6, "hdmi_4k120_anzahl": 0.4, "vrr": 0.4, "energieklasse_sdr": 1.4, "lautsprecher_w": 1.4}, "mindest": {}}
+        ]},
+        {"id": "abstand", "text": "Wie weit sitzt du vom Fernseher weg?", "antworten": [
+          {"id": "a_unter2", "text": "unter 2 Meter", "gewichte": {}, "mindest": {"diagonale_zoll": 32}},
+          {"id": "a_2_25", "text": "2 bis 2,5 Meter", "gewichte": {}, "mindest": {"diagonale_zoll": 48}},
+          {"id": "a_25_32", "text": "2,5 bis 3,2 Meter", "gewichte": {}, "mindest": {"diagonale_zoll": 55}},
+          {"id": "a_ueber32", "text": "mehr als 3,2 Meter", "gewichte": {}, "mindest": {"diagonale_zoll": 75}}
+        ]},
+        {"id": "ton", "text": "Hast du schon Lautsprecher oder eine Soundbar?", "antworten": [
+          {"id": "ja", "text": "Ja", "gewichte": {"lautsprecher_w": 0, "earc": 2.0}, "mindest": {}},
+          {"id": "nein", "text": "Nein, der Fernseher soll gut klingen", "gewichte": {"lautsprecher_w": 2.0, "earc": 0.5}, "mindest": {}}
+        ]},
+        {"id": "empfang", "text": "Wie schaust du Fernsehen?", "antworten": [
+          {"id": "antenne_sat", "text": "Antenne, Kabel oder Satellit", "gewichte": {"tuner_triple": 2.0}, "mindest": {}},
+          {"id": "streaming", "text": "Nur Streaming (Netflix, Mediatheken)", "gewichte": {"tuner_triple": 0}, "mindest": {}}
+        ]}
+      ]
+    },
+    {
+      "id": "akkusauger",
+      "name": "Akku-Staubsauger",
+      "felder": [
+        {"id": "laufzeit_min", "name": "Laufzeit in kleinster Stufe mit Bodendüse", "einheit": "min", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[15, 0], [20, 20], [40, 60], [60, 85], [80, 100]]}, "gewicht": 20},
+        {"id": "saugleistung_aw", "name": "Saugleistung (Herstellerangabe)", "einheit": "AW", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[50, 20], [100, 50], [150, 75], [220, 100]]}, "gewicht": 15},
+        {"id": "gewicht_kg", "name": "Gewicht einsatzbereit", "einheit": "kg", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[1.5, 100], [2.5, 70], [3.5, 30], [4.5, 0]]}, "gewicht": 15},
+        {"id": "wechselakku", "name": "Akku ohne Werkzeug wechselbar", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "behaelter_l", "name": "Staubbehälter", "einheit": "l", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0.3, 20], [0.5, 60], [0.75, 90], [1.0, 100]]}, "gewicht": 8},
+        {"id": "filter", "name": "Filterklasse", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["hepa_h13_oder_besser", 100], ["hepa_ohne_klasse", 60], ["kein_hepa", 30]]}, "gewicht": 8},
+        {"id": "anti_haar_buerste", "name": "Bürste gegen Haarwicklung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 8},
+        {"id": "geraeusch_db", "name": "Geräusch (Herstellerangabe)", "einheit": "dB(A)", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[70, 100], [80, 50], [85, 20], [90, 0]]}, "gewicht": 6},
+        {"id": "ladezeit_h", "name": "Ladezeit", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 100], [4, 60], [6, 20]]}, "gewicht": 5},
+        {"id": "polsterduese", "name": "Polster- oder Mini-Motordüse im Lieferumfang", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 5}
+      ],
+      "fragen": [
+        {"id": "flaeche", "text": "Wie groß ist deine Wohnung?", "antworten": [
+          {"id": "f50", "text": "bis 50 m²", "gewichte": {"laufzeit_min": 0.8}, "mindest": {"laufzeit_min": 25}},
+          {"id": "f90", "text": "50 bis 90 m²", "gewichte": {}, "mindest": {"laufzeit_min": 35}},
+          {"id": "f120", "text": "über 90 m²", "gewichte": {"laufzeit_min": 1.4, "wechselakku": 1.4}, "mindest": {"laufzeit_min": 50}}
+        ]},
+        {"id": "boden", "text": "Wie viel Teppich hast du?", "antworten": [
+          {"id": "kaum", "text": "kaum Teppich", "gewichte": {"saugleistung_aw": 0.7}, "mindest": {}},
+          {"id": "gemischt", "text": "gemischt", "gewichte": {}, "mindest": {}},
+          {"id": "viel", "text": "viel Teppich", "gewichte": {"saugleistung_aw": 1.5, "laufzeit_min": 1.2}, "mindest": {}}
+        ]},
+        {"id": "tiere", "text": "Hast du Haustiere?", "antworten": [
+          {"id": "keine", "text": "keine", "gewichte": {"anti_haar_buerste": 0.6, "polsterduese": 0.6}, "mindest": {}},
+          {"id": "kurz", "text": "kurzhaarige Tiere", "gewichte": {"anti_haar_buerste": 1.5, "polsterduese": 1.5, "filter": 1.2}, "mindest": {}},
+          {"id": "lang", "text": "langhaarige Tiere", "gewichte": {"anti_haar_buerste": 2.2, "polsterduese": 2.0, "filter": 1.3, "behaelter_l": 1.4}, "mindest": {"anti_haar_buerste": true}}
+        ]},
+        {"id": "etagen", "text": "Saugst du Treppen oder mehrere Etagen?", "antworten": [
+          {"id": "nein", "text": "Nein, eine Etage", "gewichte": {}, "mindest": {}},
+          {"id": "ja", "text": "Ja", "gewichte": {"gewicht_kg": 1.5}, "mindest": {}}
+        ]},
+        {"id": "allergie", "text": "Hat jemand im Haushalt eine Hausstauballergie?", "antworten": [
+          {"id": "nein", "text": "Nein", "gewichte": {}, "mindest": {}},
+          {"id": "ja", "text": "Ja", "gewichte": {"filter": 2.0}, "mindest": {"filter": ["hepa_h13_oder_besser", "hepa_ohne_klasse"]}}
+        ]}
+      ]
+    },
+    {
+      "id": "saugroboter",
+      "name": "Saugroboter",
+      "felder": [
+        {"id": "navigation", "name": "Navigation", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["lidar", 100], ["kamera_vslam", 75], ["gyroskop", 40], ["zufall", 10]]}, "gewicht": 18},
+        {"id": "saugleistung_pa", "name": "Saugleistung (Herstellerangabe)", "einheit": "Pa", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2000, 20], [5000, 60], [8000, 85], [12000, 100]]}, "gewicht": 14},
+        {"id": "hinderniserkennung", "name": "Hinderniserkennung vorne", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["kamera_ki", 100], ["strukturiertes_licht", 80], ["nur_stossfaenger", 20]]}, "gewicht": 12},
+        {"id": "wischsystem", "name": "Wischsystem", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["rotierend_oder_walze", 100], ["vibrierend", 70], ["statisches_tuch", 40], ["keines", 0]]}, "gewicht": 12},
+        {"id": "absaugstation", "name": "Absaugstation (leert sich selbst)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "laufzeit_min", "name": "Laufzeit", "einheit": "min", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[60, 20], [120, 60], [180, 90], [240, 100]]}, "gewicht": 8},
+        {"id": "schwelle_mm", "name": "Überwindbare Schwellenhöhe", "einheit": "mm", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[10, 0], [15, 30], [20, 60], [40, 100]]}, "gewicht": 8},
+        {"id": "mopp_anheben_mm", "name": "Mopp-Anhebung auf Teppich", "einheit": "mm", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [5, 50], [10, 100]]}, "gewicht": 6},
+        {"id": "geraeusch_db", "name": "Geräusch (Herstellerangabe)", "einheit": "dB(A)", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[55, 100], [65, 60], [75, 10]]}, "gewicht": 6},
+        {"id": "hoehe_cm", "name": "Bauhöhe", "einheit": "cm", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[7, 100], [10, 60], [12, 20]]}, "gewicht": 6}
+      ],
+      "fragen": [
+        {"id": "wischen", "text": "Soll der Roboter auch wischen?", "antworten": [
+          {"id": "nein", "text": "Nein, nur saugen", "gewichte": {"wischsystem": 0, "mopp_anheben_mm": 0}, "mindest": {}},
+          {"id": "ja", "text": "Ja", "gewichte": {"wischsystem": 1.6}, "mindest": {"wischsystem": ["rotierend_oder_walze", "vibrierend", "statisches_tuch"]}}
+        ]},
+        {"id": "boden", "text": "Hast du Teppiche?", "antworten": [
+          {"id": "kaum", "text": "kaum", "gewichte": {"saugleistung_pa": 0.8, "mopp_anheben_mm": 0.3}, "mindest": {}},
+          {"id": "einige", "text": "einige", "gewichte": {"mopp_anheben_mm": 1.5}, "mindest": {}},
+          {"id": "viele", "text": "viele oder hochflorige", "gewichte": {"saugleistung_pa": 1.5, "mopp_anheben_mm": 2.0}, "mindest": {}}
+        ]},
+        {"id": "hindernisse", "text": "Liegen oft Kabel, Socken oder Spielzeug auf dem Boden?", "antworten": [
+          {"id": "selten", "text": "selten", "gewichte": {}, "mindest": {}},
+          {"id": "oft", "text": "oft", "gewichte": {"hinderniserkennung": 2.0}, "mindest": {}}
+        ]},
+        {"id": "tiere", "text": "Hast du Haustiere?", "antworten": [
+          {"id": "keine", "text": "keine", "gewichte": {}, "mindest": {}},
+          {"id": "ja", "text": "ja", "gewichte": {"absaugstation": 1.8, "hinderniserkennung": 1.4}, "mindest": {}}
+        ]},
+        {"id": "schwellen", "text": "Gibt es Türschwellen oder hohe Teppichkanten?", "antworten": [
+          {"id": "nein", "text": "Nein", "gewichte": {"schwelle_mm": 0.5}, "mindest": {}},
+          {"id": "ja", "text": "Ja, bis etwa 2 cm", "gewichte": {"schwelle_mm": 2.0}, "mindest": {"schwelle_mm": 20}}
+        ]}
+      ]
+    },
+    {
+      "id": "airfryer",
+      "name": "Air Fryer",
+      "felder": [
+        {"id": "volumen_l", "name": "Fassungsvermögen gesamt", "einheit": "l", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 20], [4, 55], [6, 80], [9, 100]]}, "gewicht": 25},
+        {"id": "spuelmaschinenfest", "name": "Korb und Einsatz spülmaschinenfest", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 15},
+        {"id": "koerbe", "name": "Anzahl getrennter Garräume", "einheit": "Stück", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[1, 50], [2, 100]]}, "gewicht": 10},
+        {"id": "leistung_w", "name": "Leistung", "einheit": "W", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[1200, 40], [1700, 75], [2400, 100]]}, "gewicht": 10},
+        {"id": "sichtfenster", "name": "Sichtfenster", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "beschichtung", "name": "Material der Garfläche", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["edelstahl", 100], ["keramik", 100], ["ptfe", 60]]}, "gewicht": 10},
+        {"id": "sync_funktion", "name": "Beide Garräume gleichzeitig fertig (Sync)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "temp_max_c", "name": "Höchsttemperatur", "einheit": "°C", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[180, 30], [200, 80], [230, 100]]}, "gewicht": 5},
+        {"id": "doerren", "name": "Dörrfunktion", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 5}
+      ],
+      "fragen": [
+        {"id": "personen", "text": "Für wie viele Personen kochst du meistens?", "antworten": [
+          {"id": "p12", "text": "1 bis 2", "gewichte": {"volumen_l": 0.6}, "mindest": {"volumen_l": 3}},
+          {"id": "p34", "text": "3 bis 4", "gewichte": {}, "mindest": {"volumen_l": 5}},
+          {"id": "p5", "text": "5 oder mehr", "gewichte": {"volumen_l": 1.5}, "mindest": {"volumen_l": 7}}
+        ]},
+        {"id": "beilage", "text": "Willst du zwei Dinge gleichzeitig garen (z. B. Fleisch und Pommes)?", "antworten": [
+          {"id": "nein", "text": "Nein", "gewichte": {"koerbe": 0, "sync_funktion": 0}, "mindest": {}},
+          {"id": "ja", "text": "Ja", "gewichte": {"koerbe": 2.0, "sync_funktion": 1.5}, "mindest": {"koerbe": 2}}
+        ]},
+        {"id": "reinigung", "text": "Wie wichtig ist dir einfaches Putzen?", "antworten": [
+          {"id": "normal", "text": "normal", "gewichte": {}, "mindest": {}},
+          {"id": "sehr", "text": "sehr wichtig", "gewichte": {"spuelmaschinenfest": 2.0}, "mindest": {"spuelmaschinenfest": true}}
+        ]},
+        {"id": "material", "text": "Möchtest du eine Garfläche ohne PTFE-Beschichtung?", "antworten": [
+          {"id": "egal", "text": "egal", "gewichte": {"beschichtung": 0.5}, "mindest": {}},
+          {"id": "ja", "text": "ja", "gewichte": {"beschichtung": 1.5}, "mindest": {"beschichtung": ["edelstahl", "keramik"]}}
+        ]}
+      ]
+    },
+    {
+      "id": "smartphone",
+      "name": "Smartphones",
+      "felder": [
+        {"id": "akku_ausdauer_h", "name": "Akkuausdauer je Ladung (EU-Label)", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[25, 20], [40, 60], [55, 90], [70, 100]]}, "gewicht": 15},
+        {"id": "update_jahre", "name": "Zugesagte Software-Updates ab Marktstart", "einheit": "Jahre", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 0], [3, 30], [5, 60], [7, 100]]}, "gewicht": 14},
+        {"id": "ladezyklen", "name": "Ladezyklen bis 80 % Kapazität (EU-Label)", "einheit": "Zyklen", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[800, 40], [1000, 70], [1400, 90], [2000, 100]]}, "gewicht": 8},
+        {"id": "reparierbarkeit", "name": "Reparierbarkeitsklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 80], ["C", 60], ["D", 35], ["E", 10]]}, "gewicht": 8},
+        {"id": "speicher_gb", "name": "Speicher", "einheit": "GB", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[64, 20], [128, 60], [256, 90], [512, 100]]}, "gewicht": 8},
+        {"id": "ip_schutz", "name": "Schutz gegen Staub und Wasser", "einheit": "IP", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["keiner", 0], ["IP52", 30], ["IP54", 45], ["IP65", 65], ["IP67", 85], ["IP68", 100], ["IP69", 100]]}, "gewicht": 7},
+        {"id": "optischer_zoom", "name": "Optischer Zoom (Telekamera)", "einheit": "fach", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[1, 0], [2, 50], [3, 80], [5, 100]]}, "gewicht": 7},
+        {"id": "fallklasse", "name": "Fallfestigkeitsklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 80], ["C", 60], ["D", 35], ["E", 10]]}, "gewicht": 6},
+        {"id": "ram_gb", "name": "Arbeitsspeicher", "einheit": "GB", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[4, 30], [6, 55], [8, 80], [12, 100]]}, "gewicht": 6},
+        {"id": "display_hz", "name": "Bildwiederholrate Display", "einheit": "Hz", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[60, 40], [90, 70], [120, 100]]}, "gewicht": 6},
+        {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 85], ["C", 70], ["D", 55], ["E", 40], ["F", 25], ["G", 10]]}, "gewicht": 5},
+        {"id": "ladeleistung_w", "name": "Ladeleistung per Kabel", "einheit": "W", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[10, 20], [25, 60], [45, 90], [65, 100]]}, "gewicht": 4},
+        {"id": "kabellos_laden", "name": "Kabelloses Laden", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 3},
+        {"id": "fuenf_g", "name": "5G", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 3},
+        {"id": "display_zoll", "name": "Displaydiagonale", "einheit": "Zoll", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [10, 0]]}, "gewicht": 0},
+        {"id": "betriebssystem", "name": "Betriebssystem", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["android", 0], ["ios", 0]]}, "gewicht": 0}
+      ],
+      "fragen": [
+        {"id": "nutzung", "text": "Was machst du am meisten mit dem Handy?", "antworten": [
+          {"id": "basis", "text": "Telefonieren, Nachrichten, Internet", "gewichte": {"optischer_zoom": 0.3, "ram_gb": 0.6, "display_hz": 0.6, "akku_ausdauer_h": 1.3}, "mindest": {}},
+          {"id": "fotos", "text": "Viel fotografieren und filmen", "gewichte": {"optischer_zoom": 2.2, "speicher_gb": 1.5}, "mindest": {}},
+          {"id": "spiele", "text": "Spiele und viele Apps", "gewichte": {"ram_gb": 1.8, "display_hz": 1.8, "ladeleistung_w": 1.3}, "mindest": {"ram_gb": 8}},
+          {"id": "draussen", "text": "Draußen, Baustelle, Sport", "gewichte": {"ip_schutz": 2.0, "fallklasse": 2.2, "akku_ausdauer_h": 1.3}, "mindest": {"ip_schutz": ["IP67", "IP68", "IP69"]}}
+        ]},
+        {"id": "behalten", "text": "Wie lange willst du das Handy behalten?", "antworten": [
+          {"id": "j2", "text": "etwa 2 Jahre", "gewichte": {"update_jahre": 0.5, "ladezyklen": 0.5, "reparierbarkeit": 0.5}, "mindest": {}},
+          {"id": "j4", "text": "etwa 4 Jahre", "gewichte": {}, "mindest": {"update_jahre": 4}},
+          {"id": "j6", "text": "6 Jahre oder länger", "gewichte": {"update_jahre": 1.6, "ladezyklen": 1.6, "reparierbarkeit": 1.6}, "mindest": {"update_jahre": 6}}
+        ]},
+        {"id": "speicherbedarf", "text": "Speicherst du viele Fotos, Videos oder Musik auf dem Handy?", "antworten": [
+          {"id": "wenig", "text": "wenig", "gewichte": {"speicher_gb": 0.6}, "mindest": {"speicher_gb": 128}},
+          {"id": "viel", "text": "viel", "gewichte": {"speicher_gb": 1.5}, "mindest": {"speicher_gb": 256}}
+        ]},
+        {"id": "groesse", "text": "Welche Größe magst du?", "antworten": [
+          {"id": "kompakt", "text": "kompakt, gut mit einer Hand", "gewichte": {}, "mindest": {}, "hoechst": {"display_zoll": 6.3}},
+          {"id": "egal", "text": "egal", "gewichte": {}, "mindest": {}},
+          {"id": "gross", "text": "großer Bildschirm", "gewichte": {}, "mindest": {"display_zoll": 6.6}}
+        ]},
+        {"id": "system", "text": "iPhone oder Android?", "antworten": [
+          {"id": "ios", "text": "iPhone", "gewichte": {}, "mindest": {"betriebssystem": ["ios"]}},
+          {"id": "android", "text": "Android", "gewichte": {}, "mindest": {"betriebssystem": ["android"]}},
+          {"id": "egal", "text": "egal", "gewichte": {}, "mindest": {}}
+        ]}
+      ]
+    },
+    {
+      "id": "tablet",
+      "name": "Tablets",
+      "felder": [
+        {"id": "akku_ausdauer_h", "name": "Akkuausdauer je Ladung (EU-Label)", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[20, 20], [35, 60], [50, 90], [65, 100]]}, "gewicht": 18},
+        {"id": "update_jahre", "name": "Zugesagte Software-Updates ab Marktstart", "einheit": "Jahre", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 0], [3, 30], [5, 60], [7, 100]]}, "gewicht": 12},
+        {"id": "ppi", "name": "Pixeldichte", "einheit": "ppi", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[150, 20], [220, 60], [264, 85], [300, 100]]}, "gewicht": 12},
+        {"id": "speicher_gb", "name": "Speicher", "einheit": "GB", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[32, 0], [64, 30], [128, 70], [256, 100]]}, "gewicht": 10},
+        {"id": "ram_gb", "name": "Arbeitsspeicher", "einheit": "GB", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[3, 20], [4, 40], [6, 65], [8, 90], [12, 100]]}, "gewicht": 8},
+        {"id": "reparierbarkeit", "name": "Reparierbarkeitsklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 80], ["C", 60], ["D", 35], ["E", 10]]}, "gewicht": 6},
+        {"id": "stift", "name": "Stift-Unterstützung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 6},
+        {"id": "display_hz", "name": "Bildwiederholrate Display", "einheit": "Hz", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[60, 40], [90, 70], [120, 100]]}, "gewicht": 5},
+        {"id": "ladezyklen", "name": "Ladezyklen bis 80 % Kapazität (EU-Label)", "einheit": "Zyklen", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[800, 40], [1000, 70], [1400, 90], [2000, 100]]}, "gewicht": 5},
+        {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 85], ["C", 70], ["D", 55], ["E", 40], ["F", 25], ["G", 10]]}, "gewicht": 4},
+        {"id": "mobilfunk", "name": "Mobilfunk (LTE/5G)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 4},
+        {"id": "lautsprecher_anzahl", "name": "Lautsprecher", "einheit": "Stück", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[1, 0], [2, 50], [4, 100]]}, "gewicht": 4},
+        {"id": "fallklasse", "name": "Fallfestigkeitsklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 80], ["C", 60], ["D", 35], ["E", 10]]}, "gewicht": 3},
+        {"id": "ip_schutz", "name": "Schutz gegen Staub und Wasser", "einheit": "IP", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["keiner", 0], ["IP52", 40], ["IP54", 60], ["IP67", 90], ["IP68", 100]]}, "gewicht": 3},
+        {"id": "display_zoll", "name": "Displaydiagonale", "einheit": "Zoll", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [20, 0]]}, "gewicht": 0},
+        {"id": "tastatur_anschluss", "name": "Anschluss für Tastatur-Hülle", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 0], [false, 0]]}, "gewicht": 0}
+      ],
+      "fragen": [
+        {"id": "nutzung", "text": "Wofür ist das Tablet?", "antworten": [
+          {"id": "medien", "text": "Lesen, Videos, Surfen", "gewichte": {"ppi": 1.3, "lautsprecher_anzahl": 1.6, "stift": 0, "ram_gb": 0.7}, "mindest": {}},
+          {"id": "notizen", "text": "Schule, Uni, Notizen mit Stift", "gewichte": {"stift": 3.0, "update_jahre": 1.2}, "mindest": {"stift": true}},
+          {"id": "arbeit", "text": "Arbeiten mit Tastatur", "gewichte": {"ram_gb": 1.6, "speicher_gb": 1.3}, "mindest": {"tastatur_anschluss": true}},
+          {"id": "kinder", "text": "Für Kinder", "gewichte": {"fallklasse": 3.0, "reparierbarkeit": 1.5, "stift": 0, "ram_gb": 0.6}, "mindest": {}}
+        ]},
+        {"id": "unterwegs", "text": "Brauchst du Internet unterwegs ohne WLAN?", "antworten": [
+          {"id": "nein", "text": "Nein", "gewichte": {"mobilfunk": 0}, "mindest": {}},
+          {"id": "ja", "text": "Ja", "gewichte": {"mobilfunk": 2.0}, "mindest": {"mobilfunk": true}}
+        ]},
+        {"id": "groesse", "text": "Welche Größe?", "antworten": [
+          {"id": "klein", "text": "klein, bis 9 Zoll", "gewichte": {}, "mindest": {}, "hoechst": {"display_zoll": 9}},
+          {"id": "mittel", "text": "mittel, 10 bis 11 Zoll", "gewichte": {}, "mindest": {"display_zoll": 10}, "hoechst": {"display_zoll": 11.5}},
+          {"id": "gross", "text": "groß, ab 12 Zoll", "gewichte": {}, "mindest": {"display_zoll": 12}},
+          {"id": "egal", "text": "egal", "gewichte": {}, "mindest": {}}
+        ]},
+        {"id": "behalten", "text": "Wie lange soll es halten?", "antworten": [
+          {"id": "kurz", "text": "2 bis 3 Jahre", "gewichte": {"update_jahre": 0.6}, "mindest": {}},
+          {"id": "lang", "text": "5 Jahre oder länger", "gewichte": {"update_jahre": 1.6, "ladezyklen": 1.5, "reparierbarkeit": 1.4}, "mindest": {"update_jahre": 5}}
+        ]}
+      ]
+    },
+    {
+      "id": "laptop",
+      "name": "Laptops",
+      "felder": [
+        {"id": "akku_wh", "name": "Akkukapazität", "einheit": "Wh", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[40, 20], [55, 55], [70, 85], [90, 100]]}, "gewicht": 18},
+        {"id": "ram_gb", "name": "Arbeitsspeicher", "einheit": "GB", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[8, 40], [16, 80], [32, 100]]}, "gewicht": 14},
+        {"id": "ssd_gb", "name": "SSD-Speicher", "einheit": "GB", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[256, 30], [512, 70], [1024, 95], [2048, 100]]}, "gewicht": 10},
+        {"id": "gewicht_kg", "name": "Gewicht", "einheit": "kg", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[1.0, 100], [1.4, 80], [1.8, 50], [2.5, 15]]}, "gewicht": 10},
+        {"id": "helligkeit_nits", "name": "Display-Helligkeit (Herstellerangabe)", "einheit": "cd/m²", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[250, 20], [300, 50], [400, 80], [500, 100]]}, "gewicht": 8},
+        {"id": "panel", "name": "Displaytechnik", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["oled", 100], ["ips", 75], ["va", 50], ["tn", 20]]}, "gewicht": 6},
+        {"id": "aufloesung_vertikal", "name": "Display-Auflösung vertikal", "einheit": "px", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[768, 0], [1080, 60], [1200, 70], [1600, 90], [1800, 100]]}, "gewicht": 6},
+        {"id": "usb_c_laden", "name": "Laden über USB-C", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 5},
+        {"id": "usb4_thunderbolt", "name": "USB4 oder Thunderbolt", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 4},
+        {"id": "wlan", "name": "WLAN-Standard", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["wifi5", 40], ["wifi6", 70], ["wifi6e", 85], ["wifi7", 100]]}, "gewicht": 4},
+        {"id": "display_hz", "name": "Bildwiederholrate Display", "einheit": "Hz", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[60, 40], [90, 70], [120, 100]]}, "gewicht": 3},
+        {"id": "hdmi", "name": "HDMI-Ausgang", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 3},
+        {"id": "webcam_1080p", "name": "Webcam mit mindestens 1080p", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 3},
+        {"id": "tastaturbeleuchtung", "name": "Tastaturbeleuchtung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 3},
+        {"id": "ram_erweiterbar", "name": "Arbeitsspeicher erweiterbar", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 3},
+        {"id": "display_zoll", "name": "Displaydiagonale", "einheit": "Zoll", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [20, 0]]}, "gewicht": 0},
+        {"id": "betriebssystem", "name": "Betriebssystem", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["windows", 0], ["macos", 0], ["chromeos", 0], ["linux", 0], ["ohne", 0]]}, "gewicht": 0},
+        {"id": "grafik_dediziert", "name": "Eigene Grafikkarte", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 0], [false, 0]]}, "gewicht": 0}
+      ],
+      "fragen": [
+        {"id": "nutzung", "text": "Wofür brauchst du den Laptop?", "antworten": [
+          {"id": "office", "text": "Internet, Office, Mails", "gewichte": {"ram_gb": 0.8, "ssd_gb": 0.8, "display_hz": 0.5}, "mindest": {"ram_gb": 8}},
+          {"id": "studium", "text": "Studium oder Arbeit unterwegs", "gewichte": {"akku_wh": 1.5, "gewicht_kg": 1.6, "webcam_1080p": 1.6, "usb_c_laden": 1.5}, "mindest": {"ram_gb": 16}},
+          {"id": "kreativ", "text": "Foto- und Videobearbeitung", "gewichte": {"ram_gb": 1.6, "ssd_gb": 1.6, "panel": 1.8, "aufloesung_vertikal": 1.5, "helligkeit_nits": 1.3}, "mindest": {"ram_gb": 16, "ssd_gb": 512}},
+          {"id": "spiele", "text": "Spiele", "gewichte": {"display_hz": 3.0, "ram_gb": 1.5, "ssd_gb": 1.5, "gewicht_kg": 0.4}, "mindest": {"grafik_dediziert": true, "ram_gb": 16}}
+        ]},
+        {"id": "mobil", "text": "Trägst du den Laptop oft mit dir herum?", "antworten": [
+          {"id": "selten", "text": "selten, steht meist auf dem Tisch", "gewichte": {"gewicht_kg": 0.4, "akku_wh": 0.7}, "mindest": {}},
+          {"id": "oft", "text": "oft", "gewichte": {"gewicht_kg": 1.6, "akku_wh": 1.4}, "mindest": {}, "hoechst": {"gewicht_kg": 1.6}}
+        ]},
+        {"id": "groesse", "text": "Welche Bildschirmgröße?", "antworten": [
+          {"id": "klein", "text": "klein (13 bis 14 Zoll)", "gewichte": {}, "mindest": {}, "hoechst": {"display_zoll": 14.5}},
+          {"id": "mittel", "text": "mittel (15 bis 16 Zoll)", "gewichte": {}, "mindest": {"display_zoll": 15}, "hoechst": {"display_zoll": 16.5}},
+          {"id": "gross", "text": "groß (17 Zoll und mehr)", "gewichte": {}, "mindest": {"display_zoll": 17}},
+          {"id": "egal", "text": "egal", "gewichte": {}, "mindest": {}}
+        ]},
+        {"id": "system", "text": "Welches System?", "antworten": [
+          {"id": "windows", "text": "Windows", "gewichte": {}, "mindest": {"betriebssystem": ["windows"]}},
+          {"id": "macos", "text": "Mac", "gewichte": {"ram_erweiterbar": 0}, "mindest": {"betriebssystem": ["macos"]}},
+          {"id": "egal", "text": "egal", "gewichte": {}, "mindest": {}}
+        ]}
+      ]
+    },
+    {
+      "id": "kopfhoerer_inear",
+      "name": "Kopfhörer In-Ear",
+      "felder": [
+        {"id": "anc", "name": "Aktive Geräuschunterdrückung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 18},
+        {"id": "akku_h", "name": "Akkulaufzeit je Ladung (mit ANC, falls vorhanden)", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[3, 0], [4, 20], [6, 50], [8, 80], [10, 100]]}, "gewicht": 18},
+        {"id": "multipoint", "name": "Mit zwei Geräten gleichzeitig verbunden (Multipoint)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "ip_schutz", "name": "Schutz gegen Schweiß und Wasser", "einheit": "IP", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["keiner", 0], ["IPX2", 20], ["IPX4", 60], ["IPX5", 75], ["IP54", 75], ["IP55", 85], ["IPX7", 100], ["IP57", 100], ["IP67", 100], ["IP68", 100]]}, "gewicht": 10},
+        {"id": "app_eq", "name": "App mit Klangregler (Equalizer)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "transparenzmodus", "name": "Transparenzmodus", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "akku_gesamt_h", "name": "Laufzeit mit Ladecase gesamt", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[12, 0], [20, 40], [30, 80], [40, 100]]}, "gewicht": 8},
+        {"id": "codecs", "name": "Beste unterstützte Bluetooth-Codecs", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["sbc", 30], ["aac", 60], ["aptx", 75], ["aptx_adaptive", 90], ["ldac", 100], ["lc3", 90]]}, "gewicht": 8},
+        {"id": "kabellos_laden", "name": "Ladecase kabellos ladbar", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 4},
+        {"id": "bluetooth_version", "name": "Bluetooth-Version", "einheit": "", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[5.0, 40], [5.3, 80], [5.4, 100]]}, "gewicht": 4}
+      ],
+      "fragen": [
+        {"id": "wofuer", "text": "Wofür nutzt du die Kopfhörer am meisten?", "antworten": [
+          {"id": "pendeln", "text": "Bus, Bahn, Flugzeug", "gewichte": {"anc": 1.6, "akku_h": 1.3}, "mindest": {"anc": true}},
+          {"id": "sport", "text": "Sport", "gewichte": {"ip_schutz": 2.5, "anc": 0.6, "transparenzmodus": 1.5}, "mindest": {"ip_schutz": ["IPX4", "IPX5", "IP54", "IP55", "IPX7", "IP57", "IP67", "IP68"]}},
+          {"id": "buero", "text": "Telefonate und Videocalls", "gewichte": {"multipoint": 2.0, "akku_h": 1.3}, "mindest": {}},
+          {"id": "musik", "text": "Musik zu Hause", "gewichte": {"codecs": 1.6, "app_eq": 1.4, "ip_schutz": 0.4}, "mindest": {}}
+        ]},
+        {"id": "handy", "text": "Welches Handy hast du?", "antworten": [
+          {"id": "iphone", "text": "iPhone", "gewichte": {"codecs": 0}, "mindest": {}},
+          {"id": "android", "text": "Android", "gewichte": {}, "mindest": {}},
+          {"id": "egal", "text": "verschiedene oder weiß nicht", "gewichte": {"codecs": 0.5}, "mindest": {}}
+        ]},
+        {"id": "laufzeit", "text": "Wie lange hörst du am Stück?", "antworten": [
+          {"id": "kurz", "text": "bis 2 Stunden", "gewichte": {"akku_h": 0.6}, "mindest": {}},
+          {"id": "lang", "text": "länger als 4 Stunden", "gewichte": {"akku_h": 1.8}, "mindest": {"akku_h": 6}}
+        ]}
+      ]
+    },
+    {
+      "id": "kopfhoerer_overear",
+      "name": "Kopfhörer Over-Ear",
+      "felder": [
+        {"id": "anc", "name": "Aktive Geräuschunterdrückung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 20},
+        {"id": "akku_h", "name": "Akkulaufzeit (mit ANC, falls vorhanden)", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[15, 0], [20, 30], [30, 60], [40, 85], [60, 100]]}, "gewicht": 18},
+        {"id": "gewicht_g", "name": "Gewicht", "einheit": "g", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[200, 100], [250, 80], [300, 50], [350, 20], [400, 0]]}, "gewicht": 14},
+        {"id": "multipoint", "name": "Mit zwei Geräten gleichzeitig verbunden (Multipoint)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "app_eq", "name": "App mit Klangregler (Equalizer)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "codecs", "name": "Beste unterstützte Bluetooth-Codecs", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["sbc", 30], ["aac", 60], ["aptx", 75], ["aptx_adaptive", 90], ["ldac", 100], ["lc3", 90]]}, "gewicht": 8},
+        {"id": "kabelbetrieb", "name": "Kabelbetrieb (Klinke oder USB-C-Audio)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "faltbar", "name": "Faltbar", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 5},
+        {"id": "transparenzmodus", "name": "Transparenzmodus", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 5}
+      ],
+      "fragen": [
+        {"id": "wofuer", "text": "Wofür nutzt du die Kopfhörer am meisten?", "antworten": [
+          {"id": "reisen", "text": "Reisen, Bahn, Flugzeug", "gewichte": {"anc": 1.6, "akku_h": 1.3, "faltbar": 2.0}, "mindest": {"anc": true}},
+          {"id": "buero", "text": "Büro, Telefonate, Videocalls", "gewichte": {"multipoint": 2.0, "gewicht_g": 1.3}, "mindest": {}},
+          {"id": "zuhause", "text": "Musik und Filme zu Hause", "gewichte": {"codecs": 1.6, "kabelbetrieb": 1.6, "anc": 0.6, "faltbar": 0.3}, "mindest": {}},
+          {"id": "spiele", "text": "Spielen am PC oder an der Konsole", "gewichte": {"kabelbetrieb": 2.5, "gewicht_g": 1.4, "anc": 0.6}, "mindest": {"kabelbetrieb": true}}
+        ]},
+        {"id": "handy", "text": "Welches Handy hast du?", "antworten": [
+          {"id": "iphone", "text": "iPhone", "gewichte": {"codecs": 0}, "mindest": {}},
+          {"id": "android", "text": "Android", "gewichte": {}, "mindest": {}},
+          {"id": "egal", "text": "verschiedene oder weiß nicht", "gewichte": {"codecs": 0.5}, "mindest": {}}
+        ]},
+        {"id": "tragedauer", "text": "Wie lange trägst du sie am Stück?", "antworten": [
+          {"id": "kurz", "text": "bis 1 Stunde", "gewichte": {"gewicht_g": 0.6}, "mindest": {}},
+          {"id": "lang", "text": "mehrere Stunden", "gewichte": {"gewicht_g": 1.6, "akku_h": 1.2}, "mindest": {}}
+        ]}
+      ]
+    },
+    {
+      "id": "soundbar",
+      "name": "Soundbars",
+      "felder": [
+        {"id": "kanaele", "name": "Kanäle", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["2.0", 20], ["2.1", 45], ["3.0", 50], ["3.1", 60], ["5.1", 75], ["3.1.2", 80], ["5.1.2", 90], ["7.1.4", 100], ["9.1.4", 100], ["11.1.4", 100]]}, "gewicht": 25},
+        {"id": "subwoofer", "name": "Subwoofer", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["extern_kabellos", 100], ["extern_kabel", 85], ["integriert", 50], ["keiner", 0]]}, "gewicht": 15},
+        {"id": "dolby_atmos", "name": "Dolby Atmos", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 12},
+        {"id": "earc", "name": "HDMI eARC", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 20]]}, "gewicht": 12},
+        {"id": "raumkalibrierung", "name": "Automatische Raumanpassung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 8},
+        {"id": "wlan_streaming", "name": "Musik per WLAN (AirPlay, Chromecast oder Spotify Connect)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 8},
+        {"id": "sprachmodus", "name": "Sprachverstärkung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 6},
+        {"id": "erweiterbar", "name": "Rücklautsprecher nachrüstbar", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 6},
+        {"id": "dts_x", "name": "DTS:X", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 4},
+        {"id": "leistung_w", "name": "Gesamtleistung (Herstellerangabe)", "einheit": "W", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[50, 20], [150, 50], [300, 80], [500, 100]]}, "gewicht": 4},
+        {"id": "breite_cm", "name": "Breite", "einheit": "cm", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [200, 0]]}, "gewicht": 0}
+      ],
+      "fragen": [
+        {"id": "wofuer", "text": "Was soll besser werden?", "antworten": [
+          {"id": "sprache", "text": "Stimmen besser verstehen", "gewichte": {"sprachmodus": 3.0, "kanaele": 1.2, "dolby_atmos": 0.5, "subwoofer": 0.6}, "mindest": {}},
+          {"id": "kino", "text": "Kino-Gefühl bei Filmen", "gewichte": {"dolby_atmos": 1.6, "subwoofer": 1.4, "erweiterbar": 1.6}, "mindest": {}},
+          {"id": "musik", "text": "Auch Musik hören", "gewichte": {"wlan_streaming": 2.2, "subwoofer": 1.2}, "mindest": {}}
+        ]},
+        {"id": "nachbarn", "text": "Wohnst du mit Nachbarn Wand an Wand?", "antworten": [
+          {"id": "ja", "text": "Ja, Mietwohnung", "gewichte": {"subwoofer": 0.6, "sprachmodus": 1.4}, "mindest": {}},
+          {"id": "nein", "text": "Nein, Haus", "gewichte": {}, "mindest": {}}
+        ]},
+        {"id": "tv_anschluss", "text": "Hat dein Fernseher einen HDMI-Anschluss mit „eARC“ oder „ARC“?", "antworten": [
+          {"id": "ja", "text": "Ja", "gewichte": {"earc": 1.5}, "mindest": {}},
+          {"id": "unbekannt", "text": "Weiß nicht", "gewichte": {}, "mindest": {}}
+        ]},
+        {"id": "platz", "text": "Wie breit darf die Soundbar höchstens sein?", "antworten": [
+          {"id": "b70", "text": "bis 70 cm", "gewichte": {}, "mindest": {}, "hoechst": {"breite_cm": 70}},
+          {"id": "b100", "text": "bis 100 cm", "gewichte": {}, "mindest": {}, "hoechst": {"breite_cm": 100}},
+          {"id": "egal", "text": "egal", "gewichte": {}, "mindest": {}}
+        ]}
+      ]
+    },
+    {
+      "id": "waschmaschine",
+      "name": "Waschmaschinen",
+      "felder": [
+        {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 90], ["C", 78], ["D", 64], ["E", 48], ["F", 30], ["G", 12]]}, "gewicht": 20},
+        {"id": "wasserschutz", "name": "Schutz gegen Wasserschäden", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["vollschutz", 100], ["teilschutz", 50], ["keiner", 0]]}, "gewicht": 12},
+        {"id": "schleuderklasse", "name": "Schleudereffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 80], ["C", 55], ["D", 30], ["E", 15], ["F", 5], ["G", 0]]}, "gewicht": 10},
+        {"id": "kapazitaet_kg", "name": "Nennkapazität (EU-Label)", "einheit": "kg", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[6, 30], [7, 55], [8, 75], [9, 90], [10, 100]]}, "gewicht": 10},
+        {"id": "dosierautomatik", "name": "Automatische Waschmitteldosierung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "wasser_l_je_kg", "name": "Wasser je Zyklus geteilt durch Kapazität (EU-Label)", "einheit": "l/kg", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[5, 100], [6, 80], [7.5, 50], [9, 20]]}, "gewicht": 8},
+        {"id": "geraeusch_schleudern_db", "name": "Geräusch beim Schleudern (EU-Label)", "einheit": "dB(A)", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[70, 100], [74, 70], [78, 40], [82, 10]]}, "gewicht": 8},
+        {"id": "garantie_jahre", "name": "Herstellergarantie", "einheit": "Jahre", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 0], [5, 60], [10, 100]]}, "gewicht": 8},
+        {"id": "dauer_eco_min", "name": "Dauer Eco 40-60 bei voller Beladung (EU-Label)", "einheit": "min", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[180, 100], [220, 70], [240, 50], [300, 10]]}, "gewicht": 6},
+        {"id": "dampf_hygiene", "name": "Dampf- oder Allergieprogramm", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 4},
+        {"id": "startvorwahl", "name": "Startzeitvorwahl oder Endezeit", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 4},
+        {"id": "bauart", "name": "Bauart", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["frontlader", 0], ["toplader", 0], ["einbau", 0]]}, "gewicht": 0}
+      ],
+      "fragen": [
+        {"id": "personen", "text": "Wie viele Personen leben im Haushalt?", "antworten": [
+          {"id": "p12", "text": "1 bis 2", "gewichte": {"kapazitaet_kg": 0.5}, "mindest": {"kapazitaet_kg": 6}},
+          {"id": "p34", "text": "3 bis 4", "gewichte": {}, "mindest": {"kapazitaet_kg": 7}},
+          {"id": "p5", "text": "5 oder mehr", "gewichte": {"kapazitaet_kg": 1.5, "energieklasse": 1.3}, "mindest": {"kapazitaet_kg": 9}}
+        ]},
+        {"id": "aufstellort", "text": "Wo steht die Maschine?", "antworten": [
+          {"id": "wohnung", "text": "Bad, Küche oder Flur in der Wohnung", "gewichte": {"geraeusch_schleudern_db": 1.8, "startvorwahl": 1.3}, "mindest": {}},
+          {"id": "keller", "text": "Keller oder Waschküche", "gewichte": {"geraeusch_schleudern_db": 0.4}, "mindest": {}}
+        ]},
+        {"id": "wasserschaden", "text": "Wäre ein Wasserschaden besonders schlimm (Mietwohnung, Holzboden, Etage)?", "antworten": [
+          {"id": "ja", "text": "Ja", "gewichte": {"wasserschutz": 1.8}, "mindest": {"wasserschutz": ["vollschutz"]}},
+          {"id": "nein", "text": "Nein", "gewichte": {}, "mindest": {}}
+        ]},
+        {"id": "besonderes", "text": "Gibt es etwas Besonderes?", "antworten": [
+          {"id": "allergie", "text": "Allergie oder Babywäsche", "gewichte": {"dampf_hygiene": 3.0}, "mindest": {}},
+          {"id": "bequem", "text": "Ich will möglichst wenig nachdenken", "gewichte": {"dosierautomatik": 2.0}, "mindest": {}},
+          {"id": "nichts", "text": "Nichts davon", "gewichte": {}, "mindest": {}}
+        ]}
+      ]
+    },
+    {
+      "id": "trockner",
+      "name": "Trockner",
+      "felder": [
+        {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label ab 07/2025)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 90], ["C", 78], ["D", 64], ["E", 48], ["F", 30], ["G", 12]]}, "gewicht": 22},
+        {"id": "kondensationsklasse", "name": "Kondensationseffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 70], ["C", 40], ["D", 15], ["E", 5], ["F", 0], ["G", 0]]}, "gewicht": 10},
+        {"id": "geraeusch_db", "name": "Geräusch (EU-Label)", "einheit": "dB(A)", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[60, 100], [64, 70], [68, 40], [72, 10]]}, "gewicht": 10},
+        {"id": "kapazitaet_kg", "name": "Nennkapazität (EU-Label)", "einheit": "kg", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[7, 50], [8, 75], [9, 90], [10, 100]]}, "gewicht": 10},
+        {"id": "feuchtesensor", "name": "Restfeuchte-Sensor (trocknet nach Restfeuchte statt Zeit)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "filter_selbstreinigend", "name": "Wartungsarmer bzw. selbstreinigender Wärmetauscher/Filter", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 8},
+        {"id": "reparierbarkeit", "name": "Reparierbarkeitsklasse (EU-Label, Pflicht ab 01.01.2027)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 80], ["C", 60], ["D", 35], ["E", 10]]}, "gewicht": 8},
+        {"id": "dauer_eco_min", "name": "Dauer Eco-Programm bei voller Beladung (EU-Label)", "einheit": "min", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[150, 100], [180, 75], [210, 50], [270, 10]]}, "gewicht": 6},
+        {"id": "ablauf_anschluss", "name": "Kondenswasser direkt in den Abfluss", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 6},
+        {"id": "garantie_jahre", "name": "Herstellergarantie", "einheit": "Jahre", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 0], [5, 60], [10, 100]]}, "gewicht": 6},
+        {"id": "knitterschutz", "name": "Knitterschutz nach Programmende", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 4}
+      ],
+      "fragen": [
+        {"id": "personen", "text": "Wie viele Personen leben im Haushalt?", "antworten": [
+          {"id": "p12", "text": "1 bis 2", "gewichte": {"kapazitaet_kg": 0.5}, "mindest": {"kapazitaet_kg": 7}},
+          {"id": "p34", "text": "3 bis 4", "gewichte": {}, "mindest": {"kapazitaet_kg": 8}},
+          {"id": "p5", "text": "5 oder mehr", "gewichte": {"kapazitaet_kg": 1.5, "energieklasse": 1.3}, "mindest": {"kapazitaet_kg": 9}}
+        ]},
+        {"id": "aufstellort", "text": "Wo steht der Trockner?", "antworten": [
+          {"id": "wohnung", "text": "In der Wohnung", "gewichte": {"geraeusch_db": 1.6, "kondensationsklasse": 1.4}, "mindest": {}},
+          {"id": "keller", "text": "Keller mit Abfluss", "gewichte": {"geraeusch_db": 0.4, "ablauf_anschluss": 2.0}, "mindest": {}}
+        ]},
+        {"id": "haeufigkeit", "text": "Wie oft trocknest du?", "antworten": [
+          {"id": "selten", "text": "ein- bis zweimal pro Woche", "gewichte": {"energieklasse": 0.8}, "mindest": {}},
+          {"id": "oft", "text": "fast täglich", "gewichte": {"energieklasse": 1.4, "reparierbarkeit": 1.3}, "mindest": {}}
+        ]},
+        {"id": "wartung", "text": "Willst du möglichst selten Filter reinigen?", "antworten": [
+          {"id": "ja", "text": "Ja", "gewichte": {"filter_selbstreinigend": 2.2}, "mindest": {}},
+          {"id": "egal", "text": "Ist mir egal", "gewichte": {}, "mindest": {}}
+        ]}
+      ]
+    },
+    {
+      "id": "kuehlschrank",
+      "name": "Kühlschränke",
+      "felder": [
+        {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 90], ["C", 78], ["D", 64], ["E", 48], ["F", 30], ["G", 12]]}, "gewicht": 30},
+        {"id": "nofrost", "name": "NoFrost (kein Abtauen im Gefrierteil)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 12},
+        {"id": "geraeusch_db", "name": "Geräusch (EU-Label)", "einheit": "dB(A)", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[33, 100], [36, 75], [39, 45], [42, 15]]}, "gewicht": 10},
+        {"id": "nullgradzone", "name": "Null-Grad-Zone", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "kuehl_l", "name": "Nutzinhalt Kühlteil (EU-Label)", "einheit": "l", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[100, 20], [200, 60], [300, 90], [400, 100]]}, "gewicht": 8},
+        {"id": "gefrier_l", "name": "Nutzinhalt Gefrierteil (EU-Label)", "einheit": "l", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [20, 20], [60, 50], [100, 80], [150, 100]]}, "gewicht": 6},
+        {"id": "tueralarm", "name": "Tür-offen- oder Temperaturalarm", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 6},
+        {"id": "klimaklasse", "name": "Klimaklasse (zulässige Raumtemperatur)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["SN-T", 100], ["SN-ST", 85], ["N-T", 80], ["N-ST", 65], ["SN-N", 50], ["N", 40], ["ST", 40], ["T", 40]]}, "gewicht": 6},
+        {"id": "garantie_jahre", "name": "Herstellergarantie", "einheit": "Jahre", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 0], [5, 60], [10, 100]]}, "gewicht": 6},
+        {"id": "tueranschlag_wechselbar", "name": "Türanschlag wechselbar", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 6},
+        {"id": "bauart", "name": "Bauart", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["stand", 0], ["einbau", 0], ["unterbau", 0], ["side_by_side", 0]]}, "gewicht": 0},
+        {"id": "hoehe_cm", "name": "Höhe", "einheit": "cm", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [250, 0]]}, "gewicht": 0}
+      ],
+      "fragen": [
+        {"id": "personen", "text": "Für wie viele Personen?", "antworten": [
+          {"id": "p12", "text": "1 bis 2", "gewichte": {"kuehl_l": 0.5}, "mindest": {"kuehl_l": 120}},
+          {"id": "p34", "text": "3 bis 4", "gewichte": {}, "mindest": {"kuehl_l": 200}},
+          {"id": "p5", "text": "5 oder mehr", "gewichte": {"kuehl_l": 1.5}, "mindest": {"kuehl_l": 280}}
+        ]},
+        {"id": "gefrieren", "text": "Wie viel frierst du ein?", "antworten": [
+          {"id": "nichts", "text": "nichts, eigenes Gefriergerät vorhanden", "gewichte": {"gefrier_l": 0, "nofrost": 0}, "mindest": {}},
+          {"id": "wenig", "text": "wenig (Eis, Kräuter)", "gewichte": {"gefrier_l": 0.5}, "mindest": {"gefrier_l": 15}},
+          {"id": "viel", "text": "viel (Vorräte)", "gewichte": {"gefrier_l": 2.0, "nofrost": 1.5}, "mindest": {"gefrier_l": 90}}
+        ]},
+        {"id": "ort", "text": "Wo steht das Gerät?", "antworten": [
+          {"id": "wohnkueche", "text": "offene Küche oder Wohnraum", "gewichte": {"geraeusch_db": 1.8}, "mindest": {}},
+          {"id": "kueche", "text": "geschlossene Küche", "gewichte": {}, "mindest": {}},
+          {"id": "kalt", "text": "Keller, Garage oder unbeheizter Raum", "gewichte": {"klimaklasse": 3.0, "geraeusch_db": 0.4}, "mindest": {"klimaklasse": ["SN-T", "SN-ST", "SN-N"]}}
+        ]},
+        {"id": "einbau", "text": "Wird das Gerät in eine Küchenzeile eingebaut?", "antworten": [
+          {"id": "einbau", "text": "Ja, Einbau", "gewichte": {}, "mindest": {"bauart": ["einbau", "unterbau"]}},
+          {"id": "stand", "text": "Nein, frei stehend", "gewichte": {}, "mindest": {"bauart": ["stand", "side_by_side"]}}
+        ]}
+      ]
+    },
+    {
+      "id": "geschirrspueler",
+      "name": "Geschirrspüler",
+      "felder": [
+        {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 90], ["C", 78], ["D", 64], ["E", 48], ["F", 30], ["G", 12]]}, "gewicht": 18},
+        {"id": "geraeusch_db", "name": "Geräusch Eco-Programm (EU-Label)", "einheit": "dB(A)", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[40, 100], [42, 85], [44, 65], [46, 45], [49, 15]]}, "gewicht": 14},
+        {"id": "wasserschutz", "name": "Schutz gegen Wasserschäden", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["vollschutz", 100], ["teilschutz", 50], ["keiner", 0]]}, "gewicht": 12},
+        {"id": "besteckschublade", "name": "Besteckschublade (dritte Ebene)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "auto_tueroeffnung", "name": "Tür öffnet sich zum Trocknen automatisch", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 10},
+        {"id": "massgedecke", "name": "Maßgedecke (EU-Label)", "einheit": "Stück", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[9, 30], [12, 60], [13, 80], [14, 100]]}, "gewicht": 10},
+        {"id": "wasser_l", "name": "Wasser je Zyklus Eco (EU-Label)", "einheit": "l", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[9, 100], [10.5, 75], [12, 40], [14, 10]]}, "gewicht": 8},
+        {"id": "garantie_jahre", "name": "Herstellergarantie", "einheit": "Jahre", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 0], [5, 60], [10, 100]]}, "gewicht": 8},
+        {"id": "dauer_eco_min", "name": "Dauer Eco-Programm (EU-Label)", "einheit": "min", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[180, 100], [210, 80], [240, 60], [270, 35], [300, 10]]}, "gewicht": 6},
+        {"id": "startvorwahl", "name": "Startzeitvorwahl", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 4},
+        {"id": "bauart", "name": "Bauart", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["vollintegriert", 0], ["teilintegriert", 0], ["unterbau", 0], ["freistehend", 0], ["tisch", 0]]}, "gewicht": 0},
+        {"id": "breite_cm", "name": "Breite", "einheit": "cm", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[0, 0], [100, 0]]}, "gewicht": 0}
+      ],
+      "fragen": [
+        {"id": "personen", "text": "Für wie viele Personen?", "antworten": [
+          {"id": "p12", "text": "1 bis 2", "gewichte": {"massgedecke": 0.4}, "mindest": {"massgedecke": 6}},
+          {"id": "p34", "text": "3 bis 4", "gewichte": {}, "mindest": {"massgedecke": 9}},
+          {"id": "p5", "text": "5 oder mehr", "gewichte": {"massgedecke": 1.6}, "mindest": {"massgedecke": 13}}
+        ]},
+        {"id": "breite", "text": "Wie viel Platz ist da?", "antworten": [
+          {"id": "b45", "text": "schmal, 45 cm", "gewichte": {"massgedecke": 0.3}, "mindest": {}, "hoechst": {"breite_cm": 45}},
+          {"id": "b60", "text": "normal, 60 cm", "gewichte": {}, "mindest": {"breite_cm": 59}},
+          {"id": "egal", "text": "weiß ich noch nicht", "gewichte": {}, "mindest": {}}
+        ]},
+        {"id": "einbau", "text": "Wie wird er eingebaut?", "antworten": [
+          {"id": "vollintegriert", "text": "unsichtbar hinter Küchenfront", "gewichte": {}, "mindest": {"bauart": ["vollintegriert"]}},
+          {"id": "teilintegriert", "text": "Küchenfront, Bedienblende sichtbar", "gewichte": {}, "mindest": {"bauart": ["teilintegriert"]}},
+          {"id": "frei", "text": "frei stehend oder unter Arbeitsplatte", "gewichte": {}, "mindest": {"bauart": ["freistehend", "unterbau"]}}
+        ]},
+        {"id": "kueche", "text": "Ist die Küche offen zum Wohnraum?", "antworten": [
+          {"id": "offen", "text": "Ja", "gewichte": {"geraeusch_db": 1.8}, "mindest": {}},
+          {"id": "geschlossen", "text": "Nein", "gewichte": {}, "mindest": {}}
+        ]},
+        {"id": "trocknen", "text": "Ärgert dich nasses Plastikgeschirr?", "antworten": [
+          {"id": "ja", "text": "Ja", "gewichte": {"auto_tueroeffnung": 2.0}, "mindest": {}},
+          {"id": "nein", "text": "Nein", "gewichte": {}, "mindest": {}}
+        ]}
+      ]
+    }
+  ]
+}

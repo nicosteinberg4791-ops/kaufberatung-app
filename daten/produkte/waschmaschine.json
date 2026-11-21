@@ -1,0 +1,1320 @@
+{
+ "kategorie": "waschmaschine",
+ "stand": "2026-11-21",
+ "quellen": {
+  "saturn-3033066": {
+   "url": "https://www.saturn.de/de/product/_siemens-wm14n22a-iq300-waschmaschine-90-kg-1351-umin-a-3033066.html",
+   "titel": "Siemens WM14N22A Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3023865": {
+   "url": "https://www.saturn.de/de/product/_samsung-ww90fg3m05aweg-waschmaschine-9-kg-1400-umin-a-3023865.html",
+   "titel": "Samsung WW90FG3M05AWEG Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3005755": {
+   "url": "https://www.saturn.de/de/product/_beko-bms3wfoe74-waschmaschine-7-kg-1400-umin-a-3005755.html",
+   "titel": "Beko BMS3WFOE74 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3047833": {
+   "url": "https://www.saturn.de/de/product/_gorenje-wmsg2ps8-g200-waschmaschine-7-kg-1400-umin-a-3047833.html",
+   "titel": "Gorenje WMSG2PS8 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3035406": {
+   "url": "https://www.saturn.de/de/product/_haier-hw80-bp14637t-g3-waschmaschine-8-kg-1330-umin-a-3035406.html",
+   "titel": "Haier HW80-BP14637T Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2940773": {
+   "url": "https://www.saturn.de/de/product/_hisense-wf5s1045bw-waschmaschine-105-kg-1400-umin-a-waschmaschine-10-kg-a-2940773.html",
+   "titel": "Hisense WF5S1045BW Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3008424": {
+   "url": "https://www.saturn.de/de/product/_siemens-wm14nkeco5-iq300-waschmaschine-80-kg-1400-umin-a-3008424.html",
+   "titel": "Siemens WM14NKECO5 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-150516538": {
+   "url": "https://www.saturn.de/de/product/_bauknecht-wm-7-m100-a-waschmaschine-7-kg-1351-umin-a-150516538.html",
+   "titel": "Bauknecht WM 7 M100 A Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3035388": {
+   "url": "https://www.saturn.de/de/product/_haier-hw90-bpd13386gu1-serie-9-toplader-waschmaschine-9-kg-1300-umin-a-3035388.html",
+   "titel": "Haier HW90-BPD13386GU1 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-178925972": {
+   "url": "https://www.saturn.de/de/product/_samsung-wf90h09c4st2-waschmaschine-9-kg-a-178925972.html",
+   "titel": "Samsung WF90H09C4ST2 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2996025": {
+   "url": "https://www.saturn.de/de/product/_aeg-lr7a70600-7000-waschmaschine-100-kg-1550-umin-a-ja-2996025.html",
+   "titel": "AEG LR7A70600 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3067897": {
+   "url": "https://www.saturn.de/de/product/_lg-f4wx703y-serie-x7-waschmaschine-13-kg-1350-umin-a-3067897.html",
+   "titel": "LG F4WX703Y Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3039494": {
+   "url": "https://www.saturn.de/de/product/_aeg-lr6f5e485-6000-waschmaschine-80-kg-1351-umin-a-ja-3039494.html",
+   "titel": "AEG LR6F5E485 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2985116": {
+   "url": "https://www.saturn.de/de/product/_miele-wwa120-wcs-8kg-active-w1-white-edition-waschmaschine-8-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2985116.html",
+   "titel": "Miele WWA120 WCS Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2998046": {
+   "url": "https://www.saturn.de/de/product/_bosch-wgg256z41-serie-6-waschmaschine-100-kg-1600-umin-a-2998046.html",
+   "titel": "Bosch WGG256Z41 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3033065": {
+   "url": "https://www.saturn.de/de/product/_bosch-wan282eco6-serie-4-waschmaschine-80-kg-1351-umin-a-3033065.html",
+   "titel": "Bosch WAN282ECO6 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2893683": {
+   "url": "https://www.saturn.de/de/product/_samsung-ww90cgc04aabeg-waschmaschine-9-kg-1400-umin-a-2893683.html",
+   "titel": "Samsung WW90CGC04AABEG Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-3062898": {
+   "url": "https://www.saturn.de/de/product/_siemens-wg44bfcb1-iq700-waschmaschine-90-kg-1400-umin-a-3062898.html",
+   "titel": "Siemens WG44BFCB1 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2985120": {
+   "url": "https://www.saturn.de/de/product/_miele-wwg880-wcs-pwashandtdosandsteam-w1-white-edition-waschmaschine-9-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2985120.html",
+   "titel": "Miele WWG880 WCS Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-146937874": {
+   "url": "https://www.saturn.de/de/product/_samsung-ww11db8b95gbu2-11-kg-1400-umin-a-146937874.html",
+   "titel": "Samsung WW11DB8B95GBU2 Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2870293": {
+   "url": "https://www.saturn.de/de/product/_lg-f4wr701y-serie-7-waschmaschine-11-kg-1350-umin-a-2870293.html",
+   "titel": "LG F4WR701Y Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2912147": {
+   "url": "https://www.saturn.de/de/product/_miele-wwb380-wps-125-edition-w1-white-edition-waschmaschine-8-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2912147.html",
+   "titel": "Miele WWB380 WPS Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2985113": {
+   "url": "https://www.saturn.de/de/product/_miele-web365-wps-pwashand8kg-waschmaschine-8-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2985113.html",
+   "titel": "Miele WEB365 WPS Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  },
+  "saturn-2985118": {
+   "url": "https://www.saturn.de/de/product/_miele-wwb360-wps-pwashand8kg-w1-white-edition-waschmaschine-8-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2985118.html",
+   "titel": "Miele WWB360 WPS Datenblatt (Saturn)",
+   "gelesen": "2026-11-21"
+  }
+ },
+ "modelle": [
+  {
+   "id": "siemens-wm14n22a",
+   "hersteller": "Siemens",
+   "name": "WM14N22A",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "siemens-wm14n22a-v1",
+     "name": "WM14N22A",
+     "mpn": "WM14N22A",
+     "ean": [
+      "4242003992159"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 9.0,
+      "wasser_l_je_kg": 5.11,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 217,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "vollschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3033066",
+      "schleuderklasse": "saturn-3033066",
+      "kapazitaet_kg": "saturn-3033066",
+      "wasser_l_je_kg": "saturn-3033066",
+      "geraeusch_schleudern_db": "saturn-3033066",
+      "garantie_jahre": "saturn-3033066",
+      "dauer_eco_min": "saturn-3033066",
+      "dosierautomatik": "saturn-3033066",
+      "dampf_hygiene": "saturn-3033066",
+      "startvorwahl": "saturn-3033066",
+      "bauart": "saturn-3033066",
+      "wasserschutz": "saturn-3033066"
+     },
+     "preis": {
+      "eur": 459.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_siemens-wm14n22a-iq300-waschmaschine-90-kg-1351-umin-a-3033066.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-ww90fg3m05aweg",
+   "hersteller": "Samsung",
+   "name": "WW90FG3M05AWEG",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-ww90fg3m05aweg-v1",
+     "name": "WW90FG3M05AWEG",
+     "mpn": "WW90FG3M05AWEG",
+     "ean": [
+      "8806097015918"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 9.0,
+      "wasser_l_je_kg": 5.56,
+      "geraeusch_schleudern_db": 76.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 228,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3023865",
+      "schleuderklasse": "saturn-3023865",
+      "kapazitaet_kg": "saturn-3023865",
+      "wasser_l_je_kg": "saturn-3023865",
+      "geraeusch_schleudern_db": "saturn-3023865",
+      "garantie_jahre": "saturn-3023865",
+      "dauer_eco_min": "saturn-3023865",
+      "dosierautomatik": "saturn-3023865",
+      "dampf_hygiene": "saturn-3023865",
+      "startvorwahl": "saturn-3023865",
+      "bauart": "saturn-3023865",
+      "wasserschutz": "saturn-3023865"
+     },
+     "preis": {
+      "eur": 379.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_samsung-ww90fg3m05aweg-waschmaschine-9-kg-1400-umin-a-3023865.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "beko-bms3wfoe74",
+   "hersteller": "Beko",
+   "name": "BMS3WFOE74",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "beko-bms3wfoe74-v1",
+     "name": "BMS3WFOE74",
+     "mpn": "BMS3WFOE74",
+     "ean": [
+      "8690842811005"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "C",
+      "kapazitaet_kg": 7.0,
+      "wasser_l_je_kg": 6.14,
+      "geraeusch_schleudern_db": 76.0,
+      "dauer_eco_min": 208,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader"
+     },
+     "belege": {
+      "energieklasse": "saturn-3005755",
+      "schleuderklasse": "saturn-3005755",
+      "kapazitaet_kg": "saturn-3005755",
+      "wasser_l_je_kg": "saturn-3005755",
+      "geraeusch_schleudern_db": "saturn-3005755",
+      "dauer_eco_min": "saturn-3005755",
+      "dosierautomatik": "saturn-3005755",
+      "dampf_hygiene": "saturn-3005755",
+      "startvorwahl": "saturn-3005755",
+      "bauart": "saturn-3005755"
+     },
+     "preis": {
+      "eur": 277.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_beko-bms3wfoe74-waschmaschine-7-kg-1400-umin-a-3005755.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "gorenje-wmsg2ps8",
+   "hersteller": "Gorenje",
+   "name": "WMSG2PS8",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "gorenje-wmsg2ps8-v1",
+     "name": "WMSG2PS8",
+     "mpn": "WMSG2PS8",
+     "ean": [
+      "3838783145659"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 7.0,
+      "wasser_l_je_kg": 6.0,
+      "geraeusch_schleudern_db": 72.0,
+      "dauer_eco_min": 208,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "bauart": "frontlader",
+      "wasserschutz": "vollschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3047833",
+      "schleuderklasse": "saturn-3047833",
+      "kapazitaet_kg": "saturn-3047833",
+      "wasser_l_je_kg": "saturn-3047833",
+      "geraeusch_schleudern_db": "saturn-3047833",
+      "dauer_eco_min": "saturn-3047833",
+      "dosierautomatik": "saturn-3047833",
+      "dampf_hygiene": "saturn-3047833",
+      "bauart": "saturn-3047833",
+      "wasserschutz": "saturn-3047833"
+     },
+     "preis": {
+      "eur": 279.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_gorenje-wmsg2ps8-g200-waschmaschine-7-kg-1400-umin-a-3047833.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "haier-hw80-bp14637t",
+   "hersteller": "Haier",
+   "name": "HW80-BP14637T",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "haier-hw80-bp14637t-v1",
+     "name": "HW80-BP14637T",
+     "mpn": "HW80-BP14637T",
+     "ean": [
+      "6921081521861"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 8.0,
+      "wasser_l_je_kg": 5.0,
+      "geraeusch_schleudern_db": 69.0,
+      "dauer_eco_min": 218,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3035406",
+      "schleuderklasse": "saturn-3035406",
+      "kapazitaet_kg": "saturn-3035406",
+      "wasser_l_je_kg": "saturn-3035406",
+      "geraeusch_schleudern_db": "saturn-3035406",
+      "dauer_eco_min": "saturn-3035406",
+      "dosierautomatik": "saturn-3035406",
+      "dampf_hygiene": "saturn-3035406",
+      "startvorwahl": "saturn-3035406",
+      "bauart": "saturn-3035406",
+      "wasserschutz": "saturn-3035406"
+     },
+     "preis": {
+      "eur": 299.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_haier-hw80-bp14637t-g3-waschmaschine-8-kg-1330-umin-a-3035406.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hisense-wf5s1045bw",
+   "hersteller": "Hisense",
+   "name": "WF5S1045BW",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "hisense-wf5s1045bw-v1",
+     "name": "WF5S1045BW",
+     "mpn": "WF5S1045BW",
+     "ean": [
+      "6901101825575"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 10.0,
+      "wasser_l_je_kg": 4.1,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 239,
+      "dosierautomatik": true,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-2940773",
+      "schleuderklasse": "saturn-2940773",
+      "kapazitaet_kg": "saturn-2940773",
+      "wasser_l_je_kg": "saturn-2940773",
+      "geraeusch_schleudern_db": "saturn-2940773",
+      "garantie_jahre": "saturn-2940773",
+      "dauer_eco_min": "saturn-2940773",
+      "dosierautomatik": "saturn-2940773",
+      "dampf_hygiene": "saturn-2940773",
+      "startvorwahl": "saturn-2940773",
+      "bauart": "saturn-2940773",
+      "wasserschutz": "saturn-2940773"
+     },
+     "preis": {
+      "eur": 399.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_hisense-wf5s1045bw-waschmaschine-105-kg-1400-umin-a-waschmaschine-10-kg-a-2940773.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "siemens-wm14nkeco5",
+   "hersteller": "Siemens",
+   "name": "WM14NKECO5",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "siemens-wm14nkeco5-v1",
+     "name": "WM14NKECO5",
+     "mpn": "WM14NKECO5",
+     "ean": [
+      "4242003977545"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 8.0,
+      "wasser_l_je_kg": 5.88,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 213,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "vollschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3008424",
+      "schleuderklasse": "saturn-3008424",
+      "kapazitaet_kg": "saturn-3008424",
+      "wasser_l_je_kg": "saturn-3008424",
+      "geraeusch_schleudern_db": "saturn-3008424",
+      "garantie_jahre": "saturn-3008424",
+      "dauer_eco_min": "saturn-3008424",
+      "dosierautomatik": "saturn-3008424",
+      "dampf_hygiene": "saturn-3008424",
+      "startvorwahl": "saturn-3008424",
+      "bauart": "saturn-3008424",
+      "wasserschutz": "saturn-3008424"
+     },
+     "preis": {
+      "eur": 499.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_siemens-wm14nkeco5-iq300-waschmaschine-80-kg-1400-umin-a-3008424.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bauknecht-wm-7-m100-a",
+   "hersteller": "Bauknecht",
+   "name": "WM 7 M100 A",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "bauknecht-wm-7-m100-a-v1",
+     "name": "WM 7 M100 A",
+     "mpn": "WM 7 M100 A",
+     "ean": [
+      "4011577866322"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 7.0,
+      "wasser_l_je_kg": 6.43,
+      "geraeusch_schleudern_db": 76.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 205,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader"
+     },
+     "belege": {
+      "energieklasse": "saturn-150516538",
+      "schleuderklasse": "saturn-150516538",
+      "kapazitaet_kg": "saturn-150516538",
+      "wasser_l_je_kg": "saturn-150516538",
+      "geraeusch_schleudern_db": "saturn-150516538",
+      "garantie_jahre": "saturn-150516538",
+      "dauer_eco_min": "saturn-150516538",
+      "dosierautomatik": "saturn-150516538",
+      "dampf_hygiene": "saturn-150516538",
+      "startvorwahl": "saturn-150516538",
+      "bauart": "saturn-150516538"
+     },
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "haier-hw90-bpd13386gu1",
+   "hersteller": "Haier",
+   "name": "HW90-BPD13386GU1",
+   "jahr": 2026,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "haier-hw90-bpd13386gu1-v1",
+     "name": "HW90-BPD13386GU1",
+     "mpn": "HW90-BPD13386GU1",
+     "ean": [
+      "6921081514009"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 9.0,
+      "wasser_l_je_kg": 5.33,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 228,
+      "dosierautomatik": true,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "toplader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3035388",
+      "schleuderklasse": "saturn-3035388",
+      "kapazitaet_kg": "saturn-3035388",
+      "wasser_l_je_kg": "saturn-3035388",
+      "geraeusch_schleudern_db": "saturn-3035388",
+      "garantie_jahre": "saturn-3035388",
+      "dauer_eco_min": "saturn-3035388",
+      "dosierautomatik": "saturn-3035388",
+      "dampf_hygiene": "saturn-3035388",
+      "startvorwahl": "saturn-3035388",
+      "bauart": "saturn-3035388",
+      "wasserschutz": "saturn-3035388"
+     },
+     "preis": {
+      "eur": 999.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_haier-hw90-bpd13386gu1-serie-9-toplader-waschmaschine-9-kg-1300-umin-a-3035388.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-wf90h09c4st2",
+   "hersteller": "Samsung",
+   "name": "WF90H09C4ST2",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-wf90h09c4st2-v1",
+     "name": "WF90H09C4ST2",
+     "mpn": "WF90H09C4ST2",
+     "ean": [
+      "8806099122386"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 9.0,
+      "wasser_l_je_kg": 5.56,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 228,
+      "dosierautomatik": true,
+      "dampf_hygiene": false,
+      "startvorwahl": true,
+      "bauart": "frontlader"
+     },
+     "belege": {
+      "energieklasse": "saturn-178925972",
+      "schleuderklasse": "saturn-178925972",
+      "kapazitaet_kg": "saturn-178925972",
+      "wasser_l_je_kg": "saturn-178925972",
+      "geraeusch_schleudern_db": "saturn-178925972",
+      "garantie_jahre": "saturn-178925972",
+      "dauer_eco_min": "saturn-178925972",
+      "dosierautomatik": "saturn-178925972",
+      "dampf_hygiene": "saturn-178925972",
+      "startvorwahl": "saturn-178925972",
+      "bauart": "saturn-178925972"
+     },
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "aeg-lr7a70600",
+   "hersteller": "AEG",
+   "name": "LR7A70600",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "aeg-lr7a70600-v1",
+     "name": "LR7A70600",
+     "mpn": "LR7A70600",
+     "ean": [
+      "7333394121659"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "A",
+      "kapazitaet_kg": 10.0,
+      "wasser_l_je_kg": 4.9,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 238,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "vollschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-2996025",
+      "schleuderklasse": "saturn-2996025",
+      "kapazitaet_kg": "saturn-2996025",
+      "wasser_l_je_kg": "saturn-2996025",
+      "geraeusch_schleudern_db": "saturn-2996025",
+      "garantie_jahre": "saturn-2996025",
+      "dauer_eco_min": "saturn-2996025",
+      "dosierautomatik": "saturn-2996025",
+      "dampf_hygiene": "saturn-2996025",
+      "startvorwahl": "saturn-2996025",
+      "bauart": "saturn-2996025",
+      "wasserschutz": "saturn-2996025"
+     },
+     "preis": {
+      "eur": 679.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_aeg-lr7a70600-7000-waschmaschine-100-kg-1550-umin-a-ja-2996025.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lg-f4wx703y",
+   "hersteller": "LG",
+   "name": "F4WX703Y",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "lg-f4wx703y-v1",
+     "name": "F4WX703Y",
+     "mpn": "F4WX703Y",
+     "ean": [
+      "8806096852651"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 13.0,
+      "wasser_l_je_kg": 3.62,
+      "geraeusch_schleudern_db": 71.0,
+      "dauer_eco_min": 240,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3067897",
+      "schleuderklasse": "saturn-3067897",
+      "kapazitaet_kg": "saturn-3067897",
+      "wasser_l_je_kg": "saturn-3067897",
+      "geraeusch_schleudern_db": "saturn-3067897",
+      "dauer_eco_min": "saturn-3067897",
+      "dosierautomatik": "saturn-3067897",
+      "dampf_hygiene": "saturn-3067897",
+      "startvorwahl": "saturn-3067897",
+      "bauart": "saturn-3067897",
+      "wasserschutz": "saturn-3067897"
+     },
+     "preis": {
+      "eur": 679.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_lg-f4wx703y-serie-x7-waschmaschine-13-kg-1350-umin-a-3067897.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "aeg-lr6f5e485",
+   "hersteller": "AEG",
+   "name": "LR6F5E485",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "aeg-lr6f5e485-v1",
+     "name": "LR6F5E485",
+     "mpn": "LR6F5E485",
+     "ean": [
+      "7333394145303"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 8.0,
+      "wasser_l_je_kg": 5.38,
+      "geraeusch_schleudern_db": 74.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 205,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "vollschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3039494",
+      "schleuderklasse": "saturn-3039494",
+      "kapazitaet_kg": "saturn-3039494",
+      "wasser_l_je_kg": "saturn-3039494",
+      "geraeusch_schleudern_db": "saturn-3039494",
+      "garantie_jahre": "saturn-3039494",
+      "dauer_eco_min": "saturn-3039494",
+      "dosierautomatik": "saturn-3039494",
+      "dampf_hygiene": "saturn-3039494",
+      "startvorwahl": "saturn-3039494",
+      "bauart": "saturn-3039494",
+      "wasserschutz": "saturn-3039494"
+     },
+     "preis": {
+      "eur": 459.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_aeg-lr6f5e485-6000-waschmaschine-80-kg-1351-umin-a-ja-3039494.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-wwa120-wcs",
+   "hersteller": "Miele",
+   "name": "WWA120 WCS",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-wwa120-wcs-v1",
+     "name": "WWA120 WCS",
+     "mpn": "WWA120 WCS",
+     "ean": [
+      "4002516864844"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 8.0,
+      "wasser_l_je_kg": 6.0,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 219,
+      "dosierautomatik": false,
+      "dampf_hygiene": false,
+      "startvorwahl": true,
+      "bauart": "frontlader"
+     },
+     "belege": {
+      "energieklasse": "saturn-2985116",
+      "schleuderklasse": "saturn-2985116",
+      "kapazitaet_kg": "saturn-2985116",
+      "wasser_l_je_kg": "saturn-2985116",
+      "geraeusch_schleudern_db": "saturn-2985116",
+      "garantie_jahre": "saturn-2985116",
+      "dauer_eco_min": "saturn-2985116",
+      "dosierautomatik": "saturn-2985116",
+      "dampf_hygiene": "saturn-2985116",
+      "startvorwahl": "saturn-2985116",
+      "bauart": "saturn-2985116"
+     },
+     "preis": {
+      "eur": 777.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-wwa120-wcs-8kg-active-w1-white-edition-waschmaschine-8-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2985116.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bosch-wgg256z41",
+   "hersteller": "Bosch",
+   "name": "WGG256Z41",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "bosch-wgg256z41-v1",
+     "name": "WGG256Z41",
+     "mpn": "WGG256Z41",
+     "ean": [
+      "4242005531226"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "A",
+      "kapazitaet_kg": 10.0,
+      "wasser_l_je_kg": 5.2,
+      "geraeusch_schleudern_db": 73.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 230,
+      "dosierautomatik": false,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-2998046",
+      "schleuderklasse": "saturn-2998046",
+      "kapazitaet_kg": "saturn-2998046",
+      "wasser_l_je_kg": "saturn-2998046",
+      "geraeusch_schleudern_db": "saturn-2998046",
+      "garantie_jahre": "saturn-2998046",
+      "dauer_eco_min": "saturn-2998046",
+      "dosierautomatik": "saturn-2998046",
+      "startvorwahl": "saturn-2998046",
+      "bauart": "saturn-2998046",
+      "wasserschutz": "saturn-2998046"
+     },
+     "preis": {
+      "eur": 649.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bosch-wgg256z41-serie-6-waschmaschine-100-kg-1600-umin-a-2998046.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bosch-wan282eco6",
+   "hersteller": "Bosch",
+   "name": "WAN282ECO6",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "bosch-wan282eco6-v1",
+     "name": "WAN282ECO6",
+     "mpn": "WAN282ECO6",
+     "ean": [
+      "4242005536504"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 8.0,
+      "wasser_l_je_kg": 5.5,
+      "geraeusch_schleudern_db": 71.0,
+      "dauer_eco_min": 205,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3033065",
+      "schleuderklasse": "saturn-3033065",
+      "kapazitaet_kg": "saturn-3033065",
+      "wasser_l_je_kg": "saturn-3033065",
+      "geraeusch_schleudern_db": "saturn-3033065",
+      "dauer_eco_min": "saturn-3033065",
+      "dosierautomatik": "saturn-3033065",
+      "dampf_hygiene": "saturn-3033065",
+      "startvorwahl": "saturn-3033065",
+      "bauart": "saturn-3033065",
+      "wasserschutz": "saturn-3033065"
+     },
+     "preis": {
+      "eur": 529.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bosch-wan282eco6-serie-4-waschmaschine-80-kg-1351-umin-a-3033065.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-ww90cgc04aabeg",
+   "hersteller": "Samsung",
+   "name": "WW90CGC04AABEG",
+   "jahr": 2023,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-ww90cgc04aabeg-v1",
+     "name": "WW90CGC04AABEG",
+     "mpn": "WW90CGC04AABEG",
+     "ean": [
+      "8806095210544"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 9.0,
+      "wasser_l_je_kg": 5.56,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 228,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-2893683",
+      "schleuderklasse": "saturn-2893683",
+      "kapazitaet_kg": "saturn-2893683",
+      "wasser_l_je_kg": "saturn-2893683",
+      "geraeusch_schleudern_db": "saturn-2893683",
+      "garantie_jahre": "saturn-2893683",
+      "dauer_eco_min": "saturn-2893683",
+      "dosierautomatik": "saturn-2893683",
+      "dampf_hygiene": "saturn-2893683",
+      "startvorwahl": "saturn-2893683",
+      "bauart": "saturn-2893683",
+      "wasserschutz": "saturn-2893683"
+     },
+     "preis": {
+      "eur": 499.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_samsung-ww90cgc04aabeg-waschmaschine-9-kg-1400-umin-a-2893683.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "siemens-wg44bfcb1",
+   "hersteller": "Siemens",
+   "name": "WG44BFCB1",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "siemens-wg44bfcb1-v1",
+     "name": "WG44BFCB1",
+     "mpn": "WG44BFCB1",
+     "ean": [
+      "4242003998717"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 9.0,
+      "wasser_l_je_kg": 5.11,
+      "geraeusch_schleudern_db": 69.0,
+      "dauer_eco_min": 219,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-3062898",
+      "schleuderklasse": "saturn-3062898",
+      "kapazitaet_kg": "saturn-3062898",
+      "wasser_l_je_kg": "saturn-3062898",
+      "geraeusch_schleudern_db": "saturn-3062898",
+      "dauer_eco_min": "saturn-3062898",
+      "dosierautomatik": "saturn-3062898",
+      "dampf_hygiene": "saturn-3062898",
+      "startvorwahl": "saturn-3062898",
+      "bauart": "saturn-3062898",
+      "wasserschutz": "saturn-3062898"
+     },
+     "preis": {
+      "eur": 779.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_siemens-wg44bfcb1-iq700-waschmaschine-90-kg-1400-umin-a-3062898.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-wwg880-wcs",
+   "hersteller": "Miele",
+   "name": "WWG880 WCS",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-wwg880-wcs-v1",
+     "name": "WWG880 WCS",
+     "mpn": "WWG880 WCS",
+     "ean": [
+      "4002516856450"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 9.0,
+      "wasser_l_je_kg": 5.56,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 229,
+      "dosierautomatik": true,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader"
+     },
+     "belege": {
+      "energieklasse": "saturn-2985120",
+      "schleuderklasse": "saturn-2985120",
+      "kapazitaet_kg": "saturn-2985120",
+      "wasser_l_je_kg": "saturn-2985120",
+      "geraeusch_schleudern_db": "saturn-2985120",
+      "garantie_jahre": "saturn-2985120",
+      "dauer_eco_min": "saturn-2985120",
+      "dosierautomatik": "saturn-2985120",
+      "dampf_hygiene": "saturn-2985120",
+      "startvorwahl": "saturn-2985120",
+      "bauart": "saturn-2985120"
+     },
+     "preis": {
+      "eur": 977.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-wwg880-wcs-pwashandtdosandsteam-w1-white-edition-waschmaschine-9-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2985120.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-ww11db8b95gbu2",
+   "hersteller": "Samsung",
+   "name": "WW11DB8B95GBU2",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-ww11db8b95gbu2-v1",
+     "name": "WW11DB8B95GBU2",
+     "mpn": "WW11DB8B95GBU2",
+     "ean": [
+      "8806095550220"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 11.0,
+      "wasser_l_je_kg": 4.91,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 240,
+      "dosierautomatik": true,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "teilschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-146937874",
+      "schleuderklasse": "saturn-146937874",
+      "kapazitaet_kg": "saturn-146937874",
+      "wasser_l_je_kg": "saturn-146937874",
+      "geraeusch_schleudern_db": "saturn-146937874",
+      "garantie_jahre": "saturn-146937874",
+      "dauer_eco_min": "saturn-146937874",
+      "dosierautomatik": "saturn-146937874",
+      "dampf_hygiene": "saturn-146937874",
+      "startvorwahl": "saturn-146937874",
+      "bauart": "saturn-146937874",
+      "wasserschutz": "saturn-146937874"
+     },
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "lg-f4wr701y",
+   "hersteller": "LG",
+   "name": "F4WR701Y",
+   "jahr": 2024,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "lg-f4wr701y-v1",
+     "name": "F4WR701Y",
+     "mpn": "F4WR701Y",
+     "ean": [
+      "8806084136046"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "A",
+      "kapazitaet_kg": 11.0,
+      "wasser_l_je_kg": 4.91,
+      "geraeusch_schleudern_db": 71.0,
+      "dauer_eco_min": 240,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader"
+     },
+     "belege": {
+      "energieklasse": "saturn-2870293",
+      "schleuderklasse": "saturn-2870293",
+      "kapazitaet_kg": "saturn-2870293",
+      "wasser_l_je_kg": "saturn-2870293",
+      "geraeusch_schleudern_db": "saturn-2870293",
+      "dauer_eco_min": "saturn-2870293",
+      "dosierautomatik": "saturn-2870293",
+      "dampf_hygiene": "saturn-2870293",
+      "startvorwahl": "saturn-2870293",
+      "bauart": "saturn-2870293"
+     },
+     "preis": {
+      "eur": 499.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_lg-f4wr701y-serie-7-waschmaschine-11-kg-1350-umin-a-2870293.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-wwb380-wps",
+   "hersteller": "Miele",
+   "name": "WWB380 WPS",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-wwb380-wps-v1",
+     "name": "WWB380 WPS",
+     "mpn": "WWB380 WPS",
+     "ean": [
+      "4002516747499"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 8.0,
+      "wasser_l_je_kg": 6.0,
+      "geraeusch_schleudern_db": 72.0,
+      "dauer_eco_min": 219,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "vollschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-2912147",
+      "schleuderklasse": "saturn-2912147",
+      "kapazitaet_kg": "saturn-2912147",
+      "wasser_l_je_kg": "saturn-2912147",
+      "geraeusch_schleudern_db": "saturn-2912147",
+      "dauer_eco_min": "saturn-2912147",
+      "dosierautomatik": "saturn-2912147",
+      "dampf_hygiene": "saturn-2912147",
+      "startvorwahl": "saturn-2912147",
+      "bauart": "saturn-2912147",
+      "wasserschutz": "saturn-2912147"
+     },
+     "preis": {
+      "eur": 1049.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-wwb380-wps-125-edition-w1-white-edition-waschmaschine-8-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2912147.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-web365-wps",
+   "hersteller": "Miele",
+   "name": "WEB365 WPS",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-web365-wps-v1",
+     "name": "WEB365 WPS",
+     "mpn": "WEB365 WPS",
+     "ean": [
+      "4002516864585"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 8.0,
+      "wasser_l_je_kg": 6.0,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 2,
+      "dauer_eco_min": 219,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "vollschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-2985113",
+      "schleuderklasse": "saturn-2985113",
+      "kapazitaet_kg": "saturn-2985113",
+      "wasser_l_je_kg": "saturn-2985113",
+      "geraeusch_schleudern_db": "saturn-2985113",
+      "garantie_jahre": "saturn-2985113",
+      "dauer_eco_min": "saturn-2985113",
+      "dosierautomatik": "saturn-2985113",
+      "dampf_hygiene": "saturn-2985113",
+      "startvorwahl": "saturn-2985113",
+      "bauart": "saturn-2985113",
+      "wasserschutz": "saturn-2985113"
+     },
+     "preis": {
+      "eur": 989.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-web365-wps-pwashand8kg-waschmaschine-8-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2985113.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-wwb360-wps",
+   "hersteller": "Miele",
+   "name": "WWB360 WPS",
+   "jahr": 2025,
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "miele-wwb360-wps-v1",
+     "name": "WWB360 WPS",
+     "mpn": "WWB360 WPS",
+     "ean": [
+      "4002516858843"
+     ],
+     "werte": {
+      "energieklasse": "A",
+      "schleuderklasse": "B",
+      "kapazitaet_kg": 8.0,
+      "wasser_l_je_kg": 6.0,
+      "geraeusch_schleudern_db": 72.0,
+      "garantie_jahre": 1,
+      "dauer_eco_min": 219,
+      "dosierautomatik": false,
+      "dampf_hygiene": true,
+      "startvorwahl": true,
+      "bauart": "frontlader",
+      "wasserschutz": "vollschutz"
+     },
+     "belege": {
+      "energieklasse": "saturn-2985118",
+      "schleuderklasse": "saturn-2985118",
+      "kapazitaet_kg": "saturn-2985118",
+      "wasser_l_je_kg": "saturn-2985118",
+      "geraeusch_schleudern_db": "saturn-2985118",
+      "garantie_jahre": "saturn-2985118",
+      "dauer_eco_min": "saturn-2985118",
+      "dosierautomatik": "saturn-2985118",
+      "dampf_hygiene": "saturn-2985118",
+      "startvorwahl": "saturn-2985118",
+      "bauart": "saturn-2985118",
+      "wasserschutz": "saturn-2985118"
+     },
+     "preis": {
+      "eur": 1089.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-wwb360-wps-pwashand8kg-w1-white-edition-waschmaschine-8-kg-1400-umin-a-flusenfilter-fremdkorperfilter-2985118.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  }
+ ]
+}
