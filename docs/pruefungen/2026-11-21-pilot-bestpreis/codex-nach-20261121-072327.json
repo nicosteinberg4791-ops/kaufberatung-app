@@ -1,0 +1,69 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Commit c36205f ist für den Push auf main blockiert. Der gezielte Testlauf war mit 59 Tests erfolgreich. Die Gegenproben zeigten weiterhin Verstöße gegen die Abruf- und Angebotsregeln. Der Push würde außerdem fremde Shoptexte in Prüfprotokollen veröffentlichen.",
+  "befunde": [
+    {
+      "id": "D7-02",
+      "schwere": "schwer",
+      "titel": "Verkürzte HTTP-200-Antwort gibt Produktabruf frei",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 405,
+      "beleg": "Das Kriterium lautet „robots.txt live gelesen, nicht lesbar = Quelle nicht abfragen“. Im lokalen HTTP-Test kündigte der Server per Content-Length die vollständige Sperrregel an, beendete die HTTP-200-Antwort aber nach `Disallow: `. `robots_fuer()` gab einen Parser zurück und `url_erlaubt()` erlaubte die Saturn-Produktseite. Der neue Test deckt HTTP 206 und Überlänge ab.",
+      "auswirkung": "Ein Übertragungsabbruch kann eine Sperrregel abschneiden und einen Produktabruf freigeben.",
+      "vorschlag": "Die Vollständigkeit anhand der HTTP-Übertragung prüfen, vorzeitiges EOF als `NichtAbrufbar` behandeln und den verkürzten HTTP-200-Fall in den Abruf-Test aufnehmen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-05",
+      "schwere": "schwer",
+      "titel": "Heise-Treffer ohne Gültigkeitsnachweis wird Bestpreis",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 356,
+      "beleg": "Das Kriterium lautet „Angebot gültig nur bei passender EAN, NewCondition (oder fehlend), InStock, EUR, Preis im Korridor, Verkäufer = Shop“. In der Offline-Gegenprobe übernahm `heise_auswerten()` einen Treffer mit `delivery_time: \"nicht lieferbar\"` für 190,00 € inklusive Versand. `bestpreis()` wählte ihn aus. Die Funktion prüft den Preiskorridor und wertet die übrigen Nachweise nicht aus.",
+      "auswirkung": "Ein ausdrücklich nicht lieferbarer Treffer kann als kaufbarer Bestpreis erscheinen.",
+      "vorschlag": "Heise gemäß Quellenfreigabe weiter abfragen und Treffer bis zum geforderten Nachweis als Vergleichslinks außerhalb der Bestpreisauswahl führen. Eine abweichende Regel setzt einen ausdrücklichen Besitzerentscheid voraus.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-09",
+      "schwere": "schwer",
+      "titel": "Fremde Shoptexte bleiben in Vorlage und Prüfprotokoll",
+      "datei": "docs/pruefungen/2026-11-21-pilot-bestpreis/codex-nach-20261121-071534.json",
+      "zeile": 55,
+      "beleg": "Das Kriterium lautet „Keine persönlichen Daten, Pfade, Konto-URLs oder fremden Shoptexte in versionierten Dateien (Repo öffentlich).“ Das gegenüber der lokalen Referenz `origin/main` neu hinzukommende Prüfprotokoll zitiert den entfernten Saturn-Werbezusatz wörtlich. `tests/vorlagen/alternate_lg65.html:4` enthält im Breadcrumb weiter den übernommenen Produktnamen. Auf dem Commit der lokalen Referenz `origin/main` stehen der Saturn-Werbetext und ein Kontopfad weiterhin in `tests/vorlagen/saturn_s90h.html:4`.",
+      "auswirkung": "Ein Push von c36205f würde den zuvor entfernten Werbetext in einem weiteren öffentlichen Dokument veröffentlichen. Die alten Vorlagen bleiben über die Git-Historie abrufbar.",
+      "vorschlag": "Shoptexte und Kontopfade aus den zu veröffentlichenden Prüfprotokollen entfernen, die Alternate-Vorlage auf die geprüften Felder kürzen und den Umgang mit der bestehenden Historie vor der Freigabe mit dem Besitzer klären.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-11",
+      "schwere": "schwer",
+      "titel": "Explizite CAPTCHA-Aufforderung löst keine Laufsperre aus",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 378,
+      "beleg": "Das Kriterium lautet „403/429/503/Challenge = Quelle für den Lauf gesperrt, nie umgangen.“ `ist_challenge()` erkennt die früheren `Access Denied`-Fälle. In der Offline-Gegenprobe lieferte die Funktion für die ausdrückliche Aufforderung `Please complete the CAPTCHA to continue.` als gesamte HTTP-200-Antwort mit `text/plain` sowie als HTML-Überschrift nach Zeichen 30.000 jeweils `False`. Umgekehrt lieferte ein bloßer robots.txt-Pfadeintrag mit einem spezifischen Challenge-Pfad `True`.",
+      "auswirkung": "Nach einer ausdrücklichen Bot-Sperre kann der Lauf weitere Seiten derselben Quelle abrufen. Ein passiver robots.txt-Eintrag kann eine erreichbare Quelle sperren.",
+      "vorschlag": "Explizite CAPTCHA-Aufforderungen unabhängig von Inhaltstyp und Position erkennen und dabei passive robots.txt-Direktiven berücksichtigen. Beide Fälle als Abruf-Regressionstests ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-14",
+      "schwere": "schwer",
+      "titel": "Mehrdeutiger Saturn-Status kann als Eigenangebot gelten",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 244,
+      "beleg": "Das Kriterium verlangt „Verkäufer = Shop (Saturn: Nachweis über eingebettetes Preisfeld, Marktplatz verworfen)“. In der Offline-Gegenprobe enthielt dasselbe Saturn-Preisobjekt den Schlüssel `isProductOfTypeMarketplace` zuerst mit `true` und danach mit `false`. Der Anker traf auf `true`, `raw_decode()` behielt `false` und `auswerten_seite()` nahm das Angebot für 219,99 € als Saturn-Eigenangebot auf. Ein widersprüchlicher Marktplatzstatus liefert keinen eindeutigen Verkäufernachweis.",
+      "auswirkung": "Ein Marktplatzeintrag mit widersprüchlichem Seitenzustand kann in die Bestpreisauswahl gelangen.",
+      "vorschlag": "Doppelte Schlüssel bei der Dekodierung des Saturn-Preisobjekts ablehnen und den Fall mit widersprüchlichem Marktplatzstatus als Regressionstest aufnehmen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "D7-04 – Der Preis eines nachfolgenden Objekts mit anderer SKU und vorangestelltem `__typename` wird nicht mehr übernommen.",
+    "D7-07 – Proshop und Pro-Shop bleiben ohne ausdrücklichen Alias getrennt.",
+    "D7-10 – NaN liefert keinen Preisnachweis mehr und negativer Versand aus dem Saturn-Seitenzustand fließt nicht in den Gesamtpreis ein.",
+    "D7-12 – Die Datenprüfung verlangt einen JSON-Boolean und beide Abrufpfade verlangen `is True`.",
+    "D7-13 – Die Modellhinweise stimmen mit der dokumentierten Heise-Freigabe überein."
+  ],
+  "pruefgrenzen": "Der gezielte Unittest-Lauf mit `-I -B` ergab 59 Tests, OK. Der Auftrag nennt noch 44. `tests/alle-tests.ps1` blieb wegen seines Schreib- und Löschverhaltens im lesenden Auftrag unausgeführt. Die Shoplogik wurde mit Vorlagen und lokalen Gegenproben geprüft. Die aktuelle Erreichbarkeit, externe Freigabegrundlagen und der Actions-Lauf wurden nicht live verifiziert. Der Vergleich für die Veröffentlichung beruht auf der lokalen Referenz `origin/main`."
+}

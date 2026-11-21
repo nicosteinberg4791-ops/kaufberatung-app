@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 20.11.2026 · `main` ab7e705 (Doku-Änderungen unten nicht committet) auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 090ac453670e, Inhalt Artifact-Version 30. Neu: Recherche Bestpreis-Link (D7) und Pilot lokal (21.11.2026), Prüfstand selbst geprüft · unabhängig nein · Besitzer: Pilot beauftragt, Push (O9) offen.
+Stand: 21.11.2026 · `main` c36205f lokal (origin/main 79daf34 gepusht) auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 090ac453670e, Inhalt Artifact-Version 30. Pilot Bestpreis-Mix (D7) gepusht und einmal auf Actions gelaufen; Prüfstand selbst geprüft · unabhängig: Codex 3 Runden, nicht bestanden · Besitzer: Push/Livegang 21.11. freigegeben.
 
 ## „Für alle“ (seit Artifact-Version 28 veröffentlicht)
 
@@ -20,17 +20,17 @@ Stand: 20.11.2026 · `main` ab7e705 (Doku-Änderungen unten nicht committet) auf
 
 - Recherche fertig: `docs/recherche-eigene-preissuche.md`. Eigene Abfrage (JSON-LD, EAN) belegt bei MediaMarkt, Saturn, Alternate (selbst geprüft) und Proshop (Subagent). Amazon, Cyberport, computeruniverse, Galaxus, Coolblue u. a. sperren einfache Abrufe (nicht umgehen).
 - Besitzer: Pilot mit Quellen-Mix heise + idealo + eigene Abfrage, jede Quelle nur nach Rechtsprüfung (Abschnitt 8 des Berichts).
-- **Pilot lokal gebaut (21.11.2026, nicht committet):** `daten/quellen.json` (Freigabe mit Datum und Beleg), `daten/pilot_modelle.json` (5 Modelle: LG OLED65C6ELB, Samsung GQ65S90H, Ninja AF500EU, Dreame Z30, Galaxy S26 Ultra 256 GB), `werkzeuge/shopabfrage.py` → `pilot-preise.json` (in .gitignore), `tests/test_shopabfrage.py` mit gekürzten echten Vorlagen `tests/vorlagen/`, Workflow-Entwurf `.github/workflows/pilot-preise.yml` (nur `workflow_dispatch`, Artefakt, nicht gepusht).
-- Freigegeben (automatisch): Saturn, Alternate, Proshop (robots.txt erlaubt Produktseiten, AGB ohne Abrufverbot, selbst gelesen) und heise (Besitzer 21.11.2026, O8; Händler-AGB Ziffer 6.8 „Spidering“ richtet sich an Händler). Nur Link: MediaMarkt (robots.txt und AGB 403 Cloudflare, am 20.11. noch erreichbar), idealo (403 Akamai).
-- Saturn nennt im JSON-LD keinen Verkäufer; eigenes Angebot nur mit Nachweis aus dem eingebetteten Preisfeld (`isProductOfTypeMarketplace=false`, gleicher Preis). Beleg: S26 Ultra bei Saturn 1.115,99 € war Marktplatzhändler.
-- Livelauf 21.11.2026: alle 5 Modelle mit Preis, Quelle, Link, Zeit (LG 1.668,99 € Alternate inkl. 69,99 € Versand; S90H 1.399 € Saturn; Ninja 179,04 € Proshop; Dreame 279 € Saturn; S26 Ultra 1.030,99 € Alternate, Hinweis Proshop 969 € zzgl. Versand). Prüfstand: selbst geprüft (Tests, Livelauf) · unabhängig nein.
+- **Pilot (21.11.2026):** `daten/quellen.json` (Freigabe mit Datum und Beleg), `daten/pilot_modelle.json` (5 Modelle), `werkzeuge/shopabfrage.py` → `pilot-preise.json` (in .gitignore), `tests/test_shopabfrage.py` (59 Tests, synthetische Vorlagen `tests/vorlagen/`), `.github/workflows/pilot-preise.yml` (nur `workflow_dispatch`, Ergebnis als Artefakt). 79daf34 gepusht (Besitzer 21.11.), Korrekturen 10b8897 und c36205f nur lokal.
+- Automatisch: Saturn, Alternate, Proshop, heise (O8). Nur Link: MediaMarkt, idealo (403). Saturn: eigenes Angebot nur mit Nachweis im eingebetteten Preisfeld; Weiterleitungen werden nicht verfolgt (Saturn leitet Ninja/Dreame auf Marktplatz-Varianten um).
+- **Actions-Lauf 44871394260** (21.11. 05:33 UTC): Alternate ok, heise ok; **Saturn 403 und Proshop 403 schon bei robots.txt** (Rechenzentrums-IP gesperrt, nicht umgehen). Lokal (Heim-IP) liefern alle vier. Bestpreise Actions: LG 1.349 € (heise), S90H 1.469 € (heise), Ninja 164 € (heise), Dreame keiner, S26 1.030,99 € (Alternate).
+- **Codex-Prüfung** `docs/pruefungen/2026-11-21-pilot-bestpreis/`: r1 9 Befunde (1 kritisch), r2 9 (1 kritisch, neu durch Korrektur), r3 5 schwer offen (D7-02 gekürzte 200-Antwort, D7-05 heise ohne Gültigkeitsnachweis → Besitzer, D7-09 Shoptexte in Alternate-Vorlage und Prüfprotokollen, D7-11 Captcha-Text, D7-14 doppelter Marktplatz-Schlüssel). Bewertungen `bewertung-r1..r3.md`, Fehlalarme 0.
 
 ## Offen
 
-- **O8:** erledigt (21.11.2026): heise automatisch; idealo und MediaMarkt technisch gesperrt (403), bleiben Link. **O9:** Push von `pilot-preise.yml` + Pilotdateien auf `main` und ein manueller Testlauf braucht Freigabe Besitzer (vorgelegt 21.11.2026). **O10:** Impressum nötig? (Recherche 5., Besitzer)
+- **O8:** erledigt (21.11.2026): heise automatisch; idealo und MediaMarkt technisch gesperrt (403), bleiben Link. **O9:** erledigt (Push und Testlauf 21.11.2026). **O11:** D7-05 – heise-Treffer als Bestpreis oder nur Vergleichspreis? **O12:** Saturn/Proshop sperren Actions-IPs: Pilot dort nur mit Alternate+heise oder Lauf vom Heimrechner? **O13:** alte Vorlagen mit Shoptexten in öffentlicher Historie (79daf34) belassen? **O10:** Impressum nötig? (Recherche 5., Besitzer)
 - **O5:** Wunschpreise als Secret setzen? **O6:** heise-Nutzungsbedingungen ungeklärt (dokumentiert). **O7:** Web Push scharf schalten und Zustellung bestätigen.
 - Nicht auf echtem Android-Handy geprüft: neue Icons (WebAPK übernimmt verzögert), Push-Zustellung, Besitzer-Merker.
 
 ## Nächster Schritt
 
-Codex-Prüfung `docs/pruefungen/2026-11-21-pilot-bestpreis/` abschließen, dann entscheidet der Besitzer O9 (Commit + Push der Pilotdateien auf `main`, `pilot-preise.yml` einmal manuell starten). Danach: Actions-Artefakt auswerten (Sperren aus Rechenzentrums-IPs?), 3–5 Tage messen (Bericht Abschnitt 8, Schritt 8). Vor dem Push: Codex-Prüfung der Pilotdateien empfohlen (Prüfpunkt Veröffentlichung).
+Neue Sitzung: Befunde r3 nach `bewertung-r3.md` korrigieren (D7-02, -09, -11, -14) mit Test, Codex-Runde 4 (`-Art nach -Vorbericht codex-nach-20261121-072327.json -Bewertung bewertung-r3.md -Basis c36205f`). Push von c36205f+ erst nach bestandener Prüfung. Besitzer: O11–O13. Danach 3–5 Tage messen (Bericht Abschnitt 8, Schritt 8).
