@@ -1,0 +1,108 @@
+{
+ "hinweis": "Quellenfreigabe Pilot Bestpreis-Mix (D7, docs/recherche-eigene-preissuche.md Abschnitt 8). automatisch=true nur nach dokumentierter Prüfung von robots.txt, Nutzungsbedingungen/AGB und technischer Erreichbarkeit; sonst erscheint die Quelle nur als Link. Keine Rechtsberatung. Prüfungen am 21.11.2026 mit Python urllib, ehrlicher User-Agent (Kaufberatung-Preispilot), ein Abruf je Seite.",
+ "quellen": [
+  {
+   "id": "saturn",
+   "name": "Saturn",
+   "domain": "www.saturn.de",
+   "typ": "shop",
+   "automatisch": true,
+   "verkaeufer": [],
+   "verkaeufer_nachweis": "mms_preisfeld",
+   "mms_praefix": "Saturn:de:",
+   "verkaeufer_hinweis": "JSON-LD nennt keinen Verkäufer (geprüft 21.11.2026). Eigenes Angebot nur, wenn das eingebettete Preisfeld des Artikels (id Saturn:de:<sku>) isProductOfTypeMarketplace=false und denselben Preis zeigt. Beleg: Galaxy S26 Ultra 256 GB Black, JSON-LD 1.115,99 € = ein Marktplatzhändler.",
+   "gesperrte_pfade": ["/de/search", "/de/list/", "/de/promo-list/"],
+   "versandregel": null,
+   "pruefung": {
+    "datum": "2026-11-21",
+    "robots": "200; User-agent * sperrt u. a. *de/search, *de/list/*_*, /api/…; Produktseiten /de/product/ nicht gesperrt.",
+    "agb": "https://www.saturn.de/de/legal/nutzungsbedingungen (Stand September 2025): keine Klausel zu Crawlern, Bots, Scraping, Data Mining oder TDM-Vorbehalt gefunden (Volltext selbst durchsucht; Subagent bestätigt).",
+    "technik": "Produktseiten liefern 200 mit JSON-LD (siehe Lauf); bei 403/Challenge gilt die Quelle im Lauf als nicht abrufbar.",
+    "ergebnis": "freigegeben"
+   }
+  },
+  {
+   "id": "alternate",
+   "name": "Alternate",
+   "domain": "www.alternate.de",
+   "typ": "shop",
+   "automatisch": true,
+   "verkaeufer": ["Alternate GmbH", "ALTERNATE", "ALTERNATE GmbH"],
+   "gesperrte_pfade": ["/rest/"],
+   "versandregel": null,
+   "pruefung": {
+    "datum": "2026-11-21",
+    "robots": "200 (Kopf „access allowed“, 17.11.2025); gesperrt nur *.pdf, *.json, /rest/ und einzelne .xhtml-Formulare.",
+    "agb": "https://www.alternate.de/HILFE/ALTERNATE/AGB (Stand November 2025): keine Klausel zu automatischem Abruf oder TDM-Vorbehalt gefunden (Volltext selbst durchsucht; Subagent bestätigt).",
+    "technik": "Produktseiten 200 mit JSON-LD inkl. Versand (shippingDetails).",
+    "ergebnis": "freigegeben"
+   }
+  },
+  {
+   "id": "proshop",
+   "name": "Proshop",
+   "domain": "www.proshop.de",
+   "typ": "shop",
+   "automatisch": true,
+   "verkaeufer": ["Proshop", "Proshop a/s", "proshop.de", "Proshop.de"],
+   "gesperrte_pfade": ["/Basket/", "/CustomerCenter/", "/Pdf/", "/basisbank/", "/api/"],
+   "versandregel": null,
+   "pruefung": {
+    "datum": "2026-11-21",
+    "robots": "200; User-agent * sperrt alle Query-URLs (/*?*) außer ?s=, ?pn=, utm; Produktseiten ohne Query erlaubt.",
+    "agb": "https://www.proshop.de/Allgemeine-Geschaeftsbedingungen.htm (Vertragspartner Proshop a/s, ohne Datumsangabe): keine Klausel zu automatischem Abruf oder TDM-Vorbehalt gefunden (Volltext selbst per urllib gelesen; WebFetch des Subagenten bekam 403).",
+    "technik": "Produktseiten 200 (siehe Lauf).",
+    "ergebnis": "freigegeben"
+   }
+  },
+  {
+   "id": "mediamarkt",
+   "name": "MediaMarkt",
+   "domain": "www.mediamarkt.de",
+   "typ": "shop",
+   "automatisch": false,
+   "verkaeufer": ["MediaMarkt", "MEDIAMARKT", "MMS E-Commerce GmbH"],
+   "versandregel": null,
+   "pruefung": {
+    "datum": "2026-11-21",
+    "robots": "robots.txt liefert 403 (Server cloudflare, Sperrseite) – nicht prüfbar.",
+    "agb": "https://www.mediamarkt.de/de/legal/nutzungsbedingungen: 403, nicht prüfbar.",
+    "technik": "Cloudflare-Sperre gegen einfachen Abruf (am 20.11.2026 waren Produktseiten noch erreichbar). Nicht umgehen.",
+    "ergebnis": "nur Link"
+   }
+  },
+  {
+   "id": "heise",
+   "name": "heise Preisvergleich",
+   "domain": "preisvergleich.heise.de",
+   "typ": "vergleich",
+   "automatisch": true,
+   "verkaeufer": [],
+   "versandregel": null,
+   "pruefung": {
+    "datum": "2026-11-21",
+    "robots": "200; User-agent * erlaubt Produktseiten (-aNNNN.html), sperrt /redir/, Kategoriepfade und viele Query-Parameter.",
+    "agb": "preisvergleich.heise.de/about/terms leitet auf https://unternehmen.geizhals.at/allgemeine-geschaeftsbedingungen/ (Stand August 2020, Betreiber Preisvergleich Internet Services AG). Diese AGB gelten für Anbieter (Händler); Ziffer 6.8 verbietet Anbietern das automatisierte Auslesen des Datenbestands („Spidering“). Endnutzer-Bedingungen nicht gefunden (Subagent, nicht selbst im Volltext gelesen).",
+    "technik": "Produktseiten 200; Kontingent etwa 18 Abrufe je Zeitfenster (Livelauf 15.11.2026).",
+    "ergebnis": "freigegeben",
+    "entscheidung": "Besitzer 21.11.2026 (O8): heise automatisch abfragen. Grundlage: robots.txt erlaubt Produktseiten; das Spidering-Verbot (Ziffer 6.8) richtet sich wörtlich an Anbieter/Händler. Nur Produktseiten, nie /redir/, Kontingent beachten."
+   }
+  },
+  {
+   "id": "idealo",
+   "name": "idealo",
+   "domain": "www.idealo.de",
+   "typ": "vergleich",
+   "automatisch": false,
+   "verkaeufer": [],
+   "versandregel": null,
+   "pruefung": {
+    "datum": "2026-11-21",
+    "robots": "robots.txt liefert 403 (Server AkamaiGHost, Sperrseite) – nicht prüfbar.",
+    "agb": "Nutzungsbedingungen von idealo.de nicht abrufbar (403), nicht geprüft.",
+    "technik": "Akamai-Sperre gegen einfachen Abruf. Nicht umgehen.",
+    "ergebnis": "nur Link"
+   }
+  }
+ ]
+}

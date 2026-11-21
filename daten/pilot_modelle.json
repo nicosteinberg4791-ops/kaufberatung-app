@@ -1,0 +1,82 @@
+{
+ "hinweis": "Pilotmodelle Bestpreis-Mix (D7). EAN und Produkt-URLs am 21.11.2026 aus dem JSON-LD der jeweiligen Produktseite selbst geprüft (werkzeuge/shopabfrage.py). URLs gefunden über Websuche bzw. Proshop-Suche (?s=, laut robots.txt erlaubt); Saturn-Suche ist laut robots.txt gesperrt und wurde nicht genutzt. Quellen ohne Freigabe (heise, idealo, MediaMarkt) stehen nur als Link. Korridor = plausibler Artikelpreis in €, verwirft Zubehör und Fehlwerte.",
+ "modelle": [
+  {
+   "id": "lg_c6elb_65",
+   "name": "LG OLED65C6ELB",
+   "kategorie": "Fernseher",
+   "eans": ["8806096835395"],
+   "mpn": ["OLED65C6ELB.AEUD"],
+   "korridor": [800, 5000],
+   "urls": {
+    "alternate": "https://www.alternate.de/LG/OLED65C6ELB-AEUD-OLED-Fernseher/html/product/100198061",
+    "heise": "https://preisvergleich.heise.de/lg-oled-evo-ai-c6-oled65c6elb-a3774758.html",
+    "idealo": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=OLED65C6ELB",
+    "mediamarkt": "https://www.mediamarkt.de/de/search.html?query=OLED65C6ELB"
+   },
+   "luecken": "Saturn führt laut Websuche nur OLED65C67LA (andere Artikelnummer), Proshop nur die 42″-Variante: nicht aufgenommen."
+  },
+  {
+   "id": "sam_s90h_65",
+   "name": "Samsung GQ65S90H",
+   "kategorie": "Fernseher",
+   "eans": ["8806097961192"],
+   "mpn": ["GQ65S90HAEXZG"],
+   "korridor": [800, 5000],
+   "urls": {
+    "saturn": "https://www.saturn.de/de/product/_samsung-gq65s90h-oled-4k-samsung-vision-ai-smart-tv-65-zoll-163-cm-uhd-4k-smart-tv-3047276.html",
+    "heise": "https://preisvergleich.heise.de/samsung-gq6s90h-a3805608.html",
+    "idealo": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=GQ65S90H",
+    "mediamarkt": "https://www.mediamarkt.de/de/search.html?query=GQ65S90H"
+   },
+   "luecken": "Alternate und Proshop: keine Produktseite gefunden (Websuche, Proshop-Suche 404)."
+  },
+  {
+   "id": "af_ninja_af500",
+   "name": "Ninja Foodi FlexDrawer AF500EU",
+   "kategorie": "Air Fryer",
+   "eans": ["0622356270373"],
+   "mpn": ["AF500EU"],
+   "korridor": [80, 500],
+   "urls": {
+    "saturn": "https://www.saturn.de/de/product/_ninja-af500eu-foodi-flex-drawer-heissluftfritteuse-2470-watt-schwarz-2925590.html",
+    "proshop": "https://www.proshop.de/Heissluftfritteusen/Ninja-AF500EU-Flex-Drawer/3243985",
+    "heise": "https://preisvergleich.heise.de/ninja-af500eu-foodi-flexdrawer-a3337334.html",
+    "idealo": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=AF500EU",
+    "mediamarkt": "https://www.mediamarkt.de/de/search.html?query=AF500EU"
+   },
+   "luecken": "Alternate-Produktseite 100034429 leitet auf die Startseite (Artikel nicht mehr geführt)."
+  },
+  {
+   "id": "sauger_dreame_z30",
+   "name": "Dreame Z30",
+   "kategorie": "Akkusauger",
+   "eans": ["6976233677231"],
+   "mpn": ["VZV17A"],
+   "korridor": [150, 900],
+   "urls": {
+    "saturn": "https://www.saturn.de/de/product/_dreame-z30-stielsauger-akkubetrieb-296-volt-2941591.html",
+    "proshop": "https://www.proshop.de/Handstaubsauger/Dreame-2-in-1-Staubsauger-Z30/3292014",
+    "idealo": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=Dreame+Z30",
+    "mediamarkt": "https://www.mediamarkt.de/de/search.html?query=Dreame%20Z30"
+   },
+   "luecken": "Alternate: keine Produktseite gefunden. heise-Seite nicht ermittelt (heise derzeit ohnehin nur Link)."
+  },
+  {
+   "id": "phone_s26_ultra_256",
+   "name": "Samsung Galaxy S26 Ultra 256 GB Black",
+   "kategorie": "Smartphone",
+   "eans": ["8806097821250", "5715328322677"],
+   "mpn": ["SM-S948BZKDEUB", "SM-S948BZKDEUE"],
+   "korridor": [700, 2500],
+   "urls": {
+    "alternate": "https://www.alternate.de/Samsung/Galaxy-S26-Ultra-256GB-Handy/html/product/100191446",
+    "proshop": "https://www.proshop.de/Handys-Smartphones/Samsung-Galaxy-S26-Ultra-256GB12GB-Black/3440395",
+    "saturn": "https://www.saturn.de/de/product/_samsung-sm-s948bzkdeue-256-gb-schwarz-dual-sim-172305146.html",
+    "idealo": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=SM-S948BZKDEUB",
+    "mediamarkt": "https://www.mediamarkt.de/de/search.html?query=Galaxy%20S26%20Ultra%20256"
+   },
+   "luecken": "Zwei Handelsvarianten derselben Ausführung (EUB bei Alternate/Proshop, EUE bei Saturn). Saturn zeigte am 21.11.2026 nur ein Marktplatzangebot und zählt dann nicht."
+  }
+ ]
+}

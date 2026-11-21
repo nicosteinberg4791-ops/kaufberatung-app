@@ -1,0 +1,39 @@
+# Pilot Bestpreis-Mix (D7, O9): Testlauf der Shopabfrage aus GitHub Actions. Nur manuell (workflow_dispatch),
+# kein Zeitplan, kein Push: das Ergebnis pilot-preise.json landet nur als Actions-Artefakt. Ziel: klären, ob Saturn,
+# Alternate und Proshop Rechenzentrums-IPs sperren (Recherche Abschnitt 5). Berührt preise.json, Preiswecker und Push nicht.
+name: Pilot Bestpreis (Test)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pilot-preise
+  cancel-in-progress: false
+
+jobs:
+  abfrage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Quelltext holen
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Tests der Shopabfrage
+        run: python3 -I -B -m unittest discover -s tests -t tests -p 'test_shopabfrage.py'
+
+      - name: Shopabfrage
+        run: python3 -X utf8 -I werkzeuge/shopabfrage.py --aus pilot-preise.json
+
+      - name: Ergebnis als Artefakt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pilot-preise
+          path: pilot-preise.json
+          if-no-files-found: warn
+          retention-days: 14

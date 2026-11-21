@@ -57,3 +57,7 @@ desktop.ini
 
 # Projekt: gh-pages-Arbeitsbaum (werkzeuge/veroeffentlichen.py)
 .veroeffentlichung/
+
+# Projekt: Ergebnis des Pilot-Bestpreis-Laufs (werkzeuge/shopabfrage.py), nur lokal bzw. als Actions-Artefakt
+pilot-preise.json
+pilot-preise.json.tmp
