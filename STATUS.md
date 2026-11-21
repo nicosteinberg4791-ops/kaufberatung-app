@@ -2,9 +2,9 @@
 
 Stand: 21.11.2026 · `main` c36205f lokal (origin/main 79daf34 gepusht) auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 090ac453670e, Inhalt Artifact-Version 30. Pilot Bestpreis-Mix (D7) gepusht und einmal auf Actions gelaufen; Prüfstand selbst geprüft · unabhängig: Codex 3 Runden, nicht bestanden · Besitzer: Push/Livegang 21.11. freigegeben.
 
-## Finder „Finden & Vergleichen“ (Zweig `datenbank`, 21.11.2026)
+## Finder „Finden & Vergleichen“ (Arbeitszweig `claude/admiring-pasteur-32f79f`, 21.11.2026)
 
-Neue Startseite mit Preisrahmen, Aufpreis-/Spar-Hinweis und Produktdatenbank (14 Kategorien, 278 Modelle). Stand c20480f, selbst geprüft (datenbank.py 0 Fehler, node --test 30/30), unabhängig nein, noch nicht eingebaut und nicht live. Übergabe, Entscheidungen D8–D11, offene Punkte O11–O13 und nächste Schritte: `docs/uebergabe-finder.md`.
+Zweig `datenbank` hier zusammengeführt. Schritt 1 (Einbau in den App-Bau, D8) erledigt in 8ce6e78: selbst geprüft (Sammellauf 0 Fehler, `pruefe.mjs` lokal ohne Befund), unabhängig nein, nicht live, nicht auf `main`. Schritt 2 (Datenlücken) läuft mit sechs Subagenten, Änderungen in `daten/produkte/` ungeprüft und unkommittet; Schritt 3 begonnen (`finder-daten.yml`). Details, Erkenntnisse (Actions-IP-Sperre → Routine lokal) und Reihenfolge: `docs/uebergabe-finder.md`.
 
 ## „Für alle“ (seit Artifact-Version 28 veröffentlicht)
 
@@ -37,4 +37,4 @@ Neue Startseite mit Preisrahmen, Aufpreis-/Spar-Hinweis und Produktdatenbank (14
 
 ## Nächster Schritt
 
-Neue Sitzung: Befunde r3 nach `bewertung-r3.md` korrigieren (D7-02, -09, -11, -14) mit Test, Codex-Runde 4 (`-Art nach -Vorbericht codex-nach-20261121-072327.json -Bewertung bewertung-r3.md -Basis c36205f`). Push von c36205f+ erst nach bestandener Prüfung. Besitzer: O11–O13. Danach 3–5 Tage messen (Bericht Abschnitt 8, Schritt 8).
+Finder: Ergebnisse der sechs Datenpflege-Agenten übernehmen. `git diff --stat daten/produkte`, `python -I werkzeuge/datenbank.py pruefen` (0 Fehler), Stichproben je Datei (3 Preise mit Link und Eigenangebot, 3 Werte gegen Quelle), unbelegte Werte entfernen, Bau + Sammellauf + `pruefe.mjs` lokal, committen. Fertig, wenn 0 Fehler, Warnungen gesunken, Stichproben belegt. Danach Schritt 3/4 laut `docs/uebergabe-finder.md`. Lesen: `docs/uebergabe-finder.md`, `werkzeuge/datenpflege/ANLEITUNG.md`. (Pilot Bestpreis: eigene Sitzung auf `main`, siehe oben.)
