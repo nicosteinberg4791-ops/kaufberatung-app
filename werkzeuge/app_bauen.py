@@ -180,11 +180,13 @@ def main():
     a = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     a.add_argument("--quelle", help="fertige kaufberatung.html (Fragment oder gespeicherte Live-Seite)")
     a.add_argument("--version", help='Bezeichnung der Inhaltsfassung, z. B. "Artifact-Version 9"')
+    a.add_argument("--ziel", help="Ausgabeverzeichnis statt dist/ (veroeffentlichen.py, R3-01/R5-04)")
+    a.add_argument("--herkunft", help="Commit für finder-daten.json (veroeffentlichen.py, R2-02)")
     x = a.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
     if x.quelle:
         uebernehmen(x.quelle, x.version)
-    baue()
+    baue(daten_herkunft=x.herkunft, ziel=x.ziel)
 
 
 if __name__ == "__main__":

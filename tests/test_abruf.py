@@ -123,7 +123,7 @@ class Robots(unittest.TestCase):
                     ok, grund = abruf.robots_ok("https://h.invalid/de/category/a-1.html")
                 self.assertFalse(ok, repr(antwort))
                 self.assertIn("nicht auswertbar", grund)
-                self.assertFalse((Path(t) / "h.invalid.robots.json").exists(), "Ungültiges wird nicht abgelegt")
+                self.assertFalse((Path(t) / "https-h.invalid-443.robots.json").exists(), "Ungültiges wird nicht abgelegt")
 
     def test_ablage_laeuft_nach_24_stunden_ab(self):
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
@@ -131,7 +131,7 @@ class Robots(unittest.TestCase):
                 self.assertTrue(abruf.robots_ok("https://h.invalid/a")[0])
                 self.assertTrue(abruf.robots_ok("https://h.invalid/b")[0])
                 self.assertEqual(h.call_count, 1, "innerhalb von 24 h aus der Ablage")
-            ablage = Path(t) / "h.invalid.robots.json"
+            ablage = Path(t) / "https-h.invalid-443.robots.json"
             a = json.loads(ablage.read_text(encoding="utf-8"))
             a["zeit"] = time.time() - 25 * 3600
             ablage.write_text(json.dumps(a), encoding="utf-8")
@@ -139,6 +139,23 @@ class Robots(unittest.TestCase):
                 ok, _ = abruf.robots_ok("https://h.invalid/a")
                 self.assertEqual(h.call_count, 1, "abgelaufene Ablage wird erneuert")
                 self.assertFalse(ok, "neue Regeln gelten")
+
+    def test_robots_je_schema_host_und_port(self):
+        """R5-05: robots.txt gilt je Ursprung (RFC 9309 2.3): Port 8443 holt seine eigene Datei und nutzt nicht die von 443."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            with unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nAllow: /\n") as h:
+                self.assertTrue(abruf.robots_ok("https://h.invalid/a")[0])
+            self.assertEqual(h.call_args[0][0], "https://h.invalid/robots.txt")
+            with unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nDisallow: /\n") as h:
+                ok, _ = abruf.robots_ok("https://h.invalid:8443/a")
+                self.assertEqual(h.call_count, 1, "eigene robots.txt für Port 8443")
+                self.assertEqual(h.call_args[0][0], "https://h.invalid:8443/robots.txt")
+                self.assertFalse(ok, "Regeln von 8443 gelten")
+                self.assertTrue(abruf.robots_ok("https://h.invalid:443/b")[0], "443 = Standardport von https")
+                self.assertEqual(h.call_count, 1, "443 aus der Ablage")
+                self.assertFalse(abruf.robots_ok("http://h.invalid/a")[0], "http ist ein anderer Ursprung")
+                self.assertEqual(h.call_args[0][0], "http://h.invalid/robots.txt")
+            self.assertFalse(abruf.robots_ok("https://h.invalid:99999/a")[0], "ungültiger Port")
 
     def test_sperre_wird_weitergegeben(self):
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)), \
@@ -206,6 +223,28 @@ class Domainsperre(unittest.TestCase):
                 lock, _ = abruf.sperre_holen("h.invalid")
                 abruf.sperre_freigeben(lock)
             self.assertTrue(schlaf.called and schlaf.call_args[0][0] > abruf.ABSTAND - 5, "Mindestabstand eingehalten")
+
+    def test_abbruch_beim_endstempel_laesst_den_startstempel(self):
+        """R5-01: bricht das Schreiben des Endstempels nach dem Öffnen ab, bleibt der Startstempel lesbar stehen."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            stempel = Path(t) / "h.invalid.zeit"
+            stempel.write_text("1700000000.5")
+            with unittest.mock.patch.object(abruf.time, "time", side_effect=RuntimeError("Abbruch")):
+                with self.assertRaises(RuntimeError):
+                    abruf.stempel_schreiben(stempel)
+            self.assertEqual(stempel.read_text(), "1700000000.5", "Startstempel nicht geleert")
+
+    def test_leerer_oder_unlesbarer_stempel_heisst_voller_abstand(self):
+        """R5-01: ein leerer, unlesbarer oder zukünftiger Stempel gilt als gerade eben (voller Abstand, nie 0)."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            stempel = Path(t) / "h.invalid.zeit"
+            for inhalt in ("", "kaputt", "nan", str(time.time() + 10 ** 9)):
+                stempel.write_text(inhalt)
+                with unittest.mock.patch("time.sleep") as schlaf:
+                    lock, _ = abruf.sperre_holen("h.invalid")
+                    abruf.sperre_freigeben(lock)
+                self.assertTrue(schlaf.called, repr(inhalt))
+                self.assertTrue(abruf.ABSTAND - 5 < schlaf.call_args[0][0] <= abruf.ABSTAND, repr(inhalt))
 
     def test_holen_gibt_die_sperre_frei_und_laesst_die_datei(self):
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)),              unittest.mock.patch.object(abruf, "einmal_abrufen", side_effect=sa.NichtAbrufbar("Netzfehler: x")):

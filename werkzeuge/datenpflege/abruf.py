@@ -15,6 +15,7 @@ Aufruf:  python -I abruf.py <https-URL> [--text N]
 import hashlib
 import html
 import json
+import math
 import os
 import re
 import sys
@@ -87,7 +88,7 @@ def sperre_holen(domain):
     stempel = TAKT / (domain + ".zeit")
     try:
         if stempel.exists():
-            warte = ABSTAND - (time.time() - float(stempel.read_text() or 0))
+            warte = ABSTAND - (time.time() - letzter_abruf(stempel))
             if warte > 0:
                 time.sleep(warte)
     except BaseException:
@@ -96,12 +97,27 @@ def sperre_holen(domain):
     return lock, stempel
 
 
+def letzter_abruf(stempel):
+    """Zeit des letzten Abrufs aus dem Stempel; leer, unlesbar oder in der Zukunft gilt als gerade eben, damit der volle
+    Abstand gewartet wird (R5-01: nie 0)."""
+    jetzt = time.time()
+    try:
+        t = float(stempel.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return jetzt
+    return t if math.isfinite(t) and t <= jetzt else jetzt
+
+
 def stempel_schreiben(stempel):
-    """Zeitstempel des Domaintakts schreiben und auf den Datenträger bringen (fsync); Fehler brechen den Abruf ab."""
-    with open(stempel, "w", encoding="utf-8") as f:
+    """Zeitstempel des Domaintakts atomar schreiben (R5-01): Hilfsdatei schreiben, auf den Datenträger bringen (fsync),
+    dann per os.replace an die Stelle des alten Stempels; ein Abbruch dazwischen lässt den alten Stempel stehen.
+    Nur der Inhaber der Domainsperre schreibt, daher genügt ein fester Name der Hilfsdatei. Fehler brechen den Abruf ab."""
+    neu = stempel.with_name(stempel.name + ".neu")
+    with open(neu, "w", encoding="utf-8") as f:
         f.write(str(time.time()))
         f.flush()
         os.fsync(f.fileno())
+    os.replace(neu, stempel)
 
 
 def gesperrt_bis(domain):
@@ -245,16 +261,30 @@ def robots_erlaubt(text, ua_token, url):
     return True if best is None else best[1]
 
 
-def robots_text(scheme, domain):
-    """robots.txt aus der Ablage (höchstens ROBOTS_MAX_ALTER alt) oder frisch im Takt. None = nicht auswertbar."""
-    ablage = TAKT / (domain + ".robots.json")
+STANDARDPORT = {"http": 80, "https": 443}
+
+
+def robots_ursprung(teile):
+    """(Schema, Host, effektiver Port) einer URL: robots.txt gilt je Ursprung (RFC 9309 2.3, R5-05). ValueError bei
+    fehlendem Host, unbekanntem Schema oder ungültigem Port."""
+    scheme, host = teile.scheme.lower(), teile.hostname
+    if not host or scheme not in STANDARDPORT:
+        raise ValueError("URL ohne Host oder mit unbekanntem Schema")
+    return scheme, host, teile.port or STANDARDPORT[scheme]   # .port wirft ValueError bei ungültigem Port
+
+
+def robots_text(scheme, host, port):
+    """robots.txt des Ursprungs (Schema, Host, Port) aus der Ablage (höchstens ROBOTS_MAX_ALTER alt) oder frisch im Takt.
+    None = nicht auswertbar. Die Domainsperre in holen() bleibt je Host."""
+    ablage = TAKT / f"{scheme}-{host.replace(':', '_')}-{port}.robots.json"
+    netz = (f"[{host}]" if ":" in host else host) + ("" if STANDARDPORT[scheme] == port else f":{port}")
     try:
         a = json.loads(ablage.read_text(encoding="utf-8"))
         if time.time() - float(a["zeit"]) < ROBOTS_MAX_ALTER and sa.robots_gueltig(a["text"]):
             return a["text"]
     except (OSError, ValueError, KeyError, TypeError):
         pass
-    text = holen(f"{scheme}://{domain}/robots.txt")   # SystemExit 3 (Sperre) geht an den Aufrufer
+    text = holen(f"{scheme}://{netz}/robots.txt")   # SystemExit 3 (Sperre) geht an den Aufrufer
     if not sa.robots_gueltig(text):
         return None
     ablage.write_text(json.dumps({"zeit": time.time(), "text": text}), encoding="utf-8")
@@ -266,9 +296,13 @@ def robots_ok(url):
     for m in GESPERRT_PFADE:
         if re.search(m, teile.path + ("?" + teile.query if teile.query else "")):
             return False, "Pfad laut robots-Regel gesperrt: " + m
-    domain = teile.hostname
     try:
-        text = robots_text(teile.scheme, domain)
+        ursprung = robots_ursprung(teile)
+    except ValueError:
+        return False, "URL ohne gültigen Ursprung (Schema, Host, Port)"
+    domain = ursprung[1]
+    try:
+        text = robots_text(*ursprung)
     except SystemExit as e:
         if e.code == 3:   # Sperre (403/429/Captcha) an den Aufrufer weitergeben, nicht verschlucken
             raise

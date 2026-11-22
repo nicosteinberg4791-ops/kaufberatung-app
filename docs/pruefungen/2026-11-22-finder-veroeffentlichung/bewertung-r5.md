@@ -13,3 +13,5 @@ Einordnung nach Skill `pruefschleife` Schritt 5, nur am Code belegt; **noch nich
 
 Fehlalarme: 0 von 5. Keine bewusste Entscheidung, nichts ungeklärt.
 Muster: R5-02…R5-04 setzen einen gleichzeitig und gezielt eingreifenden fremden Vorgang voraus (lokal oder auf GitHub); R5-01 ist ein echtes Abbruchfenster von wenigen Mikrosekunden. Alle Korrekturen sind klein und gut testbar.
+
+**Behebung (Runde 6, vom Besitzer beauftragt, O16):** R5-01 Stempel atomar (Hilfsdatei, `fsync`, `os.replace`), leer/unlesbar/zukünftig = voller Abstand (`letzter_abruf`); R5-02 Vergleich von Modus, Typ und ID, Bauartefakte nur `100644`, Link im Bau bricht ab; R5-03 Push mit `--force-with-lease=refs/heads/gh-pages:<eltern>`; R5-04 Bau aus `git archive` des geprüften Commits mit dessen eigenem Bauskript als Prozess (`app_bauen.py --ziel --herkunft`); R5-05 robots.txt und Ablage je Schema, Host und effektivem Port. Je ein Test rot vor, grün nach der Korrektur. Nachprüfung: `auftrag-r6.md`.
