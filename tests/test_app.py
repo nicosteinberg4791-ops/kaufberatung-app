@@ -219,13 +219,15 @@ class Veroeffentlichen(unittest.TestCase):
         self.assertTrue(f(json.dumps({"herkunft": "b" * 40}), json.dumps({"herkunft": "b" * 40}), h), "andere Herkunft")
         self.assertTrue(f(json.dumps({"herkunft": h, "kategorien": [1]}), gut, h), "anderer Inhalt als der eigene Bau")
 
-    def _lauf(self, schreibe_daten, argv=None, hook_sperrt=False, vor_commit=None, vor=None, waehrend_bau=None):
+    def _lauf(self, schreibe_daten, argv=None, hook_sperrt=False, vor_commit=None, vor=None, waehrend_bau=None,
+              nach=None):
         """main() gegen echte lokale Test-Repositorys (R4-01/R4-02): Quelle mit origin (bare) und gh-pages; der Bau
         schreibt in sein Ziel und gleichzeitig ein paralleler App-Bau nach dist/. hook_sperrt: aktiver pre-commit-Hook,
         der jeden Commit ablehnt (wie der Projekt-Hook im Seitenbaum ohne tests/). vor_commit(seiten): läuft direkt vor
         jedem commit/commit-tree im Seitenbaum (paralleler Git-Vorgang). vor {git-Befehl: f(seiten, ursprung, eltern)}:
         läuft direkt vor diesem Befehl im Seitenbaum (R5-02/R5-03). waehrend_bau(quelle): ändert den Arbeitsbaum der
-        Quelle während des Baus, danach wird er zurückgesetzt (R5-04). Der Bau liest app/seite.txt aus seiner Quelle
+        Quelle während des Baus, danach wird er zurückgesetzt (R5-04). nach {git-Befehl: f(seiten, ergebnis)}: ersetzt das
+        Ergebnis dieses Befehls im Seitenbaum (R6-01). Der Bau liest app/seite.txt aus seiner Quelle
         (wie der echte Bau app/ liest) und schreibt sie in index.html."""
         sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
         umgebung = mock.patch.dict(os.environ, sauber, clear=True)
@@ -286,6 +288,8 @@ class Veroeffentlichen(unittest.TestCase):
                     vor_commit(seiten)
                 if vor and a[0] in vor:
                     vor[a[0]](seiten, ursprung, eltern)
+                if nach and a[0] in nach:
+                    return nach[a[0]](seiten, echt(*a, **kw))
             return echt(*a, **kw)
         # Bau im Prozess aus dem Arbeitsbaum (alter Weg) oder als eigener Lauf aus der Kopie des Commits (R5-04)
         with mock.patch.object(self.v, "WURZEL", quelle), mock.patch.object(self.v, "SEITEN", seiten), \
@@ -411,6 +415,52 @@ class Veroeffentlichen(unittest.TestCase):
             self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprueft")
             self.assertFalse((Path(k) / "app" / "neu.txt").exists())
             self.assertFalse((Path(k) / ".veroeffentlichung").exists())
+
+    def test_kopie_holen_ohne_lokale_attribute(self):
+        """R5-04: export-ignore in .git/info/attributes lässt keine Datei des Commits aus der Bauquelle fallen."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        info = e["quelle"] / ".git" / "info"; info.mkdir(exist_ok=True)
+        (info / "attributes").write_text("app/seite.txt export-ignore\n", encoding="utf-8")
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
+            self.v.kopie_holen(e["head"], k)
+            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprueft")
+
+    def test_kopie_nur_normale_dateien(self):
+        """R5-04: ein Stand mit Link (120000) wird nicht als Bauquelle ausgepackt."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        g, q = e["g"], e["quelle"]
+        g(q, "update-index", "--add", "--cacheinfo", "120000," + g(q, "rev-parse", "HEAD:app/seite.txt") + ",app/link")
+        stand = g(q, "commit-tree", g(q, "write-tree"), "-p", e["head"], "-m", "link")
+        g(q, "reset", "-q")
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", q):
+            with self.assertRaises(SystemExit):
+                self.v.kopie_holen(stand, k)
+
+    def test_kopie_fehler(self):
+        """R5-04: Abgleich der Kopie mit dem Commit (Pfade und Objekt-IDs, nichts zusätzlich)."""
+        with tempfile.TemporaryDirectory() as k:
+            k = Path(k); (k / "a").mkdir(); (k / "a" / "x.txt").write_bytes(b"x")
+            soll = {"a/x.txt": ("100644", "blob", self.v.blob_sha(b"x"))}
+            f = self.v.kopie_fehler
+            self.assertEqual(f(k, soll), [])
+            self.assertTrue(f(k, {**soll, "b.txt": ("100644", "blob", self.v.blob_sha(b"b"))}), "fehlt")
+            self.assertTrue(f(k, {"a/x.txt": ("100644", "blob", self.v.blob_sha(b"y"))}), "anderer Inhalt")
+            (k / "fremd.txt").write_bytes(b"f")
+            self.assertTrue(f(k, soll), "zusätzlich")
+
+    def test_leerer_unterbaum_bricht_ab(self):
+        """R6-01: ein zusätzlicher leerer Unterbaum im geschriebenen Seitenbaum (Plumbing) wird erkannt."""
+        def leer(seiten, ergebnis):
+            # Bytes und -z: der Textmodus von subprocess schreibt unter Windows CRLF in die Eingabe
+            r = lambda *a, eingabe=b"": subprocess.run(["git", "-C", str(seiten), *a], check=True, capture_output=True,
+                                                       input=eingabe).stdout
+            leerbaum = r("mktree", "-z").strip()
+            zeilen = r("ls-tree", "-z", ergebnis.stdout.strip()) + b"040000 tree " + leerbaum + b"\tleer\0"
+            ergebnis.stdout = r("mktree", "-z", eingabe=zeilen).decode("ascii")
+            return ergebnis
+        e = self._lauf(self._gut, nach={"write-tree": leer})
+        self.assertEqual(e["code"], 1, "Verzeichniseintrag außerhalb des eigenen Baus wird erkannt")
+        self.assertEqual(e["oben"], e["eltern"], "nichts gepusht")
 
     def test_ohne_stand_kein_push(self):
         with mock.patch.object(self.v, "stand_lesen", return_value=("a" * 40, True, True)), \

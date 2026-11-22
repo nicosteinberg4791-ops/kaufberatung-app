@@ -13,3 +13,12 @@ Einordnung nach Skill `pruefschleife` Schritt 5, am Code bzw. im Wegwerf-Repo be
 
 Fehlalarme: 0 von 5. Keine bewusste Entscheidung, nichts ungeklärt.
 Muster: Die Befunde werden mit jeder Runde enger. R5-04 und R6-01 setzen einen gezielten lokalen Eingriff ins Repo voraus, R5-05 und R6-02 Eingaben, die der Datenbestand nicht enthält, R5-01 ein Abbruchfenster von Mikrosekunden. Veröffentlichungsrelevant (gh-pages) sind nur R5-04 und R6-01; R5-01, R5-05 und R6-02 betreffen das lokale Werkzeug `abruf.py` der Datenpflege, das nicht ausgeliefert wird. Alle Korrekturen sind klein und gut testbar.
+
+## Behebung (Paketschnitt, O17 vom Besitzer entschieden, 22.11.2026)
+
+Das Paket wurde geschnitten: Runde 7 prüft nur noch `werkzeuge/veroeffentlichen.py`. R5-01, R5-05 und R6-02 betreffen das lokale Werkzeug `werkzeuge/datenpflege/abruf.py`, das nicht ausgeliefert wird. Sie sind bestätigt und offen und kommen in ein eigenes Paket; Gegenstand von r7 sind sie nicht.
+
+| ID | Behebung | Beleg |
+|---|---|---|
+| R5-04 | `kopie_holen` schreibt die Bauquelle jetzt direkt aus den Git-Objekten (`ls-tree -r -z` und `cat-file --batch`): kein `git archive`, keine Attribute, keine Filter. Erlaubt sind nur normale Dateien (100644/100755), Pfade außerhalb der Kopie führen zum Abbruch. Danach gleicht `kopie_fehler` die Kopie mit dem Commit ab (Pfade, Objekt-IDs, nichts zusätzlich) | `test_kopie_holen_ohne_lokale_attribute` (export-ignore in `.git/info/attributes`), `test_kopie_nur_normale_dateien` (120000), `test_kopie_fehler`: vorher rot, jetzt grün |
+| R6-01 | `soll_baum` baut aus dem Soll mit einem eigenen leeren Index (`GIT_INDEX_FILE`, `update-index --index-info`, `write-tree`) die erwartete Wurzelbaum-ID. Commit und Push gibt es nur, wenn diese ID gleich dem geschriebenen Baum ist | `test_leerer_unterbaum_bricht_ab` (zusätzlicher leerer Unterbaum per `mktree` im Ergebnis von `write-tree`): vorher gepusht, jetzt Abbruch ohne Push |

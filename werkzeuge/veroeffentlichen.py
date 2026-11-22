@@ -10,11 +10,12 @@ Push nur mit Auftrag des Besitzers bzw. nach bestandener Prüfung (AGENTS.md). B
   - finder-daten.json trägt die Herkunft (Commit); die Online-Datei wird nur ersetzt, wenn ihre Herkunft im geprüften
     Stand enthalten ist (werkzeuge/herkunft.py, R2-02), sonst Abbruch;
   - gebaut wird in ein eigenes frisches Verzeichnis (nie das gemeinsame dist/, R3-01), und zwar aus einer eigenen Kopie
-    genau des geprüften Commits (`git archive`, R5-04) mit dem Bauskript dieser Kopie als eigenem Prozess; der
-    Arbeitsbaum wird nicht gelesen;
+    genau des geprüften Commits (direkt aus den Git-Objekten, ohne Attribute und Filter, danach mit dem Commit
+    abgeglichen, R5-04) mit dem Bauskript dieser Kopie als eigenem Prozess; der Arbeitsbaum wird nicht gelesen;
   - Commit aus einem unveränderlichen Git-Baum (R4-01): nach `git add -A` wird der Index mit `git write-tree` zu einem
     Baumobjekt; geprüft wird genau dieser Baum (jede Datei gleich dem eigenen Bau mit Modus, Typ und Objekt-ID, R5-02,
-    finder-daten.json mit der geprüften Herkunft, Preisdateien mit vollem Eintrag aus dem Elterncommit, sonst nichts),
+    finder-daten.json mit der geprüften Herkunft, Preisdateien mit vollem Eintrag aus dem Elterncommit, sonst nichts;
+    zusätzlich muss die Baum-ID gleich dem aus dem Soll gebildeten Baum sein, R6-01),
     committet wird genau dieser Baum mit `git commit-tree` auf den geprüften gh-pages-Elterncommit, gepusht wird genau
     diese Commit-ID, und nur wenn gh-pages auf GitHub noch genau dieser Elterncommit ist (Lease, R5-03);
   - `commit-tree` startet keine Commit-Hooks (R4-02): der Projekt-Hook prüft Quellcommits (tests/ fehlt im Seitenbaum);
@@ -26,12 +27,11 @@ immer frisch auf origin/gh-pages; gepusht wird `<commit>:gh-pages` mit Lease auf
 bewegt oder fehlt es: Abbruch, neu starten).
 """
 import hashlib
-import io
 import json
+import os
 import shutil
 import subprocess
 import sys
-import tarfile
 import tempfile
 from pathlib import Path
 
@@ -144,11 +144,72 @@ def baum_fehler(ist, soll):
     return f
 
 
+def soll_baum(soll, cwd):
+    """Objekt-ID des Wurzelbaums, der genau aus soll entsteht (eigener, leerer Index; R6-01). Gleiche ID = gleicher
+    Baum samt aller Verzeichniseinträge, auch solcher, die `ls-tree -r` nicht zeigt (leere Unterbäume)."""
+    with tempfile.TemporaryDirectory(prefix="kb-index-") as t:
+        env = {**os.environ, "GIT_INDEX_FILE": str(Path(t) / "index")}   # nie der Index des Seitenbaums
+        zeilen = "".join(f"{m} {sha}\t{p}\0" for p, (m, _, sha) in sorted(soll.items()))
+        r = subprocess.run(["git", "-C", str(cwd), "update-index", "-z", "--add", "--index-info"],
+                           input=zeilen.encode("utf-8"), capture_output=True, env=env)
+        if r.returncode != 0:
+            raise SystemExit("Abbruch, nichts veröffentlicht: Soll-Baum nicht bildbar\n"
+                             + r.stderr.decode("utf-8", "replace"))
+        r = subprocess.run(["git", "-C", str(cwd), "write-tree", "--missing-ok"], check=True, capture_output=True,
+                           env=env)
+        return r.stdout.decode("ascii").strip()
+
+
+ERLAUBT = ("100644", "100755")   # Bauquelle: nur normale Dateien (kein Link, kein Untermodul)
+
+
+def objekte_lesen(shas):
+    """{Objekt-ID: Bytes} der Blobs aus der Objektdatenbank der Quelle (git cat-file --batch, ohne Filter)."""
+    r = subprocess.run(["git", "-C", str(WURZEL), "cat-file", "--batch"],
+                       input="".join(f"{s}\n" for s in shas).encode("ascii"), check=True, capture_output=True)
+    aus, b, pos = {}, r.stdout, 0
+    for sha in shas:
+        ende = b.index(b"\n", pos)
+        kopf = b[pos:ende].decode("ascii").split(" ")
+        if kopf[0] != sha or len(kopf) != 3 or kopf[1] != "blob":
+            raise SystemExit(f"Abbruch, nichts veröffentlicht: Objekt {sha[:12]} ist kein Blob ({' '.join(kopf[1:])})")
+        n = int(kopf[2])
+        aus[sha] = b[ende + 1:ende + 1 + n]
+        pos = ende + 2 + n   # Inhalt, dann ein Zeilenende
+    return aus
+
+
+def kopie_fehler(ziel, eintraege):
+    """Gründe, warum die Kopie in ziel nicht genau die Einträge des Commits ist (Pfade, Objekt-IDs, nichts zusätzlich).
+    Reine Prüfung, für Tests (R5-04)."""
+    ziel = Path(ziel)
+    da = {p.relative_to(ziel).as_posix(): p for p in ziel.rglob("*") if p.is_file() or p.is_symlink()}
+    f = [f"{p}: nicht im Stand" for p in sorted(set(da) - set(eintraege))]
+    f += [f"{p}: fehlt in der Kopie" for p in sorted(set(eintraege) - set(da))]
+    f += [f"{p}: Inhalt weicht vom Stand ab" for p in sorted(set(da) & set(eintraege))
+          if da[p].is_symlink() or blob_sha(da[p].read_bytes()) != eintraege[p][2]]
+    return f
+
+
 def kopie_holen(head, ziel):
-    """Genau den Inhalt von Commit head nach ziel auspacken (git archive), nie den Arbeitsbaum (R5-04)."""
-    r = subprocess.run(["git", "-C", str(WURZEL), "archive", "--format=tar", head], check=True, capture_output=True)
-    with tarfile.open(fileobj=io.BytesIO(r.stdout)) as tar:
-        tar.extractall(ziel, filter="data")   # keine Pfade außerhalb von ziel, keine Gerätedateien
+    """Genau den Inhalt von Commit head nach ziel schreiben, direkt aus den Git-Objekten (R5-04): keine Attribute
+    (auch nicht .git/info/attributes mit export-ignore/export-subst), keine Filter, nie der Arbeitsbaum; danach
+    Abgleich jeder Datei mit dem Commit."""
+    eintraege = baum_eintraege(head, WURZEL)
+    ziel = Path(ziel).resolve()
+    for p, (m, art, _) in sorted(eintraege.items()):
+        if art != "blob" or m not in ERLAUBT:
+            raise SystemExit(f"Abbruch, nichts veröffentlicht: {p} im Stand ist keine normale Datei ({m} {art})")
+    inhalt = objekte_lesen(sorted({e[2] for e in eintraege.values()}))
+    for p, (_, _, sha) in sorted(eintraege.items()):
+        datei = (ziel / p).resolve()
+        if ziel not in datei.parents:
+            raise SystemExit(f"Abbruch, nichts veröffentlicht: {p} liegt außerhalb der Kopie")
+        datei.parent.mkdir(parents=True, exist_ok=True)
+        datei.write_bytes(inhalt[sha])
+    fehler = kopie_fehler(ziel, eintraege)
+    if fehler:
+        raise SystemExit("Abbruch, nichts veröffentlicht: Kopie weicht vom Stand ab\n  - " + "\n  - ".join(fehler[:10]))
 
 
 def app_bau_starten(kopie, ziel, head):
@@ -213,6 +274,8 @@ def main(argv=None):
     baum = git("write-tree", cwd=SEITEN).stdout.strip()   # unveränderlich: genau dieser Baum wird geprüft und committet
     r = git("show", f"{baum}:finder-daten.json", cwd=SEITEN, check=False)
     fehler = baum_fehler(baum_eintraege(baum, SEITEN), soll)
+    if not fehler and baum != soll_baum(soll, SEITEN):   # R6-01: auch Verzeichniseinträge (leere Unterbäume)
+        fehler.append(f"Baum {baum[:12]} weicht vom eigenen Bau ab (Verzeichniseinträge)")
     grund = bereitgestellt_fehler(r.stdout if r.returncode == 0 else None, gebaut, head)
     if grund:
         fehler.insert(0, grund)
