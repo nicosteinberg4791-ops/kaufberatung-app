@@ -1,0 +1,66 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Die Veröffentlichung ist blockiert. Der Domaintakt kann nach einem Abbruch zu kurz ausfallen, lokale Git-Attribute können den Bauinhalt verändern und der Baumvergleich erfasst keine Unterbäume.",
+  "befunde": [
+    {
+      "id": "R5-01",
+      "schwere": "schwer",
+      "titel": "Abgebrochener Abruf hinterlässt keinen laufenden Zustand",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 143,
+      "beleg": "Der Erstauftrag verlangt „Takt ≥ 61 s“. Zeilen 143 und 147 schreiben dasselbe numerische Format für Beginn und Ende. Bei einem simulierten Abbruch während des atomaren Austauschs nach einem 20 Sekunden langen Abruf blieb der Startstempel erhalten. `sperre_holen()` wartete 41 Sekunden. Für einen zurückgebliebenen laufenden Versuch sind 61 Sekunden ab Übernahme der Sperre gefordert. Der neue Test in `tests/test_abruf.py:227` prüft nur, ob der alte Stempel erhalten bleibt.",
+      "auswirkung": "Der nächste Abruf derselben Domain kann weniger als 61 Sekunden nach Ende des vorherigen Versuchs beginnen.",
+      "vorschlag": "Vor dem HTTP-Aufruf einen eigenen Zustand für laufende Versuche atomar sichern. Beim Abschluss atomar durch die Endzeit ersetzen. Bei einem zurückgebliebenen laufenden Zustand unter der Domainsperre volle 61 Sekunden warten und genau diesen Folgeabruf testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R5-04",
+      "schwere": "schwer",
+      "titel": "Lokale Git-Attribute können Dateien aus der Bauquelle entfernen",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 149,
+      "beleg": "R6 verlangt, dass das Skript „aus einer Kopie genau des geprüften Commits“ baut. `git archive` berücksichtigt auch `$GIT_DIR/info/attributes`. Eine dort gesetzte `export-ignore`-Regel für `daten/produkte/laptop.json` lässt die Datei im Archiv fehlen, während der Quellarbeitsbaum sauber bleibt. Zeilen 149–151 gleichen das Archiv mit keinem Commit-Baum ab. Im Speicherbau mit genau dieser Auslassung sank die Zahl der Laptopvarianten von 32 auf 0, bei unveränderter Herkunfts-ID und erfolgreichem Bau.",
+      "auswirkung": "Der Seitencommit kann einen unvollständigen Produktbestand unter der ID des geprüften Quellcommits veröffentlichen. Der Vergleich mit dem eigenen Bau akzeptiert diesen Bestand.",
+      "vorschlag": "Die Bauquelle direkt aus den Baum- und Blobobjekten des Commits materialisieren oder die entpackte Kopie vor dem Bau anhand aller Pfade, Modi und Blob-IDs gegen den Commit prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R6-01",
+      "schwere": "schwer",
+      "titel": "Baumprüfung erfasst keine Verzeichniseinträge",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 127,
+      "beleg": "R6 verlangt, dass das Skript „Modus, Typ und Objekt-ID jedes Baumeintrags“ vergleicht. `git ls-tree -r -z` lässt ohne `-t` den Typ `tree` aus. Der Vergleich am eingefrorenen Commit bestätigt das etwa für `app/finder`. Ein zusätzlicher leerer Unterbaum verändert die Baum-ID, bleibt aber in der verglichenen Eintragsliste unsichtbar.",
+      "auswirkung": "`commit-tree` kann einen Baum übernehmen, der zusätzliche, ungeprüfte Verzeichniseinträge enthält.",
+      "vorschlag": "Den vollständigen erwarteten Git-Baum aus den Bauartefakten und den übernommenen Preiseinträgen bilden und seine Wurzel-ID mit der Ausgabe von `write-tree` vergleichen. Einen zusätzlichen leeren Unterbaum als Testfall aufnehmen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R5-05",
+      "schwere": "mittel",
+      "titel": "Port 0 und mehrdeutige Cache-Schlüssel verletzen die Ursprungsbindung",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 273,
+      "beleg": "Die Ausführung von `robots_ursprung()` ergibt für `https://h.invalid:0/a` und `https://h.invalid:443/a` dasselbe Tupel, weil `0 or 443` den Standardport einsetzt. Zusätzlich ersetzt Zeile 279 Doppelpunkte durch Unterstriche. Dadurch erhalten etwa die IPv6-Adresse `2001:db8::1` und der von `urlsplit` akzeptierte Hostname `2001_db8__1` bei gleichem Schema und Port denselben Ablagepfad.",
+      "auswirkung": "`robots_ok()` kann Regeln eines anderen Ursprungs verwenden oder eine URL mit Port 0 anhand der Regeln von Port 443 freigeben.",
+      "vorschlag": "Nur bei `port is None` den Standardport einsetzen, Port 0 ablehnen und den Cache-Schlüssel eindeutig aus dem vollständigen Ursprung bilden. Port 0 und getrennte IPv6-Cache-Schlüssel testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R6-02",
+      "schwere": "mittel",
+      "titel": "IPv6-Robots-Abruf scheitert auf Windows an der Domainsperre",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 46,
+      "beleg": "`robots_text()` baut die IPv6-URL mit eckigen Klammern. `holen()` verwendet anschließend den Host `2001:db8::1` für den Sperrdateinamen `2001:db8::1.lock`. Python bestätigt auf Windows, dass dieser Dateiname reserviert ist. Das Öffnen der Sperrdatei liegt vor der Fehlerbehandlung in `sperre_versuchen()`.",
+      "auswirkung": "Ein IPv6-Aufruf ohne Cache-Eintrag kann auf Windows schon vor dem Abruf der robots.txt mit einem unbehandelten Dateisystemfehler enden.",
+      "vorschlag": "Für Sperrdatei, Zeitstempel und Sperrvermerk denselben Windows-tauglichen, eindeutigen Schlüssel pro Host verwenden. Bei der Umstellung vorhandene Domainstempel berücksichtigen.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": [
+    "R5-02",
+    "R5-03"
+  ],
+  "pruefgrenzen": "Geprüft wurde Commit 648bf1f17d7ee28eb5ed1d0e9d616afa0d2e9930. Die eigenständig ausgeführte Datenbankprüfung ergab 0 Fehler und 56 Warnungen. Für die aktuelle Git-Konfiguration waren alle 20 im Speicher erzeugten Bauartefakte aus Archiv und Arbeitsbaum bytegleich, einschließlich Zeilenenden und Herkunft. Den schreibenden Sammellauf belegt der Commit-Text mit „Fehler 0“. Sammellauf, Live-Trockenlauf und Push lagen außerhalb der Nur-Lese-Nachprüfung. Im vorgelegten Diff ergab die Sichtung keinen Fund zu vertraulichen oder personenbezogenen Daten."
+}
