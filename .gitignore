@@ -65,3 +65,6 @@ pilot-preise.json.tmp
 # Impeccable (O11): lokal installiert, nicht versioniert; neu: npx impeccable install --scope=project --providers=claude (Hook: n, Anmeldung: n)
 .claude/skills/impeccable/
 .claude/agents/impeccable-*.md
+
+# Projekt: Kandidatenliste der Entdeckung (werkzeuge/entdeckung.py, D10), nur lokal
+.entdeckung/
