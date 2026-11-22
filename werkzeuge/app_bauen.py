@@ -124,8 +124,10 @@ def versionshash(fragment, daten):
     return h.hexdigest()[:12]
 
 
-def baue(daten_herkunft=None):
-    """daten_herkunft: Commit für finder-daten.json (veroeffentlichen.py, R2-02); lokal ohne."""
+def baue(daten_herkunft=None, ziel=None):
+    """daten_herkunft: Commit für finder-daten.json (veroeffentlichen.py, R2-02); lokal ohne.
+    ziel: Ausgabeverzeichnis (Standard dist/); veroeffentlichen.py baut in ein eigenes frisches Verzeichnis (R3-01)."""
+    DIST = Path(ziel) if ziel is not None else globals()["DIST"]
     f = (QUELLE / "kaufberatung.html").read_text(encoding="utf-8")
     pruefe_fragment(f)
     herkunft = json.loads((QUELLE / "herkunft.json").read_text(encoding="utf-8"))
@@ -168,7 +170,8 @@ def baue(daten_herkunft=None):
     for seite in (ratgeber, finder):
         assert not re.search(r"(api[_-]?key|token|secret)\s*[:=]\s*['\"][A-Za-z0-9_\-]{16,}", seite, re.I), "möglicher Schlüssel im Ergebnis"
     groesse = (DIST / "finder-daten.json").stat().st_size
-    print(f"gebaut: dist/ · App {v} · Inhalt {herkunft['version']} · ratgeber.html {len(ratgeber.encode('utf-8')):,} Bytes"
+    anzeige = "dist/" if ziel is None else str(DIST)
+    print(f"gebaut: {anzeige} · App {v} · Inhalt {herkunft['version']} · ratgeber.html {len(ratgeber.encode('utf-8')):,} Bytes"
           f" · finder-daten.json {groesse:,} Bytes")
     return v
 

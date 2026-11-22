@@ -2,6 +2,8 @@
 """Tests für werkzeuge/datenpflege/abruf.py ohne Netz: ein HTTP-Versuch je Takt (F-04), robots.txt nach RFC 9309 (F-06)."""
 import io
 import json
+import os
+import subprocess
 import sys
 import tempfile
 import time
@@ -83,6 +85,27 @@ class Robots(unittest.TestCase):
         self.assertFalse(abruf.robots_erlaubt(stern, UA, "https://h.invalid/x%2ay"))
         self.assertFalse(abruf.robots_erlaubt("User-agent: *\nDisallow: /kühl\n", UA, "https://h.invalid/k%C3%BChl-1.html"))
 
+    def test_rfc9309_sonderzeichen(self):
+        """R3-03: RFC 9309 § 2.2.3 – %2A/%24 in der Regel treffen wörtliches * und $ im URL-Pfad (beide Schreibweisen)."""
+        regel = lambda r: "User-agent: *\nDisallow: " + r + "\n"
+        stern = regel("/path/file-with-a-%2A.html")
+        self.assertFalse(abruf.robots_erlaubt(stern, UA, "https://h.invalid/path/file-with-a-*.html"))
+        self.assertFalse(abruf.robots_erlaubt(stern, UA, "https://h.invalid/path/file-with-a-%2a.html"))
+        self.assertTrue(abruf.robots_erlaubt(stern, UA, "https://h.invalid/path/file-with-a-x.html"))
+        dollar = regel("/path/foo-%24")
+        self.assertFalse(abruf.robots_erlaubt(dollar, UA, "https://h.invalid/path/foo-$"))
+        self.assertFalse(abruf.robots_erlaubt(dollar, UA, "https://h.invalid/path/foo-%24"))
+        self.assertFalse(abruf.robots_erlaubt(regel("/x%2Ay"), UA, "https://h.invalid/x*y"))
+        self.assertFalse(abruf.robots_erlaubt(regel("/x%24"), UA, "https://h.invalid/x$"))
+        # Platzhalter in Regeln bleiben: * beliebig, nur abschließendes $ = Pfadende, $ mitten in der Regel ist wörtlich
+        self.assertFalse(abruf.robots_erlaubt(regel("/a*c$"), UA, "https://h.invalid/abbc"))
+        self.assertTrue(abruf.robots_erlaubt(regel("/a*c$"), UA, "https://h.invalid/abbcd"))
+        self.assertFalse(abruf.robots_erlaubt(regel("/a$b"), UA, "https://h.invalid/a$b"))
+        self.assertTrue(abruf.robots_erlaubt(regel("/a$b"), UA, "https://h.invalid/a"))
+        self.assertFalse(abruf.robots_erlaubt(regel("/a$$"), UA, "https://h.invalid/a$"), "nur das letzte $ ist Pfadende")
+        self.assertTrue(abruf.robots_erlaubt(regel("/a$$"), UA, "https://h.invalid/a$b"))
+        self.assertTrue(abruf.robots_erlaubt(regel("/a$$"), UA, "https://h.invalid/a"))
+
     def test_leer_oder_html_ist_nicht_auswertbar(self):
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
             for antwort in ("", "<html>Wartung</html>"):
@@ -112,6 +135,55 @@ class Robots(unittest.TestCase):
              unittest.mock.patch.object(abruf, "holen", side_effect=SystemExit(3)):
             with self.assertRaises(SystemExit):
                 abruf.robots_ok("https://h.invalid/a")
+
+
+class Domainsperre(unittest.TestCase):
+    """R3-04: Domainsperre als Betriebssystem-Dateisperre: genau ein Inhaber, die Datei wird nie gelöscht."""
+
+    def test_domainsperre_ein_inhaber(self):
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            erste = abruf.sperre_versuchen("h.invalid")
+            self.assertIsNotNone(erste)
+            try:
+                self.assertIsNone(abruf.sperre_versuchen("h.invalid"), "zweiter Inhaber trotz gehaltener Sperre")
+                # Ein zweiter Prozess bekommt die Sperre ebenfalls nicht
+                kind = subprocess.run([sys.executable, "-I", "-c",
+                    "import sys; sys.path[:0]=[sys.argv[1], sys.argv[2]]; import abruf; from pathlib import Path; "
+                    "abruf.TAKT=Path(sys.argv[3]); sys.exit(0 if abruf.sperre_versuchen('h.invalid') is None else 1)",
+                    str(WURZEL / "werkzeuge" / "datenpflege"), str(WURZEL / "werkzeuge"), t], capture_output=True, text=True)
+                self.assertEqual(kind.returncode, 0, kind.stderr)
+            finally:
+                abruf.sperre_freigeben(erste)
+            zweite = abruf.sperre_versuchen("h.invalid")
+            self.assertIsNotNone(zweite, "nach Freigabe wieder frei")
+            abruf.sperre_freigeben(zweite)
+
+    def test_alte_sperrdatei_wird_nicht_geloescht(self):
+        """Eine alte Sperrdatei ohne Inhaber sperrt nicht; eine gehaltene bleibt gehalten, egal wie alt."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            lock = Path(t) / "h.invalid.lock"
+            lock.write_bytes(b"")
+            os.utime(lock, (time.time() - 3600, time.time() - 3600))
+            erste = abruf.sperre_versuchen("h.invalid")
+            self.assertIsNotNone(erste, "liegengebliebene Datei ohne Inhaber sperrt nicht")
+            try:
+                os.utime(lock, (time.time() - 3600, time.time() - 3600))
+                with unittest.mock.patch("time.sleep", side_effect=RuntimeError("wartet")):
+                    with self.assertRaises(RuntimeError):
+                        abruf.sperre_holen("h.invalid")   # wartet statt die alte Datei zu löschen
+                self.assertTrue(lock.exists())
+            finally:
+                abruf.sperre_freigeben(erste)
+
+    def test_holen_gibt_die_sperre_frei_und_laesst_die_datei(self):
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)),              unittest.mock.patch.object(abruf, "einmal_abrufen", side_effect=sa.NichtAbrufbar("Netzfehler: x")):
+            with self.assertRaises(SystemExit):
+                abruf.holen("https://h.invalid/a")
+            self.assertTrue((Path(t) / "h.invalid.lock").exists(), "Sperrdatei bleibt liegen")
+            self.assertTrue((Path(t) / "h.invalid.zeit").exists(), "Zeitstempel auch nach Fehler")
+            f = abruf.sperre_versuchen("h.invalid")
+            self.assertIsNotNone(f, "nach dem Abruf wieder frei")
+            abruf.sperre_freigeben(f)
 
 
 if __name__ == "__main__":

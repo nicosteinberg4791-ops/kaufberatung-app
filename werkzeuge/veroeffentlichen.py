@@ -9,7 +9,9 @@ Push nur mit Auftrag des Besitzers bzw. nach bestandener Prüfung (AGENTS.md). B
   - nach dem Bau wird das noch einmal geprüft (nichts hat sich während des Baus geändert);
   - finder-daten.json trägt die Herkunft (Commit); die Online-Datei wird nur ersetzt, wenn ihre Herkunft im geprüften
     Stand enthalten ist (werkzeuge/herkunft.py, R2-02), sonst Abbruch;
-  - preise.json und finder-preise.json kommen nie aus dist/ (dort ignoriert, ungeprüft, R2-01): vorhandene auf gh-pages
+  - gebaut wird in ein eigenes frisches Verzeichnis (nie das gemeinsame dist/, R3-01); vor dem Commit muss die
+    bereitgestellte finder-daten.json (Index des Seitenbaums) die geprüfte Herkunft tragen und dem eigenen Bau gleichen;
+  - preise.json und finder-preise.json kommen nie aus dem Bau (dort ignoriert, ungeprüft, R2-01): vorhandene auf gh-pages
     bleiben, eine fehlende finder-preise.json bekommt den festen Startstand.
 Der Seitenbaum ist ein eigener git worktree ohne Zweig (detached) unter .veroeffentlichung/ dieses Arbeitsbaums,
 immer frisch auf origin/gh-pages; gepusht wird `HEAD:gh-pages` ohne Erzwingen (hat sich gh-pages bewegt: neu starten).
@@ -18,6 +20,7 @@ import json
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -66,11 +69,29 @@ def arbeitsbaum():
         git("worktree", "add", "-q", "--detach", str(SEITEN), "origin/gh-pages")
 
 
-def spiegeln():
+def bereitgestellt_fehler(text, gebaut, head):
+    """Grund gegen den Commit oder None (R3-01): bereitgestellte finder-daten.json muss gültiges JSON mit herkunft = head
+    sein und genau dem eigenen Bau gleichen. Reine Funktion, für Tests."""
+    if text is None:
+        return "finder-daten.json fehlt im Seitenbaum"
+    try:
+        d = json.loads(text)
+    except ValueError:
+        return "finder-daten.json im Seitenbaum ist kein JSON"
+    if not isinstance(d, dict) or d.get("herkunft") != head:
+        return f"finder-daten.json im Seitenbaum trägt nicht die geprüfte Herkunft {head[:12]}"
+    if text != gebaut:
+        return "finder-daten.json im Seitenbaum weicht vom eigenen Bau ab"
+    return None
+
+
+def spiegeln(quelle=None):
+    """Seitenbaum = Bau aus <quelle> (Standard dist/) plus die Preisdateien von gh-pages."""
+    quelle = WURZEL / "dist" if quelle is None else Path(quelle)
     for p in SEITEN.iterdir():
         if p.name not in BEHALTEN:
             shutil.rmtree(p) if p.is_dir() else p.unlink()
-    for p in (WURZEL / "dist").iterdir():
+    for p in quelle.iterdir():
         if p.name in ("preise.json", "finder-preise.json"):
             continue   # gehören den Preisläufen; lokale Kopien sind ungeprüft (R2-01)
         ziel = SEITEN / p.name
@@ -96,15 +117,29 @@ def main(argv=None):
     if grund:
         print("Abbruch, nichts veröffentlicht: finder-daten.json auf gh-pages –", grund)
         return 1
-    v = app_bauen.baue(daten_herkunft=head)
-    spiegeln()
+    with tempfile.TemporaryDirectory(prefix="kb-veroeffentlichung-") as tmp:
+        bau = Path(tmp) / "dist"   # eigenes frisches Verzeichnis, kein anderer Lauf schreibt hinein (R3-01)
+        v = app_bauen.baue(daten_herkunft=head, ziel=bau)
+        gebaut = (bau / "finder-daten.json").read_text(encoding="utf-8") if (bau / "finder-daten.json").exists() else ""
+        spiegeln(bau)
     if trocken:
+        datei = SEITEN / "finder-daten.json"
+        grund = bereitgestellt_fehler(datei.read_text(encoding="utf-8") if datei.exists() else None, gebaut, head)
+        if grund:
+            print("Abbruch:", grund)
+            return 1
         print("trocken: .veroeffentlichung/ gespiegelt, nichts committet")
         return 0
     if stand_lesen()[:2] != (head, True):
         print("Abbruch: HEAD oder Arbeitsbaum hat sich während des Baus geändert")
         return 1
     git("add", "-A", cwd=SEITEN)
+    r = git("show", ":finder-daten.json", cwd=SEITEN, check=False)   # genau der Inhalt, der committet würde
+    grund = bereitgestellt_fehler(r.stdout if r.returncode == 0 else None, gebaut, head)
+    if grund:
+        git("reset", "-q", cwd=SEITEN)
+        print("Abbruch, nichts veröffentlicht:", grund)
+        return 1
     if git("diff", "--cached", "--quiet", cwd=SEITEN, check=False).returncode == 0:
         print("keine Änderung auf gh-pages")
         return 0

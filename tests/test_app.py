@@ -206,6 +206,51 @@ class Veroeffentlichen(unittest.TestCase):
                 self.assertEqual((t / "seiten" / "finder-preise.json").read_text(encoding="utf-8"), '{"online": 1}')
                 self.assertTrue((t / "seiten" / "index.html").exists())
 
+    def test_bereitgestellte_daten_pruefen(self):
+        """R3-01: vor dem Commit muss die bereitgestellte finder-daten.json die geprüfte Herkunft tragen und dem eigenen Bau
+        gleichen."""
+        h = "a" * 40
+        gut = json.dumps({"herkunft": h, "kategorien": []})
+        f = self.v.bereitgestellt_fehler
+        self.assertIsNone(f(gut, gut, h))
+        self.assertTrue(f(None, gut, h), "fehlt")
+        self.assertTrue(f("kaputt", gut, h), "kein JSON")
+        self.assertTrue(f(json.dumps({"kategorien": []}), gut, h), "ohne Herkunft (paralleler App-Bau)")
+        self.assertTrue(f(json.dumps({"herkunft": "b" * 40}), json.dumps({"herkunft": "b" * 40}), h), "andere Herkunft")
+        self.assertTrue(f(json.dumps({"herkunft": h, "kategorien": [1]}), gut, h), "anderer Inhalt als der eigene Bau")
+
+    def _lauf(self, schreibe_daten):
+        """main(--trocken) mit Attrappen; der Bau schreibt in sein Ziel und gleichzeitig ein paralleler App-Bau nach dist/."""
+        head = "c" * 40
+        t = Path(tempfile.mkdtemp()); self.addCleanup(shutil.rmtree, t, True)
+        (t / "dist").mkdir(); (t / "seiten").mkdir()
+        ziele = []
+
+        def baue(daten_herkunft=None, ziel=None):
+            ziele.append(ziel)
+            z = Path(ziel)
+            z.mkdir(parents=True, exist_ok=True)
+            (z / "index.html").write_text("<p>neu</p>", encoding="utf-8")
+            (z / "finder-daten.json").write_text(schreibe_daten(daten_herkunft), encoding="utf-8")
+            (t / "dist" / "finder-daten.json").write_text('{"kategorien": []}', encoding="utf-8")   # paralleler Bau
+            return "v1"
+        with mock.patch.object(self.v, "WURZEL", t), mock.patch.object(self.v, "SEITEN", t / "seiten"),              mock.patch.object(self.v, "stand_lesen", return_value=(head, True, True)),              mock.patch.object(self.v, "arbeitsbaum"), mock.patch.object(self.v.herkunft, "fehler", return_value=None),              mock.patch.object(self.v.app_bauen, "baue", side_effect=baue):
+            code = self.v.main(["--trocken"])
+        return code, ziele, t, head
+
+    def test_baut_in_eigenes_verzeichnis(self):
+        """R3-01: ein paralleler App-Bau in dist/ gelangt nicht in den Seitenbaum."""
+        code, ziele, t, head = self._lauf(lambda h: json.dumps({"herkunft": h, "kategorien": []}))
+        self.assertEqual(code, 0)
+        self.assertEqual(len(ziele), 1)
+        self.assertIsNotNone(ziele[0], "Bau mit eigenem Ziel")
+        self.assertNotEqual(Path(ziele[0]).resolve(), (t / "dist").resolve(), "nicht das gemeinsame dist/")
+        self.assertEqual(json.loads((t / "seiten" / "finder-daten.json").read_text(encoding="utf-8"))["herkunft"], head)
+
+    def test_falsche_herkunft_im_bau_bricht_ab(self):
+        code, _, _, _ = self._lauf(lambda h: json.dumps({"kategorien": []}))
+        self.assertEqual(code, 1, "Datei ohne geprüfte Herkunft wird nicht bereitgestellt")
+
     def test_ohne_stand_kein_push(self):
         with mock.patch.object(self.v, "stand_lesen", return_value=("a" * 40, True, True)),              mock.patch.object(self.v, "arbeitsbaum") as ab, mock.patch.object(self.v.app_bauen, "baue") as bau:
             self.assertEqual(self.v.main([]), 1)
@@ -221,9 +266,16 @@ class Herkunft(unittest.TestCase):
         self.h = herkunft
 
     def test_regeln(self):
-        vorfahr = lambda alt, neu: (alt, neu) == (self.A, self.B)
+        # ist_vorfahr(x, x) = Commit x vorhanden (git merge-base --is-ancestor x x)
+        vorfahr = lambda alt, neu: (alt, neu) in {(self.A, self.B), (self.A, self.A), (self.B, self.B)}
         f = lambda online, neu: self.h.fehler(online, neu, vorfahr)
         self.assertIsNone(f(None, self.B), "keine Online-Datei")
+        # R3-05: neuer Stand wird immer geprüft (Format und vorhandenes Commit), auch ohne oder mit unlesbarer Online-Datei
+        U = "c" * 40
+        self.assertTrue(f(None, "xyz"), "ohne Online-Datei, neuer Stand ungültig")
+        self.assertTrue(f("kaputt", "B" * 40), "unlesbare Online-Datei, neuer Stand ungültig")
+        self.assertTrue(f(None, U), "ohne Online-Datei, neuer Stand unbekannt")
+        self.assertTrue(f(json.dumps({"herkunft": U}), U), "gleicher unbekannter SHA")
         self.assertIsNone(f("kaputt", self.B), "unlesbare Online-Datei darf ersetzt werden")
         self.assertIsNone(f(json.dumps({"herkunft": self.B}), self.B), "gleicher Stand")
         self.assertIsNone(f(json.dumps({"herkunft": self.A}), self.B), "Online ist Vorfahr")
@@ -250,6 +302,11 @@ class Herkunft(unittest.TestCase):
             self.assertEqual(cli(a), 1, "alter Lauf darf neueren Stand nicht ersetzen")
             online.write_text(json.dumps({"herkunft": "c" * 40}), encoding="utf-8")
             self.assertEqual(cli(b), 1, "unbekannte Herkunft")
+            online.write_text(json.dumps({"herkunft": "c" * 40}), encoding="utf-8")
+            self.assertEqual(cli("c" * 40), 1, "R3-05: gleicher unbekannter SHA")
+            online.unlink()
+            self.assertEqual(cli("d" * 40), 1, "R3-05: ohne Online-Datei, unbekannter neuer SHA")
+            self.assertEqual(cli("main"), 1, "R3-05: ohne Online-Datei, kein SHA")
 
     def test_bau_schreibt_herkunft(self):
         import datenbank

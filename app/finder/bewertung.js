@@ -23,6 +23,7 @@
   const istZahl = x => typeof x === "number" && isFinite(x);
   const istObjekt = x => x !== null && typeof x === "object" && !Array.isArray(x);
   const DATUM = /^\d{4}-\d{2}-\d{2}$/;
+  const eigen = (o, k) => o !== null && typeof o === "object" && Object.prototype.hasOwnProperty.call(o, k);
 
   /* Nicht anwendbare Felder (regeln.nicht_anwendbar): Gewicht entfällt ohne Abdeckungsverlust.
      Das Datenformat kennt dafür keinen eigenen Wert; die bekannten Fälle stehen hier. */
@@ -30,14 +31,16 @@
     airfryer: { sync_funktion: w => w.koerbe === 1 },
   };
   function nichtAnwendbar(katId, fid, werte) {
-    const r = NICHT_ANWENDBAR[katId] && NICHT_ANWENDBAR[katId][fid];
-    return !!(r && werte && r(werte));
+    // R3-02: nur eigene Einträge und aufrufbare Regeln (Kennung "constructor"/"prototype" trifft sonst den Prototyp)
+    const k = eigen(NICHT_ANWENDBAR, katId) ? NICHT_ANWENDBAR[katId] : null;
+    const r = k && eigen(k, fid) ? k[fid] : null;
+    return !!(typeof r === "function" && werte && r(werte));
   }
 
   /* Gewichte nach Antworten: Faktoren aller gewählten Antworten multiplizieren, Faktor 0 schaltet ab,
      Filterfelder (Gewicht 0) bleiben draußen, Rest auf Summe 100 normieren. antworten = {frageId: antwortId}. */
   function gewichte(kat, antworten) {
-    const faktor = {};
+    const faktor = Object.create(null);   // R3-02: ohne Prototyp, Schlüssel kommen aus fremden Daten
     for (const frage of kat.fragen || []) {
       const aid = antworten && antworten[frage.id];
       const antw = (frage.antworten || []).find(a => a.id === aid);
@@ -87,7 +90,7 @@
 
   /* Eine Anforderung gegen die Werte eines Modells: "ok" | "nein" | "unbelegt" (Wert fehlt oder passt nicht zum Typ). */
   function pruefe(werte, anf) {
-    const w = werte ? werte[anf.feld] : undefined;
+    const w = eigen(werte, anf.feld) ? werte[anf.feld] : undefined;
     if (w === undefined || w === null) return "unbelegt";
     switch (anf.art) {
       case "mindest": return istZahl(w) ? (ge(w, anf.wert) ? "ok" : "nein") : "unbelegt";
@@ -363,6 +366,10 @@
      ersetzt, damit eine beschädigte Datei den letzten brauchbaren Stand nicht verdrängt. Einzelne kaputte Modelle,
      Preise und Teilpunkte werden still entfernt. Testlinks nur mit url und titel (F-01: keine übernommenen Noten). */
   const KENNUNG = /^[a-z0-9_]+(?:-[a-z0-9_]+)*$/;
+  // R3-02: Namen aus dem Objekt-Prototyp (constructor, __proto__ …) und prototype sind als Kennung oder Schlüssel verboten
+  const reserviert = x => x === "prototype" || x === "__proto__" || x in Object.prototype;
+  const kennungOk = x => typeof x === "string" && KENNUNG.test(x) && !reserviert(x);
+  const schluesselOk = o => Object.keys(o).every(k => !reserviert(k));
   const zahlIn = (x, lo, hi) => istZahl(x) && x >= lo && x <= hi;
   const istText = (x, max) => typeof x === "string" && x.length <= (max || 500);
   const istName = (x, max) => istText(x, max) && x.trim() !== "";
@@ -386,17 +393,17 @@
       "ersparnis_anteil_schwaecher"].every(n => zahlIn(a.spar[n], 0, 100000)) && istText(a.spar.text_gleich) && istText(a.spar.text_schwaecher), "spar");
   }
   function feldPruefen(f) {
-    pruefOderWirf(istObjekt(f) && typeof f.id === "string" && KENNUNG.test(f.id) && istName(f.name, 80)
+    pruefOderWirf(istObjekt(f) && kennungOk(f.id) && istName(f.name, 80)
       && ["zahl", "bool", "stufe"].indexOf(f.typ) >= 0 && zahlIn(f.gewicht, 0, 1000)
       && (f.einheit === undefined || f.einheit === null || istText(f.einheit, 20)), "feld");
     if (f.einheit === undefined || f.einheit === null) f.einheit = "";
   }
   function fragePruefen(f) {
-    pruefOderWirf(istObjekt(f) && typeof f.id === "string" && KENNUNG.test(f.id) && istText(f.text)
+    pruefOderWirf(istObjekt(f) && kennungOk(f.id) && istText(f.text)
       && Array.isArray(f.antworten) && f.antworten.length > 0, "frage");
     for (const a of f.antworten) {
-      pruefOderWirf(istObjekt(a) && typeof a.id === "string" && KENNUNG.test(a.id) && istText(a.text), "antwort");
-      for (const n of ["gewichte", "mindest", "hoechst"]) pruefOderWirf(a[n] === undefined || istObjekt(a[n]), "antwort." + n);
+      pruefOderWirf(istObjekt(a) && kennungOk(a.id) && istText(a.text), "antwort");
+      for (const n of ["gewichte", "mindest", "hoechst"]) pruefOderWirf(a[n] === undefined || (istObjekt(a[n]) && schluesselOk(a[n])), "antwort." + n);
       if (a.gewichte) pruefOderWirf(Object.values(a.gewichte).every(g => zahlIn(g, 0, 100)), "antwort.gewichte");
     }
   }
@@ -409,7 +416,7 @@
     pruefOderWirf(d.herkunft === undefined || (typeof d.herkunft === "string" && /^[0-9a-f]{40}$/.test(d.herkunft)), "herkunft");
     regelnPruefen(d.regeln);
     for (const k of d.kategorien) {
-      pruefOderWirf(istObjekt(k) && typeof k.id === "string" && KENNUNG.test(k.id) && istName(k.name, 80)
+      pruefOderWirf(istObjekt(k) && kennungOk(k.id) && istName(k.name, 80)
         && Array.isArray(k.felder) && Array.isArray(k.modelle), "kategorie");
       k.felder.forEach(feldPruefen);
       k.fragen = k.fragen === undefined ? [] : k.fragen;
@@ -419,8 +426,8 @@
         && istName(m.name, 200) && (m.variante === undefined || m.variante === null || istText(m.variante, 200))
         && (m.werte === undefined || istObjekt(m.werte)) && (m.teilpunkte === undefined || istObjekt(m.teilpunkte)));
       for (const m of k.modelle) {
-        m.werte = Object.fromEntries(Object.entries(m.werte || {}).filter(([, w]) => wertOk(w)));
-        m.teilpunkte = Object.fromEntries(Object.entries(m.teilpunkte || {}).filter(([, t]) => zahlIn(t, 0, 100)));
+        m.werte = Object.fromEntries(Object.entries(m.werte || {}).filter(([k, w]) => !reserviert(k) && wertOk(w)));
+        m.teilpunkte = Object.fromEntries(Object.entries(m.teilpunkte || {}).filter(([k, t]) => !reserviert(k) && zahlIn(t, 0, 100)));
         if (m.preis !== null && m.preis !== undefined && !preisOk(m.preis)) m.preis = null;
         m.tests = (Array.isArray(m.tests) ? m.tests : []).filter(t => istObjekt(t) && sichereUrl(t.url) && istName(t.titel, 200))
           .map(t => ({ url: sichereUrl(t.url), titel: t.titel }));

@@ -392,3 +392,34 @@ test("R2-03: stand und herkunft nur gültig, sonst Fehler; Modellwerte nur einfa
   B.datenPruefen(d);
   assert.deepEqual(d.kategorien[0].modelle[0].werte, { b: 3, c: true, e: "gut" });
 });
+
+test("R3-02: Kennungen aus dem Objekt-Prototyp machen die Datei ungültig, solche Wert-Schlüssel fallen weg", () => {
+  const faelle = [
+    d => { d.kategorien[0].id = "constructor"; },
+    d => { d.kategorien[0].id = "__proto__"; },
+    d => { d.kategorien[0].felder[0].id = "prototype"; },
+    d => { d.kategorien[0].felder[0].id = "constructor"; },
+    d => { d.kategorien[0].fragen[0].id = "constructor"; },
+    d => { d.kategorien[0].fragen[0].antworten[0].id = "__proto__"; },
+    d => { d.kategorien[0].fragen[0].antworten[0].gewichte = { constructor: 2 }; },
+    d => { d.kategorien[0].fragen[0].antworten[0].mindest = { prototype: 1 }; },
+    d => { d.kategorien[0].fragen[0].antworten[0].hoechst = { constructor: 1 }; },
+  ];
+  for (const f of faelle) { const d = minimal(); f(d); assert.throws(() => B.datenPruefen(d), String(f)); }
+  const d = minimal(), m = d.kategorien[0].modelle[0];
+  m.werte = JSON.parse('{"constructor": 1, "__proto__": 2, "prototype": 3, "a": 4}');
+  m.teilpunkte = JSON.parse('{"constructor": 50, "__proto__": 60, "a": 90}');
+  B.datenPruefen(d);
+  assert.deepEqual(Object.keys(m.werte), ["a"]);
+  assert.deepEqual(Object.keys(m.teilpunkte), ["a"]);
+  // Nachschlagen nur in eigenen Einträgen, auch ohne vorherige Prüfung
+  assert.equal(B.nichtAnwendbar("constructor", "prototype", {}), false);
+  assert.equal(B.nichtAnwendbar("airfryer", "constructor", {}), false);
+  assert.equal(B.nichtAnwendbar("airfryer", "sync_funktion", { koerbe: 1 }), true);
+  const kat = Object.assign(kopie(KAT), { id: "constructor" });
+  kat.fragen[0].antworten[0].gewichte = { constructor: 2, b: 4 };
+  const g = B.gewichte(kat, { f1: "mehr_b" });
+  nah(g.a, 50); nah(g.b, 50);
+  assert.equal(B.pruefe({}, { feld: "constructor", art: "ja", wert: true }), "unbelegt");
+  assert.doesNotThrow(() => B.auswerten(Object.assign(kat, { modelle: [modell("m", { a: 90, b: 100 }, {}, 100)] }), REGELN, {}));
+});

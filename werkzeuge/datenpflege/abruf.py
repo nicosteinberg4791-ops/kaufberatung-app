@@ -39,30 +39,60 @@ ROBOTS_MAX_ALTER = 24 * 3600
 GESPERRT_PFADE = [r"/de/search", r"/de/list/", r"/de/promo-list/", r"storeId=", r"/rest/", r"\.json(\?|$)"]
 
 
+def sperre_versuchen(domain):
+    """Domainsperre als Betriebssystem-Dateisperre (R3-04) auf der dauerhaft liegenden Datei <domain>.lock: genau ein
+    Inhaber, frei beim Prozessende (auch nach Absturz), kein Altern und kein Löschen. Rückgabe Dateiobjekt oder None."""
+    f = open(TAKT / (domain + ".lock"), "a+b")
+    try:
+        if os.name == "nt":
+            import msvcrt
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        f.close()
+        return None
+    return f
+
+
+def sperre_freigeben(f):
+    """Sperre lösen und Datei schließen; die Datei bleibt liegen (sie sperrt ohne Inhaber nichts)."""
+    try:
+        if os.name == "nt":
+            import msvcrt
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+    except OSError:
+        pass
+    finally:
+        f.close()
+
+
 def sperre_holen(domain):
-    """Exklusive Sperre je Domain (Datei per O_EXCL), wartet bis frei; danach Abstand seit dem letzten Abruf einhalten."""
-    lock = TAKT / (domain + ".lock")
+    """Wartet auf die Domainsperre (höchstens 30 min), danach auf den Abstand seit dem letzten Abruf. Warten, Abruf und
+    Zeitstempel laufen unter derselben Sperre (holen()). Rückgabe (Sperre, Zeitstempeldatei)."""
     start = time.time()
     while True:
-        try:
-            fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-            os.close(fd)
+        lock = sperre_versuchen(domain)
+        if lock is not None:
             break
-        except FileExistsError:
-            try:
-                if time.time() - lock.stat().st_mtime > 300:   # verwaiste Sperre
-                    lock.unlink()
-                    continue
-            except FileNotFoundError:
-                continue
-            if time.time() - start > 1800:
-                raise SystemExit("Zeitüberschreitung beim Warten auf " + domain)
-            time.sleep(2)
+        if time.time() - start > 1800:
+            raise SystemExit("Zeitüberschreitung beim Warten auf " + domain)
+        time.sleep(2)
     stempel = TAKT / (domain + ".zeit")
-    if stempel.exists():
-        warte = ABSTAND - (time.time() - float(stempel.read_text() or 0))
-        if warte > 0:
-            time.sleep(warte)
+    try:
+        if stempel.exists():
+            warte = ABSTAND - (time.time() - float(stempel.read_text() or 0))
+            if warte > 0:
+                time.sleep(warte)
+    except BaseException:
+        sperre_freigeben(lock)
+        raise
     return lock, stempel
 
 
@@ -101,10 +131,7 @@ def holen(url):
         print(json.dumps({"url": url, "fehler": "nicht abrufbar: " + str(e)}, ensure_ascii=False))
         raise SystemExit(6)
     finally:
-        try:
-            lock.unlink()
-        except FileNotFoundError:
-            pass
+        sperre_freigeben(lock)   # Datei bleibt liegen (R3-04)
     return r
 
 
@@ -138,10 +165,14 @@ def einmal_abrufen(url):
 _UNRESERVIERT = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
 
 
-def _norm(s):
+def _norm(s, regel=False):
     """Pfad oder Regel gleich normalisieren (RFC 9309 2.2.2, R2-04): %XX nur für nicht reservierte Zeichen dekodieren,
-    sonst groß kodiert lassen; Nicht-ASCII und Leerzeichen UTF-8-kodieren. Wörtliches * und $ bleiben (Platzhalter
-    nur in Regeln), %2A/%24 bleiben kodiert und damit Literale."""
+    sonst groß kodiert lassen; Nicht-ASCII und Leerzeichen UTF-8-kodieren. %2A/%24 bleiben kodiert und damit Literale.
+    R3-03 (RFC 9309 2.2.3): im URL-Pfad werden wörtliches * und $ zu %2A/%24, damit kodierte Literalregeln sie treffen;
+    in Regeln bleibt * Platzhalter und nur ein abschließendes $ Pfadende, ein $ mitten in der Regel wird %24."""
+    ende = regel and s.endswith("$")   # nur das letzte Zeichen einer Regel kann Pfadende sein
+    if ende:
+        s = s[:-1]
     aus, i = [], 0
     while i < len(s):
         c = s[i]
@@ -150,9 +181,12 @@ def _norm(s):
             aus.append(z if z in _UNRESERVIERT else "%" + s[i + 1:i + 3].upper())
             i += 3
             continue
-        aus.append(urllib.parse.quote(c, safe="") if ord(c) > 126 or ord(c) <= 32 else c)
+        if c == "$" or (c == "*" and not regel):
+            aus.append("%24" if c == "$" else "%2A")
+        else:
+            aus.append(urllib.parse.quote(c, safe="") if ord(c) > 126 or ord(c) <= 32 else c)
         i += 1
-    return "".join(aus)
+    return "".join(aus) + ("$" if ende else "")
 
 
 def _muster(m):
@@ -194,7 +228,7 @@ def robots_erlaubt(text, ua_token, url):
         return True
     best = None
     for erlaubt, roh in robots_regeln(text, ua_token):
-        m = _norm(roh)   # Vergleich und Länge mit derselben Form (R2-04)
+        m = _norm(roh, regel=True)   # Vergleich und Länge mit derselben Form (R2-04, R3-03)
         if _muster(m).match(pfad):
             schluessel = (len(m), erlaubt)
             if best is None or schluessel > best:

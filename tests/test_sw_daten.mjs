@@ -46,7 +46,9 @@ test("F-08: gültige Datei ersetzt die Kopie, beschädigte (null in felder, Klas
   const kaputt1 = JSON.parse(BEISPIEL); kaputt1.kategorien[0].felder.push(null);
   const kaputt2 = JSON.parse(BEISPIEL); kaputt2.regeln.klassen[0].ab = "0;background:red";
   const kaputt3 = JSON.parse(BEISPIEL); kaputt3.stand = { toString: null };   // R2-03
-  for (const k of [JSON.stringify(kaputt1), JSON.stringify(kaputt2), JSON.stringify(kaputt3), "<html>Fehler</html>"]) {
+  const kaputt4 = JSON.parse(BEISPIEL); kaputt4.kategorien[0].id = "constructor";   // R3-02
+  kaputt4.kategorien[0].felder.find(x => x.gewicht > 0).id = "prototype";
+  for (const k of [JSON.stringify(kaputt1), JSON.stringify(kaputt2), JSON.stringify(kaputt3), JSON.stringify(kaputt4), "<html>Fehler</html>"]) {
     aktuell = k;
     assert.equal(await sw.holen(), BEISPIEL, "liefert den letzten brauchbaren Stand");
     assert.equal(sw.speicher.get("finder-daten.json"), BEISPIEL, "Cachekopie bleibt");

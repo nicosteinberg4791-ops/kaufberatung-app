@@ -19,19 +19,23 @@ SHA = re.compile(r"^[0-9a-f]{40}$")
 
 
 def fehler(online_text, neu, ist_vorfahr):
-    """Grund gegen das Ersetzen oder None. ist_vorfahr(alt, neu) -> bool (alt ist Vorfahr von neu oder gleich)."""
+    """Grund gegen das Ersetzen oder None. ist_vorfahr(alt, neu) -> bool (alt ist Vorfahr von neu oder gleich und beide
+    sind vorhandene Commits; ist_vorfahr(x, x) heißt also: Commit x ist vorhanden)."""
+    # R3-05: der neue Stand wird immer zuerst geprüft (Format und vorhandenes Commit), auch ohne Online-Datei
+    if not isinstance(neu, str) or not SHA.match(neu):
+        return "neuer Stand ohne gültige Herkunft (40 Hex-Zeichen)"
+    if not ist_vorfahr(neu, neu):
+        return f"neuer Stand {neu[:12]} ist kein vorhandener Commit"
     if online_text is None:
         return None
     try:
         online = json.loads(online_text)
     except ValueError:
         return None   # unlesbare Online-Datei darf ersetzt werden
-    if not isinstance(neu, str) or not SHA.match(neu):
-        return "neuer Stand ohne gültige Herkunft (40 Hex-Zeichen)"
     alt = online.get("herkunft") if isinstance(online, dict) else None
     if not isinstance(alt, str) or not SHA.match(alt):
         return "Online-Datei ohne gültige Herkunft: Reihenfolge ungeklärt, nicht ersetzen"
-    if alt == neu or ist_vorfahr(alt, neu):
+    if ist_vorfahr(alt, neu):   # gleiche SHAs laufen durch dieselbe Git-Prüfung (R3-05)
         return None
     return f"Online-Stand {alt[:12]} ist nicht im neuen Stand {neu[:12]} enthalten (neuer oder abweichend): nicht ersetzen"
 

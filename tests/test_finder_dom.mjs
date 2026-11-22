@@ -235,3 +235,10 @@ test("R2-03: Objekt statt Datum in stand zeigt die Fehlermeldung statt einer lee
   assert.equal(text(b.dok.body).includes("beschädigt"), false);
   assert.ok(text(b.dok.body).length > 100, "Seite zeichnet trotz kaputtem Einzelwert");
 });
+
+test("R3-02: Kategorie constructor / Feld prototype zeigt die Fehlermeldung statt einer leeren Seite", async () => {
+  const d = JSON.parse(BEISPIEL); d.kategorien[0].id = "constructor";
+  const f = d.kategorien[0].felder.find(x => x.gewicht > 0); f.id = "prototype";
+  const a = await starte("#k=constructor&s=ergebnis", JSON.stringify(d));
+  assert.ok(text(a.dok.body).includes("beschädigt"), text(a.dok.body).slice(0, 200));
+});
