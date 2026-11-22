@@ -35,7 +35,7 @@ Vorlagenversion: 2
 
 ## Design
 
-Design: Impeccable (Projekt, Telemetrie aus, ohne Hook). Skill `.claude/skills/impeccable`, Agenten `.claude/agents/impeccable-*`; kein Konto, keine Anmeldung.
+Design: Impeccable (Projekt, Telemetrie aus, ohne Hook). Skill `.claude/skills/impeccable`, Agenten `.claude/agents/impeccable-*`; kein Konto, keine Anmeldung. Nicht versioniert (.gitignore); auf neuem Rechner bzw. Worktree neu installieren (Befehl dort).
 
 ## Konnektoren
 
