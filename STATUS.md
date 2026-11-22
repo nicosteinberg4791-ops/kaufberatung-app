@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 21.11.2026 · `main` a08999f lokal (origin/main 79daf34 gepusht) auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 090ac453670e, Inhalt Artifact-Version 30. Pilot Bestpreis-Mix (D7) gepusht und einmal auf Actions gelaufen; Prüfstand selbst geprüft · unabhängig: Codex 4 Runden, nicht bestanden (Rundenlimit überschritten) · Besitzer: Push/Livegang 21.11. freigegeben.
+Stand: 21.11.2026 · `main` 3c07f38 lokal (origin/main 79daf34 gepusht) auf `github.com/<konto>/kaufberatung-app` (öffentlich), Pages aus `gh-pages`. Veröffentlicht: App 090ac453670e, Inhalt Artifact-Version 30. Pilot Bestpreis-Mix (D7) gepusht und einmal auf Actions gelaufen; Prüfstand selbst geprüft · unabhängig: Codex 5 Runden, nicht bestanden (Rundenlimit überschritten) · Besitzer: Push/Livegang 21.11. freigegeben.
 
 ## „Für alle“ (seit Artifact-Version 28 veröffentlicht)
 
@@ -23,7 +23,7 @@ Stand: 21.11.2026 · `main` a08999f lokal (origin/main 79daf34 gepusht) auf `git
 - **Pilot (21.11.2026):** `daten/quellen.json` (Freigabe mit Datum und Beleg), `daten/pilot_modelle.json` (5 Modelle), `werkzeuge/shopabfrage.py` → `pilot-preise.json` (in .gitignore), `tests/test_shopabfrage.py` (59 Tests, synthetische Vorlagen `tests/vorlagen/`), `.github/workflows/pilot-preise.yml` (nur `workflow_dispatch`, Ergebnis als Artefakt). 79daf34 gepusht (Besitzer 21.11.), Korrekturen 10b8897 und c36205f nur lokal.
 - Automatisch: Saturn, Alternate, Proshop, heise (O8). Nur Link: MediaMarkt, idealo (403). Saturn: eigenes Angebot nur mit Nachweis im eingebetteten Preisfeld; Weiterleitungen werden nicht verfolgt (Saturn leitet Ninja/Dreame auf Marktplatz-Varianten um).
 - **Actions-Lauf 44871394260** (21.11. 05:33 UTC): Alternate ok, heise ok; **Saturn 403 und Proshop 403 schon bei robots.txt** (Rechenzentrums-IP gesperrt, nicht umgehen). Lokal (Heim-IP) liefern alle vier. Bestpreise Actions: LG 1.349 € (heise), S90H 1.469 € (heise), Ninja 164 € (heise), Dreame keiner, S26 1.030,99 € (Alternate).
-- **Codex-Prüfung** `docs/pruefungen/2026-11-21-pilot-bestpreis/`: r1 9 Befunde (1 kritisch), r2 9 (1 kritisch, neu durch Korrektur), r3 5 schwer offen (D7-02 gekürzte 200-Antwort, D7-05 heise ohne Gültigkeitsnachweis = Besitzerentscheid „Bestpreis zulassen“, D7-09 Shoptexte in Alternate-Vorlage und Prüfprotokollen, D7-11 Captcha-Text, D7-14 doppelter Marktplatz-Schlüssel); r3 behoben in fc94934. r4: D7-09, D7-14 geschlossen, 3 schwer offen (D7-02 chunked-Abschluss, D7-11 Captcha-Text mit HTML/Fehlsperren, D7-15 zweites Saturn-Objekt mit anderer Feldfolge). Bewertungen `bewertung-r1..r4.md`, Fehlalarme 0.
+- **Codex-Prüfung** `docs/pruefungen/2026-11-21-pilot-bestpreis/`: r1 9 Befunde (1 kritisch), r2 9 (1 kritisch, neu durch Korrektur), r3 5 schwer offen (D7-02 gekürzte 200-Antwort, D7-05 heise ohne Gültigkeitsnachweis = Besitzerentscheid „Bestpreis zulassen“, D7-09 Shoptexte in Alternate-Vorlage und Prüfprotokollen, D7-11 Captcha-Text, D7-14 doppelter Marktplatz-Schlüssel); r3 behoben in fc94934. r4: D7-09, D7-14 geschlossen, 3 schwer offen (D7-02 chunked-Abschluss, D7-11 Captcha-Text mit HTML/Fehlsperren, D7-15 zweites Saturn-Objekt mit anderer Feldfolge). r4 behoben in 37f72a8. r5: 6 schwer offen (D7-02, -11, -15 bis -18, alle künstliche Randfälle; 4 unsicher, 2 sicher), Architektursignal. Bewertungen `bewertung-r1..r5.md`, Fehlalarme 0.
 
 ## Offen
 
@@ -33,4 +33,4 @@ Stand: 21.11.2026 · `main` a08999f lokal (origin/main 79daf34 gepusht) auf `git
 
 ## Nächster Schritt
 
-Besitzer: Rundenlimit überschritten (KERN §3), entscheiden, ob r4 (D7-02, -11, -15) noch korrigiert und in Runde 5 geprüft wird oder das Paket mit Leitplanke abgeschlossen wird (`bewertung-r4.md`). Push von c36205f+ erst nach bestandener Prüfung bzw. Besitzerentscheid. Außerdem O12, O13. Danach 3–5 Tage messen (Bericht Abschnitt 8, Schritt 8).
+Besitzer: nach r5 entscheiden (`bewertung-r5.md`): Umbau (Saturn-Zustand strukturell lesen, nur Antworten mit Content-Length, Text per html.parser) mit Runde 6, oder Pilot mit Leitplanke abschließen (offene Befunde als bekannte Grenzen, Pilot-Ergebnis nur als Artefakt, nicht in der App). Push von c36205f+ erst danach. Außerdem O12, O13. Danach 3–5 Tage messen (Bericht Abschnitt 8, Schritt 8).
