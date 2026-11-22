@@ -1,0 +1,67 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Die Nachprüfung bleibt wegen falsch anerkannter Saturn-Eigenangebote und Fehlern bei der Sperrseitenerkennung blockiert. Alle 75 Shopabfrage-Tests liefen erfolgreich.",
+  "befunde": [
+    {
+      "id": "D7-R7-01",
+      "schwere": "schwer",
+      "titel": "Ein leeres src-Attribut lässt ein inaktives Inline-Skript als Nachweis gelten",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 491,
+      "beleg": "Das Fertigkriterium verlangt „im Code eines ausführbaren Inline-Skripts“. Ersetzt man in der Saturn-Ninja-Testvorlage den Starttag des Zustandsskripts durch `<script src>`, meldet `auswerten_seite()` weiterhin ein Eigenangebot. `HTMLParser` liefert für das vorhandene wertlose Attribut `None`. Zeile 491 behandelt es wie ein fehlendes Attribut. Der Browser führt den Inline-Inhalt bei vorhandenem `src` nicht aus.",
+      "auswirkung": "Die Preisabfrage kann ein Saturn-Eigenangebot ohne wirksamen Verkäufernachweis übernehmen.",
+      "vorschlag": "Die Anwesenheit des Attributs prüfen und einen Regressionstest mit `<script src>` ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R7-02",
+      "schwere": "schwer",
+      "titel": "Ein angehängtes Template-Literal und ein fremdes Zuweisungsziel werden akzeptiert",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 302,
+      "beleg": "Das Fertigkriterium verlangt „rechts davon nur das Objektliteral, danach `;` oder Skriptende“. Hängt man in der Saturn-Ninja-Testvorlage unmittelbar vor dem Semikolon ein Template-Literal wie `x` mit Backticks an das Objektliteral, maskiert Zeile 268 den Anhang. Zeile 302 sieht dann nur Leerraum und Semikolon. Auch `const other = {window: {}}; other.window.__PRELOADED_STATE__ = {…};` wird wegen der Teilstringsuche in Zeilen 257 und 280 akzeptiert. Beide Varianten ergeben in `auswerten_seite()` je ein Eigenangebot. Die JavaScript-Gegenprobe bestätigt, dass `window.__PRELOADED_STATE__` in beiden Fällen ungesetzt bleibt.",
+      "auswirkung": "Ein Skript kann als Verkäufernachweis dienen, obwohl es den ausgewerteten Browserzustand nie setzt.",
+      "vorschlag": "Die Zuweisung anhand ihrer JavaScript-Tokens prüfen. Das vollständige Zuweisungsziel abgleichen und zwischen Objektende und Abschluss nur Leerraum und Kommentare überspringen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R7-03",
+      "schwere": "schwer",
+      "titel": "Skriptstrings und Skriptkommentare lösen weiterhin Sperren aus",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 260,
+      "beleg": "Das Fertigkriterium lautet „Gültige robots.txt (gleiche Regel wie `robots_gueltig`), `<template>`, `<noscript>`, Kommentare und Skriptstrings sperren nicht, auch ohne JSON-LD.“ Ergänzt man die Produktvorlage mit gültigem JSON-LD um <script>const label = `a ${`_cf_chl_opt = {`} z`;</script>, liefert `ist_challenge()` `True`. Die Maske lässt den Inhalt des inneren Template-Literals stehen. Auch `<script><!-- _cf_chl_opt = {}\\n</script>` mit einem echten Zeilenumbruch liefert `True`, obwohl `<!--` im klassischen Skript einen Zeilenkommentar einleitet. Beide Varianten sollen `False` liefern.",
+      "auswirkung": "Normale Produktseiten können wegen passiver Skriptinhalte als Bot-Prüfung verworfen werden.",
+      "vorschlag": "Verschachtelte Template-Literale und HTML-artige Kommentare klassischer Skripte beim Maskieren berücksichtigen. Beide Fälle mit vorhandenem JSON-LD absichern.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R7-04",
+      "schwere": "schwer",
+      "titel": "Ein Zeilenumbruch im Sperrtitel verhindert die Erkennung",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 563,
+      "beleg": "Das Fertigkriterium lautet „Sperrseite: sichtbare Aufforderungen (auch im `<title>`, unabhängig von der Position) und technische Merkmale aktiver Elemente sperren.“ Mit `<p>Saturn</p><title>Just\\n a moment...</title>` und einem echten Zeilenumbruch liefert `ist_challenge()` neben gültigem Produkt-JSON-LD `False`. Zeile 563 prüft den unnormalisierten Titel gegen das Muster mit festen Leerzeichen aus Zeile 67. Der angezeigte Sperrtitel „Just a moment...“ soll `True` ergeben.",
+      "auswirkung": "Eine Sperrseite mit einem über mehrere Quelltextzeilen formatierten Titel kann zur Produktauswertung weitergereicht werden.",
+      "vorschlag": "Den Leerraum jedes Titels vor der Musterprüfung wie beim sichtbaren Text zusammenfassen und einen umgebrochenen Titel nach vorangestelltem Text testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R7-05",
+      "schwere": "mittel",
+      "titel": "Ein HTML-Kommentar kann ein schwaches Captcha-Merkmal unterdrücken",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 569,
+      "beleg": "`ist_challenge(\"<div class='g-recaptcha'></div>\", \"text/html\")` liefert `True`. Derselbe Aufruf mit vorangestelltem `<!-- application/ld+json -->` liefert `False`, obwohl weiterhin kein JSON-LD vorhanden ist. Die bereits vor Runde 7 eingesetzte Rohtextprüfung interpretiert die Zeichenfolge im Kommentar als vorhandenes JSON-LD.",
+      "auswirkung": "Ein Kommentar kann die Erkennung einer Sperrseite unterdrücken, deren einziges Merkmal ein schwacher Captcha-Indikator ist.",
+      "vorschlag": "Für diese Ausnahme einen tatsächlichen JSON-LD-Skriptblock im geparsten HTML voraussetzen und den Kommentar als Gegenprobe ergänzen.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": [
+    "D7-R6-02",
+    "D7-R6-03",
+    "D7-R6-04"
+  ],
+  "pruefgrenzen": "Commit 8caf11b24efe88209740f27f299e9e1e6d0de42f geprüft. Die Shopabfrage-Suite lief mit Python 3.13.14, einschließlich aller fünf Regressionstests der Runde 6. Der PowerShell-Gesamtlauf wurde wegen seiner Schreibzugriffe im reinen Lesemodus ausgelassen. Die gemeldete Gesamtlauf-Ausgabe „Fehler: 0“ stammt aus der Selbstprüfung. Die JavaScript-Gegenproben liefen lokal mit Node.js."
+}
