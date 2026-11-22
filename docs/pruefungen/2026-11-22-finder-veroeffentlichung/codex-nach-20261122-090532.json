@@ -1,0 +1,89 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Die Freigabe für gh-pages bleibt blockiert. Der geprüfte Index bindet den Seitencommit nicht an den eigenen Bau. Zusätzlich scheitert der aktive Commit-Hook im Seitenbaum. R3-01 und R3-05 bleiben offen.",
+  "befunde": [
+    {
+      "id": "R4-01",
+      "schwere": "schwer",
+      "titel": "Seitencommit und Push sind nicht an den geprüften Git-Stand gebunden",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 137,
+      "beleg": "Das Fertigkriterium lautet „`veroeffentlichen.py` committet nur eine `finder-daten.json`, deren Herkunft der geprüfte Stand ist und die dem eigenen Bau gleicht, auch wenn parallel `app_bauen.py` läuft.“ Der separate Bau schützt vor dem normalen App-Bau in `dist/`. `git show :finder-daten.json` liest aber nur den aktuellen Index. In der Speicherprobe mit `main()` wurde unmittelbar danach eine andere Datei ohne `herkunft` für denselben Index bereitgestellt. Das simulierte `git commit` in Zeile 146 übernahm sie, und `main()` erreichte den simulierten Push mit Exit 0. Zeile 147 pusht zudem den veränderlichen `HEAD`.",
+      "auswirkung": "Ein paralleler Git-Vorgang im Seitenbaum kann Finder-Daten in den Seitencommit bringen, die der Veröffentlichungslauf nie geprüft hat.",
+      "vorschlag": "Die Datei aus einem unveränderlichen Git-Baum prüfen, genau diesen Baum mit dem geprüften Seiten-Elterncommit committen und die resultierende Commit-ID pushen. Den Ablauf mit einer Indexänderung nach der Prüfung testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R4-02",
+      "schwere": "schwer",
+      "titel": "Aktiver Pre-Commit-Hook verhindert den Seitencommit",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 146,
+      "beleg": "Beim Seitencommit greift der in diesem Repository absolut konfigurierte `core.hooksPath`. Der Hook startet laut `.githooks/pre-commit:5` `tests/alle-tests.ps1` relativ zum Seitenbaum. Die Datei fehlt dort und auf `origin/gh-pages`. Der direkte Hook-Aufruf aus `.veroeffentlichung/` reproduzierte die PowerShell-Meldung zur fehlenden Datei und Exit 127. Soll ist, dass der geprüfte Seitenbau bei Änderungen committet werden kann.",
+      "auswirkung": "Der Veröffentlichungslauf bricht beim Commit vor dem Push ab. Der Trockenlauf erreicht diesen Schritt nicht.",
+      "vorschlag": "Den Hook für Quell- und Seitencommits so anbinden, dass die jeweils vorgesehene Prüfung im richtigen Arbeitsbaum läuft. Den vollständigen Commit-Pfad mit aktivem Hook gegen ein lokales Test-Repository prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R4-03",
+      "schwere": "schwer",
+      "titel": "Ein hart beendeter Abruf kann den Mindestabstand verlieren",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 122,
+      "beleg": "Das weiter geltende Fertigkriterium verlangt „Takt ≥ 61 s“. Die Betriebssystem-Sperre wird beim Prozessende frei. Der Zeitstempel wird erst im `finally` nach dem HTTP-Versuch geschrieben. Endet der Prozess nach dem Absenden der Anfrage hart, bleibt der Zeitstempel alt oder fehlt. Die Speicherprobe dieses Zustands ließ den nächsten Abruf nach einer Sekunde ohne Warteaufruf zu.",
+      "auswirkung": "Zwei aufeinanderfolgende Anfragen können den Mindestabstand unterschreiten, obwohl die Domainsperre jeweils nur einen Inhaber hat.",
+      "vorschlag": "Den Beginn des Versuchs vor dem HTTP-Aufruf unter derselben Sperre dauerhaft festhalten. Bei regulärer Rückkehr kann der Zeitstempel weiter auf das Ende gesetzt werden, um die bisherige Wartezeit beizubehalten.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R4-04",
+      "schwere": "schwer",
+      "titel": "Robots-Prüfung verwirft den Trenner einer leeren Query",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 226,
+      "beleg": "Weiter gilt „robots.txt, 403/429 → Abbruch, nie umgangen“. In der netzfreien Probe mit URL-Pfad `/x?` und `Disallow: /x?$` gab `robots_erlaubt()` die URL frei. `main()` erreichte `holen()` und lieferte Exit 0. Der tatsächlich von `urllib.request.Request` gebildete Request-Target ist `/x?`, geprüft wird wegen der leeren Query nur `/x`. Soll ist der Abbruch vor `holen()`. [RFC 9309 § 2.2.2](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.2)",
+      "auswirkung": "Ein ausdrückliches Verbot für eine URL mit abschließendem `?` greift im regulären Aufruf von `abruf.py` nicht.",
+      "vorschlag": "Für die Robots-Prüfung denselben Pfad samt Query-Trenner verwenden, den der HTTP-Client sendet. Einen Test mit leerer Query und Endanker ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R4-05",
+      "schwere": "mittel",
+      "titel": "Herkunftsprüfung akzeptiert die Objekt-ID eines annotierten Tags",
+      "datei": "werkzeuge/herkunft.py",
+      "zeile": 45,
+      "beleg": "Die Probe gegen das lokale Repository weist unbekannte SHAs jetzt ab. Die Prüfung `merge-base --is-ancestor x x` weist den Typ der ID selbst jedoch nicht nach. Git löst annotierte Tags vor dem Vergleich zum Ziel-Commit auf. Damit kann die 40-stellige ID eines Tag-Objekts die Prüfung als neuer Stand oder Online-Herkunft bestehen. [Git-Quellcode zu `merge-base`](https://github.com/git/git/blob/master/builtin/merge-base.c#L104-L118), [Git-Quellcode zur Auflösung von Tags](https://github.com/git/git/blob/master/commit.c#L39-L68)",
+      "auswirkung": "Die Prüfung bestätigt eine Herkunftskennung, die selbst kein Commit bezeichnet. Die regulären Aufrufer liefern als neuen Stand eine Commit-ID.",
+      "vorschlag": "Für beide IDs den exakten Objekttyp `commit` prüfen und erst danach die Abstammung vergleichen. Eine annotierte Tag-ID als Negativfall testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R4-06",
+      "schwere": "gering",
+      "titel": "Textplatzhalter können geerbte Objekteigenschaften anzeigen",
+      "datei": "app/finder/bewertung.js",
+      "zeile": 190,
+      "beleg": "`datenPruefen()` akzeptierte in der Node-Probe den Aufpreistext `{constructor}`. `fuelle()` fand über `in` den geerbten Eintrag und gab `function Object() { [native code] }` aus.",
+      "auswirkung": "Ein beschädigter Hinweistext kann im Finder die JavaScript-Funktion als sichtbaren Text anzeigen.",
+      "vorschlag": "Platzhalter ausschließlich durch eigene Einträge der Ersetzungstabelle ersetzen.",
+      "im_pruefumfang": false
+    },
+    {
+      "id": "R4-07",
+      "schwere": "mittel",
+      "titel": "Beschädigte Preiswecker-Daten können dieselbe Meldung wiederholen",
+      "datei": "app/sw.js",
+      "zeile": 105,
+      "beleg": "In der Speicherprobe mit dem reservierten Schlüssel `__proto__` im Wunschpreis-Cache und im passenden Preiseintrag erzeugten zwei Aufrufe von `pruefePreise()` zwei Meldungen. `gemeldet.json` blieb `{}`, weil der Schreibzugriff auf einem gewöhnlichen Objekt den geerbten Setter trifft. Der normale Wunschpreis-Spiegel in `app/app.js:41–54` lässt nur bekannte IDs zu.",
+      "auswirkung": "Bei entsprechend beschädigtem Cachezustand merkt sich der Service Worker den bereits gemeldeten Treffer nicht.",
+      "vorschlag": "Wunschpreis-IDs beim Einlesen des Caches prüfen und die Meldesignaturen über eigene Einträge verwalten.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": [
+    "R3-02",
+    "R3-03",
+    "R3-04"
+  ],
+  "pruefgrenzen": "Geprüft wurde c32bba11df3454262814abf9868247716ba24d7b. Die Datenbankschranke meldete 325 Modelle, 413 Varianten, 0 Fehler und 56 Warnungen. Alle 46 Node-Tests und 12 ausgewählte Python-Tests bestanden. Die im Speicher gebauten Finder-Daten bestanden `datenPruefen`. Der vollständige PowerShell-Sammellauf und die Python-Tests mit temporären Dateien erfordern Schreibzugriffe. Der Commit-Wettlauf und der harte Abrufabbruch wurden im Speicher geprüft. Der Workflow `finder-daten.yml` wurde anhand des Codes geprüft. Die Prüfung des öffentlichen Inhalts umfasste den angegebenen Diff ohne die ausgenommenen Prüfausgaben. Für die Laptop-Daten lief die Datenbankschranke."
+}
