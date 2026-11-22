@@ -59,16 +59,21 @@ MAX_BYTES = 6_000_000
 # aktiver Elemente und Inhalt aktiver Inline-Skripte. Inhalte in <template>, <noscript>, Kommentaren und Skriptstrings
 # zählen nicht als sichtbarer Text; eine echte robots.txt ist nie eine Sperrseite.
 # Sichtbare Aufforderungen (Text, auch <title>)
-SPERRE_TEXT = re.compile(r"Access Denied|Pardon Our Interruption|Attention Required|^\s*Just a moment|"
+SPERRE_TEXT = re.compile(r"Access Denied|Pardon Our Interruption|Attention Required|"
                          r"complete the captcha|solve the captcha|captcha (eingeben|lösen|ausfüllen)|"
                          r"Ich bin kein Roboter|I'?m not a robot|"
                          r"verify (that )?you are (a )?human|(bestätigen|beweisen) Sie, dass Sie kein Roboter sind", re.I)
+# Nur im Titeltext, dort am Anfang (D7-R6-02: Titel getrennt erfasst, Position im übrigen Text egal)
+SPERRE_TITEL = re.compile(r"^\s*Just a moment", re.I)
 # Technische Merkmale in Attributwerten aktiver Elemente (Skript-src, id, class, iframe-src, Formular-action)
 SPERRE_ATTRIBUT = re.compile(r"challenge-platform/h/[a-z]/orchestrate|chl_page|cf-chl|px-captcha|_Incapsula_", re.I)
-# Technische Merkmale in aktiven Inline-Skripten: nur die Zuweisung der Challenge-Konfiguration (Funktion, kein Text)
+# Technische Merkmale in aktiven Inline-Skripten: nur die Zuweisung der Challenge-Konfiguration (Funktion, kein Text);
+# gesucht wird im Skript ohne Zeichenketten und Kommentare (js_maskiert, D7-17)
 SPERRE_SKRIPT = re.compile(r"\b_cf_chl_opt\s*=\s*\{")
-ROBOTS_FELDER = ("user-agent", "allow", "disallow", "sitemap", "crawl-delay", "host", "clean-param", "request-rate",
-                 "visit-time")
+# Ausführbare Inline-Skripte: ohne type oder mit JavaScript-Typ, ohne src (sonst ignoriert der Browser den Inhalt)
+JS_TYPEN = {"", "text/javascript", "application/javascript", "text/ecmascript", "application/ecmascript", "module"}
+# Content-Length nur aus ASCII-Ziffern (D7-R6-04: isdigit() ließe z. B. „²“ durch)
+LAENGE = re.compile(r"[0-9]{1,15}")
 # Schwache Merkmale: auch normale Produktseiten verweisen passiv darauf (Cloudflare-Skript, Captcha im Formular);
 # nur ohne JSON-LD eine Sperrseite
 CHALLENGE_SCHWACH = re.compile(r"challenge-platform|captcha", re.I)
@@ -251,21 +256,38 @@ def _ohne_doppelte(paare):
 
 _ZUSTAND_START = re.compile(r"window\.__PRELOADED_STATE__\s*=\s*")
 _JS_TOKEN = re.compile(r'"(?:[^"\\]|\\.)*"|\bundefined\b|[{}\[\]]', re.S)
+# Passive Teile eines Skripts: Zeichenketten ("…", '…', `…`) und Kommentare (// …, /* … */)
+_JS_PASSIV = re.compile(r'"(?:[^"\\\n]|\\.)*"|' r"'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`|//[^\n]*|/\*.*?(?:\*/|\Z)",
+                        re.S)
+
+
+def js_maskiert(skript):
+    """Skript mit Zeichenketten und Kommentaren durch gleich viele Leerzeichen ersetzt (Positionen bleiben gleich).
+    Nur darin werden ausführbare Zuweisungen gesucht (D7-17, D7-R6-01). Regex-Literale werden nicht erkannt; ein
+    Anführungszeichen darin kann Code verdecken (sichere Richtung: kein Nachweis bzw. keine Sperre durch Skript)."""
+    return _JS_PASSIV.sub(lambda m: " " * len(m.group(0)), skript)
 
 
 def mms_zustand(text):
-    """D7-15/D7-18: eingebetteten Seitenzustand der MMS-Plattform (window.__PRELOADED_STATE__ = {...};) vollständig
-    lesen. Der Zustand ist ein JavaScript-Objektliteral; außer `undefined` (-> null) muss er gültiges JSON sein.
-    Genau eine Zuweisung, Klammern ausgeglichen, keine doppelten Schlüssel, sonst None."""
-    starts = list(_ZUSTAND_START.finditer(text))
-    if len(starts) != 1 or not text.startswith("{", starts[0].end()):
+    """D7-15/D7-18/D7-R6-01: eingebetteten Seitenzustand der MMS-Plattform (window.__PRELOADED_STATE__ = {...};)
+    vollständig lesen. Gezählt werden nur Zuweisungen im Code ausführbarer Inline-Skripte (nicht in HTML-Kommentaren,
+    <template>, <noscript>, Daten-Skripten, Zeichenketten oder Skriptkommentaren). Genau eine Zuweisung; rechts davon
+    genau das Objektliteral, danach nur „;“ oder Skriptende. Das Objektliteral muss außer `undefined` (-> null)
+    gültiges JSON sein, Klammern ausgeglichen, keine doppelten Schlüssel, sonst None."""
+    funde = []
+    for skript in seitenzerlegung(text).skripte:
+        maske = js_maskiert(skript)
+        funde += [(skript, maske, m.end()) for m in _ZUSTAND_START.finditer(maske)]
+    if len(funde) != 1:
         return None
-    anfang = starts[0].end()
+    skript, maske, anfang = funde[0]
+    if not skript.startswith("{", anfang):
+        return None
     teile, pos, tiefe = [], anfang, 0
-    for m in _JS_TOKEN.finditer(text, anfang):
+    for m in _JS_TOKEN.finditer(skript, anfang):
         tok = m.group(0)
         if tok == "undefined":
-            teile.append(text[pos:m.start()] + "null")
+            teile.append(skript[pos:m.start()] + "null")
             pos = m.end()
             continue
         if tok in "{[":
@@ -273,10 +295,12 @@ def mms_zustand(text):
         elif tok in "}]":
             tiefe -= 1
             if tiefe == 0:
-                teile.append(text[pos:m.end()])
+                teile.append(skript[pos:m.end()])
                 break
     else:
         return None  # Objekt nicht abgeschlossen
+    if not re.match(r"\s*(;|\Z)", maske[m.end():]):
+        return None  # angehängter Ausdruck (z. B. „.artikel“, „|| x“): die Zuweisung setzt einen anderen Wert
     try:
         zustand = json.loads("".join(teile), object_pairs_hook=_ohne_doppelte)
     except ValueError:  # auch DoppelterSchluessel
@@ -443,16 +467,18 @@ class Weitergeleitet(NichtAbrufbar):
 
 
 class _Seitenteile(html.parser.HTMLParser):
-    """Zerlegt HTML in sichtbaren Text, Attributwerte aktiver Elemente und Inhalt aktiver Inline-Skripte."""
+    """Zerlegt HTML in sichtbaren Text, Titeltexte, Attributwerte aktiver Elemente und die Inhalte ausführbarer
+    Inline-Skripte (je Skript ein Eintrag)."""
     UNSICHTBAR = {"template", "noscript"}
     INLINE = {"a", "abbr", "b", "bdi", "bdo", "cite", "code", "data", "dfn", "em", "font", "i", "kbd", "mark", "q", "s",
               "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr"}
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
-        self.text, self.attribute, self.skripte = [], [], []
+        self.text, self.attribute, self.skripte, self.titel = [], [], [], []
         self._unsichtbar = 0
-        self._in = None  # "skript" (aktives Inline-Skript) oder "stumm" (Stil, Daten-Skript)
+        self._in = None  # "skript" (ausführbares Inline-Skript) oder "stumm" (Stil, Daten-Skript, Skript mit src)
+        self._skript = self._titel = None
 
     def handle_starttag(self, tag, attrs):
         if tag in self.UNSICHTBAR:
@@ -461,8 +487,12 @@ class _Seitenteile(html.parser.HTMLParser):
             return
         self.attribute.extend(v for _, v in attrs if v)
         if tag in ("script", "style"):
-            typ = dict(attrs).get("type") or ""
-            self._in = "skript" if tag == "script" and "json" not in typ.lower() else "stumm"
+            a = dict(attrs)
+            aktiv = tag == "script" and (a.get("type") or "").strip().lower() in JS_TYPEN and a.get("src") is None
+            self._in = "skript" if aktiv else "stumm"
+            self._skript = [] if aktiv else None
+        elif tag == "title":
+            self._titel = []
         elif tag not in self.INLINE:
             self.text.append(" ")
 
@@ -476,56 +506,67 @@ class _Seitenteile(html.parser.HTMLParser):
         if tag in self.UNSICHTBAR:
             self._unsichtbar = max(0, self._unsichtbar - 1)
         elif tag in ("script", "style"):
+            self._skript_ende()
             self._in = None
+        elif tag == "title" and self._titel is not None:
+            self.titel.append("".join(self._titel))
+            self._titel = None
+            self.text.append(" ")
         elif tag not in self.INLINE and not self._unsichtbar:
             self.text.append(" ")
+
+    def _skript_ende(self):
+        if self._skript is not None:
+            self.skripte.append("".join(self._skript))
+            self._skript = None
 
     def handle_data(self, data):
         if self._unsichtbar:
             return
         if self._in == "skript":
-            self.skripte.append(data)
+            self._skript.append(data)
         elif self._in is None:
             self.text.append(data)
+            if self._titel is not None:
+                self._titel.append(data)
 
 
-def seitenteile(text):
-    """(sichtbarer Text, Attributwerte, Inline-Skripte) einer Antwort; Leerraum im Text zusammengefasst."""
+def seitenzerlegung(text):
+    """Seitenteile einer Antwort (Parser-Objekt mit text, titel, attribute, skripte)."""
     p = _Seitenteile()
     try:
         p.feed(text)
         p.close()
     except Exception:  # html.parser ist tolerant; im Zweifel mit dem bis dahin Gelesenen weiter
         pass
+    p._skript_ende()  # nicht geschlossenes letztes Skript (Antwort endet im Skript)
+    return p
+
+
+def seitenteile(text):
+    """(sichtbarer Text, Attributwerte, Inline-Skripte) einer Antwort; Leerraum im Text zusammengefasst."""
+    p = seitenzerlegung(text)
     return re.sub(r"\s+", " ", "".join(p.text)), "\n".join(p.attribute), "\n".join(p.skripte)
 
 
-def ist_robots(text):
-    """Echte robots.txt: jede Zeile leer, Kommentar oder bekannte Anweisung, mindestens eine User-agent-Zeile."""
-    felder = []
-    for z in (text or "").splitlines():
-        z = z.split("#", 1)[0].strip()
-        if not z:
-            continue
-        feld, doppelpunkt, _ = z.partition(":")
-        if not doppelpunkt or feld.strip().lower() not in ROBOTS_FELDER:
-            return False
-        felder.append(feld.strip().lower())
-    return "user-agent" in felder
-
-
 def ist_challenge(text, inhaltstyp):
-    """Sperr-/Challenge-Seite? Eine echte robots.txt nie (passive Pfade und Kommentare, D7-11/D7-17). Sonst sperren
-    sichtbare Aufforderungen und technische Merkmale aktiver Elemente immer, unabhängig von Inhaltstyp, Position und
-    Auszeichnung; schwache Merkmale nur bei HTML ohne JSON-LD."""
-    if ist_robots(text):
+    """Sperr-/Challenge-Seite? Eine echte robots.txt nie (gleiche Prüfung wie robots_gueltig, D7-R6-03; Kommentare und
+    passive Pfade zählen nicht, D7-11/D7-17). Sonst sperren sichtbare Aufforderungen (auch Titel) und technische
+    Merkmale aktiver Elemente immer, unabhängig von Inhaltstyp, Position und Auszeichnung; schwache Merkmale nur bei
+    HTML ohne JSON-LD, und auch dann nur in denselben gefilterten Seitenteilen (D7-17)."""
+    if robots_gueltig(text):
         return False
-    sichtbar, attribute, skripte = seitenteile(text)
-    if SPERRE_TEXT.search(sichtbar) or SPERRE_ATTRIBUT.search(attribute) or SPERRE_SKRIPT.search(skripte):
+    p = seitenzerlegung(text)
+    sichtbar = re.sub(r"\s+", " ", "".join(p.text))
+    attribute = "\n".join(p.attribute)
+    code = "\n".join(js_maskiert(x) for x in p.skripte)
+    if (SPERRE_TEXT.search(sichtbar) or any(SPERRE_TITEL.search(x) for x in p.titel)
+            or SPERRE_ATTRIBUT.search(attribute) or SPERRE_SKRIPT.search(code)):
         return True
     if "html" not in (inhaltstyp or "").lower():
         return False
-    return bool(CHALLENGE_SCHWACH.search(text[:20000])) and "application/ld+json" not in text
+    schwach = "\n".join((sichtbar, attribute, code))
+    return bool(CHALLENGE_SCHWACH.search(schwach)) and "application/ld+json" not in text
 
 
 class _KeineWeiterleitung(urllib.request.HTTPRedirectHandler):
@@ -556,7 +597,7 @@ class _StrengeAntwort(http.client.HTTPResponse):
             if len(werte) != 1 or werte[0].strip().lower() != "chunked" or laenge:
                 raise UnklarerRahmen(f"Transfer-Encoding {werte!r}, Content-Length {laenge!r}")
             self.chunked, self.chunk_left, self.length = True, None, None
-        elif self.status == 200 and (len(laenge) != 1 or not laenge[0].strip().isdigit()):
+        elif self.status == 200 and (len(laenge) != 1 or not LAENGE.fullmatch(laenge[0].strip(" \t"))):
             raise UnklarerRahmen(f"weder chunked noch eindeutige Content-Length ({laenge!r})")
 
     def _zeile(self):
@@ -625,7 +666,9 @@ def abrufen(url):
                 if len(roh) > MAX_BYTES:
                     raise NichtAbrufbar("Antwort über der Lesegrenze (abgeschnitten)")
                 laenge = r.headers.get("Content-Length")
-                if laenge is not None and (not laenge.strip().isdigit() or int(laenge) != len(roh)):
+                if laenge is not None:
+                    laenge = laenge.strip(" \t")
+                if laenge is not None and (not LAENGE.fullmatch(laenge) or int(laenge) != len(roh)):
                     raise NichtAbrufbar("Antwort unvollständig (Länge passt nicht zu Content-Length)")  # D7-02
                 text = roh.decode(r.headers.get_content_charset() or "utf-8", "replace")
                 typ = r.headers.get("Content-Type", "")

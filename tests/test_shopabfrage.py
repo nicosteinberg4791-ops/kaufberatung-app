@@ -809,5 +809,110 @@ class Runde5(unittest.TestCase):
                 os.environ["no_proxy"] = alt_proxy
 
 
+class Runde6(unittest.TestCase):
+    """Regressionstests zur Codex-Nachprüfung r6 (22.11.2026)."""
+    m = MODELLE["af_ninja_af500"]
+
+    def eigen(self, text):
+        g, prot = s.auswerten_seite(text, self.m, QUELLEN["saturn"], "L", "Z")
+        return g, prot
+
+    def test_d7_r6_01_zustand_nur_aus_ausfuehrbarem_skript(self):
+        gut = saturn_text([Runde5.preis()])
+        self.assertEqual(s.mms_preisfeld(gut, "Saturn:de:", "111"), (False, 219.99, 0.0))
+        self.assertEqual(len(self.eigen(gut)[0]), 1)
+        teil = gut.index("<script>window.__PRELOADED_STATE__")
+        jsonld, zustand = gut[:teil], gut[teil:]
+        varianten = {
+            "html_kommentar": jsonld + "<!--" + zustand + "-->",
+            "template": jsonld + "<template>" + zustand + "</template>",
+            "datentyp": jsonld + zustand.replace("<script>", '<script type="text/x-template">'),
+            "mit_src": jsonld + zustand.replace("<script>", '<script src="/a.js">'),
+            "skriptkommentar": jsonld + zustand.replace("<script>", "<script>/*").replace(";</script>", "*/</script>"),
+            "angehaengt": jsonld + zustand.replace(";</script>", ".artikel;</script>"),
+            "oder": jsonld + zustand.replace(";</script>", " || {};</script>"),
+            "zeilenumbruch": jsonld + zustand.replace(";</script>", "\n.artikel</script>"),
+        }
+        for name, text in varianten.items():
+            self.assertIsNone(s.mms_preisfeld(text, "Saturn:de:", "111"), name)
+            self.assertEqual(self.eigen(text)[0], [], name)
+        # Zuweisungstext in einer Zeichenkette zählt nicht als zweite Zuweisung
+        mit_string = gut + "<script>var t = 'window.__PRELOADED_STATE__ = {}';</script>"
+        self.assertEqual(s.mms_preisfeld(mit_string, "Saturn:de:", "111"), (False, 219.99, 0.0))
+        ohne_semikolon = jsonld + zustand.replace(";</script>", "</script>")
+        self.assertEqual(s.mms_preisfeld(ohne_semikolon, "Saturn:de:", "111"), (False, 219.99, 0.0))
+
+    def test_d7_17_skriptstring_und_template_ohne_jsonld(self):
+        p = seite(produkt())
+        self.assertFalse(s.ist_challenge(p + "<script>const label = '_cf_chl_opt = {}';</script>", "text/html"))
+        self.assertFalse(s.ist_challenge(p + "<script>// _cf_chl_opt = {\n</script>", "text/html"))
+        self.assertFalse(s.ist_challenge("<html><body><p>Hallo</p><template><div id='px-captcha'></div></template>"
+                                         "</body></html>", "text/html"))
+        self.assertFalse(s.ist_challenge("<p>Hallo</p><script>var s = 'captcha';</script><!-- captcha -->",
+                                         "text/html"))
+        self.assertTrue(s.ist_challenge(p + "<script>var a = 1; window._cf_chl_opt = {cvId: '3'};</script>",
+                                        "text/html"))
+        self.assertTrue(s.ist_challenge("<p>Hallo</p><div class='g-recaptcha'></div>", "text/html"))
+
+    def test_d7_r6_02_sperrtitel_nach_vorangestelltem_text(self):
+        p = seite(produkt())
+        self.assertTrue(s.ist_challenge("<p>Saturn</p><title>Just a moment...</title>" + p, "text/html"))
+        self.assertTrue(s.ist_challenge(p + "<p>Saturn</p><title> Just a moment...</title>", "text/html"))
+        self.assertFalse(s.ist_challenge(p + "<p>Just a moment, Bilder laden</p>", "text/html"))
+        self.assertFalse(s.ist_challenge(p + "<template><title>Just a moment...</title></template>", "text/html"))
+
+    def test_d7_r6_03_robots_mit_erweiterungsfeld(self):
+        robots = "User-agent: *\nX-Extension: yes\n# Please complete the CAPTCHA to continue\nDisallow: /x\n"
+        for typ in ("text/plain", "text/html"):
+            self.assertFalse(s.ist_challenge(robots, typ), typ)
+        rp = s.robots_fuer({"domain": "x"}, holen=lambda u: robots)
+        self.assertNotIsInstance(rp, str)
+        self.assertTrue(rp.can_fetch(s.UA_TOKEN, "https://x/de/product/1"))
+        self.assertFalse(rp.can_fetch(s.UA_TOKEN, "https://x/x"))
+        # Fließtext mit Sperraufforderung bleibt Sperrseite
+        self.assertTrue(s.ist_challenge("Please complete the CAPTCHA to continue\n", "text/plain"))
+
+    def test_d7_r6_04_content_length_nur_ascii_ziffern(self):
+        import http.server
+        import socket
+        import threading
+        voll = b"User-agent: *\r\nDisallow: /de/product/\r\n"
+        laengen = {"/hoch2": "²", "/unterstrich": "4_0", "/ok": str(len(voll)), "/ok_leer": " %d " % len(voll)}
+
+        class H(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain")
+                self.send_header("Content-Length", laengen[self.path])
+                self.end_headers()
+                self.wfile.write(voll)
+                self.wfile.flush()
+                self.connection.shutdown(socket.SHUT_WR)
+                self.close_connection = True
+
+            def log_message(self, *a):
+                pass
+        srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        basis = "http://127.0.0.1:%d" % srv.server_address[1]
+        alt_proxy = os.environ.get("no_proxy")
+        os.environ["no_proxy"] = "127.0.0.1"
+        try:
+            for pfad in ("/hoch2", "/unterstrich"):
+                with self.assertRaises(s.NichtAbrufbar, msg=pfad):
+                    s.abrufen(basis + pfad)
+                r = s.robots_fuer({"domain": "x"}, holen=lambda u, pfad=pfad: s.abrufen(basis + pfad))
+                self.assertIsInstance(r, str, pfad)
+            for pfad in ("/ok", "/ok_leer"):
+                self.assertIn("Disallow: /de/product/", s.abrufen(basis + pfad), pfad)
+        finally:
+            srv.shutdown()
+            srv.server_close()
+            if alt_proxy is None:
+                os.environ.pop("no_proxy", None)
+            else:
+                os.environ["no_proxy"] = alt_proxy
+
+
 if __name__ == "__main__":
     unittest.main()
