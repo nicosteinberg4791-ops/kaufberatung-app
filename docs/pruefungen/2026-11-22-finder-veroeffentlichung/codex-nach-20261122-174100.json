@@ -1,0 +1,44 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "R5-04 und R6-01 sind geschlossen. Lokale Git-Ersetzungsreferenzen können weiterhin dazu führen, dass gh-pages aus einem anderen Quellbaum gebaut wird und trotzdem den geprüften Commit als Herkunft ausweist.",
+  "befunde": [
+    {
+      "id": "R7-01",
+      "schwere": "schwer",
+      "titel": "Lokale Git-Ersetzungsreferenzen können die Bauquelle austauschen",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 198,
+      "beleg": "R6 verlangt einen Bau „aus einer Kopie genau des geprüften Commits“. Wenn eine lokale Ersetzungsreferenz auf einen Commit mit geändertem Quellbaum zeigt, liefert `rev-parse HEAD` in Zeile 68 weiterhin die ursprüngliche ID. `ls-tree` in Zeile 127 liest den Ersatzbaum. Zeile 210 prüft die Kopie gegen genau diese ersetzte Eintragsliste. Zeile 217 übergibt dem Bau weiterhin die ursprüngliche ID als Herkunft. Laut lokalem Handbuch `git-replace` sind Ersetzungsreferenzen bei diesen Leseoperationen standardmäßig aktiv.",
+      "auswirkung": "Die Blatt- und Wurzelbaumprüfung kann vollständig bestehen, obwohl der gebaute Inhalt aus einem anderen Commit stammt.",
+      "vorschlag": "Ersetzungsreferenzen für alle Git-Aufrufe des Veröffentlichungslaufs einschließlich der Herkunftsprüfung deaktivieren. Einen Test ergänzen, der bei einer lokalen Ersetzungsreferenz den Originalbaum als Bauquelle bestätigt."
+    ,
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R7-02",
+      "schwere": "mittel",
+      "titel": "Baukopie verliert auf POSIX den ausführbaren Dateimodus",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 209,
+      "beleg": "Zeile 163 erlaubt `100755`. `write_bytes()` erzeugt die Datei mit dem normalen Anlagemodus ohne Ausführungsbits. Der Abgleich in Zeile 190 prüft Pfad und Blob-ID, sodass die Modusabweichung unbemerkt bleibt. Der vorherige Tar-Datenfilter behält bei einem Eintrag mit Modus `0755` das Ausführungsbit des Eigentümers bei.",
+      "auswirkung": "Ein künftig versioniertes, direkt aufgerufenes Bauskript kann aus dem Checkout laufen und aus der Baukopie mit einem Berechtigungsfehler abbrechen. Der geprüfte Commit enthält ausschließlich `100644`.",
+      "vorschlag": "Den Modus `100755` auf POSIX beim Schreiben übernehmen und im Kopieabgleich prüfen."
+    ,
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R7-03",
+      "schwere": "mittel",
+      "titel": "Textmodus verändert Git-Pfadnamen vor dem Kopieabgleich",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 127,
+      "beleg": "`ls-tree -z` gibt Pfadnamen unverändert aus. Der Wrapper in Zeile 49 verwendet `text=True`. Ein lesender Subprozess-Test mit einem NUL-terminierten Eintrag bestätigte, dass Python ein `\\r` im Pfad zu `\\n` umwandelt. Der Kopieabgleich in Zeile 210 verwendet dieselbe bereits umgeschriebene Pfadliste.",
+      "auswirkung": "Auf POSIX kann die Kopie eine Datei unter einem anderen Namen anlegen und den Abgleich bestehen. Unter Windows sind solche Steuerzeichen in Dateinamen unzulässig. Der geprüfte Commit enthält keine solchen Pfade.",
+      "vorschlag": "Die Ausgabe von `ls-tree -z` als Bytes einlesen und Pfade ohne Zeilenumwandlung dekodieren. Auf dem Zielsystem unzulässige Namen vor dem Schreiben ablehnen."
+    ,
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": ["R5-04", "R6-01"],
+  "pruefgrenzen": "Lesend am Commit ae56dbec4a5247b46bc40e60caadd012ccfc3896 geprüft. Alle 184 unterschiedlichen Quellblobs nachgehasht. Die Datenbankprüfung ergab 0 Fehler und 56 Warnungen. Der Sammellauf mit 0 Fehlern ist im Commit-Text dokumentiert. Die schreibenden Tests und den Veröffentlichungslauf habe ich nicht erneut ausgeführt. Im lokalen Repository waren keine Ersetzungsreferenzen aktiv. Im vorgelegten Diff fand ich keine nach Projektregel vertraulichen Angaben."
+}
