@@ -110,7 +110,7 @@ class Vorlagen(unittest.TestCase):
         self.assertEqual([a["gesamt"] for a in g], [219.99])
 
     def test_saturn_ohne_preisfeld_kein_verkaeufernachweis(self):
-        text = vorlage("saturn_ninja.html").split("<script>window.__ZUSTAND__")[0]
+        text = vorlage("saturn_ninja.html").split("<script>window.__PRELOADED_STATE__")[0]
         g, prot = s.auswerten_seite(text, MODELLE["af_ninja_af500"], QUELLEN["saturn"], "L", "Z")
         self.assertEqual(g, [])
         self.assertIn("Verkäufer fehlt oder nicht belegt", [p["grund"] for p in prot])
@@ -130,7 +130,7 @@ class Vorlagen(unittest.TestCase):
         zustand = ('{"id":"Saturn:de:111","currency":"EUR","isProductOfTypeMarketplace":false,"price":null,'
                    '"productGroupId":1}, {"id":"Saturn:de:222","currency":"EUR","isProductOfTypeMarketplace":true,'
                    '"price":{"__typename":"CofrPriceFeaturePrice","amount":219.99,"shippingCost":0}}')
-        text = seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(zustand)
+        text = seite(p) + zustand_skript('{"artikel":[%s]}' % zustand)
         g, prot = s.auswerten_seite(text, MODELLE["af_ninja_af500"], QUELLEN["saturn"], "L", "Z")
         self.assertEqual(g, [], prot)
 
@@ -462,8 +462,13 @@ def saturn_text(zustand_objekte, preis="219.99", sku="111"):
     p = produkt(ean="0622356270373", price=preis)
     del p["offers"]["seller"]
     p["sku"] = sku
-    z = json.dumps(zustand_objekte, separators=(",", ":"))
-    return seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(z)
+    z = json.dumps({"artikel": zustand_objekte}, separators=(",", ":"))
+    return seite(p) + zustand_skript(z)
+
+
+def zustand_skript(roh):
+    """Seitenzustand wie auf der echten Saturn-Seite: JavaScript-Objektliteral in window.__PRELOADED_STATE__."""
+    return "<script>window.__PRELOADED_STATE__ = %s;</script>" % roh
 
 
 class Runde2(unittest.TestCase):
@@ -571,13 +576,13 @@ class Runde3(unittest.TestCase):
         p = produkt(ean="0622356270373", price="219.99")
         del p["offers"]["seller"]
         p["sku"] = "111"
-        text = seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(roh)
+        text = seite(p) + zustand_skript('{"artikel":[%s]}' % roh)
         self.assertIsNone(s.mms_preisfeld(text, "Saturn:de:", "111"))
         g, prot = s.auswerten_seite(text, self.m, QUELLEN["saturn"], "L", "Z")
         self.assertEqual(g, [], prot)
         # Gegenprobe: ohne Dublette bleibt das Eigenangebot gültig
         ok = roh.replace('"isProductOfTypeMarketplace":true,', "", 1)
-        text = seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(ok)
+        text = seite(p) + zustand_skript('{"artikel":[%s]}' % ok)
         self.assertEqual(s.mms_preisfeld(text, "Saturn:de:", "111"), (False, 219.99, 0.0))
 
     def test_d7_11_captcha_aufforderung_und_robots_pfad(self):
@@ -666,15 +671,12 @@ class Runde4(unittest.TestCase):
         verweis = {"id": "Saturn:de:111", "price": {"installment": None}}
         self.assertEqual(s.mms_preisfeld(saturn_text([verweis, abholung, gleich, lieferung]), "Saturn:de:", "111"),
                          (False, 219.99, 0.0))
-        # nicht dekodierbares Medienobjekt derselben SKU stört nicht; ein nicht dekodierbares Preisfeld schon
-        z = json.dumps(gleich, separators=(",", ":"))
-        kaputt = '{"__typename":"%s","id":"Saturn:de:111","x":[' + "{" * 5 + "]"
-        for typ, erwartet in (("CofrMediaAssetsFeature", (False, 219.99, 0.0)), ("CofrPriceFeature", None)):
-            p = produkt(ean="0622356270373", price="219.99")
-            del p["offers"]["seller"]
-            p["sku"] = "111"
-            text = seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(z + "," + kaputt % typ)
-            self.assertEqual(s.mms_preisfeld(text, "Saturn:de:", "111"), erwartet, typ)
+        # unlesbarer Zustand (unausgeglichene Klammern) ist nie ein Nachweis
+        z = json.dumps({"artikel": [gleich]}, separators=(",", ":"))
+        p = produkt(ean="0622356270373", price="219.99")
+        del p["offers"]["seller"]
+        p["sku"] = "111"
+        self.assertIsNone(s.mms_preisfeld(seite(p) + zustand_skript(z[:-1] + ',"x":[{{{{]}'), "Saturn:de:", "111"))
 
     def test_d7_11_r4_sichtbarer_text_und_passive_inhalte(self):
         sperr = "Please complete the <strong>CAPTCHA</strong> to continue."
@@ -687,6 +689,124 @@ class Runde4(unittest.TestCase):
         vorlage_inaktiv = seite(produkt()) + "<template><label>Ich bin kein Roboter</label></template>"
         self.assertFalse(s.ist_challenge(vorlage_inaktiv, "text/html"))
         self.assertFalse(s.ist_challenge(seite(produkt()) + "<script>var t='Access Denied';</script>", "text/html"))
+
+
+class Runde5(unittest.TestCase):
+    """Regressionstests zur Codex-Nachprüfung r5 (22.11.2026), Umbau der drei Prüfstellen."""
+    m = MODELLE["af_ninja_af500"]
+
+    @staticmethod
+    def preis(sku="111", mp=False, amount=219.99, **extra):
+        o = {"__typename": "CofrPriceFeature", "id": "Saturn:de:" + sku, "currency": "EUR",
+             "isProductOfTypeMarketplace": mp,
+             "price": {"__typename": "CofrPriceFeaturePrice", "amount": amount, "shippingCost": 0}}
+        o.update(extra)
+        return o
+
+    def test_d7_15_unvollstaendiges_oder_doppelt_typisiertes_preisobjekt(self):
+        ohne_waehrung = {"__typename": "CofrMediaAssetsFeature", "id": "Saturn:de:111",
+                         "price": {"__typename": "CofrPriceFeaturePrice", "amount": 229.99}}
+        self.assertIsNone(s.mms_preisfeld(saturn_text([self.preis(), ohne_waehrung]), "Saturn:de:", "111"))
+        z = json.dumps({"artikel": [self.preis()]}, separators=(",", ":"))
+        doppelt = z[:-2] + ',{"__typename":"CofrPriceFeature","__typename":"CofrMediaAssetsFeature",' \
+                           '"id":"Saturn:de:111","isProductOfTypeMarketplace":true}]}'
+        p = produkt(ean="0622356270373", price="219.99")
+        del p["offers"]["seller"]
+        p["sku"] = "111"
+        text = seite(p) + zustand_skript(doppelt)
+        self.assertIsNone(s.mms_preisfeld(text, "Saturn:de:", "111"))
+        g, prot = s.auswerten_seite(text, self.m, QUELLEN["saturn"], "L", "Z")
+        self.assertEqual(g, [], prot)
+
+    def test_d7_18_grosses_medienobjekt_stoert_nicht(self):
+        medien = {"__typename": "CofrMediaAssetsFeature", "media": [{"a": {"b": i}} for i in range(200)],
+                  "id": "Saturn:de:111"}
+        self.assertEqual(s.mms_preisfeld(saturn_text([medien, self.preis()]), "Saturn:de:", "111"), (False, 219.99, 0.0))
+
+    def test_zustand_wie_echte_seite(self):
+        # echte Saturn-Seite 22.11.2026: Objektliteral mit undefined, Verweisschlüssel mit eingebetteten Anführungen
+        roh = ('{"a":{"error":undefined,"CofrPriceFeature:{\\"id\\":\\"Saturn:de:111\\"}":%s},"b":[undefined]}'
+               % json.dumps(self.preis()))
+        p = produkt(ean="0622356270373", price="219.99")
+        del p["offers"]["seller"]
+        p["sku"] = "111"
+        self.assertEqual(s.mms_preisfeld(seite(p) + zustand_skript(roh), "Saturn:de:", "111"), (False, 219.99, 0.0))
+        zwei = seite(p) + zustand_skript(roh) + zustand_skript(roh)  # zwei Zuweisungen: mehrdeutig
+        self.assertIsNone(s.mms_preisfeld(zwei, "Saturn:de:", "111"))
+
+    def test_d7_11_auszeichnung_im_wort(self):
+        self.assertTrue(s.ist_challenge(seite(produkt()) + "<p>Please complete the CAP<strong>T</strong>CHA "
+                                        "to continue.</p>", "text/html"))
+        self.assertTrue(s.ist_challenge("<p>Ich bin kein Ro<span>bo</span>ter</p>", "text/html"))
+
+    def test_d7_17_passive_merkmale_sperren_nicht_aktive_schon(self):
+        p = seite(produkt())
+        self.assertFalse(s.ist_challenge(p + "<template><div id='px-captcha'></div></template>", "text/html"))
+        self.assertFalse(s.ist_challenge(p + "<script>const label='px-captcha';</script>", "text/html"))
+        self.assertFalse(s.ist_challenge(p + "<!-- Access Denied -->", "text/html"))
+        robots = "User-agent: *\n# /cdn-cgi/challenge-platform/h/b/orchestrate/\nDisallow: /cdn-cgi/\n"
+        self.assertFalse(s.ist_challenge(robots, "text/plain"))
+        self.assertFalse(s.ist_challenge(robots, "text/html"))
+        self.assertTrue(s.ist_challenge(p + "<div id='px-captcha'></div>", "text/html"))
+        self.assertTrue(s.ist_challenge("<script>window._cf_chl_opt={cvId:'3'};</script>", "text/html"))
+        self.assertTrue(s.ist_challenge('<script src="/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1">'
+                                        "</script>", "text/html"))
+        self.assertTrue(s.ist_challenge("<title>Just a moment...</title>", "text/html"))
+
+    def test_d7_02_d7_16_rahmen_streng(self):
+        import http.server
+        import socket
+        import threading
+        voll = b"User-agent: *\r\nDisallow: /de/product/\r\n"
+        kopf = b"%x\r\n" % len(voll) + voll + b"\r\n"
+        antworten = {
+            "/lf": ("chunked", kopf + b"0\r\n\n"),  # D7-02 r5: Abschluss nur LF
+            "/trailer": ("chunked", kopf + b"0\r\nX-Pruef: 1\r\n\r\n"),  # gültig mit Trailer
+            "/leer_te": ("chunked ", kopf),  # D7-16: Leerzeichen, Endchunk fehlt
+            "/leer_te_ok": ("chunked ", kopf + b"0\r\n\r\n"),  # D7-16: Leerzeichen, vollständig
+            "/gzip": ("gzip, chunked", kopf + b"0\r\n\r\n"),  # anderer Rahmen
+            "/offen": (None, voll),  # weder Länge noch chunked: Ende nur durch Verbindungsabbau
+            "/beides": ("chunked", kopf + b"0\r\n\r\n"),  # chunked und Content-Length zugleich
+            "/ende_ohne_crlf": ("chunked", b"%x\r\n" % len(voll) + voll + b"XX0\r\n\r\n"),
+        }
+
+        class H(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                te, body = antworten[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain")
+                if te:
+                    self.send_header("Transfer-Encoding", te)
+                if self.path == "/beides":
+                    self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                self.wfile.flush()
+                self.connection.shutdown(socket.SHUT_WR)
+                self.close_connection = True
+
+            def log_message(self, *a):
+                pass
+        srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        basis = "http://127.0.0.1:%d" % srv.server_address[1]
+        alt_proxy = os.environ.get("no_proxy")
+        os.environ["no_proxy"] = "127.0.0.1"
+        try:
+            for pfad in ("/lf", "/leer_te", "/gzip", "/offen", "/beides", "/ende_ohne_crlf"):
+                with self.assertRaises(s.NichtAbrufbar, msg=pfad):
+                    s.abrufen(basis + pfad)
+            for pfad in ("/trailer", "/leer_te_ok"):
+                self.assertIn("Disallow: /de/product/", s.abrufen(basis + pfad), pfad)
+            r = s.robots_fuer({"domain": "x"}, holen=lambda u: s.abrufen(basis + "/lf"))
+            self.assertIsInstance(r, str)
+        finally:
+            srv.shutdown()
+            srv.server_close()
+            if alt_proxy is None:
+                os.environ.pop("no_proxy", None)
+            else:
+                os.environ["no_proxy"] = alt_proxy
 
 
 if __name__ == "__main__":
