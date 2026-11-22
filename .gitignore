@@ -61,3 +61,6 @@ desktop.ini
 # Projekt: Ergebnis des Pilot-Bestpreis-Laufs (werkzeuge/shopabfrage.py), nur lokal bzw. als Actions-Artefakt
 pilot-preise.json
 pilot-preise.json.tmp
+
+# Projekt: tägliche lokale Messung des Pilot-Bestpreis-Laufs (geplante Aufgabe), nur lokal
+messung/
