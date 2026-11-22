@@ -33,6 +33,10 @@ Vorlagenversion: 2
 
 - Tests: `powershell -File tests/alle-tests.ps1` (unittest `tests/test_*.py`) · Bauen: `python -I werkzeuge/app_bauen.py` · Ansicht: `preview_start` „kb-app“ → `http://127.0.0.1:8790/` · Geheimnisse: `werkzeuge/geheimnisse.py <Ordner>` im Playbook.
 
+## Design
+
+Design: Impeccable (Projekt, Telemetrie aus, ohne Hook). Skill `.claude/skills/impeccable`, Agenten `.claude/agents/impeccable-*`; kein Konto, keine Anmeldung.
+
 ## Konnektoren
 
 Benötigt: keine (GitHub über `gh`, Konto des Besitzers).
