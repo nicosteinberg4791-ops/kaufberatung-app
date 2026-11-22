@@ -20,3 +20,14 @@ Muster: Die Befunde werden weiter enger.
 - R7-02 und R7-03 setzen Dateien voraus, die es im Repo nicht gibt.
 - Alle drei Korrekturen sind mechanisch: eine Umgebungsvariable, ein Modus, Lesen als Bytes.
 - Selbst belegt in dieser Runde: Der Bau aus der Objektkopie ist bytegleich zum Bau aus dem Arbeitsbaum mit derselben Herkunft (App cc449855d69a, 14 Dateien). Der Trockenlauf gegen das echte gh-pages (69e744d) ergab Baum 4112b5d21767, geprüft.
+
+## Behebung (O18: beheben und Runde 8, 22.11.2026)
+
+Alle neuen Tests vor der Korrektur rot, danach grün (Klassen `Veroeffentlichen` und `Herkunft`).
+- **R7-01:** `umgebung()` setzt `herkunft.OHNE_ERSATZ` (`GIT_NO_REPLACE_OBJECTS=1` und `GIT_GRAFT_FILE` = Nullgerät; Grafts wirken sonst weiter, selbst nachgestellt) für jeden Git-Aufruf in `veroeffentlichen.py` (`git()`, `baum_eintraege`, `objekte_lesen`, `soll_baum`) und für den Bau. `herkunft.py` macht das ebenso für `cat-file` und `merge-base`. Tests: `test_kopie_ohne_ersetzungsreferenzen`, `test_lauf_ohne_ersetzungsreferenzen` (ganzer Lauf, gepusht wird der Originalinhalt), Ersetzung und Graft in `test_echtes_repo_und_cli` (Vorfahr und CLI nach den Originalobjekten; ein Graft macht keinen fremden Commit zum Vorfahr).
+- **R7-02:** `ERLAUBT` ist entfallen; die Bauquelle lässt nur `DATEI` (100644) zu. Test: `test_kopie_nicht_ausfuehrbar`.
+- **R7-03:** `baum_eintraege` liest `ls-tree -z` als Bytes, dekodiert die Pfade streng als UTF-8 und bricht bei Steuerzeichen (unter 32 und 127) oder ungültigem UTF-8 ab. Test: `test_pfade_unveraendert_und_ohne_steuerzeichen` (Umlautpfad unverändert; ein Pfad mit `\r` bricht in `baum_eintraege` und `kopie_holen` ab).
+  - Beim ersten Versuch blieb der Test aus dem falschen Grund rot: Git für Windows lässt einen solchen Pfad in `update-index --index-info` aus („Ignoring path“). Der Test bildet den Baum deshalb mit `mktree` und prüft die Vorbedingung.
+  - Rot→grün gegen die alte Fassung von `veroeffentlichen.py` erneut belegt.
+
+Selbstprüfung: Sammellauf 0 Fehler, 0 Warnungen · `datenbank.py pruefen` 325 Modelle, 413 Varianten, Fehler 0 · Bau App 7430797651d3 · `--trocken` gegen das echte gh-pages: Baum 807a9aac8adb geprüft, Seitenbaum danach bereinigt.

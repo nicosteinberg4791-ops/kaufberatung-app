@@ -10,12 +10,17 @@ Aufruf:  python -I werkzeuge/herkunft.py pruefen <online.json> <neuer-commit> [<
          Exit 0 = ersetzen erlaubt (auch wenn die Datei fehlt), 1 = nicht ersetzen, 2 = Aufruf falsch.
 """
 import json
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
 SHA = re.compile(r"^[0-9a-f]{40}$")
+# R7-01: Originalobjekte und echte Elterncommits, ohne lokale Ersetzungsreferenzen (git replace) und Grafts
+# (Nullgerät als Graft-Datei: Git meldet sonst bei jedem Lesen den veralteten Graft-Mechanismus auf stderr)
+OHNE_ERSATZ = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": os.devnull, "GIT_CONFIG_COUNT": "1",
+               "GIT_CONFIG_KEY_0": "advice.graftFileDeprecated", "GIT_CONFIG_VALUE_0": "false"}
 
 
 def fehler(online_text, neu, ist_vorfahr):
@@ -43,14 +48,15 @@ def fehler(online_text, neu, ist_vorfahr):
 def git_vorfahr(ordner):
     def ist_commit(sha):
         # R4-05: genau der Objekttyp commit; merge-base löst annotierte Tags sonst stillschweigend zum Ziel-Commit auf
-        r = subprocess.run(["git", "-C", str(ordner), "cat-file", "-t", sha], capture_output=True, text=True)
+        r = subprocess.run(["git", "-C", str(ordner), "cat-file", "-t", sha], capture_output=True, text=True,
+                           env={**os.environ, **OHNE_ERSATZ})
         return r.returncode == 0 and r.stdout.strip() == "commit"
 
     def ist_vorfahr(alt, neu):
         if not (ist_commit(alt) and ist_commit(neu)):
             return False
         r = subprocess.run(["git", "-C", str(ordner), "merge-base", "--is-ancestor", alt, neu],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, env={**os.environ, **OHNE_ERSATZ})
         return r.returncode == 0   # 1 = kein Vorfahr, 128 = unbekanntes Objekt → beides nein
     return ist_vorfahr
 

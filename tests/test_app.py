@@ -220,14 +220,15 @@ class Veroeffentlichen(unittest.TestCase):
         self.assertTrue(f(json.dumps({"herkunft": h, "kategorien": [1]}), gut, h), "anderer Inhalt als der eigene Bau")
 
     def _lauf(self, schreibe_daten, argv=None, hook_sperrt=False, vor_commit=None, vor=None, waehrend_bau=None,
-              nach=None):
+              nach=None, vorher=None):
         """main() gegen echte lokale Test-Repositorys (R4-01/R4-02): Quelle mit origin (bare) und gh-pages; der Bau
         schreibt in sein Ziel und gleichzeitig ein paralleler App-Bau nach dist/. hook_sperrt: aktiver pre-commit-Hook,
         der jeden Commit ablehnt (wie der Projekt-Hook im Seitenbaum ohne tests/). vor_commit(seiten): läuft direkt vor
         jedem commit/commit-tree im Seitenbaum (paralleler Git-Vorgang). vor {git-Befehl: f(seiten, ursprung, eltern)}:
         läuft direkt vor diesem Befehl im Seitenbaum (R5-02/R5-03). waehrend_bau(quelle): ändert den Arbeitsbaum der
         Quelle während des Baus, danach wird er zurückgesetzt (R5-04). nach {git-Befehl: f(seiten, ergebnis)}: ersetzt das
-        Ergebnis dieses Befehls im Seitenbaum (R6-01). Der Bau liest app/seite.txt aus seiner Quelle
+        Ergebnis dieses Befehls im Seitenbaum (R6-01). vorher(quelle, head): läuft direkt vor main (R7-01). Der Bau
+        liest app/seite.txt aus seiner Quelle
         (wie der echte Bau app/ liest) und schreibt sie in index.html."""
         sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
         umgebung = mock.patch.dict(os.environ, sauber, clear=True)
@@ -298,6 +299,8 @@ class Veroeffentlichen(unittest.TestCase):
                                bau(quelle, daten_herkunft, ziel)), \
              mock.patch.object(self.v, "app_bau_starten", create=True, side_effect=lambda kopie, ziel, h:
                                bau(kopie, h, ziel)):
+            if vorher:
+                vorher(quelle, head)
             code = self.v.main(["--stand", head] if argv is None else argv)
         r = subprocess.run(["git", "-C", str(ursprung), "rev-parse", "gh-pages"], capture_output=True, text=True)
         oben = r.stdout.strip()
@@ -462,6 +465,73 @@ class Veroeffentlichen(unittest.TestCase):
         self.assertEqual(e["code"], 1, "Verzeichniseintrag außerhalb des eigenen Baus wird erkannt")
         self.assertEqual(e["oben"], e["eltern"], "nichts gepusht")
 
+    @staticmethod
+    def _stand_mit(q, eltern, eintraege):
+        """Commit auf eltern, dessen Baum der von eltern ist plus eintraege {Pfad (Bytes): (Modus, Inhalt)}; über einen
+        eigenen Index (Bytes und -z, unveränderte Pfade). Rückgabe Commit-ID."""
+        with tempfile.TemporaryDirectory() as t:
+            env = {**os.environ, "GIT_INDEX_FILE": str(Path(t) / "index")}
+            r = lambda *a, eingabe=None: subprocess.run(["git", "-C", str(q), *a], check=True, capture_output=True,
+                                                         input=eingabe, env=env).stdout.strip()
+            r("read-tree", eltern)
+            zeilen = b"".join(m.encode() + b" " + r("hash-object", "-w", "--stdin", eingabe=inhalt) + b"\t" + p + b"\0"
+                              for p, (m, inhalt) in eintraege.items())
+            r("update-index", "-z", "--add", "--index-info", eingabe=zeilen)
+            return r("commit-tree", r("write-tree").decode(), "-p", eltern, "-m", "stand", eingabe=b"").decode()
+
+    def _ersetzt(self, q, head):
+        """R7-01: lokale Ersetzungsreferenz, die head durch einen Commit mit anderem app/seite.txt ersetzt."""
+        fremd = self._stand_mit(q, head, {b"app/seite.txt": ("100644", b"fremd")})
+        subprocess.run(["git", "-C", str(q), "replace", head, fremd], check=True, capture_output=True)
+        r = subprocess.run(["git", "-C", str(q), "show", f"{head}:app/seite.txt"], check=True, capture_output=True)
+        self.assertEqual(r.stdout, b"fremd", "Vorbedingung: Git liest über die Ersetzung")
+
+    def test_kopie_ohne_ersetzungsreferenzen(self):
+        """R7-01: eine lokale Ersetzungsreferenz (git replace) tauscht die Bauquelle nicht aus."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        self._ersetzt(e["quelle"], e["head"])
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
+            self.v.kopie_holen(e["head"], k)
+            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprueft")
+
+    def test_lauf_ohne_ersetzungsreferenzen(self):
+        """R7-01: der ganze Lauf (Stand, Kopie, Seitenbaum) arbeitet mit den Originalobjekten des geprüften Commits."""
+        e = self._lauf(self._gut, vorher=self._ersetzt)
+        self.assertEqual(e["code"], 0)
+        self.assertEqual(e["zeige"]("index.html").stdout, "<p>geprueft</p>", "gebaut aus dem Originalinhalt")
+
+    def test_kopie_nicht_ausfuehrbar(self):
+        """R7-02: ein Stand mit ausführbarer Datei (100755) wird nicht ausgepackt (das Ausführungsbit ginge verloren)."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        stand = self._stand_mit(e["quelle"], e["head"], {b"app/lauf.sh": ("100755", b"#!/bin/sh\n")})
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
+            with self.assertRaises(SystemExit):
+                self.v.kopie_holen(stand, k)
+
+    def test_pfade_unveraendert_und_ohne_steuerzeichen(self):
+        """R7-03: Pfade kommen unverändert aus dem Baum (Umlaute), ein Steuerzeichen (\\r) bricht ab statt zu \\n zu
+        werden."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        q = e["quelle"]
+        umlaut = self._stand_mit(q, e["head"], {"app/größe.txt".encode("utf-8"): ("100644", b"g")})
+        self.assertIn("app/größe.txt", self.v.baum_eintraege(umlaut, q))
+        # Git für Windows lässt solche Pfade im Index aus ("Ignoring path"), mktree nimmt sie: Baum direkt bilden
+        r = lambda *a, eingabe=None: subprocess.run(["git", "-C", str(q), *a], check=True, capture_output=True,
+                                                    input=eingabe).stdout
+        blob = r("hash-object", "-w", "--stdin", eingabe=b"x").strip()
+        app = r("mktree", "-z", eingabe=r("ls-tree", "-z", e["head"] + ":app") + b"100644 blob " + blob
+                + b"\ta\rb.txt\0").strip()
+        wurzel = r("mktree", "-z", eingabe=b"".join(z + b"\0" for z in r("ls-tree", "-z", e["head"]).split(b"\0")
+                                                    if z and not z.endswith(b"\tapp"))
+                   + b"040000 tree " + app + b"\tapp\0").strip().decode()
+        stand = r("commit-tree", wurzel, "-p", e["head"], "-m", "cr", eingabe=b"").strip().decode()
+        self.assertIn(b"\tapp/a\rb.txt\0", r("ls-tree", "-r", "-z", stand), "Vorbedingung: Pfad mit \\r im Stand")
+        with self.assertRaises(SystemExit):
+            self.v.baum_eintraege(stand, q)
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", q):
+            with self.assertRaises(SystemExit):
+                self.v.kopie_holen(stand, k)
+
     def test_ohne_stand_kein_push(self):
         with mock.patch.object(self.v, "stand_lesen", return_value=("a" * 40, True, True)), \
              mock.patch.object(self.v, "arbeitsbaum") as ab, mock.patch.object(app_bauen, "baue") as bau, \
@@ -526,6 +596,24 @@ class Herkunft(unittest.TestCase):
             self.assertEqual(cli(tag), 1, "R4-05: Tag-ID als neuer Stand")
             online.write_text(json.dumps({"herkunft": tag}), encoding="utf-8")
             self.assertEqual(cli(b), 1, "R4-05: Tag-ID als Online-Herkunft")
+            # R7-01: eine lokale Ersetzung von b durch einen Commit ohne Vorfahr a ändert die Prüfung nicht
+            x = g("commit-tree", g("rev-parse", f"{b}^{{tree}}"), "-m", "ohne Vorfahr")
+            g("replace", b, x)
+            self.assertNotEqual(subprocess.run(["git", "-C", str(t), "merge-base", "--is-ancestor", a, b]).returncode, 0,
+                                "Vorbedingung: Git folgt der Ersetzung")
+            self.assertTrue(self.h.git_vorfahr(t)(a, b), "R7-01: Vorfahr nach den Originalobjekten")
+            online.write_text(json.dumps({"herkunft": a}), encoding="utf-8")
+            self.assertEqual(cli(b), 0, "R7-01: CLI nach den Originalobjekten")
+            # R7-01 (gleiche Klasse): ein Graft gibt einem Commit einen fremden Elterncommit
+            c = g("commit-tree", g("rev-parse", f"{a}^{{tree}}"), "-m", "fremd")
+            (t / ".git" / "info").mkdir(exist_ok=True)
+            (t / ".git" / "info" / "grafts").write_text(f"{b} {c}\n", encoding="utf-8")
+            self.assertEqual(subprocess.run(["git", "-C", str(t), "-c", "advice.graftFileDeprecated=false", "merge-base",
+                                             "--is-ancestor", c, b], env={**os.environ, "GIT_NO_REPLACE_OBJECTS": "1"},
+                                            capture_output=True).returncode, 0, "Vorbedingung: Git folgt dem Graft")
+            self.assertFalse(self.h.git_vorfahr(t)(c, b), "R7-01: Graft macht keinen fremden Commit zum Vorfahr")
+            online.write_text(json.dumps({"herkunft": c}), encoding="utf-8")
+            self.assertEqual(cli(b), 1, "R7-01: CLI ohne Grafts")
 
     def test_bau_schreibt_herkunft(self):
         import datenbank

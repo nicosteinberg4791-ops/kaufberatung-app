@@ -18,6 +18,8 @@ Push nur mit Auftrag des Besitzers bzw. nach bestandener Prüfung (AGENTS.md). B
     zusätzlich muss die Baum-ID gleich dem aus dem Soll gebildeten Baum sein, R6-01),
     committet wird genau dieser Baum mit `git commit-tree` auf den geprüften gh-pages-Elterncommit, gepusht wird genau
     diese Commit-ID, und nur wenn gh-pages auf GitHub noch genau dieser Elterncommit ist (Lease, R5-03);
+  - alle Git-Aufrufe und der Bau laufen ohne Ersetzungsreferenzen und Grafts (R7-01); die Bauquelle hat
+    nur normale Dateien (100644, R7-02); Pfade werden als Bytes gelesen, Steuerzeichen brechen ab (R7-03);
   - `commit-tree` startet keine Commit-Hooks (R4-02): der Projekt-Hook prüft Quellcommits (tests/ fehlt im Seitenbaum);
     die für den Seitencommit vorgesehene Prüfung ist die Baumprüfung oben, die dieser Lauf selbst macht;
   - preise.json und finder-preise.json kommen nie aus dem Bau (dort ignoriert, ungeprüft, R2-01): vorhandene auf gh-pages
@@ -44,9 +46,16 @@ BEHALTEN = {".git", "preise.json", "finder-preise.json"}
 PREIS_START = '{"stand": null, "preise": {}}\n'   # finder-preise.json, bis der Preislauf eigene Preise schreibt
 
 
+def umgebung(**extra):
+    """Umgebung jedes Git-Aufrufs und des Baus: ohne Ersetzungsreferenzen (git replace) und Grafts, damit jede
+    Objekt-ID genau ihr eigenes Objekt mit seinen echten Elterncommits liefert (R7-01)."""
+    return {**os.environ, **herkunft.OHNE_ERSATZ, **extra}
+
+
 def git(*a, cwd=None, check=True):
     cwd = WURZEL if cwd is None else cwd   # zur Laufzeit (Tests ersetzen WURZEL)
-    return subprocess.run(["git", "-C", str(cwd), *a], check=check, capture_output=True, text=True, encoding="utf-8")
+    return subprocess.run(["git", "-C", str(cwd), *a], check=check, capture_output=True, text=True, encoding="utf-8",
+                          env=umgebung())
 
 
 def stand_fehler(stand, head, sauber, main_enthalten):
@@ -122,12 +131,22 @@ def bau_erwartet(bau, eltern_preise):
 
 
 def baum_eintraege(baum, cwd):
-    """{Pfad: (Modus, Typ, Objekt-ID)} eines Git-Baums, alle Eintragsarten (R5-02: Modus und Typ gehören zum Vergleich)."""
+    """{Pfad: (Modus, Typ, Objekt-ID)} eines Git-Baums, alle Eintragsarten (R5-02: Modus und Typ gehören zum Vergleich).
+    Gelesen als Bytes, Pfade unverändert als UTF-8 (R7-03: der Textmodus machte aus \\r ein \\n); ein Pfad mit
+    Steuerzeichen bricht ab."""
+    r = subprocess.run(["git", "-C", str(cwd), "ls-tree", "-r", "-z", baum], check=True, capture_output=True,
+                       env=umgebung())
     aus = {}
-    for z in git("ls-tree", "-r", "-z", baum, cwd=cwd).stdout.split("\0"):
+    for z in r.stdout.split(b"\0"):
         if z:
-            kopf, pfad = z.split("\t", 1)
-            modus, art, sha = kopf.split(" ")
+            kopf, roh = z.split(b"\t", 1)
+            modus, art, sha = kopf.decode("ascii").split(" ")
+            try:
+                pfad = roh.decode("utf-8")
+            except UnicodeDecodeError:
+                raise SystemExit(f"Abbruch, nichts veröffentlicht: Pfad {roh!r} in {baum[:12]} ist kein UTF-8")
+            if any(ord(c) < 32 or ord(c) == 127 for c in pfad):
+                raise SystemExit(f"Abbruch, nichts veröffentlicht: Pfad {pfad!r} in {baum[:12]} enthält Steuerzeichen")
             aus[pfad] = (modus, art, sha)
     return aus
 
@@ -148,7 +167,7 @@ def soll_baum(soll, cwd):
     """Objekt-ID des Wurzelbaums, der genau aus soll entsteht (eigener, leerer Index; R6-01). Gleiche ID = gleicher
     Baum samt aller Verzeichniseinträge, auch solcher, die `ls-tree -r` nicht zeigt (leere Unterbäume)."""
     with tempfile.TemporaryDirectory(prefix="kb-index-") as t:
-        env = {**os.environ, "GIT_INDEX_FILE": str(Path(t) / "index")}   # nie der Index des Seitenbaums
+        env = umgebung(GIT_INDEX_FILE=str(Path(t) / "index"))   # nie der Index des Seitenbaums
         zeilen = "".join(f"{m} {sha}\t{p}\0" for p, (m, _, sha) in sorted(soll.items()))
         r = subprocess.run(["git", "-C", str(cwd), "update-index", "-z", "--add", "--index-info"],
                            input=zeilen.encode("utf-8"), capture_output=True, env=env)
@@ -160,13 +179,11 @@ def soll_baum(soll, cwd):
         return r.stdout.decode("ascii").strip()
 
 
-ERLAUBT = ("100644", "100755")   # Bauquelle: nur normale Dateien (kein Link, kein Untermodul)
-
-
 def objekte_lesen(shas):
     """{Objekt-ID: Bytes} der Blobs aus der Objektdatenbank der Quelle (git cat-file --batch, ohne Filter)."""
     r = subprocess.run(["git", "-C", str(WURZEL), "cat-file", "--batch"],
-                       input="".join(f"{s}\n" for s in shas).encode("ascii"), check=True, capture_output=True)
+                       input="".join(f"{s}\n" for s in shas).encode("ascii"), check=True, capture_output=True,
+                       env=umgebung())
     aus, b, pos = {}, r.stdout, 0
     for sha in shas:
         ende = b.index(b"\n", pos)
@@ -198,7 +215,7 @@ def kopie_holen(head, ziel):
     eintraege = baum_eintraege(head, WURZEL)
     ziel = Path(ziel).resolve()
     for p, (m, art, _) in sorted(eintraege.items()):
-        if art != "blob" or m not in ERLAUBT:
+        if art != "blob" or m != DATEI:   # R7-02: auch nicht 100755 (das Ausführungsbit ginge in der Kopie verloren)
             raise SystemExit(f"Abbruch, nichts veröffentlicht: {p} im Stand ist keine normale Datei ({m} {art})")
     inhalt = objekte_lesen(sorted({e[2] for e in eintraege.values()}))
     for p, (_, _, sha) in sorted(eintraege.items()):
@@ -215,7 +232,7 @@ def kopie_holen(head, ziel):
 def app_bau_starten(kopie, ziel, head):
     """Bauskript der Kopie als eigener Prozess: liest nur die Kopie, schreibt nur nach ziel. Rückgabe App-Version."""
     r = subprocess.run([sys.executable, "-I", str(Path(kopie) / "werkzeuge" / "app_bauen.py"), "--ziel", str(ziel),
-                        "--herkunft", head], capture_output=True, text=True, encoding="utf-8")
+                        "--herkunft", head], capture_output=True, text=True, encoding="utf-8", env=umgebung())
     if r.returncode != 0:
         raise SystemExit("Abbruch, nichts veröffentlicht: Bau fehlgeschlagen\n" + (r.stderr or r.stdout)[-2000:])
     print(r.stdout.strip())
