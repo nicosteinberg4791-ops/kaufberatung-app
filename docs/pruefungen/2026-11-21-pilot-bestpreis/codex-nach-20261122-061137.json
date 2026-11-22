@@ -1,0 +1,63 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Fünf frühere Befunde sind nach statischer Nachprüfung geschlossen. D7-17 bleibt offen. Der Umbau akzeptiert einen Saturn-Zustand aus einem HTML-Kommentar, übersieht einen vorhandenen Sperrtitel und kann bei einer ungültigen Längenangabe den Piloten abbrechen.",
+  "befunde": [
+    {
+      "id": "D7-R6-01",
+      "schwere": "schwer",
+      "titel": "Saturn akzeptiert einen inaktiven oder nur teilweise gelesenen Seitenzustand",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 260,
+      "beleg": "Das Fertigkriterium lautet „Saturn: Eigenangebot nur, wenn der einzige `window.__PRELOADED_STATE__` vollständig lesbar ist und alle Preisobjekte der Ziel-SKU vollständig sind und übereinstimmen (kein Marktplatz, gleicher Preis wie JSON-LD).“ Wird in der Saturn-Ninja-Vorlage der zustandssetzende `<script>` in einen HTML-Kommentar gelegt, findet ihn Zeile 260 weiterhin. Hängt man an das Objektliteral vor dem Semikolon `.artikel` an, verarbeitet Zeile 276 weiterhin nur das Objektliteral. In beiden Fällen bleibt der Verkäufernachweis in Zeilen 341–352 gültig. Erwartet ist kein Eigenangebotsnachweis.",
+      "auswirkung": "Der Pilot kann ein Angebot als Eigenangebot werten, obwohl der ausgewertete Zustand auf der Seite nie gesetzt wurde oder die Zuweisung einen anderen Wert setzt.",
+      "vorschlag": "Zuweisungen nur in ausführbaren Inline-Skripten erkennen. Das vollständige rechte Ende der Zuweisung prüfen und Kommentar, Skriptstring und angehängten Ausdruck als Gegenproben absichern.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-17",
+      "schwere": "schwer",
+      "titel": "Passive Inhalte lösen weiterhin eine Sperre aus",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 524,
+      "beleg": "Das Fertigkriterium lautet „Echte robots.txt, `<template>`, `<noscript>`, Kommentare und Skriptstrings sperren nicht.“ Auf einer Produktseite mit JSON-LD reicht `<script>const label = '_cf_chl_opt = {}';</script>` für `True`, weil Zeile 524 auch innerhalb eines Skriptstrings nach der Zuweisung sucht. Ohne JSON-LD reicht `<template><div id='px-captcha'></div></template>`, weil Zeile 528 erneut den HTML-Rohtext durchsucht. Die bisherigen Gegenproben decken weder den Zuweisungstext im String noch die Vorlage ohne JSON-LD ab.",
+      "auswirkung": "Eine normal abrufbare Seite kann als Challenge gelten. `lauf()` sperrt die Quelle daraufhin für die übrigen Modelle.",
+      "vorschlag": "Skriptstrings und Skriptkommentare bei der Prüfung auf ausführbare Zuweisungen auslassen. Auch die schwache Merkmalssuche auf die bereits gefilterten Seitenteile beschränken und beide Gegenproben ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R6-02",
+      "schwere": "schwer",
+      "titel": "Ein vorhandener Sperrtitel wird nach vorangestelltem Text übersehen",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 62,
+      "beleg": "Das Fertigkriterium lautet „Sperrseite: sichtbare Aufforderungen und technische Merkmale aktiver Elemente sperren.“ Bei `<p>Saturn</p><title>Just a moment...</title>` neben gültigem Produkt-JSON-LD erzeugt Zeile 500 einen Text, der mit `Saturn` beginnt. Der vorhandene Sperrtitel greift wegen `^` nur am Anfang des gesamten extrahierten Texts. `ist_challenge()` liefert `False`, obwohl derselbe Titel in der bisherigen Fassung unabhängig von seiner Position sperrte.",
+      "auswirkung": "Eine Challenge mit vorhandenem Produkt-JSON-LD kann abrufbar bleiben und in die Angebotsauswertung gelangen.",
+      "vorschlag": "Den Titel separat erfassen und das Titelmuster auf den Titeltext anwenden. Die Gegenprobe mit vorangestelltem Text und vorhandenem JSON-LD testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R6-03",
+      "schwere": "schwer",
+      "titel": "Eine robots.txt mit Erweiterungsfeld kann am Kommentar scheitern",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 511,
+      "beleg": "Das Fertigkriterium lautet „Echte robots.txt, `<template>`, `<noscript>`, Kommentare und Skriptstrings sperren nicht.“ Eine Antwort mit den Zeilen `User-agent: *`, `X-Extension: yes`, `# Please complete the CAPTCHA to continue` und `Disallow: /x` erfüllt die robots.txt-Validierung in Zeilen 670–675. `ist_robots()` weist sie wegen des Erweiterungsfelds ab. Zeile 524 wertet daraufhin den Kommentar auch bei `text/plain` als sichtbare Aufforderung und sperrt den Abruf.",
+      "auswirkung": "Der Pilot kann eine Quelle pauschal ausschließen, obwohl ihre robots.txt lesbar ist und die Produktpfade zulässt.",
+      "vorschlag": "Die robots.txt-Erkennung an die Validierung in `robots_fuer()` angleichen und unbekannte Direktiven mit einem Sperrtext im Kommentar testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R6-04",
+      "schwere": "schwer",
+      "titel": "Ungültige Content-Length kann den gesamten Lauf abbrechen",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 628,
+      "beleg": "Das Fertigkriterium lautet „Antwortende eindeutig belegt: Content-Length mit gleicher Länge oder chunked mit streng CRLF-gerahmtem Abschluss. Sonst nicht abrufbar, robots.txt dann nicht lesbar = Quelle nicht abfragen.“ Bei `Content-Length: ²` akzeptiert Zeile 559 den Latin-1-Headerwert über `isdigit()`. Nach dem Lesen bis zum Verbindungsende löst `int(laenge)` in Zeile 628 einen ungefangenen `ValueError` aus. Erwartet ist `NichtAbrufbar`.",
+      "auswirkung": "Eine ungültig gerahmte Antwort kann die gesamte Preisabfrage beenden. Die Behandlung als nicht lesbare robots.txt oder nicht abrufbare Produktseite greift dann nicht.",
+      "vorschlag": "Nur ASCII-Dezimalziffern zulassen, die Länge einmal kontrolliert konvertieren und Konvertierungsfehler als unklaren Rahmen behandeln.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": ["D7-02", "D7-11", "D7-15", "D7-16", "D7-18"],
+  "pruefgrenzen": "Statische Nachprüfung am Commit 31b30735347827d6463a909b22822cd58bc9e47e. Die Belege beschreiben aus dem Code nachvollzogene Gegenproben. Der direkte Unittest-Lauf scheiterte am fehlenden Zugriff auf den lokalen Python-Interpreter. Der PowerShell-Runner blieb wegen seines schreibenden Laufprotokolls unausgeführt. Die gemeldeten 70 Tests, „Fehler: 0“ und die Liveabrufe stammen aus der Selbstprüfung des Bauers."
+}
