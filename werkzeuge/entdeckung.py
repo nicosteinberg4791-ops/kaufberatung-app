@@ -6,11 +6,13 @@ Aufruf:  python -I -X utf8 werkzeuge/entdeckung.py [--kategorie fernseher,laptop
 - Je Kategorie höchstens 3 Listenseiten (`/de/category/…`, `?page=N`), alle Abrufe über werkzeuge/datenpflege/abruf.py
   (≥ 61 s je Domain über alle Prozesse, robots.txt, Sperre bei 403/429 → Lauf endet sofort, nicht umgehen).
 - Höchstens einmal je Kategorie in 6 Tagen (wöchentlich, D10); die Sperre steht im Ergebnis selbst und ist nicht abschaltbar.
+  Sie wird vor dem ersten Abruf der Kategorieseite reserviert („versucht“), gilt also auch bei leerem oder fehlerhaftem
+  Ergebnis (F-05). Ein zweiter Lauf zur selben Zeit endet sofort (Laufsperre neben der Ergebnisdatei, Exit 4).
 - Abgleich gegen daten/produkte/*.json über EAN, MPN (im Namen) und Hersteller + Modellname.
 - Gespeichert werden nur Name, URL und Saturn-Nummer der Kandidaten (§ 87b UrhG: kein Spiegeln, keine Preise, keine
   Datenblätter) in `%TEMP%/kb-datenpflege/entdeckung/kandidaten.json` (für alle Arbeitsbäume gleich, nie im Repo). Die Datenpflege-Routine (D11) liest die Datei,
   belegt die Werte auf Produktseiten nach werkzeuge/datenpflege/ANLEITUNG.md und trägt kuratiert ein.
-Exit: 0 ok · 3 Domain gesperrt (Lauf abgebrochen, Teilergebnis gespeichert) · 2 Aufruffehler.
+Exit: 0 ok · 3 Domain gesperrt (Lauf abgebrochen, Teilergebnis gespeichert) · 4 anderer Lauf aktiv · 2 Aufruffehler.
 """
 import datetime as dt
 import json
@@ -29,6 +31,7 @@ import tempfile  # noqa: E402
 ZIEL = Path(tempfile.gettempdir()) / "kb-datenpflege" / "entdeckung" / "kandidaten.json"
 MAX_SEITEN = 3
 MIN_TAGE = 6
+LAUFSPERRE_MAX_S = 3 * 3600   # länger läuft kein Lauf (14 Kategorien × 3 Seiten × 61 s ≈ 45 min); ältere Sperre = verwaist
 SATURN = "https://www.saturn.de/de/category/"
 
 # Kategorie der App → Saturn-Kategorieseite (ermittelt am 22.11.2026 aus sitemap-productlistpages.xml und Navigation)
@@ -50,36 +53,86 @@ KATEGORIEN = {
 }
 
 
+# Abgleich nach Namen (geprüft an der Entdeckung vom 22.11.2026): Shoptitel schreiben Ordinalzahlen („3rd generation“),
+# deutsche statt englische Gattungswörter, „™“/„TM“ am Namen und MPNs ohne Länderendung („/ZG“, „-DEUR“).
+SYNONYME = {"kopfhoerer": "headphones", "headphones": "kopfhoerer", "serie": "series", "series": "serie"}
+FUELLWOERTER = {"serie", "series", "gen", "generation"}   # zählen im Bestandsnamen nur, wenn sonst keine Modellnummer bleibt
+ORDINAL = re.compile(r"^(\d+)(st|nd|rd|th)$")
+
+
+def _klein(t):
+    t = str(t or "").lower()
+    for a, b in (("ä", "ae"), ("ö", "oe"), ("ü", "ue"), ("ß", "ss")):
+        t = t.replace(a, b)
+    return t
+
+
 def norm(t):
     """Kleinbuchstaben, nur a-z0-9 (für MPN-Vergleich)."""
-    return re.sub(r"[^a-z0-9]", "", str(t or "").lower().replace("ß", "ss"))
+    return re.sub(r"[^a-z0-9]", "", _klein(t))
 
 
 def woerter(t):
-    """Wortmenge; zusätzlich jedes Wort ohne führende Ziffern (55e7s → e7s), damit Größenpräfixe nicht stören."""
+    """Wortmenge mit Zusatzformen: ohne führende Ziffern (55e7s → e7s), Ordinalzahl als Zahl (3rd → 3),
+    ohne angehängtes TM (detecttm → detect) und Synonyme (kopfhoerer ↔ headphones)."""
     out = set()
-    for w in re.findall(r"[a-z0-9]+", str(t or "").lower().replace("ß", "ss")):
+    for w in re.findall(r"[a-z0-9]+", _klein(t)):
         out.add(w)
         ohne = w.lstrip("0123456789")
         if ohne and ohne != w and re.search(r"\d", ohne):
             out.add(ohne)
+        m = ORDINAL.match(w)
+        if m:
+            out.add(m.group(1))
+        if len(w) > 4 and w.endswith("tm"):
+            out.add(w[:-2])
+        if w in SYNONYME:
+            out.add(SYNONYME[w])
+    return out
+
+
+def namens_woerter(t):
+    """Wörter eines Bestandsnamens ohne Füllwörter, solange eine Modellnummer (Wort mit Ziffer) übrig bleibt."""
+    w = woerter(t)
+    rest = w - FUELLWOERTER
+    return rest if any(re.search(r"\d", x) for x in rest) else w
+
+
+def mpn_schluessel(mpn):
+    """Normierte MPN (≥ 5 Zeichen) und, falls vorhanden, ihr Stamm ohne Länderendung (/ZG, /00, -DEUR; ≥ 6 Zeichen)."""
+    roh = str(mpn or "")
+    out = {norm(roh)} if len(norm(roh)) >= 5 else set()
+    stamm = re.sub(r"-[A-Za-z]{2,4}$", "", roh.split("/")[0])
+    if len(norm(stamm)) >= 6:
+        out.add(norm(stamm))
     return out
 
 
 def bestand_index(produkte=PRODUKTE):
-    """Je Kategorie: EANs, MPNs (normiert, ≥ 5 Zeichen) und Modelle (Hersteller-Wörter, Namens-Wörter, ID)."""
+    """Je Kategorie: EANs, MPNs (normiert, mit Stamm) und Modelle (Hersteller-Wörter, Namens-Wörter, ID)."""
     idx = {}
     for p in sorted(Path(produkte).glob("*.json")):
         d = json.loads(p.read_text(encoding="utf-8"))
         k = idx.setdefault(d["kategorie"], {"ean": {}, "mpn": {}, "modelle": []})
         for m in d.get("modelle", []):
-            k["modelle"].append((woerter(m.get("hersteller")), woerter(m.get("name")), m["id"]))
+            k["modelle"].append((woerter(m.get("hersteller")), namens_woerter(m.get("name")), m["id"]))
             for v in m.get("varianten", []):
                 for e in v.get("ean", []) or []:
                     k["ean"][str(e)] = m["id"]
-                if len(norm(v.get("mpn"))) >= 5:
-                    k["mpn"][norm(v.get("mpn"))] = m["id"]
+                for schluessel in mpn_schluessel(v.get("mpn")):
+                    k["mpn"][schluessel] = m["id"]
     return idx
+
+
+def mpn_im_namen(mpn, n):
+    """MPN kommt im normierten Namen vor und endet dort nicht mitten in einer Zahl (na351 ≠ na3510)."""
+    i = n.find(mpn)
+    while i >= 0:
+        nach = n[i + len(mpn):i + len(mpn) + 1]
+        if not (nach.isdigit() and mpn[-1].isdigit()):
+            return True
+        i = n.find(mpn, i + 1)
+    return False
 
 
 def zuordnen(eintrag, k):
@@ -89,13 +142,12 @@ def zuordnen(eintrag, k):
             return k["ean"][e]
     n = norm(eintrag.get("name"))
     for mpn, mid in k["mpn"].items():
-        if mpn in n:
+        if mpn_im_namen(mpn, n):
             return mid
     w = woerter(eintrag.get("name"))
-    for hersteller, name, mid in k["modelle"]:
-        if name and hersteller and (hersteller & w) and name <= w:
-            return mid
-    return None
+    # das spezifischste Bestandsmodell gewinnt (QuietComfort Ultra Headphones vor QuietComfort Headphones)
+    passend = [(len(name), mid) for hersteller, name, mid in k["modelle"] if name and hersteller and (hersteller & w) and name <= w]
+    return max(passend, key=lambda x: x[0])[1] if passend else None
 
 
 def itemlist(text):
@@ -139,20 +191,60 @@ def speichern(erg, ziel):
 
 
 def zu_frueh(alt, kat, jetzt):
-    t = (alt.get("kategorien", {}).get(kat) or {}).get("abgerufen")
-    if not t:
-        return False
-    try:
-        return jetzt - dt.datetime.fromisoformat(t) < dt.timedelta(days=MIN_TAGE)
-    except ValueError:
-        return False
+    """Letzter Abruf oder Abrufversuch (F-05) vor weniger als MIN_TAGE. Unlesbarer Zeitstempel zählt als gesperrt."""
+    k = alt.get("kategorien", {}).get(kat) or {}
+    for feld in ("abgerufen", "versucht"):
+        t = k.get(feld)
+        if not t:
+            continue
+        try:
+            if jetzt - dt.datetime.fromisoformat(t) < dt.timedelta(days=MIN_TAGE):
+                return True
+        except (ValueError, TypeError):
+            return True
+    return False
+
+
+def sperre_holen(ziel):
+    """Exklusive Laufsperre (O_EXCL) neben der Ergebnisdatei. Rückgabe Pfad oder None, wenn ein anderer Lauf aktiv ist."""
+    import os
+    import time
+    sperre = Path(str(ziel) + ".lock")
+    sperre.parent.mkdir(parents=True, exist_ok=True)
+    for _ in range(2):
+        try:
+            os.close(os.open(str(sperre), os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+            return sperre
+        except FileExistsError:
+            try:
+                if time.time() - sperre.stat().st_mtime > LAUFSPERRE_MAX_S:
+                    sperre.unlink()   # verwaist (abgestürzter Lauf)
+                    continue
+            except FileNotFoundError:
+                continue
+            return None
+    return None
 
 
 def lauf(kats, seiten, holen, robots_ok, ziel=ZIEL, produkte=PRODUKTE, jetzt=None):
     """Kern ohne Netz (holen/robots_ok werden übergeben, für Tests ersetzbar). Rückgabe (ergebnis, exitcode)."""
     jetzt = jetzt or dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
+    sperre = sperre_holen(ziel)
+    if sperre is None:
+        print("Ein anderer Entdeckungslauf ist aktiv: nichts abgerufen (D10)")
+        return laden(ziel), 4
+    try:
+        return _lauf(kats, seiten, holen, robots_ok, ziel, produkte, jetzt)
+    finally:
+        try:
+            sperre.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _lauf(kats, seiten, holen, robots_ok, ziel, produkte, jetzt):
     idx = bestand_index(produkte)
-    erg = laden(ziel)
+    erg = laden(ziel)   # erst unter der Laufsperre lesen
     erg.setdefault("kategorien", {})
     code = 0
     for kat in kats:
@@ -171,6 +263,10 @@ def lauf(kats, seiten, holen, robots_ok, ziel=ZIEL, produkte=PRODUKTE, jetzt=Non
             if not ok:
                 fehler.append(f"Seite {s}: {grund}")
                 break
+            if s == 1:
+                # F-05: Versuch vor dem ersten Abruf der Kategorie festhalten (Sperre gilt auch ohne Ergebnis)
+                erg["kategorien"].setdefault(kat, {})["versucht"] = jetzt.isoformat()
+                speichern(erg, ziel)
             try:
                 text = holen(url)
             except SystemExit as e:
@@ -201,7 +297,7 @@ def lauf(kats, seiten, holen, robots_ok, ziel=ZIEL, produkte=PRODUKTE, jetzt=Non
                 print("Domain gesperrt: Lauf beendet (nicht umgehen, frühestens in 30 min erneut)")
                 break
             continue
-        erg["kategorien"][kat] = {"abgerufen": jetzt.isoformat(), "quelle": basis, "seiten": seiten,
+        erg["kategorien"][kat] = {"abgerufen": jetzt.isoformat(), "versucht": jetzt.isoformat(), "quelle": basis, "seiten": seiten,
                                   "gelesen": len(gesehen), "bekannt": len(bekannt),
                                   "kandidaten": list(kand.values()), "fehler": fehler}
         print(f"{kat}: {len(gesehen)} gelesen · {len(bekannt)} bekannt · {len(kand)} Kandidaten"

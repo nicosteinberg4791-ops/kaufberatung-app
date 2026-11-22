@@ -4,7 +4,10 @@
 Aufruf:  python -I abruf.py <https-URL> [--text N]
 - Je Domain höchstens 1 Abruf pro 60 s, über ALLE parallel laufenden Agenten (Dateisperre + Zeitstempel je Domain).
   Wartet bei Bedarf selbst; nie umgehen.
-- robots.txt wird geprüft (einmal je Domain, zählt als Abruf); Saturn-/MediaMarkt-Platzhalterregeln zusätzlich.
+- Jeder einzelne HTTP-Versuch steht unter dem Takt (F-04): keine Wiederholung innerhalb eines Abrufs.
+- robots.txt (F-06): Ablage je Domain höchstens 24 h alt (Abruf im Takt), ausgewertet nach RFC 9309 für den gesendeten
+  User-Agent (sonst Gruppe *), mit Platzhaltern * und $, längste Regel gewinnt; unlesbar, leer oder keine echte
+  robots.txt → Abbruch (fail-closed). Saturn-/MediaMarkt-Pfadsperren (GESPERRT_PFADE) gelten zusätzlich.
 - 403/429/503/Captcha: Abbruch mit Exit 3. Nicht wiederholen, nicht umgehen; die Domain für 30 min meiden (Sperrdatei).
 - Ausgabe: JSON mit Status, gespeicherter Datei (HTML), Produkten aus JSON-LD (Name, Marke, MPN, GTIN, Preis, Verkäufer)
   und optional den ersten N Zeichen des sichtbaren Textes (--text N).
@@ -16,8 +19,9 @@ import os
 import re
 import sys
 import time
+import urllib.error
+import urllib.request
 import urllib.parse
-import urllib.robotparser
 from pathlib import Path
 
 WERKZEUGE = Path(__file__).resolve().parent.parent
@@ -31,6 +35,7 @@ ABLAGE = HIER / "abrufe"
 TAKT.mkdir(parents=True, exist_ok=True)
 ABLAGE.mkdir(parents=True, exist_ok=True)
 ABSTAND = 61
+ROBOTS_MAX_ALTER = 24 * 3600
 GESPERRT_PFADE = [r"/de/search", r"/de/list/", r"/de/promo-list/", r"storeId=", r"/rest/", r"\.json(\?|$)"]
 
 
@@ -82,7 +87,7 @@ def holen(url):
             print(json.dumps({"url": url, "fehler": "Domain gesperrt (30 min meiden): " + grund}, ensure_ascii=False))
             raise SystemExit(3)
         try:
-            r = sa.abrufen(url)
+            r = einmal_abrufen(url)
         finally:
             stempel.write_text(str(time.time()))
     except sa.Weitergeleitet as e:
@@ -103,24 +108,110 @@ def holen(url):
     return r
 
 
+def einmal_abrufen(url):
+    """Genau ein HTTP-Versuch (F-04), sonst wie shopabfrage.abrufen: ehrlicher User-Agent, keine Weiterleitung,
+    nur vollständige 200-Antworten, 401/403/429/503/Challenge → NichtAbrufbar. Keine Wiederholung bei 5xx/Netzfehler."""
+    req = urllib.request.Request(url, headers={"User-Agent": sa.UA, "Accept-Language": "de-DE,de;q=0.9",
+                                               "Accept": "text/html,application/xhtml+xml"})
+    try:
+        with sa._OPENER.open(req, timeout=sa.TIMEOUT) as r:
+            roh = r.read(sa.MAX_BYTES + 1)
+            if getattr(r, "status", 200) != 200:
+                raise sa.NichtAbrufbar(f"HTTP {r.status} (keine vollständige Antwort)")
+            if len(roh) > sa.MAX_BYTES:
+                raise sa.NichtAbrufbar("Antwort über der Lesegrenze (abgeschnitten)")
+            text = roh.decode(r.headers.get_content_charset() or "utf-8", "replace")
+            typ = r.headers.get("Content-Type", "")
+            if r.geturl() != url:
+                raise sa.Weitergeleitet(f"Weiterleitung auf {r.geturl()[:120]}")
+    except urllib.error.HTTPError as e:
+        if 300 <= e.code < 400:
+            raise sa.Weitergeleitet(f"Weiterleitung (HTTP {e.code}) auf {str(e.headers.get('Location') or '?')[:120]}")
+        raise sa.NichtAbrufbar(f"HTTP {e.code}")
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        raise sa.NichtAbrufbar(f"Netzfehler: {getattr(e, 'reason', e)}")
+    if sa.ist_challenge(text, typ):
+        raise sa.NichtAbrufbar("Bot-Prüfung/Challenge-Seite")
+    return text
+
+
+def _muster(m):
+    """robots-Pfadmuster → regulärer Ausdruck (RFC 9309: * beliebig, $ am Ende = Pfadende)."""
+    ende = m.endswith("$")
+    kern = urllib.parse.unquote(m[:-1] if ende else m)
+    return re.compile(re.escape(kern).replace(r"\*", ".*") + ("$" if ende else ""))
+
+
+def robots_regeln(text, ua_token):
+    """Regeln [(erlaubt, muster)] der Gruppe(n) für ua_token (Groß-/Kleinschreibung egal), sonst der Gruppe(n) *."""
+    gruppen, aktuell, agent_zuletzt = [], None, False
+    for zeile in (text or "").splitlines():
+        z = zeile.split("#", 1)[0].strip()
+        if ":" not in z:
+            continue
+        feld, wert = (x.strip() for x in z.split(":", 1))
+        feld = feld.lower()
+        if feld == "user-agent":
+            if aktuell is None or not agent_zuletzt:
+                aktuell = {"agenten": set(), "regeln": []}
+                gruppen.append(aktuell)
+            aktuell["agenten"].add(wert.lower())
+            agent_zuletzt = True
+        elif feld in ("allow", "disallow"):
+            agent_zuletzt = False
+            if aktuell is not None and wert:
+                aktuell["regeln"].append((feld == "allow", wert))
+    eigen = [g for g in gruppen if ua_token.lower() in g["agenten"]]
+    wahl = eigen or [g for g in gruppen if "*" in g["agenten"]]
+    return [r for g in wahl for r in g["regeln"]]
+
+
+def robots_erlaubt(text, ua_token, url):
+    """RFC 9309: längstes passendes Muster entscheidet, bei Gleichstand Allow; ohne passende Regel erlaubt."""
+    t = urllib.parse.urlsplit(url)
+    pfad = urllib.parse.unquote((t.path or "/") + ("?" + t.query if t.query else ""))
+    if pfad == "/robots.txt":
+        return True
+    best = None
+    for erlaubt, m in robots_regeln(text, ua_token):
+        if _muster(m).match(pfad):
+            schluessel = (len(m), erlaubt)
+            if best is None or schluessel > best:
+                best = schluessel
+    return True if best is None else best[1]
+
+
+def robots_text(scheme, domain):
+    """robots.txt aus der Ablage (höchstens ROBOTS_MAX_ALTER alt) oder frisch im Takt. None = nicht auswertbar."""
+    ablage = TAKT / (domain + ".robots.json")
+    try:
+        a = json.loads(ablage.read_text(encoding="utf-8"))
+        if time.time() - float(a["zeit"]) < ROBOTS_MAX_ALTER and sa.robots_gueltig(a["text"]):
+            return a["text"]
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    text = holen(f"{scheme}://{domain}/robots.txt")   # SystemExit 3 (Sperre) geht an den Aufrufer
+    if not sa.robots_gueltig(text):
+        return None
+    ablage.write_text(json.dumps({"zeit": time.time(), "text": text}), encoding="utf-8")
+    return text
+
+
 def robots_ok(url):
     teile = urllib.parse.urlsplit(url)
     for m in GESPERRT_PFADE:
         if re.search(m, teile.path + ("?" + teile.query if teile.query else "")):
             return False, "Pfad laut robots-Regel gesperrt: " + m
     domain = teile.hostname
-    ablage = TAKT / (domain + ".robots")
-    if not ablage.exists():
-        try:
-            text = holen(f"{teile.scheme}://{domain}/robots.txt")
-        except SystemExit as e:
-            if e.code == 3:   # Sperre (403/429/Captcha) an den Aufrufer weitergeben, nicht verschlucken
-                raise
-            return False, "robots.txt nicht abrufbar"
-        ablage.write_text(text or "", encoding="utf-8")
-    rp = urllib.robotparser.RobotFileParser()
-    rp.parse(ablage.read_text(encoding="utf-8").splitlines())
-    if not rp.can_fetch("*", url):
+    try:
+        text = robots_text(teile.scheme, domain)
+    except SystemExit as e:
+        if e.code == 3:   # Sperre (403/429/Captcha) an den Aufrufer weitergeben, nicht verschlucken
+            raise
+        return False, "robots.txt nicht abrufbar"
+    if text is None:
+        return False, "robots.txt nicht auswertbar (leer oder keine robots.txt) – Abbruch"
+    if not robots_erlaubt(text, sa.UA_TOKEN, url):
         return False, "robots.txt verbietet den Pfad"
     if "proshop" in domain and teile.query and not teile.query.startswith(("pn=", "s=")):
         return False, "Proshop: Abfragen mit ? gesperrt"

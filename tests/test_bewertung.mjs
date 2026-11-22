@@ -298,7 +298,7 @@ test("Preise überlagern: nur gültig und neuer; https-Pflicht", () => {
 });
 
 test("Datenprüfung: kaputte Preise werden entfernt, falsches Format wirft", () => {
-  const d = { regeln: REGELN, kategorien: [{ id: "x", felder: [], modelle: [{ id: "m", werte: {}, teilpunkte: {}, preis: { eur: "1", haendler: "", url: "http://x", stand: "gestern" } }] }] };
+  const d = { regeln: REGELN, kategorien: [{ id: "x", name: "X", felder: [], modelle: [{ id: "m", hersteller: "H", name: "M", werte: {}, teilpunkte: {}, preis: { eur: "1", haendler: "", url: "http://x", stand: "gestern" } }] }] };
   B.datenPruefen(d);
   assert.equal(d.kategorien[0].modelle[0].preis, null);
   assert.throws(() => B.datenPruefen({}));
@@ -317,4 +317,62 @@ test("Feldsieger und Stärken", () => {
   assert.deepEqual(B.feldSieger([e1, e2], KAT.felder), { a: ["y"] });
   const r = B.bewerteModell(modell("s", { a: 90, b: 40 }), KAT, B.gewichte(KAT, {}), REGELN);
   assert.deepEqual(B.staerken(r).map(s => s.feld), ["a"]);
+});
+
+// ---------- Codex r1 (Finder-Veröffentlichung) ----------
+const kopie = x => JSON.parse(JSON.stringify(x));
+const minimal = () => ({ regeln: kopie(REGELN), kategorien: [{ id: "probe", name: "Probe", felder: kopie(KAT.felder), fragen: kopie(KAT.fragen),
+  modelle: [modell("m", { a: 90, b: 100 }, {}, 100)] }] });
+
+test("F-01: Testlinks verlieren übernommene Punkte, die Note bleibt aus dem Datenblatt", () => {
+  const d = minimal();
+  d.kategorien[0].modelle[0].tests = [{ url: "https://example.org/t", titel: "Test", punkte: 90, text: "x" }, { url: "http://x", titel: "y" }, null];
+  B.datenPruefen(d);
+  const m = d.kategorien[0].modelle[0];
+  assert.deepEqual(m.tests, [{ url: "https://example.org/t", titel: "Test" }]);
+  const r = B.bewerteModell(m, d.kategorien[0], B.gewichte(d.kategorien[0], {}), d.regeln);
+  assert.equal(r.art, "datenblatt"); assert.ok(r.note <= DB.kappung);
+});
+
+test("F-08: beschädigte Felder, Fragen oder Regeln werfen (letzter Stand bleibt)", () => {
+  const faelle = [
+    d => { d.kategorien[0].felder.push(null); },
+    d => { d.kategorien[0].felder[0].gewicht = "80"; },
+    d => { d.kategorien[0].felder[0].typ = "html"; },
+    d => { d.kategorien[0].fragen[0].antworten = null; },
+    d => { d.kategorien[0].fragen.push({ id: "f3", text: "?", antworten: [null] }); },
+    d => { d.kategorien[0].name = null; },
+    d => { d.regeln.aufpreis_regeln.spar = null; },
+    d => { d.regeln.datenblatt_abschlag.anker = "50"; },
+  ];
+  for (const f of faelle) { const d = minimal(); f(d); assert.throws(() => B.datenPruefen(d), String(f)); }
+  assert.doesNotThrow(() => B.datenPruefen(minimal()));
+});
+
+test("F-09: Klassengrenzen und Kappung nur als Zahl 0..100", () => {
+  for (const kaputt of ["50;background:red", -1, 101, NaN, null]) {
+    const d = minimal(); d.regeln.klassen[0].ab = kaputt;
+    assert.throws(() => B.datenPruefen(d), "klassen " + kaputt);
+  }
+  const d = minimal(); d.regeln.datenblatt_abschlag.kappung = "84%;x";
+  assert.throws(() => B.datenPruefen(d));
+});
+
+test("F-08: kaputte Teilpunkte und Modelle ohne Namen fallen still weg", () => {
+  const d = minimal();
+  d.kategorien[0].modelle[0].teilpunkte = { a: 90, b: "100" };
+  d.kategorien[0].modelle.push({ id: "x", hersteller: null, name: "X" });
+  B.datenPruefen(d);
+  assert.deepEqual(d.kategorien[0].modelle[0].teilpunkte, { a: 90 });
+  assert.equal(d.kategorien[0].modelle.length, 1);
+});
+
+test("F-10: Modell im Budget ohne Note wird gezeigt, nicht „passt nichts“", () => {
+  const kat = Object.assign({}, KAT, { modelle: [modell("billig", {}, {}, 90), modell("teuer", { a: 90, b: 100 }, {}, 150)] });
+  const r = B.auswerten(kat, REGELN, { budget: 100 });
+  assert.equal(r.status, "ohne_note"); assert.equal(r.empfehlung.modell.id, "billig"); assert.equal(r.empfehlung.note, null);
+  assert.equal(r.aufpreis, null); assert.equal(r.spar, null);
+  // ohne Modell im Budget bleibt es beim Hinweis über Budget
+  const r2 = B.auswerten(Object.assign({}, KAT, { modelle: [modell("teuer", { a: 90, b: 100 }, {}, 150)] }), REGELN, { budget: 100 });
+  assert.equal(r2.status, "ueber_budget");
 });

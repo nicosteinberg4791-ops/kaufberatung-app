@@ -66,6 +66,52 @@ class Schranke(unittest.TestCase):
         d["modelle"][0]["varianten"][0]["preis"]["url"] = "https://www.mediamarkt.de/de/product/_x-1.html"
         self.assertTrue(any("nur als Link" in f for f in self.pruefen(d)))
 
+    def test_testlink_ohne_noten(self):
+        """F-01: Testlinks nur mit url und titel; übernommene Punkte oder Texte sind Fehler."""
+        d = beispiel()
+        d["modelle"][0]["tests"] = [{"url": "https://example.org/test", "titel": "Test", "punkte": 90}]
+        self.assertTrue(any("'punkte'" in f for f in self.pruefen(d)))
+        d["modelle"][0]["tests"] = [{"url": "https://example.org/test", "titel": 5}]
+        self.assertTrue(any("Testlink" in f for f in self.pruefen(d)))
+        d["modelle"][0]["tests"] = {"url": "https://example.org/test"}
+        self.assertTrue(any("tests" in f for f in self.pruefen(d)))
+        d["modelle"][0]["tests"] = [{"url": "https://example.org/test", "titel": "Test"}]
+        self.assertEqual(self.pruefen(d), [])
+
+    def test_bau_gibt_nur_url_und_titel_aus(self):
+        """F-01: Auch wenn eine Datei vorbei käme, schreibt der Bau nur url und titel."""
+        d = beispiel()
+        d["modelle"][0]["tests"] = [{"url": "https://example.org/test", "titel": "Test"}]
+        aus = datenbank.testlinks(d["modelle"][0])
+        self.assertEqual(aus, [{"url": "https://example.org/test", "titel": "Test"}])
+        d["modelle"][0]["tests"][0]["punkte"] = 90
+        self.assertEqual(datenbank.testlinks(d["modelle"][0]), [{"url": "https://example.org/test", "titel": "Test"}])
+
+    def test_preis_nur_freigegebene_shops(self):
+        """F-07: unbekannte Händler-Domain ist ein Fehler (Positivliste statt Sperrliste)."""
+        d = beispiel()
+        p = d["modelle"][0]["varianten"][0]["preis"]
+        p["url"] = "https://www.irgendein-shop.de/tv"
+        p["haendler"] = "Irgendein Shop"
+        self.assertTrue(any("nicht freigegeben" in f for f in self.pruefen(d)))
+        p["url"] = "https://preisvergleich.heise.de/x"   # Preisvergleich ist kein Shop
+        self.assertTrue(any("nicht freigegeben" in f for f in self.pruefen(d)))
+
+    def test_preis_haendlername_passt_zur_domain(self):
+        d = beispiel()
+        d["modelle"][0]["varianten"][0]["preis"]["haendler"] = "Saturn"   # URL ist Alternate
+        self.assertTrue(any("Händler" in f for f in self.pruefen(d)))
+
+    def test_herstellershop_nur_fuer_eigenen_hersteller(self):
+        d = beispiel()
+        p = d["modelle"][0]["varianten"][0]["preis"]
+        p["url"], p["haendler"] = "https://www.samsung.com/de/tv/x/", "Samsung Deutschland"
+        self.assertTrue(any("nicht freigegeben" in f for f in self.pruefen(d)))   # Hersteller „Test“
+        d["modelle"][0]["hersteller"] = "Samsung"
+        self.assertEqual(self.pruefen(d), [])
+        p["url"] = "https://shop.samsung.com.example.org/x"
+        self.assertTrue(any("nicht freigegeben" in f for f in self.pruefen(d)))
+
     def test_echte_daten_ohne_fehler(self):
         _, fehler, _ = datenbank.alle_pruefen()
         self.assertEqual(fehler, [])

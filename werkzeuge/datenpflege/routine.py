@@ -6,14 +6,18 @@ Aufruf (aus einem beliebigen Klon des Repos):
                                                                         frisch auf origin/main (bricht ab, wenn er Reste hat)
   python -I -X utf8 werkzeuge/datenpflege/routine.py pruefen [--pushen] (im Arbeitsbaum, nach dem Commit der Routine)
 
-`pruefen` verlangt, in dieser Reihenfolge:
-  1. sauberer Arbeitsbaum, HEAD baut auf origin/main auf (frisch geholt);
-  2. geändert sind nur daten/produkte/<kategorie>.json (kein Code, kein Schema, kein FORMAT.md);
+`pruefen` verlangt, in dieser Reihenfolge (F-03: alles bezogen auf den einmal festgehaltenen Commit, nicht auf HEAD):
+  1. sauberer Arbeitsbaum (auch ohne unversionierte Dateien), der Commit baut auf origin/main auf (frisch geholt),
+     keine Merge-Commits;
+  2. JEDER neue Commit (origin/main..Commit) ändert nur daten/produkte/<kategorie>.json (kein Code, kein Schema,
+     kein FORMAT.md) – auch Zwischenstände, die ein späterer Commit zurücknimmt, landen sonst in der öffentlichen Historie;
   3. keine Modell- oder Varianten-ID und keine Datei aus origin/main fehlt (nie automatisch löschen, D11);
   4. python -I werkzeuge/datenbank.py pruefen → 0 Fehler;
-  5. tests/alle-tests.ps1 → 0 Fehler.
-Nur wenn alles grün ist und --pushen gesetzt ist: git push origin HEAD:main (kein Erzwingen). finder-daten.yml bringt
-finder-daten.json danach live. Exit 0 = grün (und ggf. gepusht), 1 = Schranke rot, 2 = Aufruf/Umgebung.
+  5. tests/alle-tests.ps1 → 0 Fehler;
+  6. danach ist HEAD noch derselbe Commit und der Baum sauber.
+Nur wenn alles grün ist und --pushen gesetzt ist: git push origin <Commit>:refs/heads/main (genau der geprüfte Commit,
+kein Erzwingen). finder-daten.yml bringt finder-daten.json danach live. Exit 0 = grün (und ggf. gepusht), 1 = Schranke
+rot, 2 = Aufruf/Umgebung.
 """
 import json
 import re
@@ -92,40 +96,65 @@ def vorbereiten():
     return 0
 
 
-def pruefen(pushen):
-    wurzel = Path(git("rev-parse", "--show-toplevel").stdout.strip())
-    rot = []
-    git("fetch", "-q", "origin", "main", cwd=wurzel)
-    if git("status", "--porcelain", cwd=wurzel).stdout.strip():
-        rot.append("Arbeitsbaum nicht sauber (erst committen)")
-    if git("merge-base", "--is-ancestor", "origin/main", "HEAD", cwd=wurzel, pruefen=False).returncode != 0:
-        rot.append("HEAD baut nicht auf origin/main auf (vorbereiten neu ausführen)")
-    geaendert = git("diff", "--name-only", "--no-renames", "origin/main", "HEAD", cwd=wurzel).stdout.split()
-    if rot and not geaendert:   # Vorprüfung 10: schmutziger Baum ohne Commit ist rot, nicht „nichts zu tun“
-        return melden(rot)
-    if not geaendert:
-        print("Keine Änderung gegenüber origin/main – nichts zu prüfen oder zu pushen.")
-        return 0
-    rot += [f"nicht erlaubte Änderung: {p}" for p in fremde_pfade(geaendert)]
-    rot += geloescht(produktdateien("origin/main", wurzel), produktdateien("HEAD", wurzel))
-    if rot:
-        return melden(rot)
+def schranken_laufen(wurzel):
+    """Datenbank und Sammellauf im Arbeitsbaum; Rückgabe Liste roter Punkte (leer = grün)."""
     db = subprocess.run([sys.executable, "-I", "-X", "utf8", "werkzeuge/datenbank.py", "pruefen"], cwd=wurzel,
                         capture_output=True, text=True, encoding="utf-8")
     print((db.stdout.strip().splitlines() or ["(keine Ausgabe)"])[-1])
     if db.returncode != 0:
-        return melden([z for z in db.stdout.splitlines() if z.startswith("FEHLER")] or ["datenbank.py pruefen rot"])
+        return [z for z in db.stdout.splitlines() if z.startswith("FEHLER")] or ["datenbank.py pruefen rot"]
     t = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tests/alle-tests.ps1"],
                        cwd=wurzel, capture_output=True, text=True, encoding="utf-8", errors="replace")
     print((t.stdout.strip().splitlines() or ["(keine Ausgabe)"])[-1])
     if t.returncode != 0:
-        return melden([z for z in t.stdout.splitlines() if z.startswith("FEHLER")] or ["Tests rot"])
-    print(f"Schranke grün: {len(geaendert)} Datei(en) geändert, nichts gelöscht, Datenbank und Tests grün.")
+        return [z for z in t.stdout.splitlines() if z.startswith("FEHLER")] or ["Tests rot"]
+    return []
+
+
+def neue_commits_pruefen(basis, sha, cwd):
+    """F-03: Pfade jedes einzelnen neuen Commits; Merge-Commits sind nicht erlaubt."""
+    rot = [f"Merge-Commit {m[:12]} nicht erlaubt (nur einfache Datencommits)"
+           for m in git("rev-list", "--merges", f"{basis}..{sha}", cwd=cwd).stdout.split()]
+    for c in git("rev-list", "--reverse", f"{basis}..{sha}", cwd=cwd).stdout.split():
+        pfade = git("diff-tree", "--root", "--no-commit-id", "--name-only", "-r", "--no-renames", c, cwd=cwd).stdout.split()
+        rot += [f"nicht erlaubte Änderung in Commit {c[:12]}: {p}" for p in fremde_pfade(pfade)]
+    return rot
+
+
+def pruefen(pushen, wurzel=None, schranken=schranken_laufen):
+    wurzel = Path(wurzel or git("rev-parse", "--show-toplevel").stdout.strip())
+    rot = []
+    git("fetch", "-q", "origin", "main", cwd=wurzel)
+    sha = git("rev-parse", "HEAD", cwd=wurzel).stdout.strip()            # festhalten: geprüft und gepusht wird nur er
+    basis = git("rev-parse", "origin/main", cwd=wurzel).stdout.strip()
+    if git("status", "--porcelain", "--untracked-files=all", cwd=wurzel).stdout.strip():
+        rot.append("Arbeitsbaum nicht sauber (erst committen, keine unversionierten Dateien)")
+    if git("merge-base", "--is-ancestor", basis, sha, cwd=wurzel, pruefen=False).returncode != 0:
+        return melden(rot + ["HEAD baut nicht auf origin/main auf (vorbereiten neu ausführen)"])
+    geaendert = git("diff", "--name-only", "--no-renames", basis, sha, cwd=wurzel).stdout.split()
+    neu = git("rev-list", f"{basis}..{sha}", cwd=wurzel).stdout.split()
+    if rot and not neu:   # Vorprüfung 10: schmutziger Baum ohne Commit ist rot, nicht „nichts zu tun“
+        return melden(rot)
+    if not neu:
+        print("Keine Änderung gegenüber origin/main – nichts zu prüfen oder zu pushen.")
+        return 0
+    rot += neue_commits_pruefen(basis, sha, wurzel)
+    rot += geloescht(produktdateien(basis, wurzel), produktdateien(sha, wurzel))
+    if rot:
+        return melden(rot)
+    rot = schranken(wurzel)
+    if rot:
+        return melden(rot)
+    if (git("rev-parse", "HEAD", cwd=wurzel).stdout.strip() != sha
+            or git("status", "--porcelain", "--untracked-files=all", cwd=wurzel).stdout.strip()):
+        return melden(["HEAD oder Arbeitsbaum hat sich während der Prüfung geändert – nichts gepusht"])
+    print(f"Schranke grün: {len(neu)} Commit(s), {len(geaendert)} Datei(en) geändert, nichts gelöscht, Datenbank und Tests"
+          f" grün (Stand {sha[:12]}).")
     if pushen:
-        r = git("push", "origin", "HEAD:main", cwd=wurzel, pruefen=False)
+        r = git("push", "origin", f"{sha}:refs/heads/main", cwd=wurzel, pruefen=False)
         if r.returncode != 0:
             return melden(["Push abgelehnt (main hat sich bewegt?): " + r.stderr.strip()])
-        print("Gepusht auf main; finder-daten.yml veröffentlicht finder-daten.json.")
+        print(f"Gepusht auf main ({sha[:12]}); finder-daten.yml veröffentlicht finder-daten.json.")
     return 0
 
 

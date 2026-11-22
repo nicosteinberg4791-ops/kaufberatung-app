@@ -10,6 +10,8 @@ const LAUFZEIT = "kb-laufzeit";
 const DATEN = "kb-daten";            // preise.json, finder-*.json, Wunschpreise (Spiegel aus der Seite), gemeldete Treffer
 const DATEIEN = __DATEIEN__;
 const SCHRIFT = ["https://fonts.googleapis.com", "https://fonts.gstatic.com"];
+// Dieselbe Strukturprüfung wie die Seite (F-08): eine beschädigte finder-daten.json ersetzt die Cachekopie nicht
+importScripts("bewertung.js?v=" + VERSION);
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(APP).then(c => c.addAll(DATEIEN.map(d => new Request(d, { cache: "reload" })))));
@@ -36,9 +38,11 @@ const NETZ = {
     const eintraege = istObjekt(j) && istObjekt(j.preise) ? Object.values(j.preise) : [];
     return eintraege.length > 0 && eintraege.every(p => istObjekt(p) && p.aktuell && zahlOk(p.aktuell.gesamt));
   },
-  // Grobprüfung; die Seite prüft jeden Eintrag selbst (bewertung.js datenPruefen)
-  "finder-daten.json": j => istObjekt(j) && Array.isArray(j.kategorien) && j.kategorien.length > 0 &&
-    j.kategorien.every(k => istObjekt(k) && typeof k.id === "string" && Array.isArray(k.modelle)),
+  // Volle Strukturprüfung der Seite (bewertung.js datenPruefen, an einer Kopie); wirft = ungültig
+  "finder-daten.json": j => {
+    if (!istObjekt(j) || !Array.isArray(j.kategorien) || j.kategorien.length === 0) return false;
+    try { self.KBBewertung.datenPruefen(JSON.parse(JSON.stringify(j))); return true; } catch (err) { return false; }
+  },
   "finder-preise.json": j => istObjekt(j) && istObjekt(j.preise)
 };
 

@@ -440,6 +440,7 @@ test("Service Worker: Treffer bleiben einzeln stehen, nur Tests ersetzen einande
     },
     caches: {}, fetch: async () => { throw new Error("kein Netz"); }, console, URL, Response: class {},
   };
+  kontext.importScripts = () => {};   // bewertung.js (F-08) braucht dieser Test nicht
   vm.createContext(kontext);
   vm.runInContext(quelle, kontext);
   const pushe = async (daten) => {

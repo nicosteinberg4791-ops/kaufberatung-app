@@ -448,21 +448,23 @@
     return h("p", { class: "auswahl" }, [teile.length ? "Deine Angaben: " + teile.join(", ") : "Ohne Angaben zu deiner Nutzung bewertet."]);
   }
 
-  function notenSkala(e, klassen, kappung) {
-    const n = Math.max(0, Math.min(100, e.note));
+  /* Prozentwert für style: nur endliche Zahlen, auf 0..100 begrenzt (F-09; datenPruefen prüft die Regeln vorher). */
+  function prozent(x) { const z = typeof x === "number" && isFinite(x) ? x : 0; return Math.max(0, Math.min(100, z)); }
+  function notenSkala(e, klassen, kappungRoh) {
+    const n = prozent(e.note), kappung = prozent(kappungRoh);
     const stufen = klassen.slice().sort((a, b) => a.ab - b.ab);
     const spanne = e.spanne ? [Math.max(0, n - e.spanne), Math.min(100, n + e.spanne)] : null;
     const beschr = "Note " + Math.round(n) + " von 100, Klasse " + e.klasse + (spanne ? ", Spanne etwa " + Math.round(spanne[0]) + " bis " + Math.round(spanne[1]) : "");
     const bahn = h("div", { class: "skala-bahn" });
     stufen.forEach((k, i) => {
-      const bis = i + 1 < stufen.length ? stufen[i + 1].ab : 100;
-      bahn.appendChild(h("span", { class: "skala-stufe" + (k.name === e.klasse ? " an" : ""), style: "left:" + k.ab + "%;width:" + (bis - k.ab) + "%" }));
+      const von = prozent(k.ab), bis = i + 1 < stufen.length ? prozent(stufen[i + 1].ab) : 100;
+      bahn.appendChild(h("span", { class: "skala-stufe" + (k.name === e.klasse ? " an" : ""), style: "left:" + von + "%;width:" + Math.max(0, bis - von) + "%" }));
     });
     if (e.art === "datenblatt" && kappung < 100) bahn.appendChild(h("span", { class: "skala-test", style: "left:" + kappung + "%;width:" + (100 - kappung) + "%" }));
     if (spanne) bahn.appendChild(h("span", { class: "skala-spanne", style: "left:" + spanne[0] + "%;width:" + (spanne[1] - spanne[0]) + "%" }));
     bahn.appendChild(h("span", { class: "skala-punkt", style: "left:" + n + "%" }));
     const marken = h("div", { class: "skala-marken", "aria-hidden": "true" },
-      stufen.filter(k => k.ab > 0).map(k => h("span", { style: "left:" + k.ab + "%", text: String(k.ab) })));
+      stufen.filter(k => prozent(k.ab) > 0).map(k => h("span", { style: "left:" + prozent(k.ab) + "%", text: String(prozent(k.ab)) })));
     return h("div", { class: "skala", role: "img", "aria-label": beschr }, [bahn, marken,
       e.art === "datenblatt" ? h("p", { class: "skala-hinweis", "aria-hidden": "true" }, ["Ab " + kappung + " nur mit unabhängigem Test"]) : null]);
   }
@@ -484,6 +486,10 @@
     if (r.status === "ueber_budget") {
       kopfText = "Im Budget passt nichts";
       warnung = "Das beste passende Modell kostet " + eur(e.preis) + ", also " + eur(Math.round(e.preis - zustand.b)) + " mehr als geplant.";
+    } else if (r.status === "ohne_note") {
+      kopfText = zustand.b ? "Im Budget bis " + eur(zustand.b) + ": Modell ohne Note" : "Passendes Modell ohne Note";
+      warnung = "Für eine Note fehlen Datenblattwerte. Das Modell erfüllt deine Angaben" + (e.unbelegt.length ? " soweit belegt" : "")
+        + ", ist aber nicht mit anderen vergleichbar bewertet. Prüfe es vor dem Kauf.";
     } else if (r.status === "unbelegt") {
       warnung = "Nicht im Datenblatt belegt: " + e.unbelegt.map(u => (felder[u.feld] || { name: u.feld }).name).join(", ") + ". Prüfe das vor dem Kauf.";
     }
@@ -491,18 +497,18 @@
     const angebot = m.preis ? link(m.preis.url, "Zum Angebot", "knopf haupt") : null;
     if (angebot) angebot.setAttribute("aria-label", "Zum Angebot: " + modellName(m) + " bei " + m.preis.haendler + " (öffnet neues Fenster)");
     return h("article", { class: "karte empfehlung", "aria-labelledby": "empf-name" }, [
-      h("p", { class: "karte-kopf" + (r.status === "ueber_budget" ? " warn" : "") }, [kopfText]),
+      h("p", { class: "karte-kopf" + (r.status === "ueber_budget" || r.status === "ohne_note" ? " warn" : "") }, [kopfText]),
       h("p", { class: "hersteller", text: m.hersteller }),
       h("h2", { id: "empf-name", class: "modell" }, [m.name]),
       m.variante ? h("p", { class: "variante", text: m.variante }) : null,
-      h("div", { class: "note-zeile" }, [
+      e.note === null ? h("p", { class: "note-zeile marke" }, ["Keine Note: zu wenig Daten"]) : h("div", { class: "note-zeile" }, [
         h("p", { class: "note-zahl" }, [h("span", { class: "zahl", text: note(e.note) }), h("span", { class: "von" }, [" von 100"])]),
         h("div", { class: "note-text" }, [
           h("p", { class: "klasse", text: e.klasse }),
           h("p", { class: "marke" }, [e.art === "getestet" ? "getestet" : "aus Datenblatt"]),
         ]),
       ]),
-      notenSkala(e, daten.regeln.klassen, daten.regeln.datenblatt_abschlag.kappung),
+      e.note === null ? null : notenSkala(e, daten.regeln.klassen, daten.regeln.datenblatt_abschlag.kappung),
       warnung ? h("p", { class: "warnung" }, [warnung]) : null,
       staerken.length ? h("div", { class: "staerken" }, [h("h3", null, ["Stärken laut Datenblatt"]), h("ul", null, staerken)]) : null,
       h("div", { class: "kauf" }, [preisBlock(e, true), angebot]),

@@ -197,3 +197,25 @@ test("Fremde Texte bleiben Text; nur https-Links; aktuelle Preise überlagern", 
   assert.equal(alle(app.dok.body).some(e => e.tagName === "A" && /^javascript:/i.test(e.getAttribute("href") || "")), false);
   assert.ok(t.includes("77 €"), "überlagerter Preis in der Rangliste");
 });
+
+// ---------- Codex r1 (Finder-Veröffentlichung) ----------
+test("F-08/F-09: beschädigte Felder oder Klassengrenzen zeigen die Fehlermeldung statt abzubrechen", async () => {
+  const d1 = JSON.parse(BEISPIEL); d1.kategorien[0].felder.push(null);
+  const a = await starte("#k=fernseher&s=ergebnis", JSON.stringify(d1));
+  assert.ok(text(a.dok.body).includes("beschädigt"));
+  const d2 = JSON.parse(BEISPIEL); d2.regeln.klassen[0].ab = "0;background:red";
+  const b = await starte("#k=fernseher&s=ergebnis", JSON.stringify(d2));
+  assert.ok(text(b.dok.body).includes("beschädigt"));
+  assert.equal(alle(b.dok.body).some(e => /background/.test(e.getAttribute("style") || "")), false);
+});
+
+test("F-10: Modell im Budget ohne Note wird als solches gezeigt, nicht „Im Budget passt nichts“", async () => {
+  const d = JSON.parse(BEISPIEL);
+  const af = d.kategorien.find(k => k.id === "airfryer");
+  af.modelle[0].teilpunkte = {}; af.modelle[0].preis.eur = 10;
+  const app = await starte("#k=airfryer&s=ergebnis&b=20", JSON.stringify(d));
+  const t = text(app.dok.body);
+  assert.equal(t.includes("Im Budget passt nichts"), false);
+  assert.ok(t.includes("Modell ohne Note"), t.slice(0, 400));
+  assert.ok(t.includes("Keine Note: zu wenig Daten"));
+});

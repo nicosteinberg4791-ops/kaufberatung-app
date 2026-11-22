@@ -5,7 +5,8 @@
    Festlegungen, die das Schema offen lässt (siehe Kopf der jeweiligen Funktion):
    - Klasse wird aus der gerundeten, angezeigten Note bestimmt (sonst „75 Punkte – gut“ auf dem Bildschirm).
    - Modell A (Empfehlung) muss alle Anforderungen belegt erfüllen; gibt es keins, zählt das beste im Budget mit
-     „nicht belegt“-Markierung (Status "unbelegt"); passt nichts ins Budget, das beste über Budget ("ueber_budget").
+     „nicht belegt“-Markierung (Status "unbelegt"); dann ein passendes Modell im Budget ohne Note ("ohne_note");
+     passt nichts ins Budget, das beste über Budget ("ueber_budget").
    - B (Aufpreis) und C (Spar) müssen alle Anforderungen belegt erfüllen, eine Note und einen Preis haben.
    - Schwellen werden mit ungerundeten Werten und einer Toleranz von 1e-9 geprüft (Gleitkomma bei Cent-Preisen). */
 (function (wurzel, fabrik) {
@@ -269,12 +270,18 @@
     let A = mitNote.find(x => x.imBudget === true && voll(x)) || null;
     let status = A ? "passt" : null;
     if (!A) { A = mitNote.find(x => x.imBudget === true) || null; if (A) status = "unbelegt"; }
+    if (!A) {
+      // F-10: Passt ein Modell ins Budget, hat aber (zu wenig Daten) keine Note, wird es gezeigt statt „passt nichts“
+      const ohneNote = nachNote.filter(x => x.note === null && x.imBudget === true);
+      A = ohneNote.find(voll) || ohneNote[0] || null;
+      if (A) status = "ohne_note";
+    }
     if (!A && budget !== null) {
       A = mitNote.find(x => voll(x) && x.preis !== null) || mitNote.find(x => x.preis !== null) || null;
       if (A) status = "ueber_budget";
     }
     let aufpreis = null, spar = null;
-    if (A && status !== "ueber_budget") {
+    if (A && (status === "passt" || status === "unbelegt")) {
       const kand = mitNote.filter(x => voll(x) && x.preis !== null && x !== A);
       aufpreis = aufpreisHinweis(A, kand, budget, regeln);
       spar = sparHinweis(A, kand, regeln);
@@ -351,19 +358,67 @@
     return n;
   }
 
-  /* Grobe Strukturprüfung der App-Daten (fremde Datei): wirft bei unbrauchbarem Format. */
+  /* Strukturprüfung der App-Daten (fremde Datei, F-08/F-09). Wirft bei allem, was Navigation, Bewertung oder Anzeige
+     braucht (Regeln, Kategorien, Felder, Fragen); der Service Worker nutzt dieselbe Prüfung, bevor er die Cachekopie
+     ersetzt, damit eine beschädigte Datei den letzten brauchbaren Stand nicht verdrängt. Einzelne kaputte Modelle,
+     Preise und Teilpunkte werden still entfernt. Testlinks nur mit url und titel (F-01: keine übernommenen Noten). */
+  const KENNUNG = /^[a-z0-9_]+(?:-[a-z0-9_]+)*$/;
+  const zahlIn = (x, lo, hi) => istZahl(x) && x >= lo && x <= hi;
+  const istText = (x, max) => typeof x === "string" && x.length <= (max || 500);
+  const istName = (x, max) => istText(x, max) && x.trim() !== "";
+  function pruefOderWirf(ok, was) { if (!ok) throw new Error(was); }
+  function regelnPruefen(r) {
+    pruefOderWirf(istObjekt(r), "regeln");
+    pruefOderWirf(Array.isArray(r.klassen) && r.klassen.length > 0
+      && r.klassen.every(k => istObjekt(k) && zahlIn(k.ab, 0, 100) && istName(k.name, 40)), "klassen");
+    const db = r.datenblatt_abschlag;
+    pruefOderWirf(istObjekt(db) && ["anker", "abzug", "kappung", "spanne_plus_minus"].every(n => zahlIn(db[n], 0, 100))
+      && zahlIn(db.faktor, 0, 2) && zahlIn(db.abdeckung_mindest, 0, 1), "datenblatt_abschlag");
+    if (db.getestet !== undefined) {
+      const m = istObjekt(db.getestet) ? db.getestet.mischung : null;
+      pruefOderWirf(istObjekt(m) && zahlIn(m.test, 0, 1) && zahlIn(m.datenblatt_roh, 0, 1), "getestet");
+    }
+    const a = r.aufpreis_regeln;
+    pruefOderWirf(istObjekt(a) && istObjekt(a.aufpreis) && istObjekt(a.spar), "aufpreis_regeln");
+    pruefOderWirf(["budget_faktor_max", "aufpreis_min_eur", "punkte_min", "punkte_min_datenblatt", "effizienz_min_je_100eur",
+      "effizienz_min_klassensprung"].every(n => zahlIn(a.aufpreis[n], 0, 100000)) && istText(a.aufpreis.text) && istText(a.aufpreis.klasse_text), "aufpreis");
+    pruefOderWirf(["ersparnis_min_eur", "ersparnis_min_anteil", "verlust_max_gleich", "verlust_max_schwaecher",
+      "ersparnis_anteil_schwaecher"].every(n => zahlIn(a.spar[n], 0, 100000)) && istText(a.spar.text_gleich) && istText(a.spar.text_schwaecher), "spar");
+  }
+  function feldPruefen(f) {
+    pruefOderWirf(istObjekt(f) && typeof f.id === "string" && KENNUNG.test(f.id) && istName(f.name, 80)
+      && ["zahl", "bool", "stufe"].indexOf(f.typ) >= 0 && zahlIn(f.gewicht, 0, 1000)
+      && (f.einheit === undefined || f.einheit === null || istText(f.einheit, 20)), "feld");
+    if (f.einheit === undefined || f.einheit === null) f.einheit = "";
+  }
+  function fragePruefen(f) {
+    pruefOderWirf(istObjekt(f) && typeof f.id === "string" && KENNUNG.test(f.id) && istText(f.text)
+      && Array.isArray(f.antworten) && f.antworten.length > 0, "frage");
+    for (const a of f.antworten) {
+      pruefOderWirf(istObjekt(a) && typeof a.id === "string" && KENNUNG.test(a.id) && istText(a.text), "antwort");
+      for (const n of ["gewichte", "mindest", "hoechst"]) pruefOderWirf(a[n] === undefined || istObjekt(a[n]), "antwort." + n);
+      if (a.gewichte) pruefOderWirf(Object.values(a.gewichte).every(g => zahlIn(g, 0, 100)), "antwort.gewichte");
+    }
+  }
   function datenPruefen(d) {
-    if (!istObjekt(d) || !Array.isArray(d.kategorien) || !istObjekt(d.regeln)) throw new Error("format");
-    const r = d.regeln;
-    if (!Array.isArray(r.klassen) || !istObjekt(r.datenblatt_abschlag) || !istObjekt(r.aufpreis_regeln)) throw new Error("regeln");
+    pruefOderWirf(istObjekt(d) && Array.isArray(d.kategorien) && istObjekt(d.regeln), "format");
+    regelnPruefen(d.regeln);
     for (const k of d.kategorien) {
-      if (!istObjekt(k) || typeof k.id !== "string" || !Array.isArray(k.felder) || !Array.isArray(k.modelle)) throw new Error("kategorie");
-      k.fragen = Array.isArray(k.fragen) ? k.fragen : [];
-      k.modelle = k.modelle.filter(m => istObjekt(m) && typeof m.id === "string" && istObjekt(m.werte || {}) && istObjekt(m.teilpunkte || {}));
+      pruefOderWirf(istObjekt(k) && typeof k.id === "string" && KENNUNG.test(k.id) && istName(k.name, 80)
+        && Array.isArray(k.felder) && Array.isArray(k.modelle), "kategorie");
+      k.felder.forEach(feldPruefen);
+      k.fragen = k.fragen === undefined ? [] : k.fragen;
+      pruefOderWirf(Array.isArray(k.fragen), "fragen");
+      k.fragen.forEach(fragePruefen);
+      k.modelle = k.modelle.filter(m => istObjekt(m) && typeof m.id === "string" && m.id !== "" && istName(m.hersteller, 80)
+        && istName(m.name, 200) && (m.variante === undefined || m.variante === null || istText(m.variante, 200))
+        && (m.werte === undefined || istObjekt(m.werte)) && (m.teilpunkte === undefined || istObjekt(m.teilpunkte)));
       for (const m of k.modelle) {
-        m.werte = m.werte || {}; m.teilpunkte = m.teilpunkte || {};
+        m.werte = m.werte || {};
+        m.teilpunkte = Object.fromEntries(Object.entries(m.teilpunkte || {}).filter(([, t]) => zahlIn(t, 0, 100)));
         if (m.preis !== null && m.preis !== undefined && !preisOk(m.preis)) m.preis = null;
-        m.tests = Array.isArray(m.tests) ? m.tests : [];
+        m.tests = (Array.isArray(m.tests) ? m.tests : []).filter(t => istObjekt(t) && sichereUrl(t.url) && istName(t.titel, 200))
+          .map(t => ({ url: sichereUrl(t.url), titel: t.titel }));
       }
     }
     return d;

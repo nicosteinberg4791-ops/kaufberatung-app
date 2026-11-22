@@ -66,6 +66,50 @@ class Abgleich(unittest.TestCase):
         self.assertEqual(set(it[0]), {"name", "url", "gtin"})
 
 
+class AbgleichSchreibweisen(unittest.TestCase):
+    """Zusatzprüfung 22.11.: Shoptitel mit Ordinalzahl, deutschem Gattungswort, TM und MPN ohne Länderendung
+    (Namen erfunden, Aufbau wie die verpassten Treffer der Entdeckung vom 22.11.2026)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        d = {"kategorie": "kopfhoerer_overear", "stand": "2026-11-21", "quellen": {}, "modelle": [
+            {"id": "acme-pods-pro-3", "hersteller": "Acme", "name": "Pods Pro 3", "varianten": [{"id": "a1", "name": "x"}]},
+            {"id": "acme-qc-hp", "hersteller": "Acme", "name": "QuietSound Headphones", "varianten": [{"id": "a2", "name": "x"}]},
+            {"id": "acme-qc-ultra-hp-2", "hersteller": "Acme", "name": "QuietSound Ultra Headphones (2. Gen.)",
+             "varianten": [{"id": "a3", "name": "x"}]},
+            {"id": "acme-v9", "hersteller": "Acme", "name": "V9 Detect Slim", "varianten": [{"id": "a4", "name": "x"}]},
+            {"id": "acme-bar", "hersteller": "Acme", "name": "Q-Serie HW-Q900XY", "varianten": [{"id": "a5", "name": "x", "mpn": "HW-Q900XY/ZG"}]},
+            {"id": "acme-fry", "hersteller": "Acme", "name": "Tower CAF-DC100S-DEUR", "varianten": [{"id": "a6", "name": "x", "mpn": "CAF-DC100S-DEUR"}]},
+            {"id": "acme-na35", "hersteller": "Acme", "name": "Fryer 3000 Serie NA351", "varianten": [{"id": "a7", "name": "x", "mpn": "NA351/00"}]},
+        ]}
+        (Path(self.tmp.name) / "kopfhoerer_overear.json").write_text(json.dumps(d), encoding="utf-8")
+        self.idx = en.bestand_index(self.tmp.name)["kopfhoerer_overear"]
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def z(self, name):
+        return en.zuordnen({"name": name}, self.idx)
+
+    def test_ordinalzahl(self):
+        self.assertEqual(self.z("ACME Pods Pro (3rd generation), In-ear Weiß"), "acme-pods-pro-3")
+        self.assertIsNone(self.z("ACME Pods Pro (2nd generation)"))
+
+    def test_kopfhoerer_heisst_headphones_und_spezifisch_gewinnt(self):
+        self.assertEqual(self.z("ACME QuietSound Ultra Kopfhörer (2. Gen.) – kabellos"), "acme-qc-ultra-hp-2")
+        self.assertEqual(self.z("ACME QuietSound Kopfhörer Schwarz"), "acme-qc-hp")
+
+    def test_tm_am_wort(self):
+        self.assertEqual(self.z("ACME V9 DetectTM Slim kabellos"), "acme-v9")
+
+    def test_mpn_ohne_laenderendung_und_ohne_fuellwort(self):
+        self.assertEqual(self.z("ACME HW-Q900XY 11.1.4-Kanal Soundbar"), "acme-bar")
+        self.assertEqual(self.z("ACME CAF-DC100S-DDER Tower"), "acme-fry")
+        self.assertEqual(self.z("ACME NA351/00 Fryer 3000 Series"), "acme-na35")
+        self.assertIsNone(self.z("ACME NA3510 Fryer"), "kein Treffer mitten in einer Zahl")
+        self.assertIsNone(self.z("ACME HW-Q910XY Soundbar"))
+
+
 class Lauf(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -126,6 +170,46 @@ class Lauf(unittest.TestCase):
         self.laufen(jetzt=JETZT + dt.timedelta(minutes=40))
         self.assertEqual(len(self.abrufe), 3, "nach Sperre ist ein späterer Lauf erlaubt")
 
+    def test_sperre_auch_ohne_itemlist(self):
+        """F-05: Seite ohne verwertbare ItemList reserviert die Woche trotzdem."""
+        def leer(url):
+            self.abrufe.append(url)
+            return "<html>keine Liste</html>"
+        erg, _ = self.laufen(holen=leer)
+        self.assertEqual(len(self.abrufe), 1)
+        self.assertIn("versucht", erg["kategorien"]["fernseher"])
+        self.laufen(holen=leer, jetzt=JETZT + dt.timedelta(hours=1))
+        self.assertEqual(len(self.abrufe), 1, "kein zweiter Abruf innerhalb von 6 Tagen")
+        self.laufen(jetzt=JETZT + dt.timedelta(days=7))
+        self.assertEqual(len(self.abrufe), 4)
+
+    def test_sperre_auch_bei_abbruch_im_abruf(self):
+        def bricht(url):
+            self.abrufe.append(url)
+            raise SystemExit(6)
+        self.laufen(holen=bricht)
+        self.laufen(holen=bricht, jetzt=JETZT + dt.timedelta(days=1))
+        self.assertEqual(len(self.abrufe), 1)
+
+    def test_paralleler_lauf_ruft_nichts_ab(self):
+        """F-05: läuft schon ein Lauf (Sperrdatei), endet ein zweiter sofort mit Exit 4."""
+        self.ziel.parent.mkdir(parents=True, exist_ok=True)
+        sperre = Path(str(self.ziel) + ".lock")
+        sperre.write_text("", encoding="utf-8")
+        _, code = self.laufen()
+        self.assertEqual((code, self.abrufe), (4, []))
+        self.assertTrue(sperre.exists(), "fremde Sperre bleibt")
+        import os
+        alt = sperre.stat().st_mtime - en.LAUFSPERRE_MAX_S - 10
+        os.utime(sperre, (alt, alt))
+        _, code = self.laufen()
+        self.assertEqual(code, 0, "verwaiste Sperre wird übernommen")
+        self.assertFalse(sperre.exists(), "eigene Sperre wird freigegeben")
+
+    def test_unlesbarer_zeitstempel_sperrt(self):
+        self.assertTrue(en.zu_frueh({"kategorien": {"fernseher": {"versucht": "gestern"}}}, "fernseher", JETZT))
+        self.assertFalse(en.zu_frueh({"kategorien": {}}, "fernseher", JETZT))
+
     def test_cli_grenzen(self):
         with unittest.mock.patch("builtins.print"):
             self.assertEqual(en.main(["--seiten", "4"]), 2)
@@ -164,6 +248,87 @@ class Schranke(unittest.TestCase):
         for p in ["daten/produkte/FORMAT.md", "daten/schema/kategorien.json", "werkzeuge/datenbank.py",
                   ".github/workflows/finder-daten.yml", "daten/produkte/../quellen.json"]:
             self.assertEqual(routine.fremde_pfade([p]), [p], p)
+
+
+class RoutineGit(unittest.TestCase):
+    """F-03: echte Git-Repos (temporär): jeder neue Commit zählt, gepusht wird genau der geprüfte Commit."""
+
+    def setUp(self):
+        import os
+        import subprocess
+        self.sp = subprocess
+        # Im Pre-Commit-Hook setzt Git GIT_INDEX_FILE u. a.: ohne Bereinigung schrieben die Wegwerf-Repos in den
+        # Index des echten Arbeitsbaums. Für die Testdauer alle GIT_*-Variablen entfernen (auch für routine.git).
+        sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
+        self.umgebung = unittest.mock.patch.dict(os.environ, sauber, clear=True)
+        self.umgebung.start()
+        self.addCleanup(self.umgebung.stop)
+        self.tmp = tempfile.TemporaryDirectory()
+        t = Path(self.tmp.name)
+        self.origin, self.klon = t / "origin.git", t / "klon"
+        self.g("init", "-q", "--bare", "-b", "main", str(self.origin), cwd=t)
+        self.g("clone", "-q", str(self.origin), str(self.klon), cwd=t)
+        for k, v in (("user.name", "Test"), ("user.email", "test@example.invalid"), ("core.autocrlf", "false")):
+            self.g("config", k, v)
+        self.schreibe("daten/produkte/fernseher.json", json.dumps({"modelle": [{"id": "m1", "varianten": [{"id": "v1"}]}]}))
+        self.schreibe("werkzeuge/x.py", "x = 1")
+        self.commit("Start")
+        self.g("push", "-q", "origin", "HEAD:main")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def g(self, *a, cwd=None):
+        r = self.sp.run(["git", *a], cwd=cwd or self.klon, capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return r.stdout.strip()
+
+    def schreibe(self, pfad, text):
+        p = self.klon / pfad
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(text.encode("utf-8"))
+
+    def commit(self, msg):
+        self.g("add", "-A")
+        self.g("commit", "-q", "-m", msg)
+        return self.g("rev-parse", "HEAD")
+
+    def pruefen(self, schranken=lambda w: []):
+        with unittest.mock.patch("builtins.print"):
+            return routine.pruefen(True, wurzel=self.klon, schranken=schranken)
+
+    def main_auf_origin(self):
+        return self.g("rev-parse", "main", cwd=self.origin)
+
+    def test_zwischencommit_mit_fremder_datei_ist_rot(self):
+        self.schreibe("geheim.txt", "nicht veroeffentlichen")
+        self.commit("fremd")
+        (self.klon / "geheim.txt").unlink()
+        self.schreibe("daten/produkte/fernseher.json", json.dumps({"modelle": [{"id": "m1", "varianten": [{"id": "v1"}]}, {"id": "m2"}]}))
+        self.commit("zurück und Daten")
+        vorher = self.main_auf_origin()
+        self.assertEqual(self.pruefen(), 1)
+        self.assertEqual(self.main_auf_origin(), vorher, "nichts gepusht")
+
+    def test_gepusht_wird_der_gepruefte_commit(self):
+        self.schreibe("daten/produkte/fernseher.json", json.dumps({"modelle": [{"id": "m1", "varianten": [{"id": "v1"}]}, {"id": "m2"}]}))
+        sha = self.commit("Daten")
+
+        def schranken_mit_parallelem_commit(w):
+            self.schreibe("werkzeuge/x.py", "x = 2")
+            self.commit("parallel")
+            return []
+        self.assertEqual(self.pruefen(schranken_mit_parallelem_commit), 1, "HEAD hat sich bewegt")
+        self.assertNotEqual(self.main_auf_origin(), sha)
+        self.g("reset", "-q", "--hard", sha)
+        self.assertEqual(self.pruefen(), 0)
+        self.assertEqual(self.main_auf_origin(), sha)
+
+    def test_unversionierte_datei_ist_rot(self):
+        self.schreibe("daten/produkte/fernseher.json", json.dumps({"modelle": [{"id": "m1", "varianten": [{"id": "v1"}]}, {"id": "m2"}]}))
+        self.commit("Daten")
+        self.schreibe("notiz.txt", "x")
+        self.assertEqual(self.pruefen(), 1)
 
 
 if __name__ == "__main__":

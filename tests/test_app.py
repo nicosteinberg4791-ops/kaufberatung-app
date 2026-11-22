@@ -162,6 +162,43 @@ class Bau(unittest.TestCase):
             (self.dist / d).unlink()
 
 
+class Version(unittest.TestCase):
+    def test_vorlagen_aendern_die_version(self):
+        """F-12: eine Änderung nur an KOPF, FUSS oder FINDER_KOPF ergibt eine neue Service-Worker-Version."""
+        v0 = app_bauen.versionshash("x", b"{}")
+        self.assertEqual(v0, app_bauen.versionshash("x", b"{}"))
+        for name in ("KOPF", "FUSS", "FINDER_KOPF"):
+            with mock.patch.object(app_bauen, name, getattr(app_bauen, name) + "<!-- neu -->"):
+                self.assertNotEqual(app_bauen.versionshash("x", b"{}"), v0, name)
+
+
+class Veroeffentlichen(unittest.TestCase):
+    """F-11: Veröffentlichung nur vom geprüften, sauberen Stand; neuere Online-Daten bleiben."""
+    def setUp(self):
+        sys.path.insert(0, str(WURZEL / "werkzeuge"))
+        import veroeffentlichen
+        self.v = veroeffentlichen
+
+    def test_stand_bindung(self):
+        h = "0680c2c" + "a" * 33
+        self.assertEqual(self.v.stand_fehler("0680c2c", h, True, True), [])
+        self.assertTrue(self.v.stand_fehler(None, h, True, True))
+        self.assertTrue(self.v.stand_fehler("1111111", h, True, True))
+        self.assertTrue(self.v.stand_fehler("0680", h, True, True))          # zu kurz
+        self.assertTrue(self.v.stand_fehler("0680c2c", h, False, True))      # schmutziger Baum
+        self.assertTrue(self.v.stand_fehler("0680c2c", h, True, False))      # origin/main fehlt
+
+    def test_daten_nie_aelter(self):
+        self.assertTrue(self.v.daten_aelter('{"stand": "2026-11-23"}', '{"stand": "2026-11-21"}'))
+        self.assertFalse(self.v.daten_aelter('{"stand": "2026-11-21"}', '{"stand": "2026-11-21"}'))
+        self.assertFalse(self.v.daten_aelter("kaputt", '{"stand": "2026-11-21"}'))
+
+    def test_ohne_stand_kein_push(self):
+        with mock.patch.object(self.v, "stand_lesen", return_value=("a" * 40, True, True)),              mock.patch.object(self.v, "arbeitsbaum") as ab, mock.patch.object(self.v.app_bauen, "baue") as bau:
+            self.assertEqual(self.v.main([]), 1)
+            ab.assert_not_called(); bau.assert_not_called()
+
+
 class Rahmen(unittest.TestCase):
     def test_fragment_bleibt(self):
         f = (WURZEL / "quelle" / "kaufberatung.html").read_text(encoding="utf-8")

@@ -112,6 +112,18 @@ def finder_seite(v):
     return s
 
 
+def versionshash(fragment, daten):
+    """Version = Prüfsumme über Inhalt, Daten, Hülle und die HTML-Vorlagen dieses Skripts (F-12): jede Änderung am
+    ausgelieferten HTML erzeugt einen neuen Service Worker."""
+    h = hashlib.sha256(fragment.encode("utf-8"))
+    h.update(daten)
+    for vorlage in (KOPF, FUSS, FINDER_ANKER, FINDER_KOPF):
+        h.update(b"|" + vorlage.encode("utf-8"))
+    for d in STATISCH + ["sw.js", "finder/index.html"] + ["finder/" + x for x in FINDER]:
+        h.update((APP / d).read_bytes())
+    return h.hexdigest()[:12]
+
+
 def baue():
     f = (QUELLE / "kaufberatung.html").read_text(encoding="utf-8")
     pruefe_fragment(f)
@@ -129,12 +141,7 @@ def baue():
     # Produktdaten zuerst: ein Fehler im Datenbestand bricht den Bau ab, bevor eine Seite entsteht
     _, fehler, _ = datenbank.bauen(DIST / "finder-daten.json")
     assert not fehler, f"Produktdaten: {len(fehler)} Fehler (python -I werkzeuge/datenbank.py pruefen)"
-    # Version = Prüfsumme über Inhalt, Daten und Hülle: jede Änderung erzeugt einen neuen Service Worker
-    h = hashlib.sha256(f.encode("utf-8"))
-    h.update((DIST / "finder-daten.json").read_bytes())
-    for d in STATISCH + ["sw.js", "finder/index.html"] + ["finder/" + x for x in FINDER]:
-        h.update((APP / d).read_bytes())
-    v = h.hexdigest()[:12]
+    v = versionshash(f, (DIST / "finder-daten.json").read_bytes())
     for d in STATISCH:
         shutil.copyfile(APP / d, DIST / d)
     for d in FINDER:

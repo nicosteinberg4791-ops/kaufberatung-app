@@ -23,6 +23,15 @@ QUELLENFREIGABE = WURZEL / "daten" / "quellen.json"
 MODELL_SCHLUESSEL = {"id", "hersteller", "name", "jahr", "werte", "belege", "tests", "varianten"}
 VARIANTE_SCHLUESSEL = {"id", "name", "mpn", "ean", "werte", "belege", "preis"}
 PREIS_SCHLUESSEL = {"eur", "haendler", "url", "stand"}
+TEST_SCHLUESSEL = {"url", "titel"}   # F-01: Testberichte nur als Link, keine übernommenen Noten oder Texte
+# F-07: Positivliste der Preisquellen. Shops: Domain muss in daten/quellen.json mit automatisch: true stehen (Händlername
+# = Name dort). Herstellershops: nur für Modelle genau dieses Herstellers. Neue Einträge nur hier im Code (Prüfung nötig);
+# die Datenpflege-Routine darf nur daten/produkte/*.json ändern und kann die Liste nicht erweitern.
+PREIS_SHOPS = ("www.saturn.de", "www.alternate.de", "www.proshop.de")
+HERSTELLERSHOPS = {
+    "samsung": {"www.samsung.com"}, "lg": {"www.lg.com"}, "ecovacs": {"www.ecovacs.com"}, "sonos": {"www.sonos.com"},
+    "bosch": {"www.bosch-home.com"}, "shark": {"www.sharkninja.de"}, "ninja": {"www.sharkninja.de"}, "bose": {"www.bose.de"},
+}
 PERSOENLICH = [re.compile(p, re.I) for p in (r"[\w.+-]+@[\w-]+\.[\w.]+", r"[a-z]:\\\\users\\\\", r"/users/[a-z]", r"github\.com/[a-z0-9-]+/")]
 
 
@@ -72,14 +81,58 @@ def teilpunkte(feld, wert):
     return None
 
 
-def nur_link_domains():
-    """Domains, die laut daten/quellen.json nicht automatisch abgefragt werden dürfen (Preis dort nur als Link)."""
+def _freigaben():
     try:
         q = json.loads(QUELLENFREIGABE.read_text(encoding="utf-8"))
-        return {e["domain"] for e in q.get("quellen", []) if not e.get("automatisch") and e.get("domain")}
+        return [e for e in q["quellen"] if isinstance(e, dict) and isinstance(e.get("domain"), str)]
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
         # fail-closed (Vorprüfung 4): ohne lesbare Freigabeliste keine grüne Schranke
         raise SystemExit(f"FEHLER  daten/quellen.json nicht lesbar ({e}) – Schranke rot")
+
+
+def nur_link_domains():
+    """Domains, die laut daten/quellen.json nicht automatisch abgefragt werden dürfen (Preis dort nur als Link)."""
+    return {e["domain"] for e in _freigaben() if not e.get("automatisch")}
+
+
+def preis_shops():
+    """F-07: {domain: händlername} der freigegebenen Preis-Shops (in PREIS_SHOPS und in quellen.json automatisch: true)."""
+    return {e["domain"]: str(e.get("name") or "") for e in _freigaben()
+            if e.get("automatisch") is True and e["domain"] in PREIS_SHOPS}
+
+
+def kanon_host(url):
+    """Kleingeschriebener Host ohne Punkt am Ende; None bei Userinfo, Port, Nicht-https oder unlesbarer URL."""
+    import urllib.parse
+    try:
+        t = urllib.parse.urlsplit(str(url))
+        host = (t.hostname or "").rstrip(".").lower()
+        if t.scheme != "https" or "@" in t.netloc or t.port is not None or not host:
+            return None
+    except ValueError:
+        return None
+    return host
+
+
+def preisquelle_fehler(p, hersteller, shops):
+    """F-07: Grund (str), wenn die Preis-URL nicht von einem freigegebenen Shop oder dem eigenen Herstellershop stammt."""
+    host = kanon_host(p.get("url", ""))
+    if host is None:
+        return "Preis-URL unlesbar (nur https, ohne Userinfo und Port)"
+    if host in shops:
+        if " ".join(str(p.get("haendler", "")).split()).lower() != shops[host].lower():
+            return f"Händler {p.get('haendler')!r} passt nicht zur Domain {host} (erwartet {shops[host]!r})"
+        return None
+    if host in HERSTELLERSHOPS.get(str(hersteller or "").strip().lower(), set()):
+        return None
+    return f"Preisquelle {host} nicht freigegeben (nur {', '.join(sorted(shops))} oder eigener Herstellershop)"
+
+
+def testlinks(m):
+    """F-01: für den Bau nur url und titel der Testlinks (alles andere fällt weg)."""
+    t = m.get("tests")
+    return [{"url": x["url"], "titel": x["titel"]} for x in (t if isinstance(t, list) else [])
+            if isinstance(x, dict) and isinstance(x.get("url"), str) and isinstance(x.get("titel"), str)]
 
 
 def host_gesperrt(url, gesperrt):
@@ -98,7 +151,8 @@ def host_gesperrt(url, gesperrt):
     return any(basis(host) == basis(d) or host.endswith("." + basis(d)) for d in gesperrt)
 
 
-def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen, gesperrt=frozenset()):
+def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen, gesperrt=frozenset(), shops=None):
+    shops = preis_shops() if shops is None else shops
     ort = Path(pfad).name
     try:
         roh = Path(pfad).read_text(encoding="utf-8")
@@ -164,9 +218,17 @@ def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen, gesperrt=frozenset()
         if "jahr" in m and not (isinstance(m["jahr"], int) and 2018 <= m["jahr"] <= date.today().year + 1):
             fehler.append(f"{wo}: jahr ungültig")
         werte_pruefen(wo, m.get("werte", {}), m.get("belege", {}))
-        for t in m.get("tests", []) or []:
-            if not (isinstance(t, dict) and str(t.get("url", "")).startswith("https://") and t.get("titel")):
-                fehler.append(f"{wo}: Testlink braucht url (https) und titel")
+        tests = m.get("tests", [])
+        if not isinstance(tests, list):
+            fehler.append(f"{wo}: tests muss eine Liste sein")
+            tests = []
+        for t in tests:
+            if not (isinstance(t, dict) and isinstance(t.get("url"), str) and kanon_host(t["url"])
+                    and isinstance(t.get("titel"), str) and t["titel"].strip() and len(t["titel"]) <= 200):
+                fehler.append(f"{wo}: Testlink braucht url (https) und titel (Text)")
+            if isinstance(t, dict):
+                for s in sorted(set(t) - TEST_SCHLUESSEL):
+                    fehler.append(f"{wo}: Testlink mit unbekanntem Schlüssel {s!r} (nur Links, keine Noten oder Texte)")
         vs = m.get("varianten")
         if not isinstance(vs, list) or not vs:
             fehler.append(f"{wo}: keine Varianten")
@@ -204,6 +266,10 @@ def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen, gesperrt=frozenset()
                     if host_gesperrt(p.get("url", ""), gesperrt):
                         fehler.append(f"{wv}: Preisquelle {p.get('url')} laut daten/quellen.json nur als Link erlaubt"
                                       " (oder URL mit Userinfo)")
+                    else:
+                        grund = preisquelle_fehler(p, m.get("hersteller"), shops)
+                        if grund:
+                            fehler.append(f"{wv}: {grund}")
             # Abdeckung der Note (Grundgewichte, ohne Fragen)
             zus = {**m.get("werte", {}), **v.get("werte", {})}
             g_ges = sum(f["gewicht"] for f in felder.values() if f["gewicht"] > 0)
@@ -221,8 +287,9 @@ def alle_pruefen(dateien=None):
     fehler, warnungen, daten, ids = [], [], [], set()
     pfade = [Path(p) for p in dateien] if dateien else sorted(PRODUKTE.glob("*.json"))
     gesperrt = frozenset(nur_link_domains())
+    shops = preis_shops()
     for p in pfade:
-        d = pruefe_datei(p, kats, ids, fehler, warnungen, gesperrt)
+        d = pruefe_datei(p, kats, ids, fehler, warnungen, gesperrt, shops)
         if d:
             daten.append(d)
     return daten, fehler, warnungen
@@ -251,7 +318,7 @@ def bauen(ziel):
                     eintrag["modelle"].append({
                         "id": v["id"], "modell": m["id"], "hersteller": m["hersteller"], "name": m["name"], "variante": v["name"],
                         "jahr": m.get("jahr"), "werte": w, "teilpunkte": tp, "preis": v.get("preis"),
-                        "tests": m.get("tests", []), "ean": v.get("ean", [])})
+                        "tests": testlinks(m), "ean": v.get("ean", [])})
         aus["kategorien"].append(eintrag)
     Path(ziel).write_text(json.dumps(aus, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
     return daten, fehler, warnungen

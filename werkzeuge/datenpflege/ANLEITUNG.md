@@ -23,7 +23,7 @@ Sprache: Deutsch. Du arbeitest NUR in den dir zugewiesenen Dateien unter `daten/
 - IDs: Kleinbuchstaben, Ziffern, Bindestrich, über alle Kategorien eindeutig (vorher `grep -r "\"id\": \"<id>\"" daten/produkte` prüfen).
 
 ## Preise
-- Nur Neuware, lieferbar, **Verkäufer = Shop selbst**. Saturn: nur wenn `saturn_eigenes_angebot.als_preis_nutzbar` true ist (dann dieser Preis, `haendler: "Saturn"`). Alternate/Proshop: Preis aus JSON-LD der Produktseite, Verkäufer = der Shop. Herstellershops (z. B. „Samsung Deutschland“) sind erlaubt, wenn sie selbst verkaufen.
+- Nur Neuware, lieferbar, **Verkäufer = Shop selbst**. Saturn: nur wenn `saturn_eigenes_angebot.als_preis_nutzbar` true ist (dann dieser Preis, `haendler: "Saturn"`). Alternate/Proshop: Preis aus JSON-LD der Produktseite, Verkäufer = der Shop. Herstellershops nur, wenn sie selbst verkaufen und in `HERSTELLERSHOPS` (`werkzeuge/datenbank.py`) für genau diesen Hersteller stehen; sonst kein Preis (die Schranke lehnt andere Domains ab).
 - `preis`: {"eur", "haendler", "url" (Produktseite, https), "stand": "2026-11-21"}. Ohne Nachweis: `preis` weglassen.
 - Keine Marktplatz-Angebote, keine Gebrauchtware, keine Preise aus Suchmaschinen-Snippets.
 
