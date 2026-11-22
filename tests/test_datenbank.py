@@ -37,6 +37,14 @@ class Schranke(unittest.TestCase):
     def test_gueltig(self):
         self.assertEqual(self.pruefen(beispiel()), [])
 
+    def test_doppelte_variante_gleich_modell_id(self):
+        d = beispiel()
+        m = d["modelle"][0]
+        v = copy.deepcopy(m["varianten"][0])
+        v["id"] = m["id"]
+        m["varianten"] = [v, copy.deepcopy(v)]
+        self.assertTrue(any("doppelt" in f for f in self.pruefen(d)))
+
     def test_unbekannter_schluessel_in_variante(self):
         d = beispiel()
         d["modelle"][0]["varianten"][0]["listenpreis"] = {"eur": 1}
@@ -62,6 +70,16 @@ class Schranke(unittest.TestCase):
         _, fehler, _ = datenbank.alle_pruefen()
         self.assertEqual(fehler, [])
 
+
+
+class NurLinkHost(unittest.TestCase):
+    def test_schreibweisen(self):
+        g = {"www.mediamarkt.de"}
+        for url in ["https://www.mediamarkt.de/a", "https://mediamarkt.de/a", "https://m.mediamarkt.de/a",
+                    "https://www.mediamarkt.de./a", "https://x@www.saturn.de/a", "https://WWW.MEDIAMARKT.DE/a"]:
+            self.assertTrue(datenbank.host_gesperrt(url, g), url)
+        for url in ["https://www.saturn.de/a", "https://notmediamarkt.de/a"]:
+            self.assertFalse(datenbank.host_gesperrt(url, g), url)
 
 if __name__ == "__main__":
     unittest.main()

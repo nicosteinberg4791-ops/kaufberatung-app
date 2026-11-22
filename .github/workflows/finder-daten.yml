@@ -10,6 +10,7 @@ on:
     paths:
       - "daten/produkte/**"
       - "daten/schema/**"
+      - "daten/quellen.json"
       - "werkzeuge/datenbank.py"
   workflow_dispatch:
 

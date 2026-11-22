@@ -8,7 +8,7 @@ Aufruf:  python -I -X utf8 werkzeuge/entdeckung.py [--kategorie fernseher,laptop
 - Höchstens einmal je Kategorie in 6 Tagen (wöchentlich, D10); die Sperre steht im Ergebnis selbst und ist nicht abschaltbar.
 - Abgleich gegen daten/produkte/*.json über EAN, MPN (im Namen) und Hersteller + Modellname.
 - Gespeichert werden nur Name, URL und Saturn-Nummer der Kandidaten (§ 87b UrhG: kein Spiegeln, keine Preise, keine
-  Datenblätter) in `.entdeckung/kandidaten.json` (gitignored, nur lokal). Die Datenpflege-Routine (D11) liest die Datei,
+  Datenblätter) in `%TEMP%/kb-datenpflege/entdeckung/kandidaten.json` (für alle Arbeitsbäume gleich, nie im Repo). Die Datenpflege-Routine (D11) liest die Datei,
   belegt die Werte auf Produktseiten nach werkzeuge/datenpflege/ANLEITUNG.md und trägt kuratiert ein.
 Exit: 0 ok · 3 Domain gesperrt (Lauf abgebrochen, Teilergebnis gespeichert) · 2 Aufruffehler.
 """
@@ -24,7 +24,9 @@ sys.path.insert(0, str(WURZEL / "werkzeuge" / "datenpflege"))
 sys.path.insert(0, str(WURZEL / "werkzeuge"))
 
 PRODUKTE = WURZEL / "daten" / "produkte"
-ZIEL = WURZEL / ".entdeckung" / "kandidaten.json"
+# Fester Ort für alle Arbeitsbäume (Vorprüfung 6), neben Takt und Sperren von abruf.py; nie im Repo
+import tempfile  # noqa: E402
+ZIEL = Path(tempfile.gettempdir()) / "kb-datenpflege" / "entdeckung" / "kandidaten.json"
 MAX_SEITEN = 3
 MIN_TAGE = 6
 SATURN = "https://www.saturn.de/de/category/"
@@ -127,6 +129,15 @@ def laden(ziel=ZIEL):
         return {"kategorien": {}}
 
 
+def speichern(erg, ziel):
+    """Atomar schreiben (Temp-Datei + os.replace), damit ein Abbruch die Wochensperre nicht zurücksetzt."""
+    import os
+    Path(ziel).parent.mkdir(parents=True, exist_ok=True)
+    tmp = Path(str(ziel) + ".tmp")
+    tmp.write_text(json.dumps(erg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    os.replace(tmp, ziel)
+
+
 def zu_frueh(alt, kat, jetzt):
     t = (alt.get("kategorien", {}).get(kat) or {}).get("abgerufen")
     if not t:
@@ -152,7 +163,11 @@ def lauf(kats, seiten, holen, robots_ok, ziel=ZIEL, produkte=PRODUKTE, jetzt=Non
         kand, bekannt, fehler, gesehen = {}, {}, [], set()
         for s in range(1, seiten + 1):
             url = basis if s == 1 else f"{basis}?page={s}"
-            ok, grund = robots_ok(url)
+            try:
+                ok, grund = robots_ok(url)
+            except SystemExit as e:
+                ok, grund = False, f"robots.txt: Abruf abgebrochen (Exit {e.code})"
+                code = 3 if e.code == 3 else code
             if not ok:
                 fehler.append(f"Seite {s}: {grund}")
                 break
@@ -177,13 +192,21 @@ def lauf(kats, seiten, holen, robots_ok, ziel=ZIEL, produkte=PRODUKTE, jetzt=Non
                     bekannt[nr] = mid
                 else:
                     kand[nr] = {"name": t["name"], "url": t["url"], "saturn_nr": nr}
+        if not gesehen:
+            # nichts gelesen: alten Stand und Wochensperre nicht überschreiben (Vorprüfung 7), nur Fehler vermerken
+            erg["kategorien"].setdefault(kat, {})["letzter_fehler"] = {"zeit": jetzt.isoformat(), "fehler": fehler}
+            print(f"{kat}: nichts gelesen · " + "; ".join(fehler))
+            speichern(erg, ziel)
+            if code == 3:
+                print("Domain gesperrt: Lauf beendet (nicht umgehen, frühestens in 30 min erneut)")
+                break
+            continue
         erg["kategorien"][kat] = {"abgerufen": jetzt.isoformat(), "quelle": basis, "seiten": seiten,
                                   "gelesen": len(gesehen), "bekannt": len(bekannt),
                                   "kandidaten": list(kand.values()), "fehler": fehler}
         print(f"{kat}: {len(gesehen)} gelesen · {len(bekannt)} bekannt · {len(kand)} Kandidaten"
               + (" · " + "; ".join(fehler) if fehler else ""))
-        Path(ziel).parent.mkdir(parents=True, exist_ok=True)
-        Path(ziel).write_text(json.dumps(erg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        speichern(erg, ziel)
         if code == 3:
             print("Domain gesperrt: Lauf beendet (nicht umgehen, frühestens in 30 min erneut)")
             break
@@ -209,7 +232,7 @@ def main(argv=None):
         return 2
     import abruf
     _, code = lauf(kats, seiten, abruf.holen, abruf.robots_ok)
-    print("Ergebnis:", ZIEL.relative_to(WURZEL))
+    print("Ergebnis:", ZIEL)
     return code
 
 

@@ -100,7 +100,9 @@ def pruefen(pushen):
         rot.append("Arbeitsbaum nicht sauber (erst committen)")
     if git("merge-base", "--is-ancestor", "origin/main", "HEAD", cwd=wurzel, pruefen=False).returncode != 0:
         rot.append("HEAD baut nicht auf origin/main auf (vorbereiten neu ausführen)")
-    geaendert = git("diff", "--name-only", "origin/main", "HEAD", cwd=wurzel).stdout.split()
+    geaendert = git("diff", "--name-only", "--no-renames", "origin/main", "HEAD", cwd=wurzel).stdout.split()
+    if rot and not geaendert:   # Vorprüfung 10: schmutziger Baum ohne Commit ist rot, nicht „nichts zu tun“
+        return melden(rot)
     if not geaendert:
         print("Keine Änderung gegenüber origin/main – nichts zu prüfen oder zu pushen.")
         return 0

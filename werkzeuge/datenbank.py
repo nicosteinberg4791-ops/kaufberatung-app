@@ -77,8 +77,25 @@ def nur_link_domains():
     try:
         q = json.loads(QUELLENFREIGABE.read_text(encoding="utf-8"))
         return {e["domain"] for e in q.get("quellen", []) if not e.get("automatisch") and e.get("domain")}
-    except (OSError, ValueError, KeyError, TypeError):
-        return set()
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
+        # fail-closed (Vorprüfung 4): ohne lesbare Freigabeliste keine grüne Schranke
+        raise SystemExit(f"FEHLER  daten/quellen.json nicht lesbar ({e}) – Schranke rot")
+
+
+def host_gesperrt(url, gesperrt):
+    """True bei Nur-Link-Domain (auch Subdomain, Punkt am Ende, mit/ohne www) oder URL mit Userinfo."""
+    import urllib.parse
+    try:
+        teile = urllib.parse.urlsplit(str(url))
+        host = (teile.hostname or "").rstrip(".").lower()
+    except ValueError:
+        return True
+    if "@" in teile.netloc or not host:
+        return True
+
+    def basis(h):
+        return h[4:] if h.startswith("www.") else h
+    return any(basis(host) == basis(d) or host.endswith("." + basis(d)) for d in gesperrt)
 
 
 def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen, gesperrt=frozenset()):
@@ -154,8 +171,12 @@ def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen, gesperrt=frozenset()
         if not isinstance(vs, list) or not vs:
             fehler.append(f"{wo}: keine Varianten")
             continue
+        eigene = set()
         for v in vs:
             vid = v.get("id", "?")
+            if vid in eigene:
+                fehler.append(f"{wo}/{vid}: Varianten-ID im Modell doppelt")
+            eigene.add(vid)
             wv = f"{wo}/{vid}"
             if not isinstance(vid, str) or not ID.match(vid):
                 fehler.append(f"{wv}: Varianten-ID ungültig")
@@ -180,9 +201,9 @@ def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen, gesperrt=frozenset()
                 if isinstance(p, dict):
                     for s in sorted(set(p) - PREIS_SCHLUESSEL):
                         fehler.append(f"{wv}: preis mit unbekanntem Schlüssel {s!r}")
-                    host = re.sub(r"^https://([^/:?#]+).*$", r"\1", str(p.get("url", ""))).lower()
-                    if host in gesperrt:
-                        fehler.append(f"{wv}: Preisquelle {host} laut daten/quellen.json nur als Link erlaubt")
+                    if host_gesperrt(p.get("url", ""), gesperrt):
+                        fehler.append(f"{wv}: Preisquelle {p.get('url')} laut daten/quellen.json nur als Link erlaubt"
+                                      " (oder URL mit Userinfo)")
             # Abdeckung der Note (Grundgewichte, ohne Fragen)
             zus = {**m.get("werte", {}), **v.get("werte", {})}
             g_ges = sum(f["gewicht"] for f in felder.values() if f["gewicht"] > 0)

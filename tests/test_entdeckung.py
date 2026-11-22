@@ -110,12 +110,21 @@ class Lauf(unittest.TestCase):
             raise SystemExit(3)
         erg, code = self.laufen(holen=gesperrt)
         self.assertEqual(code, 3)
-        self.assertIn("Exit 3", erg["kategorien"]["fernseher"]["fehler"][0])
+        self.assertIn("Exit 3", erg["kategorien"]["fernseher"]["letzter_fehler"]["fehler"][0])
 
     def test_robots_verbot(self):
         erg, _ = self.laufen(robots=lambda u: (False, "robots.txt verbietet den Pfad"))
         self.assertEqual(self.abrufe, [])
-        self.assertIn("robots", erg["kategorien"]["fernseher"]["fehler"][0])
+        self.assertIn("robots", erg["kategorien"]["fernseher"]["letzter_fehler"]["fehler"][0])
+
+    def test_sperre_bei_robots_txt_beendet_ohne_stempel(self):
+        def robots(url):
+            raise SystemExit(3)
+        erg, code = self.laufen(robots=robots)
+        self.assertEqual(code, 3)
+        self.assertNotIn("abgerufen", erg["kategorien"]["fernseher"], "ohne Abruf keine Wochensperre")
+        self.laufen(jetzt=JETZT + dt.timedelta(minutes=40))
+        self.assertEqual(len(self.abrufe), 3, "nach Sperre ist ein späterer Lauf erlaubt")
 
     def test_cli_grenzen(self):
         with unittest.mock.patch("builtins.print"):

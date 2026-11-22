@@ -77,6 +77,10 @@ def holen(url):
         raise SystemExit(3)
     lock, stempel = sperre_holen(domain)
     try:
+        grund = gesperrt_bis(domain)   # Vorprüfung 1: Sperre kann während des Wartens entstanden sein
+        if grund:
+            print(json.dumps({"url": url, "fehler": "Domain gesperrt (30 min meiden): " + grund}, ensure_ascii=False))
+            raise SystemExit(3)
         try:
             r = sa.abrufen(url)
         finally:
@@ -109,7 +113,9 @@ def robots_ok(url):
     if not ablage.exists():
         try:
             text = holen(f"{teile.scheme}://{domain}/robots.txt")
-        except SystemExit:
+        except SystemExit as e:
+            if e.code == 3:   # Sperre (403/429/Captcha) an den Aufrufer weitergeben, nicht verschlucken
+                raise
             return False, "robots.txt nicht abrufbar"
         ablage.write_text(text or "", encoding="utf-8")
     rp = urllib.robotparser.RobotFileParser()
