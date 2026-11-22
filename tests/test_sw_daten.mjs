@@ -34,7 +34,7 @@ function swStarten(antwort) {
     handler.fetch({ request: { method: "GET", url: "https://beispiel.invalid/finder-daten.json" }, respondWith: x => { p = x; } });
     return (await p).text();
   };
-  return { speicher, holen, geladen };
+  return { speicher, holen, geladen, kontext };
 }
 
 test("F-08: gültige Datei ersetzt die Kopie, beschädigte (null in felder, Klassengrenze als Text, HTML) nicht", async () => {
@@ -53,4 +53,22 @@ test("F-08: gültige Datei ersetzt die Kopie, beschädigte (null in felder, Klas
     assert.equal(await sw.holen(), BEISPIEL, "liefert den letzten brauchbaren Stand");
     assert.equal(sw.speicher.get("finder-daten.json"), BEISPIEL, "Cachekopie bleibt");
   }
+});
+
+test("R4-07: beschädigter Wunschpreis-Cache (__proto__) wiederholt dieselbe Preisalarm-Meldung nicht", async () => {
+  const preise = JSON.stringify({ preise: { lg_c6elb: { name: "LG", aktuell: { gesamt: 90 } } } })
+    .replace('{"preise":{', '{"preise":{"__proto__":{"name":"X","aktuell":{"gesamt":100}},');
+  const sw = swStarten(() => new Response(preise, { status: 200, headers: { "Content-Type": "application/json" } }));
+  const k = sw.kontext, Basis = Request;
+  k.Request = class extends Basis { constructor(u, o) { super(new URL(u, "https://beispiel.invalid/"), o); } };
+  k.Notification = { permission: "granted" }; k.self.Notification = k.Notification;
+  const meldungen = [];
+  k.self.registration = { showNotification: async t => { meldungen.push(t); } };
+  sw.speicher.set("wunsch.json", '{"__proto__": {"preis": 200}, "lg_c6elb": {"preis": 95}}');
+  const pruefe = vm.runInContext("pruefePreise", k);
+  await pruefe();
+  await pruefe();
+  assert.equal(meldungen.length, 1, "Treffer wird genau einmal gemeldet");
+  assert.match(meldungen[0], /LG/);
+  assert.deepEqual(Object.keys(JSON.parse(sw.speicher.get("gemeldet.json"))), ["lg_c6elb"]);
 });

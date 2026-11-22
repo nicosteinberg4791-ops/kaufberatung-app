@@ -187,7 +187,8 @@
   }
 
   function fuelle(text, werte) {
-    return String(text).replace(/\{(\w+)\}/g, (m, k) => (k in werte ? String(werte[k]) : m));
+    // R4-06: nur eigene Einträge der Ersetzungstabelle, nie geerbte (z. B. {constructor})
+    return String(text).replace(/\{(\w+)\}/g, (m, k) => (eigen(werte, k) ? String(werte[k]) : m));
   }
 
   /* Aufpreis-Hinweis (aufpreis_regeln.aufpreis). A, kandidaten: Einträge aus auswerten() mit note, preis, art, klasse.

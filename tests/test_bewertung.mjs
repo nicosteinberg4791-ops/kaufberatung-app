@@ -157,6 +157,14 @@ test("Aufpreis: Beispiel Fernseher aus dem Schema (Budget 500)", () => {
   assert.equal(B.aufpreisHinweis(A, [E], 500, REGELN), null);
 });
 
+test("R4-06: Platzhalter nur aus eigenen Einträgen, geerbte ({constructor}) bleiben wörtlich stehen", () => {
+  const r = JSON.parse(JSON.stringify(REGELN));
+  r.aufpreis_regeln.aufpreis.text = "Für {aufpreis} € mehr {constructor}{toString}{__proto__}";
+  const h = B.aufpreisHinweis(eintrag("A", 489, 68), [eintrag("B", 589, 77)], 500, r);
+  assert.equal(h.text, "Für 100 € mehr {constructor}{toString}{__proto__}");
+  assert.ok(!/function|native code|object Object/.test(h.text));
+});
+
 test("Aufpreis: Air-Fryer-Beispiel ohne Klassensprung, genau 20 € und genau 5 Punkte", () => {
   const h = B.aufpreisHinweis(eintrag("A", 99, 62), [eintrag("B", 119, 67)], 100, REGELN);
   assert.equal(h.text, "Für 20 € mehr bekommst du +5 Punkte."); assert.equal(h.klassensprung, false);

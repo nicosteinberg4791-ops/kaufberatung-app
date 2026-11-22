@@ -219,37 +219,129 @@ class Veroeffentlichen(unittest.TestCase):
         self.assertTrue(f(json.dumps({"herkunft": "b" * 40}), json.dumps({"herkunft": "b" * 40}), h), "andere Herkunft")
         self.assertTrue(f(json.dumps({"herkunft": h, "kategorien": [1]}), gut, h), "anderer Inhalt als der eigene Bau")
 
-    def _lauf(self, schreibe_daten):
-        """main(--trocken) mit Attrappen; der Bau schreibt in sein Ziel und gleichzeitig ein paralleler App-Bau nach dist/."""
-        head = "c" * 40
+    def _lauf(self, schreibe_daten, argv=None, hook_sperrt=False, vor_commit=None):
+        """main() gegen echte lokale Test-Repositorys (R4-01/R4-02): Quelle mit origin (bare) und gh-pages; der Bau
+        schreibt in sein Ziel und gleichzeitig ein paralleler App-Bau nach dist/. hook_sperrt: aktiver pre-commit-Hook,
+        der jeden Commit ablehnt (wie der Projekt-Hook im Seitenbaum ohne tests/). vor_commit(seiten): läuft direkt vor
+        jedem commit/commit-tree im Seitenbaum (paralleler Git-Vorgang)."""
+        sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
+        umgebung = mock.patch.dict(os.environ, sauber, clear=True)
+        umgebung.start(); self.addCleanup(umgebung.stop)
         t = Path(tempfile.mkdtemp()); self.addCleanup(shutil.rmtree, t, True)
-        (t / "dist").mkdir(); (t / "seiten").mkdir()
-        ziele = []
+
+        def g(cwd, *a):
+            return subprocess.run(["git", "-C", str(cwd), *a], check=True, capture_output=True, text=True).stdout.strip()
+        ursprung, quelle, seite = t / "ursprung.git", t / "quelle", t / "seite"
+        g(t, "init", "-q", "--bare", str(ursprung))
+        for r in (quelle, seite):
+            g(t, "init", "-q", str(r))
+            g(r, "config", "user.name", "Test"); g(r, "config", "user.email", "test@example.invalid")
+            g(r, "config", "core.autocrlf", "false")
+        (quelle / ".gitignore").write_text(".veroeffentlichung/\ndist/\n", encoding="utf-8")
+        g(quelle, "add", "-A"); g(quelle, "commit", "-q", "-m", "quelle")
+        head = g(quelle, "rev-parse", "HEAD")
+        g(quelle, "remote", "add", "origin", str(ursprung)); g(quelle, "push", "-q", "origin", "HEAD:refs/heads/main")
+        (seite / "index.html").write_text("<p>alt</p>", encoding="utf-8")
+        (seite / "alt.js").write_text("// alt", encoding="utf-8")
+        (seite / "preise.json").write_text('{"online": 1}', encoding="utf-8")
+        (seite / "finder-daten.json").write_text(json.dumps({"herkunft": head}), encoding="utf-8")
+        g(seite, "add", "-A"); g(seite, "commit", "-q", "-m", "seite")
+        eltern = g(seite, "rev-parse", "HEAD")
+        g(seite, "push", "-q", str(ursprung), "HEAD:refs/heads/gh-pages")
+        if hook_sperrt:
+            (t / "hooks").mkdir()
+            (t / "hooks" / "pre-commit").write_text("#!/bin/sh\necho 'tests/alle-tests.ps1 fehlt' >&2\nexit 127\n",
+                                                    encoding="utf-8", newline="\n")
+            g(quelle, "config", "core.hooksPath", str(t / "hooks"))
+        (quelle / "dist").mkdir()
+        ziele, seiten = [], quelle / ".veroeffentlichung"
 
         def baue(daten_herkunft=None, ziel=None):
             ziele.append(ziel)
             z = Path(ziel)
-            z.mkdir(parents=True, exist_ok=True)
+            (z / "finder").mkdir(parents=True, exist_ok=True)
             (z / "index.html").write_text("<p>neu</p>", encoding="utf-8")
+            (z / "finder" / "a.js").write_text("// neu", encoding="utf-8")
+            (z / "preise.json").write_text('{"lokal": 1}', encoding="utf-8")   # nie aus dem Bau (R2-01)
             (z / "finder-daten.json").write_text(schreibe_daten(daten_herkunft), encoding="utf-8")
-            (t / "dist" / "finder-daten.json").write_text('{"kategorien": []}', encoding="utf-8")   # paralleler Bau
+            (quelle / "dist" / "finder-daten.json").write_text('{"kategorien": []}', encoding="utf-8")   # paralleler Bau
             return "v1"
-        with mock.patch.object(self.v, "WURZEL", t), mock.patch.object(self.v, "SEITEN", t / "seiten"),              mock.patch.object(self.v, "stand_lesen", return_value=(head, True, True)),              mock.patch.object(self.v, "arbeitsbaum"), mock.patch.object(self.v.herkunft, "fehler", return_value=None),              mock.patch.object(self.v.app_bauen, "baue", side_effect=baue):
-            code = self.v.main(["--trocken"])
-        return code, ziele, t, head
+        echt = self.v.git
+
+        def git(*a, **kw):
+            if vor_commit and a and a[0] in ("commit", "commit-tree") and Path(kw.get("cwd", "")) == seiten:
+                vor_commit(seiten)
+            return echt(*a, **kw)
+        with mock.patch.object(self.v, "WURZEL", quelle), mock.patch.object(self.v, "SEITEN", seiten), \
+             mock.patch.object(self.v, "git", side_effect=git), \
+             mock.patch.object(self.v.app_bauen, "baue", side_effect=baue):
+            code = self.v.main(["--stand", head] if argv is None else argv)
+        r = subprocess.run(["git", "-C", str(ursprung), "rev-parse", "gh-pages"], capture_output=True, text=True)
+        oben = r.stdout.strip()
+        zeige = lambda pfad: subprocess.run(["git", "-C", str(ursprung), "show", f"gh-pages:{pfad}"],
+                                            capture_output=True, text=True)
+        return dict(code=code, ziele=ziele, quelle=quelle, seiten=seiten, head=head, eltern=eltern, oben=oben,
+                    zeige=zeige, g=g, ursprung=ursprung)
+
+    @staticmethod
+    def _gut(h):
+        return json.dumps({"herkunft": h, "kategorien": []})
 
     def test_baut_in_eigenes_verzeichnis(self):
-        """R3-01: ein paralleler App-Bau in dist/ gelangt nicht in den Seitenbaum."""
-        code, ziele, t, head = self._lauf(lambda h: json.dumps({"herkunft": h, "kategorien": []}))
-        self.assertEqual(code, 0)
-        self.assertEqual(len(ziele), 1)
-        self.assertIsNotNone(ziele[0], "Bau mit eigenem Ziel")
-        self.assertNotEqual(Path(ziele[0]).resolve(), (t / "dist").resolve(), "nicht das gemeinsame dist/")
-        self.assertEqual(json.loads((t / "seiten" / "finder-daten.json").read_text(encoding="utf-8"))["herkunft"], head)
+        """R3-01: ein paralleler App-Bau in dist/ gelangt nicht in den Seitenbaum (Trockenlauf prüft den Baum)."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        self.assertEqual(e["code"], 0)
+        self.assertEqual(len(e["ziele"]), 1)
+        self.assertIsNotNone(e["ziele"][0], "Bau mit eigenem Ziel")
+        self.assertNotEqual(Path(e["ziele"][0]).resolve(), (e["quelle"] / "dist").resolve(), "nicht das gemeinsame dist/")
+        self.assertEqual(json.loads((e["seiten"] / "finder-daten.json").read_text(encoding="utf-8"))["herkunft"], e["head"])
+        self.assertEqual(e["oben"], e["eltern"], "trocken: nichts gepusht")
 
     def test_falsche_herkunft_im_bau_bricht_ab(self):
-        code, _, _, _ = self._lauf(lambda h: json.dumps({"kategorien": []}))
-        self.assertEqual(code, 1, "Datei ohne geprüfte Herkunft wird nicht bereitgestellt")
+        e = self._lauf(lambda h: json.dumps({"kategorien": []}))
+        self.assertEqual(e["code"], 1, "Datei ohne geprüfte Herkunft wird nicht bereitgestellt")
+        self.assertEqual(e["oben"], e["eltern"], "nichts gepusht")
+
+    def test_commit_genau_der_gepruefte_baum(self):
+        """R4-01: gepusht wird genau der geprüfte Baum auf dem geprüften Elterncommit, als feste Commit-ID."""
+        e = self._lauf(self._gut)
+        self.assertEqual(e["code"], 0)
+        self.assertNotEqual(e["oben"], e["eltern"])
+        self.assertEqual(e["g"](e["ursprung"], "rev-parse", "gh-pages^"), e["eltern"], "Elterncommit = geprüfter Stand")
+        self.assertEqual(json.loads(e["zeige"]("finder-daten.json").stdout)["herkunft"], e["head"])
+        self.assertEqual(e["zeige"]("preise.json").stdout, '{"online": 1}', "Preisdatei von gh-pages bleibt")
+        self.assertEqual(e["zeige"]("finder-preise.json").stdout.strip(), '{"stand": null, "preise": {}}')
+        self.assertEqual(e["zeige"]("finder/a.js").stdout, "// neu")
+        self.assertNotEqual(e["zeige"]("alt.js").returncode, 0, "alte Datei entfernt")
+        self.assertEqual(e["g"](e["seiten"], "rev-parse", "HEAD"), e["oben"], "Seitenbaum steht auf dem Commit")
+        self.assertEqual(e["g"](e["seiten"], "status", "--porcelain"), "", "Seitenbaum sauber")
+
+    def test_indexaenderung_nach_pruefung_gelangt_nicht_in_den_commit(self):
+        """R4-01: ein paralleler Git-Vorgang stellt nach der Prüfung eine andere finder-daten.json bereit."""
+        def fremd(seiten):
+            (seiten / "finder-daten.json").write_text('{"kategorien": ["fremd"]}', encoding="utf-8")
+            subprocess.run(["git", "-C", str(seiten), "add", "-A"], check=True, capture_output=True)
+        e = self._lauf(self._gut, vor_commit=fremd)
+        self.assertEqual(e["code"], 0)
+        self.assertEqual(json.loads(e["zeige"]("finder-daten.json").stdout)["herkunft"], e["head"],
+                         "gepusht ist der geprüfte Inhalt, nicht der später bereitgestellte")
+
+    def test_aktiver_hook_verhindert_den_seitencommit_nicht(self):
+        """R4-02: der Projekt-Hook (tests/ fehlt im Seitenbaum) blockiert den Seitencommit nicht."""
+        e = self._lauf(self._gut, hook_sperrt=True)
+        self.assertEqual(e["code"], 0)
+        self.assertEqual(json.loads(e["zeige"]("finder-daten.json").stdout)["herkunft"], e["head"])
+
+    def test_baum_fehler(self):
+        """R4-01: der Baum muss genau dem Soll gleichen (keine fremde, fehlende oder abweichende Datei)."""
+        f = self.v.baum_fehler
+        soll = {"index.html": "1" * 40, "finder-daten.json": "2" * 40}
+        self.assertEqual(f(dict(soll), soll), [])
+        self.assertTrue(f({**soll, "fremd.js": "3" * 40}, soll))
+        self.assertTrue(f({"index.html": "1" * 40}, soll))
+        self.assertTrue(f({**soll, "index.html": "9" * 40}, soll))
+        self.assertTrue(f({**soll, "index.html": None}, soll), "Untermodul statt Datei")
+        self.assertEqual(self.v.blob_sha(b""), "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391", "Git-Objekt-ID der leeren Datei")
 
     def test_ohne_stand_kein_push(self):
         with mock.patch.object(self.v, "stand_lesen", return_value=("a" * 40, True, True)),              mock.patch.object(self.v, "arbeitsbaum") as ab, mock.patch.object(self.v.app_bauen, "baue") as bau:
@@ -307,6 +399,12 @@ class Herkunft(unittest.TestCase):
             online.unlink()
             self.assertEqual(cli("d" * 40), 1, "R3-05: ohne Online-Datei, unbekannter neuer SHA")
             self.assertEqual(cli("main"), 1, "R3-05: ohne Online-Datei, kein SHA")
+            # R4-05: die Objekt-ID eines annotierten Tags ist kein Commit, weder als neuer Stand noch als Online-Herkunft
+            g("tag", "-a", "t1", "-m", "Tag", b); tag = g("rev-parse", "t1")
+            self.assertNotEqual(tag, b)
+            self.assertEqual(cli(tag), 1, "R4-05: Tag-ID als neuer Stand")
+            online.write_text(json.dumps({"herkunft": tag}), encoding="utf-8")
+            self.assertEqual(cli(b), 1, "R4-05: Tag-ID als Online-Herkunft")
 
     def test_bau_schreibt_herkunft(self):
         import datenbank

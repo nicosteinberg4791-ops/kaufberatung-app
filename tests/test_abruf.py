@@ -106,6 +106,16 @@ class Robots(unittest.TestCase):
         self.assertTrue(abruf.robots_erlaubt(regel("/a$$"), UA, "https://h.invalid/a$b"))
         self.assertTrue(abruf.robots_erlaubt(regel("/a$$"), UA, "https://h.invalid/a"))
 
+    def test_leere_query_behaelt_den_trenner(self):
+        """R4-04: urllib sendet /x? als Request-Target; Disallow: /x?$ muss greifen (RFC 9309 2.2.2)."""
+        regel = "User-agent: *\nDisallow: /x?$\n"
+        self.assertFalse(abruf.robots_erlaubt(regel, UA, "https://h.invalid/x?"))
+        self.assertTrue(abruf.robots_erlaubt(regel, UA, "https://h.invalid/x"))
+        self.assertFalse(abruf.robots_erlaubt(regel, UA, "https://h.invalid/x?#teil"), "Fragment wird nicht gesendet")
+        with unittest.mock.patch.object(abruf, "robots_text", return_value=regel):
+            ok, _ = abruf.robots_ok("https://h.invalid/x?")
+        self.assertFalse(ok, "Abbruch vor holen()")
+
     def test_leer_oder_html_ist_nicht_auswertbar(self):
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
             for antwort in ("", "<html>Wartung</html>"):
@@ -174,6 +184,28 @@ class Domainsperre(unittest.TestCase):
                 self.assertTrue(lock.exists())
             finally:
                 abruf.sperre_freigeben(erste)
+
+    def test_zeitstempel_vor_dem_http_versuch(self):
+        """R4-03: der Beginn des Versuchs steht schon vor dem HTTP-Aufruf dauerhaft fest; ein hart beendeter Abruf
+        (kein finally mehr) lässt dem nächsten Abruf also den vollen Abstand."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            stempel = Path(t) / "h.invalid.zeit"
+            stempel.write_text(str(time.time() - 1000))   # letzter Abruf lange her: kein Warten
+            gesehen = []
+
+            def abrufen(url):
+                gesehen.append(float(stempel.read_text()))   # Stand im Moment des HTTP-Versuchs
+                return "ok"
+            beginn = time.time()
+            with unittest.mock.patch.object(abruf, "einmal_abrufen", side_effect=abrufen):
+                self.assertEqual(abruf.holen("https://h.invalid/a"), "ok")
+            self.assertEqual(len(gesehen), 1)
+            self.assertGreaterEqual(gesehen[0], beginn - 1, "Zeitstempel vor dem HTTP-Versuch geschrieben")
+            # harter Abbruch nach dem Absenden: der nächste Abruf wartet trotzdem den Abstand ab
+            with unittest.mock.patch("time.sleep") as schlaf:
+                lock, _ = abruf.sperre_holen("h.invalid")
+                abruf.sperre_freigeben(lock)
+            self.assertTrue(schlaf.called and schlaf.call_args[0][0] > abruf.ABSTAND - 5, "Mindestabstand eingehalten")
 
     def test_holen_gibt_die_sperre_frei_und_laesst_die_datei(self):
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)),              unittest.mock.patch.object(abruf, "einmal_abrufen", side_effect=sa.NichtAbrufbar("Netzfehler: x")):

@@ -94,9 +94,17 @@ async function pruefePreise() {
   try { const r = await netzZuerst(new Request("preise.json"), "preise.json"); preise = await r.json(); } catch (e) { return; }
   try { wunsch = (await (await c.match("wunsch.json")).json()) || {}; } catch (e) { wunsch = {}; }
   try { gemeldet = (await (await c.match("gemeldet.json")).json()) || {}; } catch (e) { gemeldet = {}; }
+  // R4-07: nur gültige IDs aus dem Cache; Meldesignaturen in einer Tabelle ohne Prototyp (kein geerbter Setter, z. B. __proto__)
+  const ID_OK = /^[a-z0-9][a-z0-9_-]{0,63}$/;
+  const eigen = (o, k) => o !== null && typeof o === "object" && Object.prototype.hasOwnProperty.call(o, k);
+  const merk = Object.create(null);
+  if (gemeldet && typeof gemeldet === "object" && !Array.isArray(gemeldet))
+    for (const [id, sig] of Object.entries(gemeldet)) if (ID_OK.test(id) && typeof sig === "string") merk[id] = sig;
+  gemeldet = merk;
   const treffer = [], namen = [];
-  for (const [id, w] of Object.entries(wunsch)) {
-    const p = preise && preise.preise && preise.preise[id];
+  for (const [id, w] of Object.entries(wunsch && typeof wunsch === "object" ? wunsch : {})) {
+    if (!ID_OK.test(id)) continue;
+    const p = preise && eigen(preise.preise, id) ? preise.preise[id] : null;
     const g = p && p.aktuell && p.aktuell.gesamt;
     const wp = w && w.preis;
     if (typeof g !== "number" || typeof wp !== "number" || !(g <= wp)) continue;

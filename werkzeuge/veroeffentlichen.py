@@ -9,13 +9,19 @@ Push nur mit Auftrag des Besitzers bzw. nach bestandener Prüfung (AGENTS.md). B
   - nach dem Bau wird das noch einmal geprüft (nichts hat sich während des Baus geändert);
   - finder-daten.json trägt die Herkunft (Commit); die Online-Datei wird nur ersetzt, wenn ihre Herkunft im geprüften
     Stand enthalten ist (werkzeuge/herkunft.py, R2-02), sonst Abbruch;
-  - gebaut wird in ein eigenes frisches Verzeichnis (nie das gemeinsame dist/, R3-01); vor dem Commit muss die
-    bereitgestellte finder-daten.json (Index des Seitenbaums) die geprüfte Herkunft tragen und dem eigenen Bau gleichen;
+  - gebaut wird in ein eigenes frisches Verzeichnis (nie das gemeinsame dist/, R3-01);
+  - Commit aus einem unveränderlichen Git-Baum (R4-01): nach `git add -A` wird der Index mit `git write-tree` zu einem
+    Baumobjekt; geprüft wird genau dieser Baum (jede Datei gleich dem eigenen Bau, finder-daten.json mit der geprüften
+    Herkunft, Preisdateien unverändert aus dem Elterncommit, sonst nichts), committet wird genau dieser Baum mit
+    `git commit-tree` auf den geprüften gh-pages-Elterncommit, gepusht wird genau diese Commit-ID;
+  - `commit-tree` startet keine Commit-Hooks (R4-02): der Projekt-Hook prüft Quellcommits (tests/ fehlt im Seitenbaum);
+    die für den Seitencommit vorgesehene Prüfung ist die Baumprüfung oben, die dieser Lauf selbst macht;
   - preise.json und finder-preise.json kommen nie aus dem Bau (dort ignoriert, ungeprüft, R2-01): vorhandene auf gh-pages
     bleiben, eine fehlende finder-preise.json bekommt den festen Startstand.
 Der Seitenbaum ist ein eigener git worktree ohne Zweig (detached) unter .veroeffentlichung/ dieses Arbeitsbaums,
-immer frisch auf origin/gh-pages; gepusht wird `HEAD:gh-pages` ohne Erzwingen (hat sich gh-pages bewegt: neu starten).
+immer frisch auf origin/gh-pages; gepusht wird `<commit>:gh-pages` ohne Erzwingen (hat sich gh-pages bewegt: neu starten).
 """
+import hashlib
 import json
 import shutil
 import subprocess
@@ -33,7 +39,8 @@ BEHALTEN = {".git", "preise.json", "finder-preise.json"}
 PREIS_START = '{"stand": null, "preise": {}}\n'   # finder-preise.json, bis der Preislauf eigene Preise schreibt
 
 
-def git(*a, cwd=WURZEL, check=True):
+def git(*a, cwd=None, check=True):
+    cwd = WURZEL if cwd is None else cwd   # zur Laufzeit (Tests ersetzen WURZEL)
     return subprocess.run(["git", "-C", str(cwd), *a], check=check, capture_output=True, text=True, encoding="utf-8")
 
 
@@ -85,6 +92,43 @@ def bereitgestellt_fehler(text, gebaut, head):
     return None
 
 
+def blob_sha(daten):
+    """Git-Objekt-ID einer Datei (blob) aus ihren Bytes."""
+    return hashlib.sha1(b"blob %d\0" % len(daten) + daten).hexdigest()
+
+
+def bau_erwartet(bau, eltern_preise):
+    """Soll-Inhalt des Seitencommits {Pfad: blob-ID}: alle Dateien des eigenen Baus außer den Preisdateien der obersten
+    Ebene, dazu die Preisdateien des Elterncommits (eltern_preise {Pfad: blob-ID}); fehlt finder-preise.json, der Startstand."""
+    soll = {}
+    for p in sorted(Path(bau).rglob("*")):
+        rel = p.relative_to(bau).as_posix()
+        if p.is_file() and rel not in ("preise.json", "finder-preise.json"):
+            soll[rel] = blob_sha(p.read_bytes())
+    soll.update(eltern_preise)
+    soll.setdefault("finder-preise.json", blob_sha(PREIS_START.encode("utf-8")))
+    return soll
+
+
+def baum_eintraege(baum, cwd):
+    """{Pfad: blob-ID} eines Git-Baums; andere Eintragsarten (Untermodule) als Pfad mit None."""
+    aus = {}
+    for z in git("ls-tree", "-r", "-z", baum, cwd=cwd).stdout.split("\0"):
+        if z:
+            kopf, pfad = z.split("\t", 1)
+            _, art, sha = kopf.split(" ")
+            aus[pfad] = sha if art == "blob" else None
+    return aus
+
+
+def baum_fehler(ist, soll):
+    """Gründe gegen den Commit dieses Baums (leer = genau der geprüfte Bau, R4-01). Reine Funktion, für Tests."""
+    f = [f"{p}: nicht im eigenen Bau" for p in sorted(set(ist) - set(soll))]
+    f += [f"{p}: fehlt im Seitenbaum" for p in sorted(set(soll) - set(ist))]
+    f += [f"{p}: weicht vom eigenen Bau ab" for p in sorted(set(ist) & set(soll)) if ist[p] != soll[p]]
+    return f
+
+
 def spiegeln(quelle=None):
     """Seitenbaum = Bau aus <quelle> (Standard dist/) plus die Preisdateien von gh-pages."""
     quelle = WURZEL / "dist" if quelle is None else Path(quelle)
@@ -112,39 +156,45 @@ def main(argv=None):
             print("Abbruch, nichts veröffentlicht:\n  - " + "\n  - ".join(fehler))
             return 1
     arbeitsbaum()
-    online = (SEITEN / "finder-daten.json").read_text(encoding="utf-8") if (SEITEN / "finder-daten.json").exists() else None
-    grund = herkunft.fehler(online, head, herkunft.git_vorfahr(WURZEL))
+    eltern = git("rev-parse", "HEAD^{commit}", cwd=SEITEN).stdout.strip()   # geprüfter Seiten-Elterncommit (R4-01)
+    r = git("show", f"{eltern}:finder-daten.json", cwd=SEITEN, check=False)
+    grund = herkunft.fehler(r.stdout if r.returncode == 0 else None, head, herkunft.git_vorfahr(WURZEL))
     if grund:
         print("Abbruch, nichts veröffentlicht: finder-daten.json auf gh-pages –", grund)
         return 1
+    alt = baum_eintraege(eltern, SEITEN)
+    eltern_preise = {p: alt[p] for p in ("preise.json", "finder-preise.json") if alt.get(p)}
     with tempfile.TemporaryDirectory(prefix="kb-veroeffentlichung-") as tmp:
         bau = Path(tmp) / "dist"   # eigenes frisches Verzeichnis, kein anderer Lauf schreibt hinein (R3-01)
         v = app_bauen.baue(daten_herkunft=head, ziel=bau)
         gebaut = (bau / "finder-daten.json").read_text(encoding="utf-8") if (bau / "finder-daten.json").exists() else ""
+        soll = bau_erwartet(bau, eltern_preise)
         spiegeln(bau)
-    if trocken:
-        datei = SEITEN / "finder-daten.json"
-        grund = bereitgestellt_fehler(datei.read_text(encoding="utf-8") if datei.exists() else None, gebaut, head)
-        if grund:
-            print("Abbruch:", grund)
-            return 1
-        print("trocken: .veroeffentlichung/ gespiegelt, nichts committet")
-        return 0
-    if stand_lesen()[:2] != (head, True):
-        print("Abbruch: HEAD oder Arbeitsbaum hat sich während des Baus geändert")
-        return 1
     git("add", "-A", cwd=SEITEN)
-    r = git("show", ":finder-daten.json", cwd=SEITEN, check=False)   # genau der Inhalt, der committet würde
+    baum = git("write-tree", cwd=SEITEN).stdout.strip()   # unveränderlich: genau dieser Baum wird geprüft und committet
+    r = git("show", f"{baum}:finder-daten.json", cwd=SEITEN, check=False)
+    fehler = baum_fehler(baum_eintraege(baum, SEITEN), soll)
     grund = bereitgestellt_fehler(r.stdout if r.returncode == 0 else None, gebaut, head)
     if grund:
-        git("reset", "-q", cwd=SEITEN)
-        print("Abbruch, nichts veröffentlicht:", grund)
+        fehler.insert(0, grund)
+    if trocken or fehler:
+        git("reset", "-q", cwd=SEITEN)   # nur aus dem Index nehmen; die gespiegelten Dateien bleiben zur Ansicht
+    if fehler:
+        print("Abbruch, nichts veröffentlicht:\n  - " + "\n  - ".join(fehler[:10]))
         return 1
-    if git("diff", "--cached", "--quiet", cwd=SEITEN, check=False).returncode == 0:
+    if trocken:
+        print(f"trocken: .veroeffentlichung/ gespiegelt, Baum {baum[:12]} geprüft, nichts committet")
+        return 0
+    if baum == git("rev-parse", f"{eltern}^{{tree}}", cwd=SEITEN).stdout.strip():
         print("keine Änderung auf gh-pages")
         return 0
-    git("commit", "-q", "-m", f"App {v} (Stand {head[:12]})", cwd=SEITEN)
-    r = git("push", "-q", "origin", "HEAD:refs/heads/gh-pages", cwd=SEITEN, check=False)
+    if stand_lesen()[:2] != (head, True):
+        git("reset", "-q", cwd=SEITEN)
+        print("Abbruch: HEAD oder Arbeitsbaum hat sich während des Baus geändert")
+        return 1
+    neu = git("commit-tree", baum, "-p", eltern, "-m", f"App {v} (Stand {head[:12]})", cwd=SEITEN).stdout.strip()
+    git("update-ref", "--no-deref", "HEAD", neu, eltern, cwd=SEITEN)   # Seitenbaum steht danach sauber auf dem Commit
+    r = git("push", "-q", "origin", f"{neu}:refs/heads/gh-pages", cwd=SEITEN, check=False)
     if r.returncode != 0:
         print("Push abgelehnt (gh-pages hat sich bewegt?), erneut starten:", r.stderr.strip())
         return 1

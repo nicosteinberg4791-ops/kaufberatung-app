@@ -96,6 +96,14 @@ def sperre_holen(domain):
     return lock, stempel
 
 
+def stempel_schreiben(stempel):
+    """Zeitstempel des Domaintakts schreiben und auf den Datenträger bringen (fsync); Fehler brechen den Abruf ab."""
+    with open(stempel, "w", encoding="utf-8") as f:
+        f.write(str(time.time()))
+        f.flush()
+        os.fsync(f.fileno())
+
+
 def gesperrt_bis(domain):
     s = TAKT / (domain + ".gesperrt")
     if s.exists() and time.time() - s.stat().st_mtime < 1800:
@@ -116,10 +124,11 @@ def holen(url):
         if grund:
             print(json.dumps({"url": url, "fehler": "Domain gesperrt (30 min meiden): " + grund}, ensure_ascii=False))
             raise SystemExit(3)
+        stempel_schreiben(stempel)   # R4-03: Beginn des Versuchs dauerhaft vor dem HTTP-Aufruf (auch bei hartem Abbruch)
         try:
             r = einmal_abrufen(url)
         finally:
-            stempel.write_text(str(time.time()))
+            stempel_schreiben(stempel)   # Ende des Versuchs: der Abstand zählt wie bisher ab dem Ende
     except sa.Weitergeleitet as e:
         print(json.dumps({"url": url, "fehler": "Weiterleitung, nicht verfolgt: " + str(e)}, ensure_ascii=False))
         raise SystemExit(5)
@@ -222,8 +231,8 @@ def robots_regeln(text, ua_token):
 
 def robots_erlaubt(text, ua_token, url):
     """RFC 9309: längstes passendes Muster entscheidet, bei Gleichstand Allow; ohne passende Regel erlaubt."""
-    t = urllib.parse.urlsplit(url)
-    pfad = _norm((t.path or "/") + ("?" + t.query if t.query else ""))
+    # R4-04: geprüft wird genau das Request-Target, das urllib sendet (Pfad samt "?" auch bei leerer Query, ohne Fragment)
+    pfad = _norm(urllib.request.Request(url).selector or "/")
     if pfad == "/robots.txt":
         return True
     best = None

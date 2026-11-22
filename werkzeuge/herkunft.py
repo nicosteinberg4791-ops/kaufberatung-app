@@ -20,7 +20,7 @@ SHA = re.compile(r"^[0-9a-f]{40}$")
 
 def fehler(online_text, neu, ist_vorfahr):
     """Grund gegen das Ersetzen oder None. ist_vorfahr(alt, neu) -> bool (alt ist Vorfahr von neu oder gleich und beide
-    sind vorhandene Commits; ist_vorfahr(x, x) heißt also: Commit x ist vorhanden)."""
+    sind vorhandene Commit-Objekte, kein Tag-Objekt, R4-05; ist_vorfahr(x, x) heißt also: Commit x ist vorhanden)."""
     # R3-05: der neue Stand wird immer zuerst geprüft (Format und vorhandenes Commit), auch ohne Online-Datei
     if not isinstance(neu, str) or not SHA.match(neu):
         return "neuer Stand ohne gültige Herkunft (40 Hex-Zeichen)"
@@ -41,7 +41,14 @@ def fehler(online_text, neu, ist_vorfahr):
 
 
 def git_vorfahr(ordner):
+    def ist_commit(sha):
+        # R4-05: genau der Objekttyp commit; merge-base löst annotierte Tags sonst stillschweigend zum Ziel-Commit auf
+        r = subprocess.run(["git", "-C", str(ordner), "cat-file", "-t", sha], capture_output=True, text=True)
+        return r.returncode == 0 and r.stdout.strip() == "commit"
+
     def ist_vorfahr(alt, neu):
+        if not (ist_commit(alt) and ist_commit(neu)):
+            return False
         r = subprocess.run(["git", "-C", str(ordner), "merge-base", "--is-ancestor", alt, neu],
                            capture_output=True, text=True)
         return r.returncode == 0   # 1 = kein Vorfahr, 128 = unbekanntes Objekt → beides nein
