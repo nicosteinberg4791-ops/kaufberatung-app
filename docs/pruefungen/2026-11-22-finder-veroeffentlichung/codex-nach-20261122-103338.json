@@ -1,0 +1,63 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "R4-01 und R4-03 bleiben offen. Die Baumprüfung vergleicht keine Git-Dateimodi, der Push akzeptiert einen zurückgesetzten Zielzweig und ein harter Abbruch kann den Abrufzeitstempel löschen. Der Bau kann zudem vorübergehend geänderte Quelldateien mit der Herkunft des geprüften Commits veröffentlichen.",
+  "befunde": [
+    {
+      "id": "R5-01",
+      "schwere": "schwer",
+      "titel": "Harter Abbruch beim Abschluss kann den Mindestabstand aufheben",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 101,
+      "beleg": "Das Fertigkriterium verlangt „Takt ≥ 61 s“. Nach dem HTTP-Versuch ruft Zeile 131 `stempel_schreiben()` erneut auf. `open(..., \"w\")` leert dabei den bereits gesicherten Startstempel. Endet der Prozess vor dem nächsten Schreiben hart, gibt das Betriebssystem die Sperre frei und Zeile 90 liest die leere Datei als 0. Der nächste Abruf wartet dann nicht. Der Test in `tests/test_abruf.py:200–208` prüft den Folgeabruf erst nach regulärer Rückkehr und abgeschlossenem Schreiben.",
+      "auswirkung": "Zwei HTTP-Versuche derselben Domain können weniger als 61 Sekunden auseinanderliegen.",
+      "vorschlag": "Den Zustand vor dem HTTP-Aufruf als laufenden Versuch sichern und nach Abschluss atomar durch den Endzeitstempel ersetzen. Bei einem zurückgebliebenen laufenden Versuch unter der Domainsperre den vollen Abstand abwarten. Den Abbruch beim Schreiben des Endstempels als Testfall ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R5-02",
+      "schwere": "schwer",
+      "titel": "Baumprüfung lässt abweichende Dateimodi passieren",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 119,
+      "beleg": "Der Auftrag verlangt einen Baum „gleich dem eigenen Bau, Preisdateien aus dem Elterncommit, `finder-daten.json` mit geprüfter Herkunft“. `git ls-tree` liefert Modus, Objekttyp und ID. Zeile 119 verwirft den Modus. Eine reguläre Datei (`100644 blob`) und ein symbolischer Link (`120000 blob`) mit derselben Blob-ID ergeben dadurch denselben Prüfeintrag. Das gilt auch für die aus dem Elterncommit übernommenen Preisdateien.",
+      "auswirkung": "Der Push kann einen Link veröffentlichen, obwohl der eigene Bau oder der Elterncommit an diesem Pfad eine reguläre Datei enthält.",
+      "vorschlag": "Git-Modus und Objekt-ID gemeinsam vergleichen. Für Bauartefakte reguläre Dateien verlangen, bei Preisdateien den vollständigen Eintrag aus dem Elterncommit übernehmen und einen Moduswechsel bei identischer Blob-ID testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R5-03",
+      "schwere": "schwer",
+      "titel": "Push akzeptiert einen zurückgesetzten gh-pages-Zweig",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 197,
+      "beleg": "Laut Auftrag „pusht [das Skript] genau einen Commit, dessen Baum er selbst geprüft hat […] auf dem geprüften gh-pages-Elterncommit“. Wird der Remote-Zweig nach der Prüfung von diesem Elterncommit auf dessen Vorgänger zurückgesetzt, ist der neue Commit weiterhin ein Fast-Forward für den Remote-Zweig. Der Push akzeptiert ihn und führt sowohl den zurückgesetzten Elterncommit als auch den neuen Commit in die Zweighistorie ein. Der zweite Fetch in Zeile 191 vergleicht den Zielzweig ebenfalls nicht mit `eltern`.",
+      "auswirkung": "Eine zwischenzeitliche Rücknahme auf gh-pages kann beim Veröffentlichen wieder aufgehoben werden.",
+      "vorschlag": "Den normalen Push nur zulassen, wenn die beim Push ausgehandelte Ziel-ID exakt `eltern` ist. Einen Rücksprung und einen gelöschten Zielzweig im lokalen Repository-Test abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R5-04",
+      "schwere": "schwer",
+      "titel": "Bau liest den veränderlichen Quellarbeitsbaum",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 169,
+      "beleg": "Weiter gilt „`veroeffentlichen.py --stand <Commit>` pusht nur einen sauberen, geprüften Stand nach gh-pages“. Die Prüfungen in Zeilen 152 und 191 erfassen den Arbeitsbaum zu zwei Zeitpunkten. Dazwischen kopiert `app_bauen.py:148–151` die statischen Dateien aus dem Arbeitsbaum. Ist eine Quelldatei beim Kopieren vorübergehend geändert und vor der zweiten Statusprüfung wiederhergestellt, kann der Baumvergleich trotzdem bestehen. Er verwendet den inzwischen erzeugten Bau als Soll.",
+      "auswirkung": "Der Seitencommit kann ungeprüfte Anwendungsdateien enthalten und dennoch den geprüften Quellcommit ausweisen.",
+      "vorschlag": "Die Eingaben für den Veröffentlichungsbau aus einer separaten Kopie des exakten Quellcommits lesen. Im Test während des Baus eine Datei im ursprünglichen Arbeitsbaum ändern und wiederherstellen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R5-05",
+      "schwere": "mittel",
+      "titel": "Robots-Prüfung ignoriert einen abweichenden HTTPS-Port",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 269,
+      "beleg": "`robots_ok()` übergibt nur `teile.hostname`. `robots_text()` verwendet den Hostnamen als Cache-Schlüssel und ruft `https://<host>/robots.txt` auf. Für eine Produkt-URL mit explizitem Port 8443 stammen die Regeln dadurch vom Standardport, während `einmal_abrufen()` die ursprüngliche URL mit Port 8443 verwendet.",
+      "auswirkung": "Bei einer HTTPS-URL mit Sonderport können die Regeln eines anderen Dienstes auf demselben Host angewendet werden.",
+      "vorschlag": "Robots-Datei und Cache an Schema, Host und effektiven Port binden. Die Domainsperre kann weiterhin über den Hostnamen laufen.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": ["R3-01", "R3-05", "R4-02", "R4-04", "R4-05", "R4-06", "R4-07"],
+  "pruefgrenzen": "Lesend auf Commit ae72e55006a49e3d3b4332c1c0a9e630a086ecc6 geprüft. Alle 48 Node-Tests bestanden. Der PowerShell-Sammellauf schreibt Protokolldateien und blieb im lesenden Auftrag aus. Die Datenbankschranke und die Python-Integrationstests blieben unabhängig unverifiziert, da der Zugriff auf die Python-Laufzeit verweigert wurde. Git-Push, Live-Abrufe und Workflow wurden statisch geprüft. Die Stichprobe im Diff ergab keine Zugangsdaten, persönlichen Daten, lokalen Pfade oder Konto-URLs."
+}
