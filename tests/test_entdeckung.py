@@ -192,19 +192,37 @@ class Lauf(unittest.TestCase):
         self.assertEqual(len(self.abrufe), 1)
 
     def test_paralleler_lauf_ruft_nichts_ab(self):
-        """F-05: läuft schon ein Lauf (Sperrdatei), endet ein zweiter sofort mit Exit 4."""
+        """F-05/R2-06: hält ein anderer Lauf die Betriebssystem-Sperre, endet ein zweiter sofort mit Exit 4;
+        eine liegengebliebene Sperrdatei ohne Inhaber (Absturz) hält nichts auf."""
+        halter = en.sperre_holen(self.ziel)
+        self.assertIsNotNone(halter)
+        try:
+            self.assertIsNone(en.sperre_holen(self.ziel), "zweiter Inhaber unmöglich")
+            _, code = self.laufen()
+            self.assertEqual((code, self.abrufe), (4, []))
+        finally:
+            en.sperre_freigeben(halter)
+        self.assertTrue(Path(str(self.ziel) + ".lock").exists(), "Datei bleibt liegen (wie nach Absturz)")
+        _, code = self.laufen()
+        self.assertEqual(code, 0, "Datei ohne Inhaber wird übernommen")
+        self.assertEqual(len(self.abrufe), 3)
+
+    def test_vorhandener_ungueltiger_zeitstempel_sperrt(self):
+        """R2-05: vorhandenes Feld mit "", 0, false, null oder Objekt sperrt; ebenso ein Eintrag, der kein Objekt ist."""
+        for w in ("", 0, False, None, {}, [], 5):
+            self.assertTrue(en.zu_frueh({"kategorien": {"fernseher": {"versucht": w}}}, "fernseher", JETZT), repr(w))
+        for k in ("x", 0, [], True):
+            self.assertTrue(en.zu_frueh({"kategorien": {"fernseher": k}}, "fernseher", JETZT), repr(k))
+        self.assertTrue(en.zu_frueh({"kategorien": []}, "fernseher", JETZT))
+        self.assertFalse(en.zu_frueh({"kategorien": {"fernseher": {"quelle": "x"}}}, "fernseher", JETZT))
+
+    def test_unlesbare_ergebnisdatei_ruft_nichts_ab(self):
+        """R2-05 (gleiche Fehlerklasse): kaputte Ergebnisdatei gilt nicht als leer, sondern sperrt den Lauf."""
         self.ziel.parent.mkdir(parents=True, exist_ok=True)
-        sperre = Path(str(self.ziel) + ".lock")
-        sperre.write_text("", encoding="utf-8")
+        self.ziel.write_text('{"kategorien": {"fernseher": {"versucht": "2026-11-2', encoding="utf-8")
         _, code = self.laufen()
         self.assertEqual((code, self.abrufe), (4, []))
-        self.assertTrue(sperre.exists(), "fremde Sperre bleibt")
-        import os
-        alt = sperre.stat().st_mtime - en.LAUFSPERRE_MAX_S - 10
-        os.utime(sperre, (alt, alt))
-        _, code = self.laufen()
-        self.assertEqual(code, 0, "verwaiste Sperre wird übernommen")
-        self.assertFalse(sperre.exists(), "eigene Sperre wird freigegeben")
+        self.assertTrue(self.ziel.read_text(encoding="utf-8").endswith("2026-11-2"), "Datei bleibt unverändert")
 
     def test_unlesbarer_zeitstempel_sperrt(self):
         self.assertTrue(en.zu_frueh({"kategorien": {"fernseher": {"versucht": "gestern"}}}, "fernseher", JETZT))

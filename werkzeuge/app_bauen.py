@@ -124,7 +124,8 @@ def versionshash(fragment, daten):
     return h.hexdigest()[:12]
 
 
-def baue():
+def baue(daten_herkunft=None):
+    """daten_herkunft: Commit für finder-daten.json (veroeffentlichen.py, R2-02); lokal ohne."""
     f = (QUELLE / "kaufberatung.html").read_text(encoding="utf-8")
     pruefe_fragment(f)
     herkunft = json.loads((QUELLE / "herkunft.json").read_text(encoding="utf-8"))
@@ -139,7 +140,7 @@ def baue():
             shutil.rmtree(p) if p.is_dir() else p.unlink()
     (DIST / "icons").mkdir(parents=True, exist_ok=True)
     # Produktdaten zuerst: ein Fehler im Datenbestand bricht den Bau ab, bevor eine Seite entsteht
-    _, fehler, _ = datenbank.bauen(DIST / "finder-daten.json")
+    _, fehler, _ = datenbank.bauen(DIST / "finder-daten.json", herkunft=daten_herkunft)
     assert not fehler, f"Produktdaten: {len(fehler)} Fehler (python -I werkzeuge/datenbank.py pruefen)"
     v = versionshash(f, (DIST / "finder-daten.json").read_bytes())
     for d in STATISCH:

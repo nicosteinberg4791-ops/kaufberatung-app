@@ -126,10 +126,10 @@
     return v.toLocaleString("de-DE", { minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2 }) + " €";
   }
   function datum(iso) {
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+    const m = typeof iso === "string" ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso) : null;
     return m ? `${m[3]}.${m[2]}.${m[1]}` : "";
   }
-  function stufeText(w) { return STUFEN[w] || String(w).replace(/_/g, " "); }
+  function stufeText(w) { return Object.prototype.hasOwnProperty.call(STUFEN, w) ? STUFEN[w] : String(w).replace(/_/g, " "); }
   function wertText(feld, w) {
     if (w === undefined || w === null) return "nicht angegeben";
     if (feld.typ === "bool" || typeof w === "boolean") return w ? "ja" : "nein";
@@ -431,7 +431,9 @@
     zeichneAblage(kat);
     const status = document.getElementById("ergebnis-status");
     if (status) status.textContent = r.rang.length
-      ? r.rang.length + (r.rang.length === 1 ? " Modell passt" : " Modelle passen") + (r.empfehlung ? ". Empfehlung: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", " + note(r.empfehlung.note) + " Punkte." : ".")
+      ? r.rang.length + (r.rang.length === 1 ? " Modell passt" : " Modelle passen") + (!r.empfehlung ? "." : r.empfehlung.note === null
+        ? ". Modell ohne Note: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", für eine Note fehlen Datenblattwerte."   // R2-09
+        : ". Empfehlung: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", " + note(r.empfehlung.note) + " Punkte.")
       : "Kein Modell passt.";
     if (fokusDrin) { const f = findeFokus(koerper, fokus); if (f && f.focus) f.focus(); }
   }

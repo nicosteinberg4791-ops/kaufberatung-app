@@ -71,6 +71,18 @@ class Robots(unittest.TestCase):
         text = "User-agent: *\nDisallow: /de/category/k%C3%BChl\n"
         self.assertFalse(abruf.robots_erlaubt(text, UA, "https://h.invalid/de/category/k%C3%BChlschr%C3%A4nke-1235.html"))
 
+    def test_gleiche_normalisierung_fuer_laenge(self):
+        """R2-04: %70 = p (nicht reserviert) wird für Vergleich und Länge gleich normalisiert; %2A bleibt Literal."""
+        text = "User-agent: *\nDisallow: /de/category/px\nAllow: /de/category/%70\n"
+        self.assertFalse(abruf.robots_erlaubt(text, UA, "https://h.invalid/de/category/px"))
+        self.assertTrue(abruf.robots_erlaubt(text, UA, "https://h.invalid/de/category/pa"))
+        self.assertFalse(abruf.robots_erlaubt("User-agent: *\nDisallow: /a%62c\n", UA, "https://h.invalid/abc"))
+        self.assertFalse(abruf.robots_erlaubt("User-agent: *\nDisallow: /abc\n", UA, "https://h.invalid/a%62c"))
+        stern = "User-agent: *\nDisallow: /x%2Ay\n"
+        self.assertTrue(abruf.robots_erlaubt(stern, UA, "https://h.invalid/xzzy"), "%2A ist kein Platzhalter")
+        self.assertFalse(abruf.robots_erlaubt(stern, UA, "https://h.invalid/x%2ay"))
+        self.assertFalse(abruf.robots_erlaubt("User-agent: *\nDisallow: /kühl\n", UA, "https://h.invalid/k%C3%BChl-1.html"))
+
     def test_leer_oder_html_ist_nicht_auswertbar(self):
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
             for antwort in ("", "<html>Wartung</html>"):

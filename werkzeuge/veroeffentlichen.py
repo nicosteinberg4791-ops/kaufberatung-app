@@ -7,7 +7,10 @@ Push nur mit Auftrag des Besitzers bzw. nach bestandener Prüfung (AGENTS.md). B
   - `--stand` nennt den geprüften Commit; HEAD muss genau dieser Commit sein, der Arbeitsbaum sauber (auch ohne
     unversionierte Dateien), und origin/main muss in HEAD enthalten sein (kein Bau aus einem älteren Stand);
   - nach dem Bau wird das noch einmal geprüft (nichts hat sich während des Baus geändert);
-  - eine neuere finder-daten.json auf gh-pages (Datenworkflow) wird nie durch einen älteren Datenstand ersetzt.
+  - finder-daten.json trägt die Herkunft (Commit); die Online-Datei wird nur ersetzt, wenn ihre Herkunft im geprüften
+    Stand enthalten ist (werkzeuge/herkunft.py, R2-02), sonst Abbruch;
+  - preise.json und finder-preise.json kommen nie aus dist/ (dort ignoriert, ungeprüft, R2-01): vorhandene auf gh-pages
+    bleiben, eine fehlende finder-preise.json bekommt den festen Startstand.
 Der Seitenbaum ist ein eigener git worktree ohne Zweig (detached) unter .veroeffentlichung/ dieses Arbeitsbaums,
 immer frisch auf origin/gh-pages; gepusht wird `HEAD:gh-pages` ohne Erzwingen (hat sich gh-pages bewegt: neu starten).
 """
@@ -19,10 +22,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import app_bauen  # noqa: E402
+import herkunft  # noqa: E402
 
 WURZEL = Path(__file__).resolve().parent.parent
 SEITEN = WURZEL / ".veroeffentlichung"
 BEHALTEN = {".git", "preise.json", "finder-preise.json"}
+PREIS_START = '{"stand": null, "preise": {}}\n'   # finder-preise.json, bis der Preislauf eigene Preise schreibt
 
 
 def git(*a, cwd=WURZEL, check=True):
@@ -41,16 +46,6 @@ def stand_fehler(stand, head, sauber, main_enthalten):
     if not main_enthalten:
         f.append("origin/main ist nicht in HEAD enthalten (Bau aus älterem Stand?)")
     return f
-
-
-def daten_aelter(online, neu):
-    """True, wenn die gebaute finder-daten.json einen älteren Datenstand hat als die veröffentlichte (nie ersetzen)."""
-    try:
-        alt_stand = json.loads(online).get("stand")
-    except (ValueError, AttributeError):
-        return False   # unlesbare Online-Datei darf ersetzt werden
-    neu_stand = json.loads(neu).get("stand")
-    return isinstance(alt_stand, str) and (not isinstance(neu_stand, str) or neu_stand < alt_stand)
 
 
 def stand_lesen():
@@ -76,10 +71,12 @@ def spiegeln():
         if p.name not in BEHALTEN:
             shutil.rmtree(p) if p.is_dir() else p.unlink()
     for p in (WURZEL / "dist").iterdir():
-        if p.name in ("preise.json", "finder-preise.json") and (SEITEN / p.name).exists():
-            continue
+        if p.name in ("preise.json", "finder-preise.json"):
+            continue   # gehören den Preisläufen; lokale Kopien sind ungeprüft (R2-01)
         ziel = SEITEN / p.name
         shutil.copytree(p, ziel) if p.is_dir() else shutil.copyfile(p, ziel)
+    if not (SEITEN / "finder-preise.json").exists():
+        (SEITEN / "finder-preise.json").write_text(PREIS_START, encoding="utf-8", newline="\n")
 
 
 def main(argv=None):
@@ -95,10 +92,11 @@ def main(argv=None):
             return 1
     arbeitsbaum()
     online = (SEITEN / "finder-daten.json").read_text(encoding="utf-8") if (SEITEN / "finder-daten.json").exists() else None
-    v = app_bauen.baue()
-    if online is not None and daten_aelter(online, (WURZEL / "dist" / "finder-daten.json").read_text(encoding="utf-8")):
-        print("Abbruch: finder-daten.json auf gh-pages ist neuer als der gebaute Stand (nicht überschreiben)")
+    grund = herkunft.fehler(online, head, herkunft.git_vorfahr(WURZEL))
+    if grund:
+        print("Abbruch, nichts veröffentlicht: finder-daten.json auf gh-pages –", grund)
         return 1
+    v = app_bauen.baue(daten_herkunft=head)
     spiegeln()
     if trocken:
         print("trocken: .veroeffentlichung/ gespiegelt, nichts committet")

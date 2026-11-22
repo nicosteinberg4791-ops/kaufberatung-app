@@ -2,7 +2,8 @@
 """Produktdatenbank der Finder-Suche: prüfen und für die App zusammenbauen.
 
     python -I werkzeuge/datenbank.py pruefen [datei.json …]   # ohne Datei: alle daten/produkte/*.json
-    python -I werkzeuge/datenbank.py bauen <ziel.json>        # prüft alles, schreibt kompakte App-Daten
+    python -I werkzeuge/datenbank.py bauen <ziel.json> [--herkunft <commit>]   # prüft alles, schreibt kompakte App-Daten
+    (--herkunft: 40-stelliger Commit, aus dem gebaut wird; werkzeuge/herkunft.py entscheidet damit über das Ersetzen)
 
 Format: daten/produkte/FORMAT.md. Schema (Felder, Kurven, Fragen): daten/schema/kategorien.json.
 Exitcode 0 = keine Fehler (Warnungen erlaubt), 1 = Fehler. Nur Standardbibliothek.
@@ -295,14 +296,19 @@ def alle_pruefen(dateien=None):
     return daten, fehler, warnungen
 
 
-def bauen(ziel):
-    """Kompakte App-Daten: Schema + Modelle mit vorberechneten Teilpunkten je Feld (Gewichtung macht die App)."""
+def bauen(ziel, herkunft=None):
+    """Kompakte App-Daten: Schema + Modelle mit vorberechneten Teilpunkten je Feld (Gewichtung macht die App).
+    herkunft: Commit (40 Hex-Zeichen), aus dem gebaut wird (R2-02); steht dann als "herkunft" in der Datei."""
+    if herkunft is not None and not re.fullmatch(r"[0-9a-f]{40}", str(herkunft)):
+        raise ValueError("herkunft muss ein 40-stelliger Commit sein")
     schema, kats = lade_schema()
     daten, fehler, warnungen = alle_pruefen()
     if fehler:
         return daten, fehler, warnungen
     aus = {"stand": max((d["stand"] for d in daten), default=None), "regeln": {k: schema[k] for k in
            ("klassen", "unterschiedsschwelle_punkte", "datenblatt_abschlag", "aufpreis_regeln")}, "kategorien": []}
+    if herkunft is not None:
+        aus["herkunft"] = herkunft
     nach_kat = {d["kategorie"]: d for d in daten}
     for k in schema["kategorien"]:
         d = nach_kat.get(k["id"])
@@ -330,10 +336,11 @@ def main():
         print(__doc__)
         return 2
     if sys.argv[1] == "bauen":
-        if len(sys.argv) != 3:
-            print("Ziel fehlt")
+        a = sys.argv[2:]
+        if len(a) not in (1, 3) or (len(a) == 3 and a[1] != "--herkunft"):
+            print("Aufruf: bauen <ziel.json> [--herkunft <commit>]")
             return 2
-        daten, fehler, warnungen = bauen(sys.argv[2])
+        daten, fehler, warnungen = bauen(a[0], a[2].strip().lower() if len(a) == 3 else None)
     else:
         daten, fehler, warnungen = alle_pruefen(sys.argv[2:] or None)
     for w in warnungen:

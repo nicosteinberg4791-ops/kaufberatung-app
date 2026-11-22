@@ -400,8 +400,13 @@
       if (a.gewichte) pruefOderWirf(Object.values(a.gewichte).every(g => zahlIn(g, 0, 100)), "antwort.gewichte");
     }
   }
+  /* Modellwert, wie die Anzeige ihn braucht (R2-03): endliche Zahl, Wahrheitswert oder kurzer Text */
+  const wertOk = w => istZahl(w) || typeof w === "boolean" || istText(w, 200);
   function datenPruefen(d) {
     pruefOderWirf(istObjekt(d) && Array.isArray(d.kategorien) && istObjekt(d.regeln), "format");
+    // Kopfangaben (R2-03): stand nur null/Datum, herkunft nur Commit (40 Hex-Zeichen); sonst ganze Datei ungültig
+    pruefOderWirf(d.stand === undefined || d.stand === null || (typeof d.stand === "string" && DATUM.test(d.stand)), "stand");
+    pruefOderWirf(d.herkunft === undefined || (typeof d.herkunft === "string" && /^[0-9a-f]{40}$/.test(d.herkunft)), "herkunft");
     regelnPruefen(d.regeln);
     for (const k of d.kategorien) {
       pruefOderWirf(istObjekt(k) && typeof k.id === "string" && KENNUNG.test(k.id) && istName(k.name, 80)
@@ -414,7 +419,7 @@
         && istName(m.name, 200) && (m.variante === undefined || m.variante === null || istText(m.variante, 200))
         && (m.werte === undefined || istObjekt(m.werte)) && (m.teilpunkte === undefined || istObjekt(m.teilpunkte)));
       for (const m of k.modelle) {
-        m.werte = m.werte || {};
+        m.werte = Object.fromEntries(Object.entries(m.werte || {}).filter(([, w]) => wertOk(w)));
         m.teilpunkte = Object.fromEntries(Object.entries(m.teilpunkte || {}).filter(([, t]) => zahlIn(t, 0, 100)));
         if (m.preis !== null && m.preis !== undefined && !preisOk(m.preis)) m.preis = null;
         m.tests = (Array.isArray(m.tests) ? m.tests : []).filter(t => istObjekt(t) && sichereUrl(t.url) && istName(t.titel, 200))

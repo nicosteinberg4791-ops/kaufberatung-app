@@ -188,15 +188,89 @@ class Veroeffentlichen(unittest.TestCase):
         self.assertTrue(self.v.stand_fehler("0680c2c", h, False, True))      # schmutziger Baum
         self.assertTrue(self.v.stand_fehler("0680c2c", h, True, False))      # origin/main fehlt
 
-    def test_daten_nie_aelter(self):
-        self.assertTrue(self.v.daten_aelter('{"stand": "2026-11-23"}', '{"stand": "2026-11-21"}'))
-        self.assertFalse(self.v.daten_aelter('{"stand": "2026-11-21"}', '{"stand": "2026-11-21"}'))
-        self.assertFalse(self.v.daten_aelter("kaputt", '{"stand": "2026-11-21"}'))
+    def test_preisdateien_nie_aus_dist(self):
+        """R2-01: lokale Preisdateien in dist/ (ignoriert, ungeprüft) gehen nie auf gh-pages."""
+        with tempfile.TemporaryDirectory() as t:
+            t = Path(t)
+            (t / "dist").mkdir(); (t / "seiten").mkdir()
+            (t / "dist" / "finder-preise.json").write_text('{"stand": "2026-11-20", "preise": {"x": {"eur": 1}}}', encoding="utf-8")
+            (t / "dist" / "preise.json").write_text('{"lokal": true}', encoding="utf-8")
+            (t / "dist" / "index.html").write_text("<p>neu</p>", encoding="utf-8")
+            with mock.patch.object(self.v, "WURZEL", t), mock.patch.object(self.v, "SEITEN", t / "seiten"):
+                self.v.spiegeln()
+                self.assertEqual(json.loads((t / "seiten" / "finder-preise.json").read_text(encoding="utf-8")),
+                                 {"stand": None, "preise": {}}, "fehlende Datei: fester Startstand")
+                self.assertFalse((t / "seiten" / "preise.json").exists(), "preise.json nie aus dist")
+                (t / "seiten" / "finder-preise.json").write_text('{"online": 1}', encoding="utf-8")
+                self.v.spiegeln()
+                self.assertEqual((t / "seiten" / "finder-preise.json").read_text(encoding="utf-8"), '{"online": 1}')
+                self.assertTrue((t / "seiten" / "index.html").exists())
 
     def test_ohne_stand_kein_push(self):
         with mock.patch.object(self.v, "stand_lesen", return_value=("a" * 40, True, True)),              mock.patch.object(self.v, "arbeitsbaum") as ab, mock.patch.object(self.v.app_bauen, "baue") as bau:
             self.assertEqual(self.v.main([]), 1)
             ab.assert_not_called(); bau.assert_not_called()
+
+
+class Herkunft(unittest.TestCase):
+    """R2-02/R2-07: finder-daten.json wird nur durch einen Stand ersetzt, der die Online-Herkunft enthält."""
+    A, B = "a" * 40, "b" * 40
+
+    def setUp(self):
+        import herkunft
+        self.h = herkunft
+
+    def test_regeln(self):
+        vorfahr = lambda alt, neu: (alt, neu) == (self.A, self.B)
+        f = lambda online, neu: self.h.fehler(online, neu, vorfahr)
+        self.assertIsNone(f(None, self.B), "keine Online-Datei")
+        self.assertIsNone(f("kaputt", self.B), "unlesbare Online-Datei darf ersetzt werden")
+        self.assertIsNone(f(json.dumps({"herkunft": self.B}), self.B), "gleicher Stand")
+        self.assertIsNone(f(json.dumps({"herkunft": self.A}), self.B), "Online ist Vorfahr")
+        self.assertTrue(f(json.dumps({"herkunft": self.B}), self.A), "Online ist neuer")
+        self.assertTrue(f(json.dumps({"stand": "2026-11-22"}), self.B), "Online ohne Herkunft")
+        self.assertTrue(f(json.dumps({"herkunft": "<script>"}), self.B), "ungültige Herkunft")
+        self.assertTrue(f(json.dumps({"herkunft": self.A}), None), "neuer Stand ohne Herkunft")
+
+    def test_echtes_repo_und_cli(self):
+        sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
+        with mock.patch.dict(os.environ, sauber, clear=True), tempfile.TemporaryDirectory() as t:
+            t = Path(t)
+            g = lambda *a: subprocess.run(["git", "-C", str(t), *a], check=True, capture_output=True, text=True).stdout.strip()
+            g("init", "-q"); g("config", "user.name", "Test"); g("config", "user.email", "test@example.invalid")
+            g("commit", "-q", "--allow-empty", "-m", "a"); a = g("rev-parse", "HEAD")
+            g("commit", "-q", "--allow-empty", "-m", "b"); b = g("rev-parse", "HEAD")
+            online = t / "online.json"
+            cli = lambda neu: subprocess.run([sys.executable, "-I", str(WURZEL / "werkzeuge" / "herkunft.py"), "pruefen",
+                                              str(online), neu, str(t)], capture_output=True, text=True).returncode
+            self.assertEqual(cli(b), 0, "ohne Online-Datei")
+            online.write_text(json.dumps({"herkunft": a}), encoding="utf-8")
+            self.assertEqual(cli(b), 0)
+            online.write_text(json.dumps({"herkunft": b}), encoding="utf-8")
+            self.assertEqual(cli(a), 1, "alter Lauf darf neueren Stand nicht ersetzen")
+            online.write_text(json.dumps({"herkunft": "c" * 40}), encoding="utf-8")
+            self.assertEqual(cli(b), 1, "unbekannte Herkunft")
+
+    def test_bau_schreibt_herkunft(self):
+        import datenbank
+        with tempfile.TemporaryDirectory() as t:
+            z = Path(t) / "d.json"
+            _, fehler, _ = datenbank.bauen(z, herkunft=self.A)
+            self.assertEqual(fehler, [])
+            self.assertEqual(json.loads(z.read_text(encoding="utf-8"))["herkunft"], self.A)
+            with self.assertRaises(ValueError):
+                datenbank.bauen(z, herkunft="main")
+
+    def test_workflow_prueft_herkunft_vor_jedem_kopieren(self):
+        wf = (WURZEL / ".github" / "workflows" / "finder-daten.yml").read_text(encoding="utf-8")
+        self.assertIn("fetch-depth: 0", wf)
+        self.assertIn('--herkunft "$GITHUB_SHA"', wf)
+        schritt = wf.split("Auf gh-pages veröffentlichen", 1)[1].split("- name:", 1)[0]
+        kopien = schritt.count('cp "$RUNNER_TEMP/finder-daten.json"')
+        self.assertEqual(kopien, 2)
+        for teil in schritt.split('cp "$RUNNER_TEMP/finder-daten.json"')[:-1]:
+            letzte = teil.rsplit("git worktree add", 1)[-1].rsplit("git reset", 1)[-1]
+            self.assertIn("werkzeuge/herkunft.py pruefen", letzte, "Prüfung direkt vor jedem Kopieren")
 
 
 class Rahmen(unittest.TestCase):

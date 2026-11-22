@@ -4,6 +4,9 @@
 # online und der Lauf wird rot. Keine Secrets nötig (GITHUB_TOKEN genügt). Pushes von github-actions[bot] auf gh-pages
 # lösen den Pages-Bau aus (belegt: pages/builds, pusher github-actions[bot], 20./21.11.2026); der letzte Schritt prüft das
 # trotzdem als Abnahme: die öffentliche finder-daten.json muss bytegleich mit dem Bau sein (F-02).
+# Herkunft (R2-07): die Datei trägt den Commit, aus dem sie gebaut ist; vor jedem Kopieren prüft werkzeuge/herkunft.py,
+# dass der Online-Stand in diesem Commit enthalten ist. Ein neu gestarteter alter Lauf setzt so nie neuere Daten zurück
+# (Lauf wird rot, nichts gepusht).
 name: Finder-Daten
 
 on:
@@ -31,12 +34,14 @@ jobs:
     steps:
       - name: Repo holen
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # volle Historie für die Herkunftsprüfung (merge-base)
 
       - name: Produktdaten prüfen (Schranke)
         run: python3 -X utf8 -I werkzeuge/datenbank.py pruefen
 
       - name: finder-daten.json bauen
-        run: python3 -X utf8 -I werkzeuge/datenbank.py bauen "$RUNNER_TEMP/finder-daten.json"
+        run: python3 -X utf8 -I werkzeuge/datenbank.py bauen "$RUNNER_TEMP/finder-daten.json" --herkunft "$GITHUB_SHA"
 
       - name: Gebaute Datei grob prüfen
         run: |
@@ -56,6 +61,7 @@ jobs:
           cd .veroeffentlichung
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 -X utf8 -I ../werkzeuge/herkunft.py pruefen finder-daten.json "$GITHUB_SHA" ..
           cp "$RUNNER_TEMP/finder-daten.json" finder-daten.json
           git add finder-daten.json
           if git diff --cached --quiet; then echo "finder-daten.json unverändert"; exit 0; fi
@@ -65,6 +71,7 @@ jobs:
             if git push -q origin gh-pages; then echo "gepusht: gh-pages/finder-daten.json"; exit 0; fi
             git fetch --no-tags --depth=1 origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
             git reset -q --hard origin/gh-pages
+            python3 -X utf8 -I ../werkzeuge/herkunft.py pruefen finder-daten.json "$GITHUB_SHA" ..
             cp "$RUNNER_TEMP/finder-daten.json" finder-daten.json
             git add finder-daten.json
             if git diff --cached --quiet; then echo "finder-daten.json schon aktuell"; exit 0; fi

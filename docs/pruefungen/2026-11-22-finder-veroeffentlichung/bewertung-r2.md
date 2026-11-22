@@ -1,0 +1,18 @@
+# Bewertung Codex r2 – Finder-Veröffentlichung (22.11.2026)
+
+Bericht: `codex-nach-20261122-075117.json` (gpt-6.2-sol high, Stand c4360f1) · Urteil: nicht bestanden · geschlossen F-01…F-04, F-07, F-09, F-10, F-12, F-13 (F-02 als Fehlalarm bestätigt) · 9 neue Befunde.
+Einordnung nach Skill `pruefschleife` Schritt 5. Korrekturen im Commit nach c4360f1, je Befund mit Test (rot gegen c4360f1, grün danach).
+
+| ID | Schwere | Einordnung | Korrektur und Beleg |
+|---|---|---|---|
+| R2-01 | schwer | bestätigt (Code: `spiegeln()` kopierte `dist/finder-preise.json`, wenn gh-pages keine hatte; `dist/` ist ignoriert) | `veroeffentlichen.py spiegeln()`: `preise.json` und `finder-preise.json` nie aus `dist/`; fehlt `finder-preise.json` auf gh-pages, wird der feste Startstand `{"stand": null, "preise": {}}` geschrieben. Test `test_preisdateien_nie_aus_dist`. |
+| R2-02 | schwer | bestätigt (Tagesstempel `stand` ordnet Datenstände nicht eindeutig) | Herkunft statt Datum: `finder-daten.json` trägt `herkunft` = Commit, aus dem sie gebaut ist (`datenbank.py bauen --herkunft`, `app_bauen.baue(herkunft=…)`). `werkzeuge/herkunft.py`: ersetzen nur, wenn die Online-Herkunft gleich dem neuen Commit oder sein Vorfahr ist; Online-Datei ohne oder mit unbekannter Herkunft → Abbruch. Ersetzt `daten_aelter()`. Tests `Herkunft` (Regeln, echtes Wegwerf-Repo). |
+| R2-03 | schwer | bestätigt (`datum(String({toString:null}))` wirft) | `datenPruefen`: `stand` nur `null`/Datum, `herkunft` nur 40 Hex-Zeichen, sonst Fehler (Seite zeigt Fehlermeldung, Service Worker behält die Kopie); Modellwerte nur endliche Zahl, Wahrheitswert oder Text ≤ 200, Rest fällt still weg; `stufeText` nur eigene Schlüssel. Tests `R2-03` (Bewertung, DOM, Service Worker). |
+| R2-04 | schwer | bestätigt (Vergleich dekodiert, Länge roh) | `abruf.py`: Pfad und Regel gleich normalisiert nach RFC 9309 2.2.2 (nur nicht reservierte Zeichen dekodiert, Rest groß kodiert, Nicht-ASCII kodiert); Länge der normalisierten Regel entscheidet; `%2A` bleibt Literal. Test `test_gleiche_normalisierung_fuer_laenge`. |
+| R2-05 | schwer | bestätigt (`if not t: continue` übersprang `""`, `0`, `false`) | `zu_frueh`: jedes vorhandene Feld, das kein lesbarer Zeitstempel ist, sperrt; ebenso Kategorieeintrag kein Objekt. Gleiche Fehlerklasse: unlesbare Ergebnisdatei galt als leer → jetzt Abbruch ohne Abruf (Exit 4). Tests `test_vorhandener_ungueltiger_zeitstempel_sperrt`, `test_unlesbare_ergebnisdatei_ruft_nichts_ab`. |
+| R2-06 | schwer | bestätigt (Altersprüfung und Löschen nicht atomar) | Laufsperre ist eine Betriebssystem-Dateisperre (`msvcrt.locking` bzw. `fcntl.flock`) auf der offen gehaltenen `.lock`-Datei; frei beim Prozessende, kein Altern, kein Löschen. Test `test_paralleler_lauf_ruft_nichts_ab` (gehaltene Sperre → Exit 4; liegengebliebene Datei ohne Inhaber → Lauf). |
+| R2-07 | schwer | bestätigt (Neustart eines alten Laufs ist Fast-Forward) | `finder-daten.yml`: volle Historie (`fetch-depth: 0`), Bau mit `--herkunft "$GITHUB_SHA"`, vor dem ersten Kopieren und nach jedem Neuaufsetzen `herkunft.py pruefen` (Online-Herkunft muss Vorfahr sein, sonst Lauf rot, nichts gepusht). Test `test_workflow_prueft_herkunft_vor_jedem_kopieren`. |
+| R2-08 | schwer | bestätigt | `STATUS.md` Zeile 40: Rollenbezeichnung „Besitzer“ statt Vorname. Gesamtsuche im versionierten Stand ohne weitere Treffer (außer Prüfprotokollen, die nur den Befund zitieren). |
+| R2-09 | mittel | bestätigt | `finder.js`: Statusansage bei `ohne_note` „Modell ohne Note: …“ ohne Punktetext. DOM-Test in `F-10` ergänzt. |
+
+Fehlalarme: 0 von 9. Keine bewusste Entscheidung, nichts ungeklärt.

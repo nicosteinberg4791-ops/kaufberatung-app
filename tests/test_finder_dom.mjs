@@ -218,4 +218,20 @@ test("F-10: Modell im Budget ohne Note wird als solches gezeigt, nicht „Im Bud
   assert.equal(t.includes("Im Budget passt nichts"), false);
   assert.ok(t.includes("Modell ohne Note"), t.slice(0, 400));
   assert.ok(t.includes("Keine Note: zu wenig Daten"));
+  // Statusansage entsteht bei Änderungen im eingehängten Schirm (Budget ändern ohne Neuaufbau)
+  const feld = app.dok.getElementById("budget-airfryer-oben");
+  feld.value = "25"; feld.ausloesen("input");
+  const status = text(app.dok.getElementById("ergebnis-status"));
+  assert.ok(status.includes("Modell ohne Note"), status);
+  assert.equal(/–\s*Punkte|Punkte/.test(status), false, "R2-09: kein Punktetext ohne Note: " + status);
+});
+
+test("R2-03: Objekt statt Datum in stand zeigt die Fehlermeldung statt einer leeren Seite", async () => {
+  const d = JSON.parse(BEISPIEL); d.stand = { toString: null };
+  const a = await starte("#k=fernseher&s=ergebnis", JSON.stringify(d));
+  assert.ok(text(a.dok.body).includes("beschädigt"), text(a.dok.body).slice(0, 200));
+  const w = JSON.parse(BEISPIEL); w.kategorien[0].modelle[0].werte[w.kategorien[0].felder[0].id] = { toString: null };
+  const b = await starte("#k=fernseher&s=ergebnis", JSON.stringify(w));
+  assert.equal(text(b.dok.body).includes("beschädigt"), false);
+  assert.ok(text(b.dok.body).length > 100, "Seite zeichnet trotz kaputtem Einzelwert");
 });

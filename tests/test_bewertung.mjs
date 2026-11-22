@@ -376,3 +376,19 @@ test("F-10: Modell im Budget ohne Note wird gezeigt, nicht „passt nichts“", 
   const r2 = B.auswerten(Object.assign({}, KAT, { modelle: [modell("teuer", { a: 90, b: 100 }, {}, 150)] }), REGELN, { budget: 100 });
   assert.equal(r2.status, "ueber_budget");
 });
+
+test("R2-03: stand und herkunft nur gültig, sonst Fehler; Modellwerte nur einfache Typen", () => {
+  for (const st of [{ toString: null }, 5, "22.11.2026", ["2026-11-22"]]) {
+    const d = minimal(); d.stand = st; assert.throws(() => B.datenPruefen(d), JSON.stringify(st));
+  }
+  for (const hk of ["main", { a: 1 }, "A".repeat(40)]) {
+    const d = minimal(); d.herkunft = hk; assert.throws(() => B.datenPruefen(d), JSON.stringify(hk));
+  }
+  const ok = minimal(); ok.stand = "2026-11-22"; ok.herkunft = "0123456789abcdef0123456789abcdef01234567";
+  assert.doesNotThrow(() => B.datenPruefen(ok));
+  const n = minimal(); n.stand = null; assert.doesNotThrow(() => B.datenPruefen(n));
+  const d = minimal();
+  d.kategorien[0].modelle[0].werte = { a: { toString: null }, b: 3, c: true, e: "gut", f: Infinity, g: "x".repeat(201), h: null };
+  B.datenPruefen(d);
+  assert.deepEqual(d.kategorien[0].modelle[0].werte, { b: 3, c: true, e: "gut" });
+});

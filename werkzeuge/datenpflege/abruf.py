@@ -135,10 +135,30 @@ def einmal_abrufen(url):
     return text
 
 
+_UNRESERVIERT = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
+
+
+def _norm(s):
+    """Pfad oder Regel gleich normalisieren (RFC 9309 2.2.2, R2-04): %XX nur für nicht reservierte Zeichen dekodieren,
+    sonst groß kodiert lassen; Nicht-ASCII und Leerzeichen UTF-8-kodieren. Wörtliches * und $ bleiben (Platzhalter
+    nur in Regeln), %2A/%24 bleiben kodiert und damit Literale."""
+    aus, i = [], 0
+    while i < len(s):
+        c = s[i]
+        if c == "%" and re.fullmatch(r"[0-9A-Fa-f]{2}", s[i + 1:i + 3]):
+            z = chr(int(s[i + 1:i + 3], 16))
+            aus.append(z if z in _UNRESERVIERT else "%" + s[i + 1:i + 3].upper())
+            i += 3
+            continue
+        aus.append(urllib.parse.quote(c, safe="") if ord(c) > 126 or ord(c) <= 32 else c)
+        i += 1
+    return "".join(aus)
+
+
 def _muster(m):
-    """robots-Pfadmuster → regulärer Ausdruck (RFC 9309: * beliebig, $ am Ende = Pfadende)."""
+    """robots-Pfadmuster (normalisiert) → regulärer Ausdruck (RFC 9309: * beliebig, $ am Ende = Pfadende)."""
     ende = m.endswith("$")
-    kern = urllib.parse.unquote(m[:-1] if ende else m)
+    kern = m[:-1] if ende else m
     return re.compile(re.escape(kern).replace(r"\*", ".*") + ("$" if ende else ""))
 
 
@@ -169,11 +189,12 @@ def robots_regeln(text, ua_token):
 def robots_erlaubt(text, ua_token, url):
     """RFC 9309: längstes passendes Muster entscheidet, bei Gleichstand Allow; ohne passende Regel erlaubt."""
     t = urllib.parse.urlsplit(url)
-    pfad = urllib.parse.unquote((t.path or "/") + ("?" + t.query if t.query else ""))
+    pfad = _norm((t.path or "/") + ("?" + t.query if t.query else ""))
     if pfad == "/robots.txt":
         return True
     best = None
-    for erlaubt, m in robots_regeln(text, ua_token):
+    for erlaubt, roh in robots_regeln(text, ua_token):
+        m = _norm(roh)   # Vergleich und Länge mit derselben Form (R2-04)
         if _muster(m).match(pfad):
             schluessel = (len(m), erlaubt)
             if best is None or schluessel > best:

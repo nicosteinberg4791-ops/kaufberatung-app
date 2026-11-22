@@ -7,7 +7,8 @@ Aufruf:  python -I -X utf8 werkzeuge/entdeckung.py [--kategorie fernseher,laptop
   (≥ 61 s je Domain über alle Prozesse, robots.txt, Sperre bei 403/429 → Lauf endet sofort, nicht umgehen).
 - Höchstens einmal je Kategorie in 6 Tagen (wöchentlich, D10); die Sperre steht im Ergebnis selbst und ist nicht abschaltbar.
   Sie wird vor dem ersten Abruf der Kategorieseite reserviert („versucht“), gilt also auch bei leerem oder fehlerhaftem
-  Ergebnis (F-05). Ein zweiter Lauf zur selben Zeit endet sofort (Laufsperre neben der Ergebnisdatei, Exit 4).
+  Ergebnis (F-05). Ein zweiter Lauf zur selben Zeit endet sofort (Betriebssystem-Dateisperre neben der Ergebnisdatei,
+  frei beim Prozessende, Exit 4, R2-06). Unlesbare Ergebnisdatei oder unlesbarer Zeitstempel sperrt (R2-05).
 - Abgleich gegen daten/produkte/*.json über EAN, MPN (im Namen) und Hersteller + Modellname.
 - Gespeichert werden nur Name, URL und Saturn-Nummer der Kandidaten (§ 87b UrhG: kein Spiegeln, keine Preise, keine
   Datenblätter) in `%TEMP%/kb-datenpflege/entdeckung/kandidaten.json` (für alle Arbeitsbäume gleich, nie im Repo). Die Datenpflege-Routine (D11) liest die Datei,
@@ -31,7 +32,6 @@ import tempfile  # noqa: E402
 ZIEL = Path(tempfile.gettempdir()) / "kb-datenpflege" / "entdeckung" / "kandidaten.json"
 MAX_SEITEN = 3
 MIN_TAGE = 6
-LAUFSPERRE_MAX_S = 3 * 3600   # länger läuft kein Lauf (14 Kategorien × 3 Seiten × 61 s ≈ 45 min); ältere Sperre = verwaist
 SATURN = "https://www.saturn.de/de/category/"
 
 # Kategorie der App → Saturn-Kategorieseite (ermittelt am 22.11.2026 aus sitemap-productlistpages.xml und Navigation)
@@ -175,10 +175,14 @@ def saturn_nr(url):
 
 
 def laden(ziel=ZIEL):
+    """Ergebnisdatei lesen. Fehlt sie: leer. Ist sie unlesbar: Merker _unlesbar (sperrt den Lauf, R2-05)."""
     try:
-        return json.loads(Path(ziel).read_text(encoding="utf-8"))
-    except (FileNotFoundError, ValueError):
+        erg = json.loads(Path(ziel).read_text(encoding="utf-8"))
+    except FileNotFoundError:
         return {"kategorien": {}}
+    except (OSError, ValueError):
+        return {"kategorien": {}, "_unlesbar": True}
+    return erg if isinstance(erg, dict) else {"kategorien": {}, "_unlesbar": True}
 
 
 def speichern(erg, ziel):
@@ -191,39 +195,67 @@ def speichern(erg, ziel):
 
 
 def zu_frueh(alt, kat, jetzt):
-    """Letzter Abruf oder Abrufversuch (F-05) vor weniger als MIN_TAGE. Unlesbarer Zeitstempel zählt als gesperrt."""
-    k = alt.get("kategorien", {}).get(kat) or {}
+    """Letzter Abruf oder Abrufversuch (F-05) vor weniger als MIN_TAGE. Jedes vorhandene Feld, das kein lesbarer
+    Zeitstempel ist (auch "", 0, false, null), und ein Eintrag, der kein Objekt ist, zählen als gesperrt (R2-05)."""
+    kats = alt.get("kategorien", {})
+    if not isinstance(kats, dict):
+        return True
+    if kat not in kats:
+        return False
+    k = kats[kat]
+    if not isinstance(k, dict):
+        return True
     for feld in ("abgerufen", "versucht"):
-        t = k.get(feld)
-        if not t:
+        if feld not in k:
             continue
+        t = k[feld]
         try:
+            if not isinstance(t, str):
+                raise TypeError(feld)
             if jetzt - dt.datetime.fromisoformat(t) < dt.timedelta(days=MIN_TAGE):
                 return True
         except (ValueError, TypeError):
+            print(f"{kat}: Zeitstempel {feld}={t!r} unlesbar – gesperrt (D10)")
             return True
     return False
 
 
 def sperre_holen(ziel):
-    """Exklusive Laufsperre (O_EXCL) neben der Ergebnisdatei. Rückgabe Pfad oder None, wenn ein anderer Lauf aktiv ist."""
+    """Exklusive Laufsperre als Betriebssystem-Dateisperre auf der offen gehaltenen Datei <ziel>.lock (R2-06): genau ein
+    Inhaber, frei beim Prozessende (auch nach Absturz), kein Altern und kein Löschen. Rückgabe Dateiobjekt oder None."""
     import os
-    import time
     sperre = Path(str(ziel) + ".lock")
     sperre.parent.mkdir(parents=True, exist_ok=True)
-    for _ in range(2):
-        try:
-            os.close(os.open(str(sperre), os.O_CREAT | os.O_EXCL | os.O_WRONLY))
-            return sperre
-        except FileExistsError:
-            try:
-                if time.time() - sperre.stat().st_mtime > LAUFSPERRE_MAX_S:
-                    sperre.unlink()   # verwaist (abgestürzter Lauf)
-                    continue
-            except FileNotFoundError:
-                continue
-            return None
-    return None
+    f = open(sperre, "a+b")
+    try:
+        if os.name == "nt":
+            import msvcrt
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        f.close()
+        return None
+    return f
+
+
+def sperre_freigeben(f):
+    """Sperre lösen und Datei schließen (die Datei bleibt liegen; sie sperrt ohne Inhaber nichts)."""
+    import os
+    try:
+        if os.name == "nt":
+            import msvcrt
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+    except OSError:
+        pass
+    finally:
+        f.close()
 
 
 def lauf(kats, seiten, holen, robots_ok, ziel=ZIEL, produkte=PRODUKTE, jetzt=None):
@@ -236,15 +268,15 @@ def lauf(kats, seiten, holen, robots_ok, ziel=ZIEL, produkte=PRODUKTE, jetzt=Non
     try:
         return _lauf(kats, seiten, holen, robots_ok, ziel, produkte, jetzt)
     finally:
-        try:
-            sperre.unlink()
-        except FileNotFoundError:
-            pass
+        sperre_freigeben(sperre)
 
 
 def _lauf(kats, seiten, holen, robots_ok, ziel, produkte, jetzt):
     idx = bestand_index(produkte)
     erg = laden(ziel)   # erst unter der Laufsperre lesen
+    if erg.get("_unlesbar"):
+        print(f"Ergebnisdatei {Path(ziel).name} unlesbar: nichts abgerufen, Datei bleibt (erst prüfen, D10)")
+        return erg, 4
     erg.setdefault("kategorien", {})
     code = 0
     for kat in kats:
