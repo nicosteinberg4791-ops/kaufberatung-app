@@ -914,5 +914,58 @@ class Runde6(unittest.TestCase):
                 os.environ["no_proxy"] = alt_proxy
 
 
+class Runde7(unittest.TestCase):
+    """Regressionstests zur Codex-Nachprüfung r7 (22.11.2026)."""
+    m = MODELLE["af_ninja_af500"]
+
+    def teile(self):
+        gut = saturn_text([Runde5.preis()])
+        i = gut.index("<script>window.__PRELOADED_STATE__")
+        return gut, gut[:i], gut[i:]
+
+    def kein_nachweis(self, text, name):
+        self.assertIsNone(s.mms_preisfeld(text, "Saturn:de:", "111"), name)
+        g, _ = s.auswerten_seite(text, self.m, QUELLEN["saturn"], "L", "Z")
+        self.assertEqual(g, [], name)
+
+    def test_d7_r7_01_src_ohne_wert(self):
+        gut, jsonld, zustand = self.teile()
+        self.kein_nachweis(jsonld + zustand.replace("<script>", "<script src>"), "src_ohne_wert")
+        self.kein_nachweis(jsonld + zustand.replace("<script>", '<script src="">'), "src_leer")
+
+    def test_d7_r7_02_positivliste_zuweisung(self):
+        gut, jsonld, zustand = self.teile()
+        self.assertEqual(s.mms_preisfeld(gut, "Saturn:de:", "111"), (False, 219.99, 0.0))
+        varianten = {
+            "template_literal": zustand.replace(";</script>", "`x`;</script>"),
+            "fremdes_ziel": zustand.replace("<script>window.", "<script>const other = {window: {}}; other.window."),
+            "fremdes_ziel_ohne_vorspann": zustand.replace("<script>window.", "<script>other.window."),
+            "weiterer_code": zustand.replace(";</script>", "; window.__PRELOADED_STATE__ = {};</script>"),
+            "zweites_skript": zustand + "<script>window.__PRELOADED_STATE__.artikel = [];</script>",
+        }
+        for name, z in varianten.items():
+            self.kein_nachweis(jsonld + z, name)
+        # Leerraum vor der Zuweisung (echte Seiten formatieren unterschiedlich) bleibt gültig
+        self.assertEqual(s.mms_preisfeld(jsonld + zustand.replace("<script>", "<script>\n  "), "Saturn:de:", "111"),
+                         (False, 219.99, 0.0))
+
+    def test_d7_r7_03_html_kommentar_im_skript(self):
+        p = seite(produkt())
+        self.assertFalse(s.ist_challenge(p + "<script><!-- _cf_chl_opt = {}\n</script>", "text/html"))
+        self.assertFalse(s.ist_challenge(p + "<script>var a = 1;\n--> _cf_chl_opt = {}\n</script>", "text/html"))
+        self.assertTrue(s.ist_challenge(p + "<script>var a = 1 --> 0;\n_cf_chl_opt = {}\n</script>", "text/html"))
+
+    def test_d7_r7_04_titel_mit_zeilenumbruch(self):
+        p = seite(produkt())
+        self.assertTrue(s.ist_challenge("<p>Saturn</p><title>Just\n a moment...</title>" + p, "text/html"))
+        self.assertTrue(s.ist_challenge(p + "<title>\n\tJust\ta   moment</title>", "text/html"))
+
+    def test_d7_r7_05_jsonld_nur_als_echter_block(self):
+        self.assertTrue(s.ist_challenge("<!-- application/ld+json --><div class='g-recaptcha'></div>", "text/html"))
+        self.assertTrue(s.ist_challenge("<template><script type='application/ld+json'>{}</script></template>"
+                                        "<div class='g-recaptcha'></div>", "text/html"))
+        self.assertFalse(s.ist_challenge(seite(produkt()) + "<div class='g-recaptcha'></div>", "text/html"))
+
+
 if __name__ == "__main__":
     unittest.main()

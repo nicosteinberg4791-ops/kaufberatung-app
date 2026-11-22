@@ -254,35 +254,40 @@ def _ohne_doppelte(paare):
     return obj
 
 
-_ZUSTAND_START = re.compile(r"window\.__PRELOADED_STATE__\s*=\s*")
+# D7-R7-02: enge Positivliste nach der echten Seite: das Skript beginnt mit genau dieser Zuweisung
+_ZUSTAND_START = re.compile(r"\s*window\.__PRELOADED_STATE__\s*=\s*(?=\{)")
 _JS_TOKEN = re.compile(r'"(?:[^"\\]|\\.)*"|\bundefined\b|[{}\[\]]', re.S)
-# Passive Teile eines Skripts: Zeichenketten ("…", '…', `…`) und Kommentare (// …, /* … */)
-_JS_PASSIV = re.compile(r'"(?:[^"\\\n]|\\.)*"|' r"'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`|//[^\n]*|/\*.*?(?:\*/|\Z)",
-                        re.S)
+# Passive Teile eines Skripts: Zeichenketten ("…", '…', `…` ohne Verschachtelung) und Kommentare (// …, /* … */,
+# HTML-artige Zeilenkommentare <!-- … und --> … am Zeilenanfang klassischer Skripte, D7-R7-03)
+_JS_PASSIV = re.compile(r'"(?:[^"\\\n]|\\.)*"|' r"'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`|//[^\n]*|/\*.*?(?:\*/|\Z)|"
+                        r"<!--[^\n]*|^[ \t]*-->[^\n]*", re.S | re.M)
 
 
 def js_maskiert(skript):
     """Skript mit Zeichenketten und Kommentaren durch gleich viele Leerzeichen ersetzt (Positionen bleiben gleich).
-    Nur darin werden ausführbare Zuweisungen gesucht (D7-17, D7-R6-01). Regex-Literale werden nicht erkannt; ein
-    Anführungszeichen darin kann Code verdecken (sichere Richtung: kein Nachweis bzw. keine Sperre durch Skript)."""
+    Nur darin wird das Challenge-Merkmal gesucht (D7-17). Leitplanke (D7-R7-03): Regex-Literale und verschachtelte
+    Template-Literale werden nicht erkannt; dort kann passiver Text eine Fehlsperre auslösen oder Code verdecken.
+    Fehlsperre = sichere Richtung (Quelle in diesem Lauf nicht abgefragt, kein falscher Preis)."""
     return _JS_PASSIV.sub(lambda m: " " * len(m.group(0)), skript)
 
 
 def mms_zustand(text):
-    """D7-15/D7-18/D7-R6-01: eingebetteten Seitenzustand der MMS-Plattform (window.__PRELOADED_STATE__ = {...};)
-    vollständig lesen. Gezählt werden nur Zuweisungen im Code ausführbarer Inline-Skripte (nicht in HTML-Kommentaren,
-    <template>, <noscript>, Daten-Skripten, Zeichenketten oder Skriptkommentaren). Genau eine Zuweisung; rechts davon
-    genau das Objektliteral, danach nur „;“ oder Skriptende. Das Objektliteral muss außer `undefined` (-> null)
-    gültiges JSON sein, Klammern ausgeglichen, keine doppelten Schlüssel, sonst None."""
-    funde = []
+    """D7-15/D7-18/D7-R6-01/D7-R7-02: eingebetteten Seitenzustand der MMS-Plattform vollständig lesen. Enge
+    Positivliste nach der echten Seite: genau ein ausführbares Inline-Skript (nicht in HTML-Kommentaren, <template>,
+    <noscript>, Daten-Skripten, Skripten mit src) beginnt mit `window.__PRELOADED_STATE__ = {`; danach nur das
+    Objektliteral, optional „;“ und Leerraum bis zum Skriptende. Kein anderes ausführbares Skript nennt den Zustand im
+    Code. Das Objektliteral muss außer `undefined` (-> null) gültiges JSON sein, Klammern ausgeglichen, keine doppelten
+    Schlüssel. Sonst None (kein Nachweis)."""
+    funde, andere = [], 0
     for skript in seitenzerlegung(text).skripte:
-        maske = js_maskiert(skript)
-        funde += [(skript, maske, m.end()) for m in _ZUSTAND_START.finditer(maske)]
-    if len(funde) != 1:
+        m = _ZUSTAND_START.match(skript)
+        if m:
+            funde.append((skript, m.end()))
+        elif "__PRELOADED_STATE__" in js_maskiert(skript):
+            andere += 1
+    if len(funde) != 1 or andere:
         return None
-    skript, maske, anfang = funde[0]
-    if not skript.startswith("{", anfang):
-        return None
+    skript, anfang = funde[0]
     teile, pos, tiefe = [], anfang, 0
     for m in _JS_TOKEN.finditer(skript, anfang):
         tok = m.group(0)
@@ -299,8 +304,8 @@ def mms_zustand(text):
                 break
     else:
         return None  # Objekt nicht abgeschlossen
-    if not re.match(r"\s*(;|\Z)", maske[m.end():]):
-        return None  # angehängter Ausdruck (z. B. „.artikel“, „|| x“): die Zuweisung setzt einen anderen Wert
+    if not re.fullmatch(r"\s*;?\s*", skript[m.end():]):
+        return None  # angehängter Ausdruck („.artikel“, „|| x“, Template-Literal) oder weiterer Code
     try:
         zustand = json.loads("".join(teile), object_pairs_hook=_ohne_doppelte)
     except ValueError:  # auch DoppelterSchluessel
@@ -476,6 +481,7 @@ class _Seitenteile(html.parser.HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.text, self.attribute, self.skripte, self.titel = [], [], [], []
+        self.jsonld = False  # echter JSON-LD-Skriptblock (nicht in Kommentar/<template>/<noscript>, D7-R7-05)
         self._unsichtbar = 0
         self._in = None  # "skript" (ausführbares Inline-Skript) oder "stumm" (Stil, Daten-Skript, Skript mit src)
         self._skript = self._titel = None
@@ -488,7 +494,9 @@ class _Seitenteile(html.parser.HTMLParser):
         self.attribute.extend(v for _, v in attrs if v)
         if tag in ("script", "style"):
             a = dict(attrs)
-            aktiv = tag == "script" and (a.get("type") or "").strip().lower() in JS_TYPEN and a.get("src") is None
+            if tag == "script" and "ld+json" in (a.get("type") or "").lower():
+                self.jsonld = True
+            aktiv = tag == "script" and (a.get("type") or "").strip().lower() in JS_TYPEN and "src" not in a
             self._in = "skript" if aktiv else "stumm"
             self._skript = [] if aktiv else None
         elif tag == "title":
@@ -509,7 +517,7 @@ class _Seitenteile(html.parser.HTMLParser):
             self._skript_ende()
             self._in = None
         elif tag == "title" and self._titel is not None:
-            self.titel.append("".join(self._titel))
+            self.titel.append(re.sub(r"\s+", " ", "".join(self._titel)))  # D7-R7-04: Umbrüche wie Leerzeichen
             self._titel = None
             self.text.append(" ")
         elif tag not in self.INLINE and not self._unsichtbar:
@@ -566,7 +574,7 @@ def ist_challenge(text, inhaltstyp):
     if "html" not in (inhaltstyp or "").lower():
         return False
     schwach = "\n".join((sichtbar, attribute, code))
-    return bool(CHALLENGE_SCHWACH.search(schwach)) and "application/ld+json" not in text
+    return bool(CHALLENGE_SCHWACH.search(schwach)) and not p.jsonld
 
 
 class _KeineWeiterleitung(urllib.request.HTTPRedirectHandler):
