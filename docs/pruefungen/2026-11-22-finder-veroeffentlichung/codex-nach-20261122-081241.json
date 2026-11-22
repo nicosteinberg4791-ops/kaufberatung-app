@@ -1,0 +1,69 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Vier schwere Befunde blockieren die Veröffentlichung. R2-01 bis R2-04 sind teilweise behoben und bleiben offen. Die Produktdatenbank meldet 0 Fehler und 56 Warnungen. Alle 44 JavaScript-Tests sind grün.",
+  "befunde": [
+    {
+      "id": "R3-01",
+      "schwere": "schwer",
+      "titel": "Ein paralleler App-Bau kann Finder-Daten ohne Herkunft in den Seitencommit bringen",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 100,
+      "beleg": "Das Fertigkriterium lautet „`finder-daten.json` auf gh-pages wird weder von `veroeffentlichen.py` noch von `finder-daten.yml` durch einen Stand ersetzt, der die Online-Herkunft nicht enthält.“ Die Preisdateien aus `dist/` werden inzwischen ausgeschlossen. Für die Finder-Daten prüft Zeile 95 die Online-Herkunft gegen HEAD, danach bauen und spiegeln Zeilen 99–100 über das gemeinsame `dist/`. Ein gewöhnlicher Aufruf von `app_bauen.py` im selben Arbeitsbaum schreibt dort ohne Herkunft (`app_bauen.py:143 und :184`). In einer Speicherprobe mit diesem Aufruf zwischen Bau und Kopie erreichte `main()` den simulierten Push mit Exit 0. Die übergebene Datei enthielt keine Herkunft. HEAD und die Git-Sauberkeitsprüfung blieben gleich.",
+      "auswirkung": "Die Veröffentlichung kann Erfolg melden und zugleich eine Datei ausliefern, die spätere Datenläufe bei der Herkunftsprüfung blockiert.",
+      "vorschlag": "Für jeden Veröffentlichungslauf ein eigenes frisches Ausgabeverzeichnis verwenden und die Herkunft der tatsächlich für den Seitencommit bereitgestellten Datei vor dem Commit gegen den geprüften SHA prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R3-02",
+      "schwere": "schwer",
+      "titel": "Der Service Worker speichert Daten, mit denen die Finder-Ergebnisse leer bleiben",
+      "datei": "app/finder/bewertung.js",
+      "zeile": 34,
+      "beleg": "Das Objekt in `stand` wird jetzt abgewiesen. Eine andere Beschädigung löst den Fehler weiterhin aus. In der gültigen Testdatei wurden eine Kategorie-ID auf `constructor` und eine gewichtete Feld-ID auf `prototype` gesetzt. `datenPruefen()` akzeptierte die Kennungen, und der Service Worker ersetzte in der Speicherprobe die gültige Cachekopie (`app/sw.js:57–58`). Beim direkten Aufruf der Ergebnisse für diese Kategorie brach `nichtAnwendbar()` mit `r is not a function` ab. Der Hauptbereich blieb leer. Erwartet sind die letzte brauchbare Kopie oder die vorhandene Fehlermeldung.",
+      "auswirkung": "Der Finder kann auch offline weiter mit der beschädigten Kopie starten. Für die betroffene Kategorie bleiben die Ergebnisse unbenutzbar.",
+      "vorschlag": "Beim Nachschlagen der Ausnahmen nur eigene Einträge und aufrufbare Funktionen verwenden. Die beschädigte Antwort in den DOM- und Service-Worker-Tests abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R3-03",
+      "schwere": "schwer",
+      "titel": "robots.txt-Verbote für wörtliche Sternchen und Dollarzeichen greifen nur bei kodierten URLs",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 192,
+      "beleg": "Das Fertigkriterium lautet „robots.txt, 403/429 → Abbruch, nie umgangen“. Der frühere `%70`-Fall ist behoben. In der lokalen Parserprobe gab `Disallow: /x%2Ay` den URL-Pfad `/x*y` frei, sperrte aber `/x%2ay`. Entsprechend gab `Disallow: /x%24` den Pfad `/x$` frei. `_norm()` lässt `*` und `$` im URL-Pfad unverändert. Beide Schreibweisen sollen beim Vergleich mit der kodierten Literalregel gesperrt sein. [RFC 9309 § 2.2.3, Abbildung 6](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.3)",
+      "auswirkung": "Ein URL-Pfad mit wörtlichem Sonderzeichen kann trotz einer passenden robots.txt-Verbotsregel abgerufen werden.",
+      "vorschlag": "Wörtliche Sonderzeichen im URL-Pfad vor dem Vergleich kodieren. In Regeln die Bedeutung von `*` und abschließendem `$` erhalten. Die Beispiele aus Abbildung 6 als Regressionen testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R3-04",
+      "schwere": "schwer",
+      "titel": "Beim Aufräumen einer alten Domainsperre können zwei Prozesse gleichzeitig abrufen",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 54,
+      "beleg": "Das Fertigkriterium verlangt „Takt ≥ 61 s“. Die Domainsperre verwendet weiterhin eine getrennte Altersprüfung und Löschung. In einer Speicherprobe las Lauf B das Alter der verwaisten Datei. Lauf A ersetzte die Datei und begann den Abruf. Anschließend löschte B den inzwischen A gehörenden Pfad, erhielt selbst die Sperre und konnte ohne neuen Zeitstempel ebenfalls abrufen. Soll ist ein Inhaber, bis der Abruf beendet und der Zeitstempel geschrieben ist (`abruf.py:83–105`).",
+      "auswirkung": "Die neue Entdeckungssperre serialisiert Entdeckungsläufe untereinander. Ein gleichzeitiger Aufruf von `abruf.py` kann den Mindestabstand für dieselbe Domain weiterhin unterschreiten.",
+      "vorschlag": "Auch die Domainsperre als Betriebssystem-Dateisperre auf einer dauerhaft vorhandenen Datei halten. Wartezeit, Abruf und Zeitstempel unter derselben Sperre ausführen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R3-05",
+      "schwere": "mittel",
+      "titel": "Die Herkunftsprüfung akzeptiert zwei identische unbekannte SHAs",
+      "datei": "werkzeuge/herkunft.py",
+      "zeile": 34,
+      "beleg": "Mit demselben unbekannten 40-stelligen SHA als Online-Herkunft und neuem Stand gab `fehler()` in der Prüfung gegen das lokale Git-Repository `None` zurück. Der Gleichheitszweig überspringt Git. Bei fehlender oder syntaktisch ungültiger Online-Datei wird auch die Formatprüfung des neuen SHA übersprungen (Zeilen 23–29). Die regulären Aufrufer beziehen ihren neuen SHA aus Git.",
+      "auswirkung": "Beim direkten Aufruf kann das Prüfwerkzeug eine Herkunft freigeben, für die kein Commit nachgewiesen wurde.",
+      "vorschlag": "Den neuen SHA vor jedem Erfolg auf vollständiges Format und ein vorhandenes Commit-Objekt prüfen. Für vorhandene Online-Herkunft dieselbe Objektprüfung auch bei gleichen SHAs anwenden.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "R2-05",
+    "R2-06",
+    "R2-07",
+    "R2-08",
+    "R2-09"
+  ],
+  "pruefgrenzen": "Lesende Prüfung von Commit 73e2c6c8f5b99047a1a70ddc9eb8dcb27d9d134f mit lokalen Speicherproben. Der PowerShell-Sammellauf schreibt Test- und Protokolldateien und wurde deshalb ausgelassen. Sein gemeldeter grüner Stand stammt aus der Selbstprüfung. Datenbankschranke und JavaScript-Tests wurden unabhängig ausgeführt. GitHub Actions und GitHub Pages wurden ohne Live-Lauf geprüft."
+}
