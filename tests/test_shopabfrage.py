@@ -601,10 +601,14 @@ class Runde3(unittest.TestCase):
                 body = voll[:24] if self.path == "/kurz" else voll
                 self.send_response(200)
                 self.send_header("Content-Type", "text/plain")
-                if self.path == "/chunk":
+                if self.path.startswith("/chunk"):
                     self.send_header("Transfer-Encoding", "chunked")
                     self.end_headers()
-                    self.wfile.write(b"%x\r\n" % len(voll) + voll[:10])  # Chunk endet vorzeitig
+                    kopf = b"%x\r\n" % len(voll)
+                    self.wfile.write({"/chunk": kopf + voll[:10],  # Chunk endet vorzeitig
+                                      "/chunk0": kopf + voll + b"\r\n0",  # D7-02 r4: Ende nach "0"
+                                      "/chunk0crlf": kopf + voll + b"\r\n0\r\n",  # ohne Leerzeile
+                                      "/chunkok": kopf + voll + b"\r\n0\r\n\r\n"}[self.path])
                 else:
                     self.send_header("Content-Length", str(len(voll)))
                     self.end_headers()
@@ -621,10 +625,11 @@ class Runde3(unittest.TestCase):
         alt_proxy = os.environ.get("no_proxy")
         os.environ["no_proxy"] = "127.0.0.1"
         try:
-            for pfad in ("/kurz", "/chunk"):
+            for pfad in ("/kurz", "/chunk", "/chunk0", "/chunk0crlf"):
                 with self.assertRaises(s.NichtAbrufbar, msg=pfad):
                     s.abrufen(basis + pfad)
             self.assertIn("Disallow: /de/product/", s.abrufen(basis + "/voll"))
+            self.assertIn("Disallow: /de/product/", s.abrufen(basis + "/chunkok"))
             r = s.robots_fuer({"domain": "x"}, holen=lambda u: s.abrufen(basis + "/kurz"))
             self.assertIsInstance(r, str)  # nicht lesbar -> Quelle nicht abfragen
         finally:
@@ -634,6 +639,54 @@ class Runde3(unittest.TestCase):
                 os.environ.pop("no_proxy", None)
             else:
                 os.environ["no_proxy"] = alt_proxy
+
+
+class Runde4(unittest.TestCase):
+    """Regressionstests zur Codex-Nachprüfung r4 (22.11.2026)."""
+    m = MODELLE["af_ninja_af500"]
+
+    def test_d7_15_zweites_preisobjekt_andere_feldfolge(self):
+        eigen = {"id": "Saturn:de:111", "currency": "EUR", "isProductOfTypeMarketplace": False,
+                 "price": {"__typename": "CofrPriceFeaturePrice", "amount": 219.99, "shippingCost": 0}}
+        markt = {"__typename": "CofrPriceFeature", "isProductOfTypeMarketplace": True, "currency": "EUR",
+                 "id": "Saturn:de:111",
+                 "price": {"__typename": "CofrPriceFeaturePrice", "amount": 219.99, "shippingCost": 0}}
+        text = saturn_text([eigen, markt])
+        self.assertIsNone(s.mms_preisfeld(text, "Saturn:de:", "111"))
+        g, prot = s.auswerten_seite(text, self.m, QUELLEN["saturn"], "L", "Z")
+        self.assertEqual(g, [], prot)
+        # Gegenprobe: zwei gleichlautende Preisobjekte in beliebiger Feldfolge bleiben gültig
+        gleich = dict(markt, isProductOfTypeMarketplace=False)
+        self.assertEqual(s.mms_preisfeld(saturn_text([eigen, gleich]), "Saturn:de:", "111"), (False, 219.99, 0.0))
+        self.assertEqual(s.mms_preisfeld(saturn_text([gleich]), "Saturn:de:", "111"), (False, 219.99, 0.0))
+        # echte Saturn-Seite 22.11.2026: Abhol-/Liefermerkmale tragen dieselbe id und ein eigenes Marktplatzfeld
+        abholung = {"__typename": "CofrPickupFeature", "id": "Saturn:de:111", "isProductOfTypeMarketplace": False}
+        lieferung = {"__typename": "CofrDeliveryFeature", "id": "Saturn:de:111", "shippingCost": 0,
+                     "isProductOfTypeMarketplace": False}
+        verweis = {"id": "Saturn:de:111", "price": {"installment": None}}
+        self.assertEqual(s.mms_preisfeld(saturn_text([verweis, abholung, gleich, lieferung]), "Saturn:de:", "111"),
+                         (False, 219.99, 0.0))
+        # nicht dekodierbares Medienobjekt derselben SKU stört nicht; ein nicht dekodierbares Preisfeld schon
+        z = json.dumps(gleich, separators=(",", ":"))
+        kaputt = '{"__typename":"%s","id":"Saturn:de:111","x":[' + "{" * 5 + "]"
+        for typ, erwartet in (("CofrMediaAssetsFeature", (False, 219.99, 0.0)), ("CofrPriceFeature", None)):
+            p = produkt(ean="0622356270373", price="219.99")
+            del p["offers"]["seller"]
+            p["sku"] = "111"
+            text = seite(p) + "<script>window.__ZUSTAND__ = %s;</script>" % json.dumps(z + "," + kaputt % typ)
+            self.assertEqual(s.mms_preisfeld(text, "Saturn:de:", "111"), erwartet, typ)
+
+    def test_d7_11_r4_sichtbarer_text_und_passive_inhalte(self):
+        sperr = "Please complete the <strong>CAPTCHA</strong> to continue."
+        self.assertTrue(s.ist_challenge(sperr, "text/plain"))
+        self.assertTrue(s.ist_challenge(seite(produkt()) + "<p>%s</p>" % sperr, "text/html"))
+        self.assertTrue(s.ist_challenge("<p>Ich&nbsp;bin kein Roboter</p>", "text/html"))
+        robots = "User-agent: *\nDisallow: /cdn-cgi/challenge-platform/h/b/orchestrate/\n"
+        self.assertFalse(s.ist_challenge(robots, "text/plain"))
+        self.assertFalse(s.ist_challenge(robots, "text/html"))
+        vorlage_inaktiv = seite(produkt()) + "<template><label>Ich bin kein Roboter</label></template>"
+        self.assertFalse(s.ist_challenge(vorlage_inaktiv, "text/html"))
+        self.assertFalse(s.ist_challenge(seite(produkt()) + "<script>var t='Access Denied';</script>", "text/html"))
 
 
 if __name__ == "__main__":

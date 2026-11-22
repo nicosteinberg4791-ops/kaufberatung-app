@@ -54,13 +54,16 @@ UA_TOKEN = "Kaufberatung-Preispilot"  # Name für robots.txt-Regeln (sonst gilt 
 PAUSE = 3.0
 TIMEOUT = 25
 MAX_BYTES = 6_000_000
-# Eindeutige Sperrmerkmale: sperren immer, auch wenn die Seite JSON-LD enthält (D7-03)
+# Eindeutige Sperrmerkmale: sperren immer, auch wenn die Seite JSON-LD enthält (D7-03).
+# Technische Merkmale (Skripte, Titel) im Rohtext ohne robots.txt-Anweisungen
 SPERRE = re.compile(r"challenge-platform/h/[a-z]/orchestrate|chl_page|cf-chl|_cf_chl_opt|px-captcha|_Incapsula_|"
-                    r"Access Denied|Pardon Our Interruption|<title>\s*(Just a moment|Attention Required)|"
-                    # D7-11: ausdrückliche Captcha-/Roboter-Aufforderungen
-                    r"complete the captcha|solve the captcha|captcha (eingeben|lösen|ausfüllen)|"
-                    r"Ich bin kein Roboter|I'?m not a robot|"
-                    r"verify (that )?you are (a )?human|(bestätigen|beweisen) Sie, dass Sie kein Roboter sind", re.I)
+                    r"<title>\s*(Just a moment|Attention Required|Access Denied)", re.I)
+# Sichtbare Aufforderungen (D7-11): im sichtbaren Text ohne Tags, Skripte, Vorlagen und Kommentare
+SPERRE_TEXT = re.compile(r"Access Denied|Pardon Our Interruption|"
+                         r"complete the captcha|solve the captcha|captcha (eingeben|lösen|ausfüllen)|"
+                         r"Ich bin kein Roboter|I'?m not a robot|"
+                         r"verify (that )?you are (a )?human|(bestätigen|beweisen) Sie, dass Sie kein Roboter sind", re.I)
+UNSICHTBAR = re.compile(r"<(script|style|template|noscript)\b.*?</\1\s*>|<!--.*?-->", re.I | re.S)
 # robots.txt-Anweisungen nennen Sperrpfade nur passiv (D7-11): vor der Sperrprüfung entfernen
 ROBOTS_ANWEISUNG = re.compile(r"^\s*(allow|disallow|sitemap|crawl-delay|user-agent)\s*:.*$", re.I | re.M)
 # Schwache Merkmale: auch normale Produktseiten verweisen passiv darauf (Cloudflare-Skript, Captcha im Formular);
@@ -252,10 +255,16 @@ def mms_preisfeld(text, praefix, sku):
     t = text.replace('\\"', '"')
     dec = json.JSONDecoder(object_pairs_hook=_ohne_doppelte)
     funde = set()
-    # D7-04: Anker ist die Feldfolge des Preisfelds; von dort zur umschließenden Klammer zurück und das vollständige
-    # Artikelobjekt dekodieren. Ausgewertet werden nur dessen eigene Felder, nie ein Folgeobjekt.
+    # D7-04/D7-15: Anker ist jedes Feld "id":"<ziel>", unabhängig von der Feldfolge; von dort zur umschließenden
+    # Klammer zurück und das vollständige Objekt dekodieren. Ausgewertet werden nur dessen eigene Felder, nie ein
+    # Folgeobjekt. Alle Preisobjekte derselben SKU müssen übereinstimmen.
     ziel = f"{praefix}{sku}"
-    for m in re.finditer(r'"id":"%s","currency":"EUR","isProductOfTypeMarketplace":(true|false)' % re.escape(ziel), t):
+    for m in re.finditer(r'"id"\s*:\s*"%s"' % re.escape(ziel), t):
+        # Steht der eigene Typ des Objekts direkt vor der id und ist es kein Preisfeld: überspringen, ohne zu
+        # dekodieren (Medien-/Lieferobjekte sind teils zu verschachtelt für die Rücksuche)
+        vortyp = re.search(r'"__typename"\s*:\s*"([A-Za-z]+)"\s*,\s*$', t[max(0, m.start() - 120):m.start()])
+        if vortyp and vortyp.group(1) != "CofrPriceFeature":
+            continue
         obj, pos = None, m.start()
         for _ in range(60):
             pos = t.rfind("{", 0, pos)
@@ -273,7 +282,12 @@ def mms_preisfeld(text, praefix, sku):
         if obj is None:
             funde.add(None)  # nicht lesbar: kein Nachweis
             continue
-        preis = obj.get("price") if isinstance(obj, dict) else None
+        typ = obj.get("__typename")
+        if typ not in (None, "CofrPriceFeature"):
+            continue  # anderes Merkmal derselben SKU (z. B. Abholung/Lieferung mit eigenem Marktplatzfeld)
+        if typ is None and "isProductOfTypeMarketplace" not in obj and "currency" not in obj:
+            continue  # Verweis/Teilobjekt ohne Preisangaben
+        preis = obj.get("price")
         if (obj.get("id") != f"{praefix}{sku}" or obj.get("currency") != "EUR"
                 or not isinstance(obj.get("isProductOfTypeMarketplace"), bool)):
             funde.add(None)
@@ -401,11 +415,20 @@ class Weitergeleitet(NichtAbrufbar):
 def ist_challenge(text, inhaltstyp):
     """Sperr-/Challenge-Seite? Nur HTML-Antworten (robots.txt von Saturn nennt selbst /cdn-cgi/challenge-platform/).
     Eindeutige Merkmale sperren immer; schwache nur, wenn die Seite kein JSON-LD hat."""
-    if SPERRE.search(ROBOTS_ANWEISUNG.sub("", text)):  # D7-11: ganzer Text, auch bei falsch deklariertem Inhaltstyp
+    roh = ROBOTS_ANWEISUNG.sub("", text)  # D7-11: passive robots.txt-Pfade nie werten, in allen Zweigen
+    if SPERRE.search(roh):  # ganzer Text, auch bei falsch deklariertem Inhaltstyp
+        return True
+    if SPERRE_TEXT.search(sichtbarer_text(roh)):
         return True
     if "html" not in (inhaltstyp or "").lower():
         return False
-    return bool(CHALLENGE_SCHWACH.search(text[:20000])) and "application/ld+json" not in text
+    return bool(CHALLENGE_SCHWACH.search(roh[:20000])) and "application/ld+json" not in text
+
+
+def sichtbarer_text(text):
+    """Text ohne Skripte, Vorlagen, Kommentare und Tags, Entities aufgelöst, Leerraum zusammengefasst."""
+    t = re.sub(r"<[^>]*>", " ", UNSICHTBAR.sub(" ", text))
+    return re.sub(r"\s+", " ", html.unescape(t))
 
 
 class _KeineWeiterleitung(urllib.request.HTTPRedirectHandler):
@@ -415,7 +438,45 @@ class _KeineWeiterleitung(urllib.request.HTTPRedirectHandler):
         return None
 
 
-_OPENER = urllib.request.build_opener(_KeineWeiterleitung)
+class _StrengeAntwort(http.client.HTTPResponse):
+    """D7-02: chunked nur mit vollständigem Abschluss. http.client duldet ein Verbindungsende nach dem letzten
+    Chunk (`0`) ohne abschließende Leerzeile; hier gilt das als unvollständige Übertragung. Überschreibt die
+    interne Methode `_read_and_discard_trailer` (Python 3.11–3.13); der Test `test_d7_02_gekuerzte_200_antwort` sichert
+    das Verhalten ab, falls sich die Interna ändern."""
+
+    def _read_and_discard_trailer(self):
+        while True:
+            line = self.fp.readline(http.client._MAXLINE + 1)
+            if len(line) > http.client._MAXLINE:
+                raise http.client.LineTooLong("trailer line")
+            if not line:
+                raise http.client.IncompleteRead(b"")
+            if line in (b"\r\n", b"\n"):
+                break
+
+
+class _StrengHTTP(http.client.HTTPConnection):
+    response_class = _StrengeAntwort
+
+
+class _StrengHTTPS(http.client.HTTPSConnection):
+    response_class = _StrengeAntwort
+
+
+class _HTTPHandler(urllib.request.HTTPHandler):
+    def http_open(self, req):
+        return self.do_open(_StrengHTTP, req)
+
+
+class _HTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        kw = {"context": self._context}
+        if getattr(self, "_check_hostname", None) is not None:
+            kw["check_hostname"] = self._check_hostname
+        return self.do_open(_StrengHTTPS, req, **kw)
+
+
+_OPENER = urllib.request.build_opener(_KeineWeiterleitung, _HTTPHandler, _HTTPSHandler)
 
 
 def abrufen(url):
