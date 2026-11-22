@@ -1,6 +1,6 @@
 {
  "kategorie": "laptop",
- "stand": "2026-11-21",
+ "stand": "2026-11-22",
  "quellen": {
   "apple-air-specs": {
    "url": "https://www.apple.com/de/macbook-air/specs/",
@@ -16,6 +16,126 @@
    "url": "https://www.apple.com/de/macbook-pro/specs/",
    "titel": "Apple: MacBook Pro Technische Daten",
    "gelesen": "2026-11-21"
+  },
+  "alt-asus-cm1406cm4a-ly0051": {
+   "url": "https://www.alternate.de/ASUS/Chromebook-CM14-CM1406CM4A-LY0051-Notebook/html/product/100210896",
+   "titel": "Alternate: Chromebook CM14 (CM1406CM4A-LY0051), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-pm1503cda-s70264": {
+   "url": "https://www.alternate.de/ASUS/ExpertBook-P1-PM1503CDA-S70264-Notebook/html/product/100226136",
+   "titel": "Alternate: ExpertBook P1 (PM1503CDA-S70264), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-b1403cva-s66870x": {
+   "url": "https://www.alternate.de/ASUS/ExpertBook-B1-B1403CVA-S66870X-Notebook/html/product/100226087",
+   "titel": "Alternate: ExpertBook B1 (B1403CVA-S66870X), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-m1605naq-mb226w": {
+   "url": "https://www.alternate.de/ASUS/Vivobook-16-M1605NAQ-MB226W-Notebook/html/product/100214553",
+   "titel": "Alternate: Vivobook 16 (M1605NAQ-MB226W), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-hp-omnibook-3-16-bu0057ngx": {
+   "url": "https://www.alternate.de/HP/OmniBook-3-16-bu0057ngx-Notebook/html/product/100218137",
+   "titel": "Alternate: OmniBook 3 16-bu0057ngx, Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-ux3480qa-sf003w": {
+   "url": "https://www.alternate.de/ASUS/Zenbook-14-UX3480QA-SF003W-Notebook/html/product/100222993",
+   "titel": "Alternate: Zenbook 14 (UX3480QA-SF003W), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-hp-probook-4-g2ir-14-e8cc0es": {
+   "url": "https://www.alternate.de/HP/ProBook-4-G2iR-14-E8CC0ES-Notebook/html/product/100231001",
+   "titel": "Alternate: ProBook 4 G2iR 14 (E8CC0ES), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-msi-cyborg-15-b13wfkg-1095nn": {
+   "url": "https://www.alternate.de/MSI/Cyborg-15-B13WFKG-1095NN-Gaming-Notebook/html/product/100189600",
+   "titel": "Alternate: Cyborg 15 B13WFKG-1095NN, Gaming-Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-lenovo-83us003xge": {
+   "url": "https://www.alternate.de/Lenovo/IdeaPad-Slim-3-16IPH11-83US003XGE-Notebook/html/product/100202933",
+   "titel": "Alternate: IdeaPad Slim 3 16IPH11 (83US003XGE), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-hp-omen-15-gb0058ng": {
+   "url": "https://www.alternate.de/OMEN/HyperX-OMEN-15-gb0058ng-Gaming-Notebook/html/product/100209967",
+   "titel": "Alternate: HyperX OMEN 15-gb0058ng, Gaming-Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-ux3405ca-ql1496w": {
+   "url": "https://www.alternate.de/ASUS/Zenbook-14-UX3405CA-QL1496W-Notebook/html/product/100210887",
+   "titel": "Alternate: Zenbook 14 (UX3405CA-QL1496W), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-fx610jh-tu014w": {
+   "url": "https://www.alternate.de/ASUS/TUF-Gaming-16-FX610JH-TU014W-Gaming-Notebook/html/product/100220348",
+   "titel": "Alternate: TUF Gaming 16 (FX610JH-TU014W), Gaming-Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-acer-gp714-91n-51hs": {
+   "url": "https://www.alternate.de/Acer/Googlebook-14-GP714-91N-51HS-Notebook/html/product/100227794",
+   "titel": "Alternate: Googlebook 14 (GP714-91N-51HS), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-lenovo-83s2000bge": {
+   "url": "https://www.alternate.de/Lenovo/IdeaPad-Slim-5-16AGP11-83S2000BGE-Notebook/html/product/100203355",
+   "titel": "Alternate: IdeaPad Slim 5 16AGP11 (83S2000BGE), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-ux3407qa-qd496w": {
+   "url": "https://www.alternate.de/ASUS/Zenbook-A14-UX3407QA-QD496W-Notebook/html/product/100182499",
+   "titel": "Alternate: Zenbook A14 (UX3407QA-QD496W), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-fa608umi-tu319w": {
+   "url": "https://www.alternate.de/ASUS/TUF-A16-FA608UMI-TU319W-Gaming-Notebook/html/product/100207915",
+   "titel": "Alternate: TUF A16 (FA608UMI-TU319W), Gaming-Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-dell-pro-14-plus-9ncxt": {
+   "url": "https://www.alternate.de/Dell/Pro-14-Plus-9NCXT-Notebook/html/product/100138329",
+   "titel": "Alternate: Pro 14 Plus (9NCXT), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-acer-sfg16-a71-r6ng": {
+   "url": "https://www.alternate.de/Acer/Swift-GO-16-AI-OLED-SFG16-A71-R6NG-Notebook/html/product/100211902",
+   "titel": "Alternate: Swift GO 16 AI OLED (SFG16-A71-R6NG), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-ux5406sa-pv530w": {
+   "url": "https://www.alternate.de/ASUS/Zenbook-S14-UX5406SA-PV530W-Notebook/html/product/100182506",
+   "titel": "Alternate: Zenbook S14 (UX5406SA-PV530W), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-lenovo-83tn0027ge": {
+   "url": "https://www.alternate.de/Lenovo/LOQ-15AHP11-83TN0027GE-Notebook/html/product/100199150",
+   "titel": "Alternate: LOQ 15AHP11 (83TN0027GE), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-asus-um5606ga-sr553w": {
+   "url": "https://www.alternate.de/ASUS/Zenbook-S16-UM5606GA-SR553W-Notebook/html/product/100227670",
+   "titel": "Alternate: Zenbook S16 (UM5606GA-SR553W), Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-microsoft-surface-laptop-8-x2e-16-512": {
+   "url": "https://www.alternate.de/Microsoft/Surface-Laptop-8-CopilotplusPC-Notebook/html/product/100206148",
+   "titel": "Alternate: Surface Laptop 8 Copilot+PC, Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-gigabyte-aero-x16-1wh93dec64ah": {
+   "url": "https://www.alternate.de/GIGABYTE/AERO-X16-1WH93DEC64AH-Gaming-Notebook/html/product/100135719",
+   "titel": "Alternate: AERO X16 1WH93DEC64AH, Gaming-Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
+  },
+  "alt-lenovo-83jh000xge": {
+   "url": "https://www.alternate.de/Lenovo/LOQ-17IRX10-83JH000XGE-Gaming-Notebook/html/product/100202939",
+   "titel": "Alternate: LOQ 17IRX10 (83JH000XGE), Gaming-Notebook (Produktseite, Datenblatt)",
+   "gelesen": "2026-11-22"
   }
  },
  "modelle": [
@@ -357,6 +477,1393 @@
      },
      "preis": null,
      "mpn": "MGE44D/A"
+    }
+   ]
+  },
+  {
+   "id": "asus-chromebook-cm14",
+   "hersteller": "ASUS",
+   "name": "Chromebook CM14 (CM1406)",
+   "werte": {
+    "akku_wh": 50.0,
+    "display_zoll": 14.0,
+    "aufloesung_vertikal": 1200,
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6e",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.3,
+    "betriebssystem": "chromeos"
+   },
+   "belege": {
+    "akku_wh": "alt-asus-cm1406cm4a-ly0051",
+    "display_zoll": "alt-asus-cm1406cm4a-ly0051",
+    "aufloesung_vertikal": "alt-asus-cm1406cm4a-ly0051",
+    "helligkeit_nits": "alt-asus-cm1406cm4a-ly0051",
+    "hdmi": "alt-asus-cm1406cm4a-ly0051",
+    "usb_c_laden": "alt-asus-cm1406cm4a-ly0051",
+    "wlan": "alt-asus-cm1406cm4a-ly0051",
+    "webcam_1080p": "alt-asus-cm1406cm4a-ly0051",
+    "tastaturbeleuchtung": "alt-asus-cm1406cm4a-ly0051",
+    "gewicht_kg": "alt-asus-cm1406cm4a-ly0051",
+    "betriebssystem": "alt-asus-cm1406cm4a-ly0051"
+   },
+   "varianten": [
+    {
+     "id": "asus-cm1406cm4a-ly0051",
+     "name": "8 GB / 128 GB eMMC, MediaTek Kompanio 540",
+     "werte": {
+      "ram_gb": 8,
+      "ssd_gb": 128
+     },
+     "belege": {
+      "ram_gb": "alt-asus-cm1406cm4a-ly0051",
+      "ssd_gb": "alt-asus-cm1406cm4a-ly0051"
+     },
+     "mpn": "90CB0A42-M004N0",
+     "ean": [
+      "4711636640008"
+     ],
+     "preis": {
+      "eur": 399.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/Chromebook-CM14-CM1406CM4A-LY0051-Notebook/html/product/100210896",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-expertbook-p1-pm1503cda",
+   "hersteller": "ASUS",
+   "name": "ExpertBook P1 (PM1503CDA)",
+   "werte": {
+    "akku_wh": 50.0,
+    "ram_erweiterbar": true,
+    "display_zoll": 15.6,
+    "display_hz": 60,
+    "aufloesung_vertikal": 1080,
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6e",
+    "webcam_1080p": true,
+    "gewicht_kg": 1.8,
+    "betriebssystem": "ohne"
+   },
+   "belege": {
+    "akku_wh": "alt-asus-pm1503cda-s70264",
+    "ram_erweiterbar": "alt-asus-pm1503cda-s70264",
+    "display_zoll": "alt-asus-pm1503cda-s70264",
+    "display_hz": "alt-asus-pm1503cda-s70264",
+    "aufloesung_vertikal": "alt-asus-pm1503cda-s70264",
+    "helligkeit_nits": "alt-asus-pm1503cda-s70264",
+    "hdmi": "alt-asus-pm1503cda-s70264",
+    "usb_c_laden": "alt-asus-pm1503cda-s70264",
+    "wlan": "alt-asus-pm1503cda-s70264",
+    "webcam_1080p": "alt-asus-pm1503cda-s70264",
+    "gewicht_kg": "alt-asus-pm1503cda-s70264",
+    "betriebssystem": "alt-asus-pm1503cda-s70264"
+   },
+   "varianten": [
+    {
+     "id": "asus-pm1503cda-s70264",
+     "name": "16 GB / 512 GB, Ryzen 5 150, ohne Betriebssystem",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-asus-pm1503cda-s70264",
+      "ssd_gb": "alt-asus-pm1503cda-s70264"
+     },
+     "mpn": "90NX09D1-M00A80",
+     "ean": [
+      "4711636328371"
+     ],
+     "preis": {
+      "eur": 499.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/ExpertBook-P1-PM1503CDA-S70264-Notebook/html/product/100226136",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-expertbook-b1-b1403cva",
+   "hersteller": "ASUS",
+   "name": "ExpertBook B1 (B1403CVA)",
+   "werte": {
+    "akku_wh": 63.0,
+    "display_zoll": 14.0,
+    "aufloesung_vertikal": 1080,
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6e",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.5,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-asus-b1403cva-s66870x",
+    "display_zoll": "alt-asus-b1403cva-s66870x",
+    "aufloesung_vertikal": "alt-asus-b1403cva-s66870x",
+    "helligkeit_nits": "alt-asus-b1403cva-s66870x",
+    "hdmi": "alt-asus-b1403cva-s66870x",
+    "usb_c_laden": "alt-asus-b1403cva-s66870x",
+    "wlan": "alt-asus-b1403cva-s66870x",
+    "webcam_1080p": "alt-asus-b1403cva-s66870x",
+    "tastaturbeleuchtung": "alt-asus-b1403cva-s66870x",
+    "gewicht_kg": "alt-asus-b1403cva-s66870x",
+    "betriebssystem": "alt-asus-b1403cva-s66870x"
+   },
+   "varianten": [
+    {
+     "id": "asus-b1403cva-s66870x",
+     "name": "16 GB / 512 GB, Core 5 210H",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-asus-b1403cva-s66870x",
+      "ssd_gb": "alt-asus-b1403cva-s66870x"
+     },
+     "mpn": "90NX0811-M089A0",
+     "ean": [
+      "4711636318945"
+     ],
+     "preis": {
+      "eur": 675.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/ExpertBook-B1-B1403CVA-S66870X-Notebook/html/product/100226087",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-vivobook-16-m1605naq",
+   "hersteller": "ASUS",
+   "name": "Vivobook 16 (M1605NAQ)",
+   "werte": {
+    "akku_wh": 42.0,
+    "ram_erweiterbar": true,
+    "display_zoll": 16.0,
+    "display_hz": 60,
+    "aufloesung_vertikal": 1200,
+    "panel": "ips",
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6",
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-asus-m1605naq-mb226w",
+    "ram_erweiterbar": "alt-asus-m1605naq-mb226w",
+    "display_zoll": "alt-asus-m1605naq-mb226w",
+    "display_hz": "alt-asus-m1605naq-mb226w",
+    "aufloesung_vertikal": "alt-asus-m1605naq-mb226w",
+    "panel": "alt-asus-m1605naq-mb226w",
+    "helligkeit_nits": "alt-asus-m1605naq-mb226w",
+    "hdmi": "alt-asus-m1605naq-mb226w",
+    "usb_c_laden": "alt-asus-m1605naq-mb226w",
+    "wlan": "alt-asus-m1605naq-mb226w",
+    "betriebssystem": "alt-asus-m1605naq-mb226w"
+   },
+   "varianten": [
+    {
+     "id": "asus-m1605naq-mb226w",
+     "name": "16 GB / 1 TB, Ryzen 7 170",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "alt-asus-m1605naq-mb226w",
+      "ssd_gb": "alt-asus-m1605naq-mb226w"
+     },
+     "mpn": "90NB1832-M00CX0",
+     "ean": [
+      "4711636390330"
+     ],
+     "preis": {
+      "eur": 699.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/Vivobook-16-M1605NAQ-MB226W-Notebook/html/product/100214553",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hp-omnibook-3-16-bu0",
+   "hersteller": "HP",
+   "name": "OmniBook 3 16 (bu0)",
+   "werte": {
+    "akku_wh": 41.0,
+    "display_zoll": 16.0,
+    "aufloesung_vertikal": 1200,
+    "panel": "ips",
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6",
+    "gewicht_kg": 1.6,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-hp-omnibook-3-16-bu0057ngx",
+    "display_zoll": "alt-hp-omnibook-3-16-bu0057ngx",
+    "aufloesung_vertikal": "alt-hp-omnibook-3-16-bu0057ngx",
+    "panel": "alt-hp-omnibook-3-16-bu0057ngx",
+    "helligkeit_nits": "alt-hp-omnibook-3-16-bu0057ngx",
+    "hdmi": "alt-hp-omnibook-3-16-bu0057ngx",
+    "usb_c_laden": "alt-hp-omnibook-3-16-bu0057ngx",
+    "wlan": "alt-hp-omnibook-3-16-bu0057ngx",
+    "gewicht_kg": "alt-hp-omnibook-3-16-bu0057ngx",
+    "betriebssystem": "alt-hp-omnibook-3-16-bu0057ngx"
+   },
+   "varianten": [
+    {
+     "id": "hp-omnibook-3-16-bu0057ngx",
+     "name": "16 GB / 512 GB, Core Ultra 5 225U",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-hp-omnibook-3-16-bu0057ngx",
+      "ssd_gb": "alt-hp-omnibook-3-16-bu0057ngx"
+     },
+     "mpn": "E15DQEA#ABD",
+     "ean": [
+      "881767336188"
+     ],
+     "preis": {
+      "eur": 799.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/HP/OmniBook-3-16-bu0057ngx-Notebook/html/product/100218137",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-zenbook-14-ux3480qa",
+   "hersteller": "ASUS",
+   "name": "Zenbook 14 (UX3480QA)",
+   "werte": {
+    "akku_wh": 50.0,
+    "display_zoll": 14.0,
+    "display_hz": 60,
+    "aufloesung_vertikal": 1200,
+    "panel": "oled",
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6e",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.1,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-asus-ux3480qa-sf003w",
+    "display_zoll": "alt-asus-ux3480qa-sf003w",
+    "display_hz": "alt-asus-ux3480qa-sf003w",
+    "aufloesung_vertikal": "alt-asus-ux3480qa-sf003w",
+    "panel": "alt-asus-ux3480qa-sf003w",
+    "helligkeit_nits": "alt-asus-ux3480qa-sf003w",
+    "hdmi": "alt-asus-ux3480qa-sf003w",
+    "usb_c_laden": "alt-asus-ux3480qa-sf003w",
+    "wlan": "alt-asus-ux3480qa-sf003w",
+    "webcam_1080p": "alt-asus-ux3480qa-sf003w",
+    "tastaturbeleuchtung": "alt-asus-ux3480qa-sf003w",
+    "gewicht_kg": "alt-asus-ux3480qa-sf003w",
+    "betriebssystem": "alt-asus-ux3480qa-sf003w"
+   },
+   "varianten": [
+    {
+     "id": "asus-ux3480qa-sf003w",
+     "name": "16 GB / 512 GB, Snapdragon X",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-asus-ux3480qa-sf003w",
+      "ssd_gb": "alt-asus-ux3480qa-sf003w"
+     },
+     "mpn": "90NB19K1-M00170",
+     "ean": [
+      "4711636713740"
+     ],
+     "preis": {
+      "eur": 899.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/Zenbook-14-UX3480QA-SF003W-Notebook/html/product/100222993",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hp-probook-4-g2ir-14",
+   "hersteller": "HP",
+   "name": "ProBook 4 G2iR 14",
+   "werte": {
+    "akku_wh": 56.0,
+    "display_zoll": 14.0,
+    "aufloesung_vertikal": 1200,
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi7",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.4,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "display_zoll": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "aufloesung_vertikal": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "helligkeit_nits": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "hdmi": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "usb_c_laden": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "wlan": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "webcam_1080p": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "tastaturbeleuchtung": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "gewicht_kg": "alt-hp-probook-4-g2ir-14-e8cc0es",
+    "betriebssystem": "alt-hp-probook-4-g2ir-14-e8cc0es"
+   },
+   "varianten": [
+    {
+     "id": "hp-probook-4-g2ir-14-e8cc0es",
+     "name": "16 GB / 512 GB, Core Ultra 7 256V",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-hp-probook-4-g2ir-14-e8cc0es",
+      "ssd_gb": "alt-hp-probook-4-g2ir-14-e8cc0es"
+     },
+     "mpn": "E8CC0ES#ABD",
+     "ean": [
+      "704683239305"
+     ],
+     "preis": {
+      "eur": 999.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/HP/ProBook-4-G2iR-14-E8CC0ES-Notebook/html/product/100231001",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "msi-cyborg-15-b13wfkg",
+   "hersteller": "MSI",
+   "name": "Cyborg 15 (B13WFKG)",
+   "werte": {
+    "akku_wh": 55.2,
+    "ram_erweiterbar": true,
+    "display_zoll": 15.6,
+    "display_hz": 144,
+    "aufloesung_vertikal": 1080,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6e",
+    "webcam_1080p": false,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 2.1,
+    "betriebssystem": "windows",
+    "grafik_dediziert": true
+   },
+   "belege": {
+    "akku_wh": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "ram_erweiterbar": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "display_zoll": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "display_hz": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "aufloesung_vertikal": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "hdmi": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "usb_c_laden": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "wlan": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "webcam_1080p": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "tastaturbeleuchtung": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "gewicht_kg": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "betriebssystem": "alt-msi-cyborg-15-b13wfkg-1095nn",
+    "grafik_dediziert": "alt-msi-cyborg-15-b13wfkg-1095nn"
+   },
+   "varianten": [
+    {
+     "id": "msi-cyborg-15-b13wfkg-1095nn",
+     "name": "16 GB / 512 GB, RTX 5060",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-msi-cyborg-15-b13wfkg-1095nn",
+      "ssd_gb": "alt-msi-cyborg-15-b13wfkg-1095nn"
+     },
+     "mpn": "0015Q3-1095",
+     "ean": [
+      "4711377442572"
+     ],
+     "preis": {
+      "eur": 999.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/MSI/Cyborg-15-B13WFKG-1095NN-Gaming-Notebook/html/product/100189600",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lenovo-ideapad-slim-3-16iph11",
+   "hersteller": "Lenovo",
+   "name": "IdeaPad Slim 3 16IPH11",
+   "werte": {
+    "akku_wh": 60.0,
+    "display_zoll": 16.0,
+    "display_hz": 60,
+    "aufloesung_vertikal": 1200,
+    "panel": "ips",
+    "helligkeit_nits": 400,
+    "hdmi": true,
+    "wlan": "wifi7",
+    "webcam_1080p": true,
+    "gewicht_kg": 1.7,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-lenovo-83us003xge",
+    "display_zoll": "alt-lenovo-83us003xge",
+    "display_hz": "alt-lenovo-83us003xge",
+    "aufloesung_vertikal": "alt-lenovo-83us003xge",
+    "panel": "alt-lenovo-83us003xge",
+    "helligkeit_nits": "alt-lenovo-83us003xge",
+    "hdmi": "alt-lenovo-83us003xge",
+    "wlan": "alt-lenovo-83us003xge",
+    "webcam_1080p": "alt-lenovo-83us003xge",
+    "gewicht_kg": "alt-lenovo-83us003xge",
+    "betriebssystem": "alt-lenovo-83us003xge"
+   },
+   "varianten": [
+    {
+     "id": "lenovo-83us003xge",
+     "name": "16 GB / 1 TB, Core Ultra 5 322",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "alt-lenovo-83us003xge",
+      "ssd_gb": "alt-lenovo-83us003xge"
+     },
+     "mpn": "83US003XGE",
+     "ean": [
+      "199276502681"
+     ],
+     "preis": {
+      "eur": 1099.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Lenovo/IdeaPad-Slim-3-16IPH11-83US003XGE-Notebook/html/product/100202933",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hp-omen-15-gb0",
+   "hersteller": "HP",
+   "name": "HyperX OMEN 15 (gb0)",
+   "werte": {
+    "akku_wh": 70.0,
+    "display_zoll": 15.3,
+    "display_hz": 165,
+    "aufloesung_vertikal": 1200,
+    "panel": "ips",
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "wlan": "wifi6",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 2.4,
+    "betriebssystem": "windows",
+    "grafik_dediziert": true
+   },
+   "belege": {
+    "akku_wh": "alt-hp-omen-15-gb0058ng",
+    "display_zoll": "alt-hp-omen-15-gb0058ng",
+    "display_hz": "alt-hp-omen-15-gb0058ng",
+    "aufloesung_vertikal": "alt-hp-omen-15-gb0058ng",
+    "panel": "alt-hp-omen-15-gb0058ng",
+    "helligkeit_nits": "alt-hp-omen-15-gb0058ng",
+    "hdmi": "alt-hp-omen-15-gb0058ng",
+    "wlan": "alt-hp-omen-15-gb0058ng",
+    "webcam_1080p": "alt-hp-omen-15-gb0058ng",
+    "tastaturbeleuchtung": "alt-hp-omen-15-gb0058ng",
+    "gewicht_kg": "alt-hp-omen-15-gb0058ng",
+    "betriebssystem": "alt-hp-omen-15-gb0058ng",
+    "grafik_dediziert": "alt-hp-omen-15-gb0058ng"
+   },
+   "varianten": [
+    {
+     "id": "hp-omen-15-gb0058ng",
+     "name": "16 GB / 512 GB, RTX 5060",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-hp-omen-15-gb0058ng",
+      "ssd_gb": "alt-hp-omen-15-gb0058ng"
+     },
+     "mpn": "DK9Y4EA#ABD",
+     "ean": [
+      "826581213505"
+     ],
+     "preis": {
+      "eur": 1099.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/OMEN/HyperX-OMEN-15-gb0058ng-Gaming-Notebook/html/product/100209967",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-zenbook-14-ux3405ca",
+   "hersteller": "ASUS",
+   "name": "Zenbook 14 (UX3405CA)",
+   "werte": {
+    "akku_wh": 75.0,
+    "display_zoll": 14.0,
+    "display_hz": 60,
+    "aufloesung_vertikal": 1200,
+    "panel": "oled",
+    "helligkeit_nits": 400,
+    "hdmi": true,
+    "usb4_thunderbolt": true,
+    "usb_c_laden": true,
+    "wlan": "wifi7",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.3,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-asus-ux3405ca-ql1496w",
+    "display_zoll": "alt-asus-ux3405ca-ql1496w",
+    "display_hz": "alt-asus-ux3405ca-ql1496w",
+    "aufloesung_vertikal": "alt-asus-ux3405ca-ql1496w",
+    "panel": "alt-asus-ux3405ca-ql1496w",
+    "helligkeit_nits": "alt-asus-ux3405ca-ql1496w",
+    "hdmi": "alt-asus-ux3405ca-ql1496w",
+    "usb4_thunderbolt": "alt-asus-ux3405ca-ql1496w",
+    "usb_c_laden": "alt-asus-ux3405ca-ql1496w",
+    "wlan": "alt-asus-ux3405ca-ql1496w",
+    "webcam_1080p": "alt-asus-ux3405ca-ql1496w",
+    "tastaturbeleuchtung": "alt-asus-ux3405ca-ql1496w",
+    "gewicht_kg": "alt-asus-ux3405ca-ql1496w",
+    "betriebssystem": "alt-asus-ux3405ca-ql1496w"
+   },
+   "varianten": [
+    {
+     "id": "asus-ux3405ca-ql1496w",
+     "name": "16 GB / 1 TB, Core Ultra 7 255H",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "alt-asus-ux3405ca-ql1496w",
+      "ssd_gb": "alt-asus-ux3405ca-ql1496w"
+     },
+     "mpn": "90NB14W4-M026E0",
+     "ean": [
+      "4711636503815"
+     ],
+     "preis": {
+      "eur": 1199.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/Zenbook-14-UX3405CA-QL1496W-Notebook/html/product/100210887",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-tuf-gaming-16-fx610jh",
+   "hersteller": "ASUS",
+   "name": "TUF Gaming 16 (FX610JH)",
+   "werte": {
+    "akku_wh": 63.0,
+    "ram_erweiterbar": true,
+    "display_zoll": 16.0,
+    "display_hz": 144,
+    "aufloesung_vertikal": 1200,
+    "panel": "ips",
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6",
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 2.2,
+    "betriebssystem": "windows",
+    "grafik_dediziert": true
+   },
+   "belege": {
+    "akku_wh": "alt-asus-fx610jh-tu014w",
+    "ram_erweiterbar": "alt-asus-fx610jh-tu014w",
+    "display_zoll": "alt-asus-fx610jh-tu014w",
+    "display_hz": "alt-asus-fx610jh-tu014w",
+    "aufloesung_vertikal": "alt-asus-fx610jh-tu014w",
+    "panel": "alt-asus-fx610jh-tu014w",
+    "helligkeit_nits": "alt-asus-fx610jh-tu014w",
+    "hdmi": "alt-asus-fx610jh-tu014w",
+    "usb_c_laden": "alt-asus-fx610jh-tu014w",
+    "wlan": "alt-asus-fx610jh-tu014w",
+    "tastaturbeleuchtung": "alt-asus-fx610jh-tu014w",
+    "gewicht_kg": "alt-asus-fx610jh-tu014w",
+    "betriebssystem": "alt-asus-fx610jh-tu014w",
+    "grafik_dediziert": "alt-asus-fx610jh-tu014w"
+   },
+   "varianten": [
+    {
+     "id": "asus-fx610jh-tu014w",
+     "name": "16 GB / 512 GB, RTX 5050",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-asus-fx610jh-tu014w",
+      "ssd_gb": "alt-asus-fx610jh-tu014w"
+     },
+     "mpn": "90NR0QS1-M00210",
+     "ean": [
+      "4711636683135"
+     ],
+     "preis": {
+      "eur": 1199.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/TUF-Gaming-16-FX610JH-TU014W-Gaming-Notebook/html/product/100220348",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "acer-googlebook-14-gp714",
+   "hersteller": "Acer",
+   "name": "Googlebook 14 (GP714-91N)",
+   "werte": {
+    "akku_wh": 71.0,
+    "display_zoll": 14.0,
+    "display_hz": 120,
+    "aufloesung_vertikal": 1800,
+    "panel": "oled",
+    "usb4_thunderbolt": true,
+    "usb_c_laden": true,
+    "wlan": "wifi7",
+    "webcam_1080p": true,
+    "gewicht_kg": 1.2
+   },
+   "belege": {
+    "akku_wh": "alt-acer-gp714-91n-51hs",
+    "display_zoll": "alt-acer-gp714-91n-51hs",
+    "display_hz": "alt-acer-gp714-91n-51hs",
+    "aufloesung_vertikal": "alt-acer-gp714-91n-51hs",
+    "panel": "alt-acer-gp714-91n-51hs",
+    "usb4_thunderbolt": "alt-acer-gp714-91n-51hs",
+    "usb_c_laden": "alt-acer-gp714-91n-51hs",
+    "wlan": "alt-acer-gp714-91n-51hs",
+    "webcam_1080p": "alt-acer-gp714-91n-51hs",
+    "gewicht_kg": "alt-acer-gp714-91n-51hs"
+   },
+   "varianten": [
+    {
+     "id": "acer-gp714-91n-51hs",
+     "name": "16 GB / 512 GB, Core Ultra 5 325",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-acer-gp714-91n-51hs",
+      "ssd_gb": "alt-acer-gp714-91n-51hs"
+     },
+     "mpn": "NX.JWJEG.002",
+     "ean": [
+      "4711721232200"
+     ],
+     "preis": {
+      "eur": 1249.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Acer/Googlebook-14-GP714-91N-51HS-Notebook/html/product/100227794",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lenovo-ideapad-slim-5-16agp11",
+   "hersteller": "Lenovo",
+   "name": "IdeaPad Slim 5 16AGP11",
+   "werte": {
+    "akku_wh": 80.0,
+    "ram_erweiterbar": true,
+    "display_zoll": 16.0,
+    "display_hz": 60,
+    "aufloesung_vertikal": 1200,
+    "panel": "oled",
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "wlan": "wifi7",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.7,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-lenovo-83s2000bge",
+    "ram_erweiterbar": "alt-lenovo-83s2000bge",
+    "display_zoll": "alt-lenovo-83s2000bge",
+    "display_hz": "alt-lenovo-83s2000bge",
+    "aufloesung_vertikal": "alt-lenovo-83s2000bge",
+    "panel": "alt-lenovo-83s2000bge",
+    "helligkeit_nits": "alt-lenovo-83s2000bge",
+    "hdmi": "alt-lenovo-83s2000bge",
+    "wlan": "alt-lenovo-83s2000bge",
+    "webcam_1080p": "alt-lenovo-83s2000bge",
+    "tastaturbeleuchtung": "alt-lenovo-83s2000bge",
+    "gewicht_kg": "alt-lenovo-83s2000bge",
+    "betriebssystem": "alt-lenovo-83s2000bge"
+   },
+   "varianten": [
+    {
+     "id": "lenovo-83s2000bge",
+     "name": "16 GB / 1 TB, Ryzen AI 7 445",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "alt-lenovo-83s2000bge",
+      "ssd_gb": "alt-lenovo-83s2000bge"
+     },
+     "mpn": "83S2000BGE",
+     "ean": [
+      "199273885022"
+     ],
+     "preis": {
+      "eur": 1299.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Lenovo/IdeaPad-Slim-5-16AGP11-83S2000BGE-Notebook/html/product/100203355",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-zenbook-a14-ux3407qa",
+   "hersteller": "ASUS",
+   "name": "Zenbook A14 (UX3407QA)",
+   "werte": {
+    "akku_wh": 70.0,
+    "display_zoll": 14.0,
+    "display_hz": 60,
+    "aufloesung_vertikal": 1200,
+    "panel": "oled",
+    "helligkeit_nits": 400,
+    "hdmi": true,
+    "usb4_thunderbolt": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6e",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 0.98,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-asus-ux3407qa-qd496w",
+    "display_zoll": "alt-asus-ux3407qa-qd496w",
+    "display_hz": "alt-asus-ux3407qa-qd496w",
+    "aufloesung_vertikal": "alt-asus-ux3407qa-qd496w",
+    "panel": "alt-asus-ux3407qa-qd496w",
+    "helligkeit_nits": "alt-asus-ux3407qa-qd496w",
+    "hdmi": "alt-asus-ux3407qa-qd496w",
+    "usb4_thunderbolt": "alt-asus-ux3407qa-qd496w",
+    "usb_c_laden": "alt-asus-ux3407qa-qd496w",
+    "wlan": "alt-asus-ux3407qa-qd496w",
+    "webcam_1080p": "alt-asus-ux3407qa-qd496w",
+    "tastaturbeleuchtung": "alt-asus-ux3407qa-qd496w",
+    "gewicht_kg": "alt-asus-ux3407qa-qd496w",
+    "betriebssystem": "alt-asus-ux3407qa-qd496w"
+   },
+   "varianten": [
+    {
+     "id": "asus-ux3407qa-qd496w",
+     "name": "32 GB / 1 TB, Snapdragon X",
+     "werte": {
+      "ram_gb": 32,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "alt-asus-ux3407qa-qd496w",
+      "ssd_gb": "alt-asus-ux3407qa-qd496w"
+     },
+     "mpn": "90NB1502-M00Y20",
+     "ean": [
+      "4711636378994"
+     ],
+     "preis": {
+      "eur": 1299.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/Zenbook-A14-UX3407QA-QD496W-Notebook/html/product/100182499",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-tuf-a16-fa608umi",
+   "hersteller": "ASUS",
+   "name": "TUF A16 (FA608UMI)",
+   "werte": {
+    "akku_wh": 70.0,
+    "ram_erweiterbar": true,
+    "display_zoll": 16.0,
+    "display_hz": 165,
+    "aufloesung_vertikal": 1200,
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6e",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 2.2,
+    "betriebssystem": "windows",
+    "grafik_dediziert": true
+   },
+   "belege": {
+    "akku_wh": "alt-asus-fa608umi-tu319w",
+    "ram_erweiterbar": "alt-asus-fa608umi-tu319w",
+    "display_zoll": "alt-asus-fa608umi-tu319w",
+    "display_hz": "alt-asus-fa608umi-tu319w",
+    "aufloesung_vertikal": "alt-asus-fa608umi-tu319w",
+    "helligkeit_nits": "alt-asus-fa608umi-tu319w",
+    "hdmi": "alt-asus-fa608umi-tu319w",
+    "usb_c_laden": "alt-asus-fa608umi-tu319w",
+    "wlan": "alt-asus-fa608umi-tu319w",
+    "webcam_1080p": "alt-asus-fa608umi-tu319w",
+    "tastaturbeleuchtung": "alt-asus-fa608umi-tu319w",
+    "gewicht_kg": "alt-asus-fa608umi-tu319w",
+    "betriebssystem": "alt-asus-fa608umi-tu319w",
+    "grafik_dediziert": "alt-asus-fa608umi-tu319w"
+   },
+   "varianten": [
+    {
+     "id": "asus-fa608umi-tu319w",
+     "name": "16 GB / 512 GB, RTX 5060",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-asus-fa608umi-tu319w",
+      "ssd_gb": "alt-asus-fa608umi-tu319w"
+     },
+     "mpn": "90NR0KV1-M00N00",
+     "ean": [
+      "4711636656344"
+     ],
+     "preis": {
+      "eur": 1299.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/TUF-A16-FA608UMI-TU319W-Gaming-Notebook/html/product/100207915",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "dell-pro-14-plus",
+   "hersteller": "Dell",
+   "name": "Pro 14 Plus",
+   "werte": {
+    "akku_wh": 55.0,
+    "display_zoll": 14.0,
+    "display_hz": 60,
+    "aufloesung_vertikal": 1200,
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb4_thunderbolt": true,
+    "wlan": "wifi7",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.6,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-dell-pro-14-plus-9ncxt",
+    "display_zoll": "alt-dell-pro-14-plus-9ncxt",
+    "display_hz": "alt-dell-pro-14-plus-9ncxt",
+    "aufloesung_vertikal": "alt-dell-pro-14-plus-9ncxt",
+    "helligkeit_nits": "alt-dell-pro-14-plus-9ncxt",
+    "hdmi": "alt-dell-pro-14-plus-9ncxt",
+    "usb4_thunderbolt": "alt-dell-pro-14-plus-9ncxt",
+    "wlan": "alt-dell-pro-14-plus-9ncxt",
+    "webcam_1080p": "alt-dell-pro-14-plus-9ncxt",
+    "tastaturbeleuchtung": "alt-dell-pro-14-plus-9ncxt",
+    "gewicht_kg": "alt-dell-pro-14-plus-9ncxt",
+    "betriebssystem": "alt-dell-pro-14-plus-9ncxt"
+   },
+   "varianten": [
+    {
+     "id": "dell-pro-14-plus-9ncxt",
+     "name": "16 GB / 512 GB, Ryzen 5 PRO 230",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-dell-pro-14-plus-9ncxt",
+      "ssd_gb": "alt-dell-pro-14-plus-9ncxt"
+     },
+     "mpn": "9NCXT",
+     "ean": [
+      "5397184950777"
+     ],
+     "preis": null
+    }
+   ]
+  },
+  {
+   "id": "acer-swift-go-16-ai-oled-sfg16-a71",
+   "hersteller": "Acer",
+   "name": "Swift Go 16 AI OLED (SFG16-A71)",
+   "werte": {
+    "akku_wh": 65.0,
+    "display_zoll": 16.0,
+    "aufloesung_vertikal": 1200,
+    "panel": "oled",
+    "hdmi": true,
+    "usb4_thunderbolt": true,
+    "usb_c_laden": true,
+    "wlan": "wifi7",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.6,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-acer-sfg16-a71-r6ng",
+    "display_zoll": "alt-acer-sfg16-a71-r6ng",
+    "aufloesung_vertikal": "alt-acer-sfg16-a71-r6ng",
+    "panel": "alt-acer-sfg16-a71-r6ng",
+    "hdmi": "alt-acer-sfg16-a71-r6ng",
+    "usb4_thunderbolt": "alt-acer-sfg16-a71-r6ng",
+    "usb_c_laden": "alt-acer-sfg16-a71-r6ng",
+    "wlan": "alt-acer-sfg16-a71-r6ng",
+    "webcam_1080p": "alt-acer-sfg16-a71-r6ng",
+    "tastaturbeleuchtung": "alt-acer-sfg16-a71-r6ng",
+    "gewicht_kg": "alt-acer-sfg16-a71-r6ng",
+    "betriebssystem": "alt-acer-sfg16-a71-r6ng"
+   },
+   "varianten": [
+    {
+     "id": "acer-sfg16-a71-r6ng",
+     "name": "16 GB / 512 GB, Ryzen AI 7 445",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-acer-sfg16-a71-r6ng",
+      "ssd_gb": "alt-acer-sfg16-a71-r6ng"
+     },
+     "mpn": "NX.JX9EG.00Q",
+     "ean": [
+      "4711721255483"
+     ],
+     "preis": {
+      "eur": 1378.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Acer/Swift-GO-16-AI-OLED-SFG16-A71-R6NG-Notebook/html/product/100211902",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-zenbook-s14-ux5406sa",
+   "hersteller": "ASUS",
+   "name": "Zenbook S14 (UX5406SA)",
+   "werte": {
+    "akku_wh": 72.0,
+    "display_zoll": 14.0,
+    "display_hz": 120,
+    "aufloesung_vertikal": 1800,
+    "panel": "oled",
+    "helligkeit_nits": 400,
+    "hdmi": true,
+    "usb4_thunderbolt": true,
+    "usb_c_laden": true,
+    "wlan": "wifi7",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.2,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-asus-ux5406sa-pv530w",
+    "display_zoll": "alt-asus-ux5406sa-pv530w",
+    "display_hz": "alt-asus-ux5406sa-pv530w",
+    "aufloesung_vertikal": "alt-asus-ux5406sa-pv530w",
+    "panel": "alt-asus-ux5406sa-pv530w",
+    "helligkeit_nits": "alt-asus-ux5406sa-pv530w",
+    "hdmi": "alt-asus-ux5406sa-pv530w",
+    "usb4_thunderbolt": "alt-asus-ux5406sa-pv530w",
+    "usb_c_laden": "alt-asus-ux5406sa-pv530w",
+    "wlan": "alt-asus-ux5406sa-pv530w",
+    "webcam_1080p": "alt-asus-ux5406sa-pv530w",
+    "tastaturbeleuchtung": "alt-asus-ux5406sa-pv530w",
+    "gewicht_kg": "alt-asus-ux5406sa-pv530w",
+    "betriebssystem": "alt-asus-ux5406sa-pv530w"
+   },
+   "varianten": [
+    {
+     "id": "asus-ux5406sa-pv530w",
+     "name": "32 GB / 1 TB, Core Ultra 7 258V",
+     "werte": {
+      "ram_gb": 32,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "alt-asus-ux5406sa-pv530w",
+      "ssd_gb": "alt-asus-ux5406sa-pv530w"
+     },
+     "mpn": "90NB14F1-M00Y00",
+     "ean": [
+      "4711636379014"
+     ],
+     "preis": {
+      "eur": 1499.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/Zenbook-S14-UX5406SA-PV530W-Notebook/html/product/100182506",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lenovo-loq-15ahp11",
+   "hersteller": "Lenovo",
+   "name": "LOQ 15AHP11",
+   "werte": {
+    "akku_wh": 60.0,
+    "ram_erweiterbar": true,
+    "display_zoll": 15.3,
+    "display_hz": 165,
+    "aufloesung_vertikal": 1200,
+    "panel": "ips",
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "usb4_thunderbolt": true,
+    "wlan": "wifi6",
+    "webcam_1080p": true,
+    "betriebssystem": "windows",
+    "grafik_dediziert": true
+   },
+   "belege": {
+    "akku_wh": "alt-lenovo-83tn0027ge",
+    "ram_erweiterbar": "alt-lenovo-83tn0027ge",
+    "display_zoll": "alt-lenovo-83tn0027ge",
+    "display_hz": "alt-lenovo-83tn0027ge",
+    "aufloesung_vertikal": "alt-lenovo-83tn0027ge",
+    "panel": "alt-lenovo-83tn0027ge",
+    "helligkeit_nits": "alt-lenovo-83tn0027ge",
+    "hdmi": "alt-lenovo-83tn0027ge",
+    "usb4_thunderbolt": "alt-lenovo-83tn0027ge",
+    "wlan": "alt-lenovo-83tn0027ge",
+    "webcam_1080p": "alt-lenovo-83tn0027ge",
+    "betriebssystem": "alt-lenovo-83tn0027ge",
+    "grafik_dediziert": "alt-lenovo-83tn0027ge"
+   },
+   "varianten": [
+    {
+     "id": "lenovo-83tn0027ge",
+     "name": "16 GB / 1 TB, RTX 5060",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "alt-lenovo-83tn0027ge",
+      "ssd_gb": "alt-lenovo-83tn0027ge"
+     },
+     "mpn": "83TN0027GE",
+     "ean": [
+      "199274482060"
+     ],
+     "preis": {
+      "eur": 1579.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Lenovo/LOQ-15AHP11-83TN0027GE-Notebook/html/product/100199150",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "asus-zenbook-s16-um5606ga",
+   "hersteller": "ASUS",
+   "name": "Zenbook S16 (UM5606GA)",
+   "werte": {
+    "akku_wh": 54.0,
+    "display_zoll": 16.0,
+    "display_hz": 120,
+    "aufloesung_vertikal": 1800,
+    "panel": "oled",
+    "helligkeit_nits": 500,
+    "hdmi": true,
+    "usb4_thunderbolt": true,
+    "usb_c_laden": true,
+    "wlan": "wifi7",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.4,
+    "betriebssystem": "windows"
+   },
+   "belege": {
+    "akku_wh": "alt-asus-um5606ga-sr553w",
+    "display_zoll": "alt-asus-um5606ga-sr553w",
+    "display_hz": "alt-asus-um5606ga-sr553w",
+    "aufloesung_vertikal": "alt-asus-um5606ga-sr553w",
+    "panel": "alt-asus-um5606ga-sr553w",
+    "helligkeit_nits": "alt-asus-um5606ga-sr553w",
+    "hdmi": "alt-asus-um5606ga-sr553w",
+    "usb4_thunderbolt": "alt-asus-um5606ga-sr553w",
+    "usb_c_laden": "alt-asus-um5606ga-sr553w",
+    "wlan": "alt-asus-um5606ga-sr553w",
+    "webcam_1080p": "alt-asus-um5606ga-sr553w",
+    "tastaturbeleuchtung": "alt-asus-um5606ga-sr553w",
+    "gewicht_kg": "alt-asus-um5606ga-sr553w",
+    "betriebssystem": "alt-asus-um5606ga-sr553w"
+   },
+   "varianten": [
+    {
+     "id": "asus-um5606ga-sr553w",
+     "name": "16 GB / 512 GB, Ryzen AI 7 445",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-asus-um5606ga-sr553w",
+      "ssd_gb": "alt-asus-um5606ga-sr553w"
+     },
+     "mpn": "90NB17H4-M01080",
+     "ean": [
+      "4711636762533"
+     ],
+     "preis": {
+      "eur": 1701.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/ASUS/Zenbook-S16-UM5606GA-SR553W-Notebook/html/product/100227670",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "microsoft-surface-laptop-8-15",
+   "hersteller": "Microsoft",
+   "name": "Surface Laptop 8 Copilot+ PC (15 Zoll)",
+   "werte": {
+    "akku_wh": 66.0,
+    "display_zoll": 15.0,
+    "display_hz": 120,
+    "aufloesung_vertikal": 1664,
+    "helligkeit_nits": 600,
+    "usb4_thunderbolt": true,
+    "usb_c_laden": true,
+    "wlan": "wifi7",
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.7,
+    "betriebssystem": "windows",
+    "webcam_1080p": true
+   },
+   "belege": {
+    "akku_wh": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "display_zoll": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "display_hz": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "aufloesung_vertikal": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "helligkeit_nits": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "usb4_thunderbolt": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "usb_c_laden": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "wlan": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "tastaturbeleuchtung": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "gewicht_kg": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "betriebssystem": "alt-microsoft-surface-laptop-8-x2e-16-512",
+    "webcam_1080p": "alt-microsoft-surface-laptop-8-x2e-16-512"
+   },
+   "varianten": [
+    {
+     "id": "microsoft-surface-laptop-8-x2e-16-512",
+     "name": "16 GB / 512 GB, Snapdragon X2 Elite",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-microsoft-surface-laptop-8-x2e-16-512",
+      "ssd_gb": "alt-microsoft-surface-laptop-8-x2e-16-512"
+     },
+     "mpn": "EP2-61332",
+     "ean": [
+      "196388736706"
+     ],
+     "preis": {
+      "eur": 1795.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Microsoft/Surface-Laptop-8-CopilotplusPC-Notebook/html/product/100206148",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "gigabyte-aero-x16-1wh",
+   "hersteller": "GIGABYTE",
+   "name": "AERO X16 (1WH)",
+   "werte": {
+    "ram_erweiterbar": true,
+    "display_zoll": 16.0,
+    "display_hz": 165,
+    "aufloesung_vertikal": 1600,
+    "helligkeit_nits": 400,
+    "hdmi": true,
+    "usb4_thunderbolt": true,
+    "usb_c_laden": true,
+    "wlan": "wifi6e",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 1.9,
+    "betriebssystem": "windows",
+    "grafik_dediziert": true
+   },
+   "belege": {
+    "ram_erweiterbar": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "display_zoll": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "display_hz": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "aufloesung_vertikal": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "helligkeit_nits": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "hdmi": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "usb4_thunderbolt": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "usb_c_laden": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "wlan": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "webcam_1080p": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "tastaturbeleuchtung": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "gewicht_kg": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "betriebssystem": "alt-gigabyte-aero-x16-1wh93dec64ah",
+    "grafik_dediziert": "alt-gigabyte-aero-x16-1wh93dec64ah"
+   },
+   "varianten": [
+    {
+     "id": "gigabyte-aero-x16-1wh93dec64ah",
+     "name": "32 GB / 1 TB, RTX 5070",
+     "werte": {
+      "ram_gb": 32,
+      "ssd_gb": 1024
+     },
+     "belege": {
+      "ram_gb": "alt-gigabyte-aero-x16-1wh93dec64ah",
+      "ssd_gb": "alt-gigabyte-aero-x16-1wh93dec64ah"
+     },
+     "mpn": "GIGABYTE AERO X16 1WH93DEC64AH",
+     "ean": [
+      "4719331763985"
+     ],
+     "preis": {
+      "eur": 1799.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/GIGABYTE/AERO-X16-1WH93DEC64AH-Gaming-Notebook/html/product/100135719",
+      "stand": "2026-11-22"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lenovo-loq-17irx10",
+   "hersteller": "Lenovo",
+   "name": "LOQ 17IRX10",
+   "werte": {
+    "akku_wh": 60.0,
+    "ram_erweiterbar": true,
+    "display_zoll": 17.3,
+    "display_hz": 165,
+    "aufloesung_vertikal": 1080,
+    "panel": "ips",
+    "helligkeit_nits": 300,
+    "hdmi": true,
+    "wlan": "wifi6",
+    "webcam_1080p": true,
+    "tastaturbeleuchtung": true,
+    "gewicht_kg": 2.9,
+    "betriebssystem": "ohne",
+    "grafik_dediziert": true
+   },
+   "belege": {
+    "akku_wh": "alt-lenovo-83jh000xge",
+    "ram_erweiterbar": "alt-lenovo-83jh000xge",
+    "display_zoll": "alt-lenovo-83jh000xge",
+    "display_hz": "alt-lenovo-83jh000xge",
+    "aufloesung_vertikal": "alt-lenovo-83jh000xge",
+    "panel": "alt-lenovo-83jh000xge",
+    "helligkeit_nits": "alt-lenovo-83jh000xge",
+    "hdmi": "alt-lenovo-83jh000xge",
+    "wlan": "alt-lenovo-83jh000xge",
+    "webcam_1080p": "alt-lenovo-83jh000xge",
+    "tastaturbeleuchtung": "alt-lenovo-83jh000xge",
+    "gewicht_kg": "alt-lenovo-83jh000xge",
+    "betriebssystem": "alt-lenovo-83jh000xge",
+    "grafik_dediziert": "alt-lenovo-83jh000xge"
+   },
+   "varianten": [
+    {
+     "id": "lenovo-83jh000xge",
+     "name": "16 GB / 512 GB, RTX 5070, ohne Betriebssystem",
+     "werte": {
+      "ram_gb": 16,
+      "ssd_gb": 512
+     },
+     "belege": {
+      "ram_gb": "alt-lenovo-83jh000xge",
+      "ssd_gb": "alt-lenovo-83jh000xge"
+     },
+     "mpn": "83JH000XGE",
+     "ean": [
+      "198156819314"
+     ],
+     "preis": {
+      "eur": 1799.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Lenovo/LOQ-17IRX10-83JH000XGE-Gaming-Notebook/html/product/100202939",
+      "stand": "2026-11-22"
+     }
     }
    ]
   }
