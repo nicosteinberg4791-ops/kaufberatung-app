@@ -1,5 +1,5 @@
 {
- "hinweis": "Pilotmodelle Bestpreis-Mix (D7). EAN und Produkt-URLs am 21.11.2026 aus dem JSON-LD der jeweiligen Produktseite selbst geprüft (werkzeuge/shopabfrage.py). URLs gefunden über Websuche bzw. Proshop-Suche (?s=, laut robots.txt erlaubt); Saturn-Suche ist laut robots.txt gesperrt und wurde nicht genutzt. Welche Quelle automatisch abgefragt wird, steht in daten/quellen.json (automatisch: Saturn, Alternate, Proshop, heise; nur Link: idealo, MediaMarkt). Korridor = plausibler Artikelpreis in €, verwirft Zubehör und Fehlwerte.",
+ "hinweis": "Pilotmodelle Bestpreis-Mix (D7). EAN und Produkt-URLs am 21.11.2026 aus dem JSON-LD der jeweiligen Produktseite selbst geprüft (werkzeuge/shopabfrage.py). URLs gefunden über Websuche bzw. Proshop-Suche (?s=, laut robots.txt erlaubt); Saturn-Suche ist laut robots.txt gesperrt und wurde nicht genutzt. Welche Quelle automatisch abgefragt wird, steht in daten/quellen.json (automatisch: Saturn, Alternate, Proshop, heise; nur Link: idealo, MediaMarkt). Korridor = plausibler Artikelpreis in €, verwirft Zubehör und Fehlwerte. 22.11.2026: Saturn-URLs für AF500EU (alt 2925590) und Dreame Z30 (alt 2941591) auf die Ziele ihrer 302-Weiterleitung umgestellt, EAN und Eigenangebot dort mit --zeige geprüft (Messung Tag 1, Z2/Z3).",
  "modelle": [
   {
    "id": "lg_c6elb_65",
@@ -39,7 +39,7 @@
    "mpn": ["AF500EU"],
    "korridor": [80, 500],
    "urls": {
-    "saturn": "https://www.saturn.de/de/product/_ninja-af500eu-foodi-flex-drawer-heissluftfritteuse-2470-watt-schwarz-2925590.html",
+    "saturn": "https://www.saturn.de/de/product/_ninja-af500eu-fritteuse-2470-watt-schwarz-134709790.html",
     "proshop": "https://www.proshop.de/Heissluftfritteusen/Ninja-AF500EU-Flex-Drawer/3243985",
     "heise": "https://preisvergleich.heise.de/ninja-af500eu-foodi-flexdrawer-a3337334.html",
     "idealo": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=AF500EU",
@@ -55,7 +55,7 @@
    "mpn": ["VZV17A"],
    "korridor": [150, 900],
    "urls": {
-    "saturn": "https://www.saturn.de/de/product/_dreame-z30-stielsauger-akkubetrieb-296-volt-2941591.html",
+    "saturn": "https://www.saturn.de/de/product/_dreame-z30-stielsauger-akkubetrieb-142725586.html",
     "proshop": "https://www.proshop.de/Handstaubsauger/Dreame-2-in-1-Staubsauger-Z30/3292014",
     "idealo": "https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=Dreame+Z30",
     "mediamarkt": "https://www.mediamarkt.de/de/search.html?query=Dreame%20Z30"
