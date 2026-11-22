@@ -80,6 +80,11 @@ def vorbereiten():
             print(f"Abbruch: {baum} hat ungesicherte Änderungen aus einem früheren Lauf (nicht verwerfen, Besitzer fragen):")
             print(rest)
             return 1
+        offen = git("log", "--oneline", "origin/main..HEAD", cwd=baum).stdout.strip()
+        if offen:
+            print(f"Abbruch: {baum} hat Commits, die nicht auf main sind (roter Lauf?) – nicht verwerfen, Besitzer fragen:")
+            print(offen)
+            return 1
         git("checkout", "-q", "-B", ZWEIG, "origin/main", cwd=baum)
     else:
         git("worktree", "add", "-q", "-B", ZWEIG, str(baum), "origin/main", cwd=haupt)
