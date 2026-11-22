@@ -836,9 +836,10 @@ class Runde6(unittest.TestCase):
         for name, text in varianten.items():
             self.assertIsNone(s.mms_preisfeld(text, "Saturn:de:", "111"), name)
             self.assertEqual(self.eigen(text)[0], [], name)
-        # Zuweisungstext in einer Zeichenkette zählt nicht als zweite Zuweisung
+        # Seit D7-R8-03 (Rohtext statt Maske): auch der Name in einer Zeichenkette eines anderen Skripts verwirft
+        # den Nachweis (sichere Richtung; die echte Seite nennt den Namen nur im Zustandsskript, Livelauf 22.11.)
         mit_string = gut + "<script>var t = 'window.__PRELOADED_STATE__ = {}';</script>"
-        self.assertEqual(s.mms_preisfeld(mit_string, "Saturn:de:", "111"), (False, 219.99, 0.0))
+        self.assertIsNone(s.mms_preisfeld(mit_string, "Saturn:de:", "111"))
         ohne_semikolon = jsonld + zustand.replace(";</script>", "</script>")
         self.assertEqual(s.mms_preisfeld(ohne_semikolon, "Saturn:de:", "111"), (False, 219.99, 0.0))
 
@@ -965,6 +966,72 @@ class Runde7(unittest.TestCase):
         self.assertTrue(s.ist_challenge("<template><script type='application/ld+json'>{}</script></template>"
                                         "<div class='g-recaptcha'></div>", "text/html"))
         self.assertFalse(s.ist_challenge(seite(produkt()) + "<div class='g-recaptcha'></div>", "text/html"))
+
+
+class Runde8(unittest.TestCase):
+    """Regressionstests zur Codex-Nachprüfung r8 (22.11.2026, Abschluss nach Besitzerentscheid)."""
+    m = MODELLE["af_ninja_af500"]
+    teile = Runde7.teile
+    kein_nachweis = Runde7.kein_nachweis
+
+    def nachweis(self, text, name):
+        self.assertEqual(s.mms_preisfeld(text, "Saturn:de:", "111"), (False, 219.99, 0.0), name)
+
+    def test_d7_r8_01_doppeltes_typattribut(self):
+        gut, jsonld, zustand = self.teile()
+        self.nachweis(gut, "ausgang")
+        # Browser nimmt den ersten Wert: Datenblock, nie ausgeführt
+        self.kein_nachweis(jsonld + zustand.replace("<script>", '<script type="application/json" type="text/javascript">'),
+                           "daten_zuerst")
+        # Umgekehrte Reihenfolge wäre im Browser ausführbar, bleibt aber mehrdeutig: kein Nachweis
+        self.kein_nachweis(jsonld + zustand.replace("<script>", '<script type="text/javascript" type="application/json">'),
+                           "js_zuerst")
+        # Challenge-Erkennung folgt dem Browser (erster Wert): ausführbar -> Merkmal zählt, Datenblock -> nicht
+        p = seite(produkt())
+        self.assertTrue(s.ist_challenge(p + '<script type="text/javascript" type="application/json">_cf_chl_opt = {}'
+                                            "</script>", "text/html"))
+        self.assertFalse(s.ist_challenge(p + '<script type="application/json" type="text/javascript">_cf_chl_opt = {}'
+                                             "</script>", "text/html"))
+
+    def test_d7_r8_02_nur_ascii_leerraum(self):
+        gut, jsonld, zustand = self.teile()
+        for zeichen in ("\u0085", "\u001c", " "):
+            self.kein_nachweis(jsonld + zustand.replace("<script>", "<script>" + zeichen), f"vorne {zeichen!r}")
+            self.kein_nachweis(jsonld + zustand.replace("__ =", "__" + zeichen + "="), f"zuweisung {zeichen!r}")
+            self.kein_nachweis(jsonld + zustand.replace(";</script>", ";" + zeichen + "</script>"), f"ende {zeichen!r}")
+        self.nachweis(jsonld + zustand.replace("<script>", "<script>\t\f\v \n"), "ascii")
+
+    def test_d7_r8_03_zustand_in_anderem_skript(self):
+        gut, jsonld, zustand = self.teile()
+        varianten = {
+            "template_interpolation": "<script>const n = `${(window.__PRELOADED_STATE__ = {})}`;</script>",
+            "eckige_klammern": '<script>window["__PRELOADED_STATE__"] = {};</script>',
+            "nur_zeichenkette": '<script>var k = "__PRELOADED_STATE__";</script>',
+        }
+        for name, z in varianten.items():
+            self.kein_nachweis(jsonld + zustand + z, name)
+        # Daten-Skripte und Kommentare zählen nicht als anderes Skript
+        self.nachweis(jsonld + zustand + '<script type="application/json">"__PRELOADED_STATE__"</script>'
+                      "<!-- <script>window.__PRELOADED_STATE__ = {}</script> -->", "passiv")
+
+    def test_d7_r8_04_einzelnes_cr_und_zeilentrenner(self):
+        p = seite(produkt())
+        for nl in ("\r", " ", " "):
+            self.assertTrue(s.ist_challenge(p + f"<script><!-- Kommentar{nl}_cf_chl_opt = {{}}{nl}</script>", "text/html"),
+                            f"kommentar endet {nl!r}")
+            self.assertFalse(s.ist_challenge(p + f"<script>var a = 1;{nl}--> _cf_chl_opt = {{}}{nl}</script>",
+                                             "text/html"), f"zeilenanfang {nl!r}")
+        # CRLF wie LF
+        self.assertFalse(s.ist_challenge(p + "<script>var a = 1;\r\n--> _cf_chl_opt = {}\r\n</script>", "text/html"))
+        gut, jsonld, zustand = self.teile()
+        self.nachweis(jsonld + zustand.replace("<script>", "<script>\r\n"), "crlf_saturn")
+
+    def test_d7_r8_05_voller_jsonld_typ(self):
+        captcha = "<div class='g-recaptcha'></div>"
+        self.assertTrue(s.ist_challenge(captcha, "text/html"))
+        for typ in ("text/not-ld+json", "application/ld+jsonx", "x-application/ld+json"):
+            self.assertTrue(s.ist_challenge(f"<script type='{typ}'>{{}}</script>" + captcha, "text/html"), typ)
+        self.assertFalse(s.ist_challenge("<script type=' Application/LD+JSON '>{}</script>" + captcha, "text/html"))
 
 
 if __name__ == "__main__":

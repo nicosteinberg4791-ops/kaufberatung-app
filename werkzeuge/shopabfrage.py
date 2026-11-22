@@ -254,13 +254,18 @@ def _ohne_doppelte(paare):
     return obj
 
 
-# D7-R7-02: enge Positivliste nach der echten Seite: das Skript beginnt mit genau dieser Zuweisung
-_ZUSTAND_START = re.compile(r"\s*window\.__PRELOADED_STATE__\s*=\s*(?=\{)")
+# D7-R7-02: enge Positivliste nach der echten Seite: das Skript beginnt mit genau dieser Zuweisung.
+# D7-R8-02: nur ASCII-Leerraum (Python-\s umfasst z. B. U+0085, das in JavaScript ein Syntaxfehler ist)
+_WS = r"[ \t\n\r\f\v]"
+_ZUSTAND_START = re.compile(rf"{_WS}*window\.__PRELOADED_STATE__{_WS}*={_WS}*(?=\{{)")
+_ZUSTAND_ENDE = re.compile(rf"{_WS}*;?{_WS}*")
 _JS_TOKEN = re.compile(r'"(?:[^"\\]|\\.)*"|\bundefined\b|[{}\[\]]', re.S)
 # Passive Teile eines Skripts: Zeichenketten ("…", '…', `…` ohne Verschachtelung) und Kommentare (// …, /* … */,
-# HTML-artige Zeilenkommentare <!-- … und --> … am Zeilenanfang klassischer Skripte, D7-R7-03)
-_JS_PASSIV = re.compile(r'"(?:[^"\\\n]|\\.)*"|' r"'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`|//[^\n]*|/\*.*?(?:\*/|\Z)|"
-                        r"<!--[^\n]*|^[ \t]*-->[^\n]*", re.S | re.M)
+# HTML-artige Zeilenkommentare <!-- … und --> … am Zeilenanfang klassischer Skripte, D7-R7-03). Zeilenende sind alle
+# JavaScript-Zeilentrenner LF, CR, U+2028, U+2029 (D7-R8-04)
+_JS_PASSIV = re.compile(r'"(?:[^"\\\n\r]|\\.)*"|' r"'(?:[^'\\\n\r]|\\.)*'|`(?:[^`\\]|\\.)*`|"
+                        r"//[^\n\r  ]*|/\*.*?(?:\*/|\Z)|<!--[^\n\r  ]*|"
+                        r"(?:^|(?<=[\r  ]))[ \t]*-->[^\n\r  ]*", re.S | re.M)
 
 
 def js_maskiert(skript):
@@ -277,13 +282,21 @@ def mms_zustand(text):
     <noscript>, Daten-Skripten, Skripten mit src) beginnt mit `window.__PRELOADED_STATE__ = {`; danach nur das
     Objektliteral, optional „;“ und Leerraum bis zum Skriptende. Kein anderes ausführbares Skript nennt den Zustand im
     Code. Das Objektliteral muss außer `undefined` (-> null) gültiges JSON sein, Klammern ausgeglichen, keine doppelten
-    Schlüssel. Sonst None (kein Nachweis)."""
+    Schlüssel. Sonst None (kein Nachweis).
+    D7-R8-03: Ein anderes ausführbares Skript, das `__PRELOADED_STATE__` irgendwo enthält (Rohtext, auch in Zeichenketten,
+    Template-Interpolationen oder window["…"]), verwirft den Nachweis. D7-R8-01: ebenso ein Skript-Tag mit mehrfach
+    gesetztem Attribut irgendwo auf der Seite. Leitplanke: zusammengesetzte Namen, Escapes oder externe Skripte (src)
+    erkennt das nicht; dafür müsste die Saturn-Seite gezielt manipuliert sein, und EAN, Preis gleich JSON-LD, Korridor
+    und Lieferbarkeit müssen trotzdem stimmen."""
+    seite = seitenzerlegung(text)
+    if seite.mehrdeutig:
+        return None
     funde, andere = [], 0
-    for skript in seitenzerlegung(text).skripte:
+    for skript in seite.skripte:
         m = _ZUSTAND_START.match(skript)
         if m:
             funde.append((skript, m.end()))
-        elif "__PRELOADED_STATE__" in js_maskiert(skript):
+        elif "__PRELOADED_STATE__" in skript:
             andere += 1
     if len(funde) != 1 or andere:
         return None
@@ -304,7 +317,7 @@ def mms_zustand(text):
                 break
     else:
         return None  # Objekt nicht abgeschlossen
-    if not re.fullmatch(r"\s*;?\s*", skript[m.end():]):
+    if not _ZUSTAND_ENDE.fullmatch(skript[m.end():]):
         return None  # angehängter Ausdruck („.artikel“, „|| x“, Template-Literal) oder weiterer Code
     try:
         zustand = json.loads("".join(teile), object_pairs_hook=_ohne_doppelte)
@@ -482,6 +495,7 @@ class _Seitenteile(html.parser.HTMLParser):
         super().__init__(convert_charrefs=True)
         self.text, self.attribute, self.skripte, self.titel = [], [], [], []
         self.jsonld = False  # echter JSON-LD-Skriptblock (nicht in Kommentar/<template>/<noscript>, D7-R7-05)
+        self.mehrdeutig = False  # Skript-Tag mit mehrfach gesetztem Attribut (D7-R8-01)
         self._unsichtbar = 0
         self._in = None  # "skript" (ausführbares Inline-Skript) oder "stumm" (Stil, Daten-Skript, Skript mit src)
         self._skript = self._titel = None
@@ -493,8 +507,13 @@ class _Seitenteile(html.parser.HTMLParser):
             return
         self.attribute.extend(v for _, v in attrs if v)
         if tag in ("script", "style"):
-            a = dict(attrs)
-            if tag == "script" and "ld+json" in (a.get("type") or "").lower():
+            a = {}
+            for k, v in attrs:  # D7-R8-01: wie im Browser gilt der erste Wert eines mehrfach gesetzten Attributs
+                if k in a and tag == "script":
+                    self.mehrdeutig = True
+                a.setdefault(k, v)
+            # D7-R8-05: nur der vollständige JSON-LD-Medientyp, kein Teilstring
+            if tag == "script" and (a.get("type") or "").strip().lower() == "application/ld+json":
                 self.jsonld = True
             aktiv = tag == "script" and (a.get("type") or "").strip().lower() in JS_TYPEN and "src" not in a
             self._in = "skript" if aktiv else "stumm"
@@ -543,7 +562,7 @@ def seitenzerlegung(text):
     """Seitenteile einer Antwort (Parser-Objekt mit text, titel, attribute, skripte)."""
     p = _Seitenteile()
     try:
-        p.feed(text)
+        p.feed(re.sub(r"\r\n?", "\n", text))  # D7-R8-04: CR/CRLF wie in der HTML-Vorverarbeitung des Browsers
         p.close()
     except Exception:  # html.parser ist tolerant; im Zweifel mit dem bis dahin Gelesenen weiter
         pass
