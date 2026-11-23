@@ -17,3 +17,7 @@ Fehlalarme: 0 von 2. Keine bewusste Entscheidung, nichts ungeklärt.
 Muster:
 - Seit r7 finden die Runden neue Randfälle eines einzigen, selbst gesetzten Kriteriums (Pfade unter Windows). Die eigentliche Schutzeigenschaft hält in allen gemeldeten Fällen: Geschrieben wird nur in die Wegwerf-Kopie, der exakte Abgleich danach stoppt jede Abweichung, nichts Falsches wird veröffentlicht.
 - Beide Korrekturen sind je zwei bis drei Zeilen und ein Testfall.
+
+## Eigenbefund nach r9 (behoben)
+
+Beim Commit 4d88574 setzte der Commit-Hook `core.bare=true` in die gemeinsame `.git/config`, `git status` brach danach ab. Ursache: `test_laufzeitkonfiguration_bleibt` (aus 00bfb96) rief `git init` mit der Umgebung des Aufrufers auf, im Hook ist dort `GIT_DIR` gesetzt. Nachgestellt in einem Wegwerf-Repo mit Worktree. Korrektur: Der Test entfernt wie die übrigen Git-Tests alle `GIT_*`-Variablen; rot→grün mit `GIT_DIR` auf ein Wegwerf-Worktree belegt. `core.bare` zurück auf `false`, sonst war die Konfiguration unverändert. Nur Testcode, `veroeffentlichen.py` und `herkunft.py` unverändert.

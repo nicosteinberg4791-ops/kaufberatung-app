@@ -557,10 +557,12 @@ class Veroeffentlichen(unittest.TestCase):
 
     def test_laufzeitkonfiguration_bleibt(self):
         """R8-01: vorhandene Git-Laufzeitkonfiguration (GIT_CONFIG_COUNT/KEY/VALUE, z. B. safe.directory in CI) bleibt
-        in jedem Git-Aufruf erhalten."""
+        in jedem Git-Aufruf erhalten. Ohne die GIT_*-Variablen des Aufrufers: im Commit-Hook ist GIT_DIR gesetzt, und
+        `git init` schriebe dann core.bare=true in die Konfiguration des echten Repos."""
         probe = {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "kb.probe", "GIT_CONFIG_VALUE_0": "ja"}
+        sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
         import herkunft
-        with tempfile.TemporaryDirectory() as t, mock.patch.dict(os.environ, probe):
+        with tempfile.TemporaryDirectory() as t, mock.patch.dict(os.environ, {**sauber, **probe}, clear=True):
             subprocess.run(["git", "init", "-q", t], check=True)
             self.assertEqual(self.v.git("config", "--get", "kb.probe", cwd=t).stdout.strip(), "ja")
             self.assertEqual({**os.environ, **herkunft.OHNE_ERSATZ}.get("GIT_CONFIG_KEY_0"), "kb.probe")
