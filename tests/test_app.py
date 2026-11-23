@@ -544,7 +544,8 @@ class Veroeffentlichen(unittest.TestCase):
         e = self._lauf(self._gut, argv=["--trocken"])
         q = e["quelle"]
         for name in (b"b\\c.txt", b"..\\raus.txt", b"a.", b"leer ", b"x:y.txt", b"a<b.txt", b'a"b.txt', b"a|b.txt",
-                     b"a?b.txt", b"a*b.txt", b"nul.txt", b"CON", b"com1.json", b"Seite.txt"):
+                     b"a?b.txt", b"a*b.txt", b"nul.txt", b"CON", b"com1.json", b"Seite.txt",
+                     b"z" * 256, b"veroef~1.py"):   # R9-01 Komponente > 255, R9-02 8.3-Kurzname
             with self.subTest(name=name):
                 stand = self._stand_roh(q, e["head"], name)
                 with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", q):
@@ -554,6 +555,14 @@ class Veroeffentlichen(unittest.TestCase):
         f = self.v.windows_pfad_fehler
         self.assertEqual(f([".gitignore", "app/größe.txt", "a.b/c.json", "console.txt", "nulli.txt"]), [])
         self.assertTrue(f(["app/A/x.txt", "app/a/y.txt"]), "Ordner unterscheiden sich nur in der Schreibweise")
+        # R9-01: Grenze 255 UTF-16-Codeeinheiten je Komponente (ä = 1, 😀 = 2 Einheiten)
+        self.assertEqual(f(["app/" + "ä" * 255, "a" * 255 + "/x.txt"]), [])
+        self.assertTrue(f(["app/" + "😀" * 128]), "256 UTF-16-Einheiten")
+        self.assertTrue(f(["z" * 256 + "/x.txt"]), "zu langer Ordnername")
+        # R9-02: 8.3-Kurzname kann dieselbe Datei treffen wie der lange Name
+        self.assertTrue(f(["werkzeuge/veroeffentlichen.py", "werkzeuge/veroef~1.py"]))
+        self.assertTrue(f(["progra~12/x.txt"]), "Kurzname als Ordner")
+        self.assertEqual(f(["a~b.txt", "app/~x.txt"]), [], "Tilde ohne Ziffer ist kein Kurzname")
 
     def test_laufzeitkonfiguration_bleibt(self):
         """R8-01: vorhandene Git-Laufzeitkonfiguration (GIT_CONFIG_COUNT/KEY/VALUE, z. B. safe.directory in CI) bleibt

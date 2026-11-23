@@ -21,3 +21,12 @@ Muster:
 ## Eigenbefund nach r9 (behoben)
 
 Beim Commit 4d88574 setzte der Commit-Hook `core.bare=true` in die gemeinsame `.git/config`, `git status` brach danach ab. Ursache: `test_laufzeitkonfiguration_bleibt` (aus 00bfb96) rief `git init` mit der Umgebung des Aufrufers auf, im Hook ist dort `GIT_DIR` gesetzt. Nachgestellt in einem Wegwerf-Repo mit Worktree. Korrektur: Der Test entfernt wie die übrigen Git-Tests alle `GIT_*`-Variablen; rot→grün mit `GIT_DIR` auf ein Wegwerf-Worktree belegt. `core.bare` zurück auf `false`, sonst war die Konfiguration unverändert. Nur Testcode, `veroeffentlichen.py` und `herkunft.py` unverändert.
+
+## Behebung (O20 „Beheben und Runde 10“, 23.11.2026)
+
+| ID | Korrektur | Test (vor der Korrektur rot, danach grün) |
+|---|---|---|
+| R9-01 | `windows_pfad_fehler` lehnt jede Komponente über 255 UTF-16-Codeeinheiten ab, vor dem ersten Schreiben. | `test_windows_pfade_vor_dem_schreiben`: `app/` + 256 × `z` (vorher `FileNotFoundError` nach dem Schreiben anderer Dateien), dazu reine Fälle: 255 × `ä` und Ordner mit 255 Zeichen gültig, 128 × 😀 (256 Einheiten) und Ordner mit 256 Zeichen ungültig. |
+| R9-02 | `KURZNAME` (`~` gefolgt von einer Ziffer) lehnt jeden möglichen 8.3-Kurznamen ab, absichtlich streng. | Gleicher Test: `app/veroef~1.py` (vorher ohne Abbruch), dazu reine Fälle: `veroeffentlichen.py` mit `veroef~1.py`, Ordner `progra~12`; `a~b.txt` und `~x.txt` bleiben gültig. |
+
+Alle 223 Pfade des Stands bestehen. Sammellauf 0 Fehler, 0 Warnungen; `datenbank.py pruefen` Fehler 0; Bau in Ordnung; `--trocken` gegen das echte gh-pages: Baum 813c8cd32858 geprüft, Seitenbaum danach sauber; `core.bare` = false.

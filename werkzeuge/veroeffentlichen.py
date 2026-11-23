@@ -32,6 +32,7 @@ bewegt oder fehlt es: Abbruch, neu starten).
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -201,12 +202,14 @@ def objekte_lesen(shas):
 
 GERAETE = {"CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$"} | {f"{g}{n}" for g in ("COM", "LPT")
                                                              for n in "0123456789¹²³"}
+KURZNAME = re.compile(r"~[0-9]")   # konservativ: jede Tilde mit Ziffer, wie in PROGRA~1 oder VEROEF~1.PY
 
 
 def windows_pfad_fehler(pfade):
     """Gründe gegen das Auspacken dieser Pfade unter Windows (leer = in Ordnung, R8-03), geprüft vor dem ersten
     Schreiben: kein \\, keine Zeichen <>:"|?*, kein Punkt oder Leerzeichen am Namensende (auch nicht . und ..), keine
-    Gerätenamen (auch mit Endung, z. B. nul.txt), keine zwei Pfade, die sich nur in Groß-/Kleinschreibung unterscheiden
+    Gerätenamen (auch mit Endung, z. B. nul.txt), keine Komponente über 255 UTF-16-Zeichen (R9-01), kein möglicher
+    8.3-Kurzname (Tilde mit Ziffer, R9-02), keine zwei Pfade, die sich nur in Groß-/Kleinschreibung unterscheiden
     (auch bei Ordnern). Reine Funktion, für Tests."""
     f, gesehen = [], {}
     for p in sorted(pfade):
@@ -216,6 +219,10 @@ def windows_pfad_fehler(pfade):
                 f.append(f"{p}: Name {n!r} ist unter Windows unzulässig")
             elif n.split(".")[0].rstrip(" ").upper() in GERAETE:
                 f.append(f"{p}: Name {n!r} ist ein Windows-Gerätename")
+            elif len(n.encode("utf-16-le")) // 2 > 255:   # R9-01: NTFS-Grenze je Komponente, auch ohne MAX_PATH
+                f.append(f"{p}: Name {n[:20]!r}… ist länger als 255 UTF-16-Zeichen")
+            elif KURZNAME.search(n):   # R9-02: 8.3-Kurzname (veroef~1.py) kann dieselbe Datei treffen wie der lange Name
+                f.append(f"{p}: Name {n!r} kann ein Windows-Kurzname sein")
             vorne = "/".join(teile[:i + 1])
             frueher = gesehen.setdefault(vorne.casefold(), vorne)
             if frueher != vorne:
