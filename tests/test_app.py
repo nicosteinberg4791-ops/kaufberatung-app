@@ -215,6 +215,32 @@ class BauZiel(unittest.TestCase):
             self.assertEqual((z / "version.json").read_text(encoding="utf-8"), "fremd", "nicht überschrieben")
             self.assertEqual(sorted(p.name for p in Path(t).iterdir()), ["ziel"], "kein Bauverzeichnis liegen geblieben")
 
+    def test_gescheitertes_umbenennen_laesst_das_leere_ziel(self):
+        """Codex R2-03: scheitert os.rename nach dem Entfernen des leeren Ziels, ist das Ziel danach wieder da (leer)
+        und kein Bauverzeichnis bleibt liegen."""
+        with tempfile.TemporaryDirectory() as t:
+            z = Path(t) / "ziel"
+            z.mkdir()
+            with mock.patch.object(app_bauen.os, "rename", side_effect=PermissionError("gesperrt")), \
+                    self.assertRaises(PermissionError):
+                app_bauen.baue(daten_herkunft="a" * 40, ziel=z)
+            self.assertTrue(z.is_dir())
+            self.assertEqual(list(z.iterdir()), [])
+            self.assertEqual(sorted(p.name for p in Path(t).iterdir()), ["ziel"])
+
+    def test_rest_des_bauverzeichnisses_wird_gemeldet(self):
+        """Codex R2-02: lässt sich das eigene Bauverzeichnis nach einem Abbruch nicht entfernen, meldet der Bau das."""
+        import contextlib
+        import io
+        with tempfile.TemporaryDirectory() as t:
+            z, fehler = Path(t) / "neu", io.StringIO()
+            with mock.patch.object(app_bauen, "_baue", side_effect=RuntimeError("Bau kaputt")), \
+                    mock.patch.object(app_bauen.shutil, "rmtree"), contextlib.redirect_stderr(fehler), \
+                    self.assertRaises(RuntimeError):
+                app_bauen.baue(daten_herkunft="a" * 40, ziel=z)
+            self.assertIn("nicht vollständig entfernt", fehler.getvalue())
+            self.assertFalse(z.exists())
+
     def test_bau_schreibt_nur_ins_eigene_bauverzeichnis(self):
         """Codex A1-01: Bis zum Ersetzen am Ende entsteht im Ziel nichts; ein neues Ziel enthält danach den Bau."""
         with tempfile.TemporaryDirectory() as t:

@@ -139,17 +139,27 @@ def baue(daten_herkunft=None, ziel=None):
     if z.exists() and (not z.is_dir() or any(z.iterdir())):
         raise SystemExit(f"Abbruch: Ziel {z} ist nicht leer (nur ein neues oder leeres Verzeichnis)")
     z.absolute().parent.mkdir(parents=True, exist_ok=True)
-    bau = Path(tempfile.mkdtemp(prefix=".kb-bau-", dir=z.absolute().parent))
-    try:
+    bau = None
+    try:   # R2-02: mkdtemp im geschützten Block, damit auch ein Abbruch direkt danach aufgeräumt wird
+        bau = Path(tempfile.mkdtemp(prefix=".kb-bau-", dir=z.absolute().parent))
         ergebnis = _baue(daten_herkunft, bau, str(z))
-        if z.exists() or z.is_symlink():
+        war_leer = z.exists() or z.is_symlink()
+        if war_leer:
             try:
                 os.rmdir(z)   # nur ein leeres Verzeichnis (oder ein Link darauf) verschwindet
             except OSError:
                 raise SystemExit(f"Abbruch: Ziel {z} ist während des Baus nicht mehr leer, nichts geschrieben") from None
-        os.rename(bau, z)
+        try:
+            os.rename(bau, z)
+        except BaseException:
+            if war_leer:
+                z.mkdir(exist_ok=True)   # R2-03: das zuvor leere Ziel wiederherstellen
+            raise
     except BaseException:
-        shutil.rmtree(bau, ignore_errors=True)
+        if bau is not None:
+            shutil.rmtree(bau, ignore_errors=True)
+            if bau.exists():   # R2-02: Rest melden statt verschweigen
+                print(f"Warnung: Bauverzeichnis {bau} nicht vollständig entfernt", file=sys.stderr)
         raise
     return ergebnis
 

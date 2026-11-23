@@ -262,6 +262,23 @@ class Domainsperre(unittest.TestCase):
                     abruf.stempel_setzen(stempel)
             self.assertEqual(stempel.read_bytes(), b"1700000000.5 100.0", "alter Stempel vollständig erhalten")
 
+    def test_fehler_beim_pruefen_des_stempels_heisst_voller_abstand(self):
+        """Codex A2-01 (r2): ein Fehler wie PermissionError beim Abfragen des Eintrags gilt als vorhandener, unlesbarer
+        Stempel (voller Abstand); nur FileNotFoundError heißt „kein Stempel“."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            stempel, echt = Path(t) / "h.invalid.zeit", os.lstat
+
+            def lstat(p, *a, **k):
+                if Path(p) == stempel:
+                    raise PermissionError("keine Rechte")
+                return echt(p, *a, **k)
+            # os.path.lexists nutzt intern os.lstat und meldete den Fehler als „fehlt“
+            with unittest.mock.patch.object(abruf.os, "lstat", side_effect=lstat), \
+                    unittest.mock.patch("time.sleep") as schlaf:
+                lock, _ = abruf.sperre_holen("h.invalid")
+                abruf.sperre_freigeben(lock)
+            schlaf.assert_called_once_with(abruf.ABSTAND)
+
     def test_link_ohne_ziel_heisst_voller_abstand(self):
         """Codex A2-01: ein vorhandener Stempel-Eintrag, dessen Ziel fehlt (Link bzw. Junction), ist unlesbar und
         ergibt den vollen Abstand, statt als „kein Stempel“ zu gelten."""

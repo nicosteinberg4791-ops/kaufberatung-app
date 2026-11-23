@@ -11,4 +11,4 @@ Bericht: `codex-nach-20261123-142906.json` · Urteil nicht bestanden · geschlos
 | R2-03 | mittel | bestätigt: scheitert `os.rename` nach `os.rmdir`, fehlt danach das zuvor leere Ziel | nicht wiederhergestellter Zwischenzustand | leeres Ziel nach Fehlschlag neu anlegen oder Ziel nur „neu“ (nicht vorhanden) zulassen |
 | R2-04 | mittel | bewusste Entscheidung (außerhalb des Umfangs): `gesperrt_bis` wertet einen Link ohne Ziel als „nicht gesperrt“, schon in `bewertung-r1.md` an den Besitzer gemeldet | wie A2-01 | eigenes kleines Paket zusammen mit A2-01 |
 
-Nicht behoben, Entscheidung offen (KERN §3, Muster „jede Korrektur zeigt eine neue Stelle“).
+**Besitzer hat entschieden (23.11.2026): A1-01 und R2-01 als Restrisiko angenommen** (lokales Werkzeug, kein feindlicher Prozess mit Schreibrecht im Elternordner des Ziels; die Veröffentlichung baut in ein eigenes `TemporaryDirectory`). Behoben vor Runde 3: A2-01 (`os.lstat`, nur `FileNotFoundError` = fehlt), R2-02 (`mkdtemp` im geschützten Block, Löschfehler gemeldet), R2-03 (leeres Ziel nach gescheitertem `rename` wieder angelegt). R2-04 bleibt außerhalb des Umfangs.
