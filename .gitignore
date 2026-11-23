@@ -68,3 +68,6 @@ pilot-preise.json.tmp
 
 # Projekt: Kandidatenliste der Entdeckung (werkzeuge/entdeckung.py, D10), nur lokal
 .entdeckung/
+
+# Projekt: tägliche lokale Messung des Pilot-Bestpreis-Laufs (geplante Aufgabe), nur lokal
+messung/

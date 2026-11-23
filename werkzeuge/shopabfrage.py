@@ -32,6 +32,8 @@ Nur Standardbibliothek.
 """
 import argparse
 import html
+import html.parser
+import http.client
 import json
 import math
 import os
@@ -53,9 +55,25 @@ UA_TOKEN = "Kaufberatung-Preispilot"  # Name für robots.txt-Regeln (sonst gilt 
 PAUSE = 3.0
 TIMEOUT = 25
 MAX_BYTES = 6_000_000
-# Eindeutige Sperrmerkmale: sperren immer, auch wenn die Seite JSON-LD enthält (D7-03)
-SPERRE = re.compile(r"challenge-platform/h/[a-z]/orchestrate|chl_page|cf-chl|_cf_chl_opt|px-captcha|_Incapsula_|"
-                    r"Access Denied|Pardon Our Interruption|<title>\s*(Just a moment|Attention Required)", re.I)
+# Sperrseitenerkennung (D7-03, D7-11, D7-17): HTML wird mit html.parser zerlegt in sichtbaren Text, Attributwerte
+# aktiver Elemente und Inhalt aktiver Inline-Skripte. Inhalte in <template>, <noscript>, Kommentaren und Skriptstrings
+# zählen nicht als sichtbarer Text; eine echte robots.txt ist nie eine Sperrseite.
+# Sichtbare Aufforderungen (Text, auch <title>)
+SPERRE_TEXT = re.compile(r"Access Denied|Pardon Our Interruption|Attention Required|"
+                         r"complete the captcha|solve the captcha|captcha (eingeben|lösen|ausfüllen)|"
+                         r"Ich bin kein Roboter|I'?m not a robot|"
+                         r"verify (that )?you are (a )?human|(bestätigen|beweisen) Sie, dass Sie kein Roboter sind", re.I)
+# Nur im Titeltext, dort am Anfang (D7-R6-02: Titel getrennt erfasst, Position im übrigen Text egal)
+SPERRE_TITEL = re.compile(r"^\s*Just a moment", re.I)
+# Technische Merkmale in Attributwerten aktiver Elemente (Skript-src, id, class, iframe-src, Formular-action)
+SPERRE_ATTRIBUT = re.compile(r"challenge-platform/h/[a-z]/orchestrate|chl_page|cf-chl|px-captcha|_Incapsula_", re.I)
+# Technische Merkmale in aktiven Inline-Skripten: nur die Zuweisung der Challenge-Konfiguration (Funktion, kein Text);
+# gesucht wird im Skript ohne Zeichenketten und Kommentare (js_maskiert, D7-17)
+SPERRE_SKRIPT = re.compile(r"\b_cf_chl_opt\s*=\s*\{")
+# Ausführbare Inline-Skripte: ohne type oder mit JavaScript-Typ, ohne src (sonst ignoriert der Browser den Inhalt)
+JS_TYPEN = {"", "text/javascript", "application/javascript", "text/ecmascript", "application/ecmascript", "module"}
+# Content-Length nur aus ASCII-Ziffern (D7-R6-04: isdigit() ließe z. B. „²“ durch)
+LAENGE = re.compile(r"[0-9]{1,15}")
 # Schwache Merkmale: auch normale Produktseiten verweisen passiv darauf (Cloudflare-Skript, Captcha im Formular);
 # nur ohne JSON-LD eine Sperrseite
 CHALLENGE_SCHWACH = re.compile(r"challenge-platform|captcha", re.I)
@@ -222,45 +240,136 @@ def _name_norm(s):
     return re.sub(r"[^a-z0-9]", "", s.lower())
 
 
+class DoppelterSchluessel(ValueError):
+    pass
+
+
+def _ohne_doppelte(paare):
+    """object_pairs_hook: doppelte Schlüssel im selben Objekt sind mehrdeutig (D7-14)."""
+    obj = {}
+    for k, v in paare:
+        if k in obj:
+            raise DoppelterSchluessel(k)
+        obj[k] = v
+    return obj
+
+
+# D7-R7-02: enge Positivliste nach der echten Seite: das Skript beginnt mit genau dieser Zuweisung.
+# D7-R8-02: nur ASCII-Leerraum (Python-\s umfasst z. B. U+0085, das in JavaScript ein Syntaxfehler ist)
+_WS = r"[ \t\n\r\f\v]"
+_ZUSTAND_START = re.compile(rf"{_WS}*window\.__PRELOADED_STATE__{_WS}*={_WS}*(?=\{{)")
+_ZUSTAND_ENDE = re.compile(rf"{_WS}*;?{_WS}*")
+_JS_TOKEN = re.compile(r'"(?:[^"\\]|\\.)*"|\bundefined\b|[{}\[\]]', re.S)
+# Passive Teile eines Skripts: Zeichenketten ("…", '…', `…` ohne Verschachtelung) und Kommentare (// …, /* … */,
+# HTML-artige Zeilenkommentare <!-- … und --> … am Zeilenanfang klassischer Skripte, D7-R7-03). Zeilenende sind alle
+# JavaScript-Zeilentrenner LF, CR, U+2028, U+2029 (D7-R8-04)
+_JS_PASSIV = re.compile(r'"(?:[^"\\\n\r]|\\.)*"|' r"'(?:[^'\\\n\r]|\\.)*'|`(?:[^`\\]|\\.)*`|"
+                        r"//[^\n\r  ]*|/\*.*?(?:\*/|\Z)|<!--[^\n\r  ]*|"
+                        r"(?:^|(?<=[\r  ]))[ \t]*-->[^\n\r  ]*", re.S | re.M)
+
+
+def js_maskiert(skript):
+    """Skript mit Zeichenketten und Kommentaren durch gleich viele Leerzeichen ersetzt (Positionen bleiben gleich).
+    Nur darin wird das Challenge-Merkmal gesucht (D7-17). Leitplanke (D7-R7-03): Regex-Literale und verschachtelte
+    Template-Literale werden nicht erkannt; dort kann passiver Text eine Fehlsperre auslösen oder Code verdecken.
+    Fehlsperre = sichere Richtung (Quelle in diesem Lauf nicht abgefragt, kein falscher Preis)."""
+    return _JS_PASSIV.sub(lambda m: " " * len(m.group(0)), skript)
+
+
+def mms_zustand(text):
+    """D7-15/D7-18/D7-R6-01/D7-R7-02: eingebetteten Seitenzustand der MMS-Plattform vollständig lesen. Enge
+    Positivliste nach der echten Seite: genau ein ausführbares Inline-Skript (nicht in HTML-Kommentaren, <template>,
+    <noscript>, Daten-Skripten, Skripten mit src) beginnt mit `window.__PRELOADED_STATE__ = {`; danach nur das
+    Objektliteral, optional „;“ und Leerraum bis zum Skriptende. Kein anderes ausführbares Skript nennt den Zustand im
+    Code. Das Objektliteral muss außer `undefined` (-> null) gültiges JSON sein, Klammern ausgeglichen, keine doppelten
+    Schlüssel. Sonst None (kein Nachweis).
+    D7-R8-03: Ein anderes ausführbares Skript, das `__PRELOADED_STATE__` irgendwo enthält (Rohtext, auch in Zeichenketten,
+    Template-Interpolationen oder window["…"]), verwirft den Nachweis. D7-R8-01: ebenso ein Skript-Tag mit mehrfach
+    gesetztem Attribut irgendwo auf der Seite. Leitplanke: zusammengesetzte Namen, Escapes oder externe Skripte (src)
+    erkennt das nicht; dafür müsste die Saturn-Seite gezielt manipuliert sein, und EAN, Preis gleich JSON-LD, Korridor
+    und Lieferbarkeit müssen trotzdem stimmen."""
+    seite = seitenzerlegung(text)
+    if seite.mehrdeutig:
+        return None
+    funde, andere = [], 0
+    for skript in seite.skripte:
+        m = _ZUSTAND_START.match(skript)
+        if m:
+            funde.append((skript, m.end()))
+        elif "__PRELOADED_STATE__" in skript:
+            andere += 1
+    if len(funde) != 1 or andere:
+        return None
+    skript, anfang = funde[0]
+    teile, pos, tiefe = [], anfang, 0
+    for m in _JS_TOKEN.finditer(skript, anfang):
+        tok = m.group(0)
+        if tok == "undefined":
+            teile.append(skript[pos:m.start()] + "null")
+            pos = m.end()
+            continue
+        if tok in "{[":
+            tiefe += 1
+        elif tok in "}]":
+            tiefe -= 1
+            if tiefe == 0:
+                teile.append(skript[pos:m.end()])
+                break
+    else:
+        return None  # Objekt nicht abgeschlossen
+    if not _ZUSTAND_ENDE.fullmatch(skript[m.end():]):
+        return None  # angehängter Ausdruck („.artikel“, „|| x“, Template-Literal) oder weiterer Code
+    try:
+        zustand = json.loads("".join(teile), object_pairs_hook=_ohne_doppelte)
+    except ValueError:  # auch DoppelterSchluessel
+        return None
+    return zustand if isinstance(zustand, dict) else None
+
+
+def _alle_objekte(wurzel):
+    stapel = [wurzel]
+    while stapel:
+        x = stapel.pop()
+        if isinstance(x, dict):
+            yield x
+            stapel.extend(x.values())
+        elif isinstance(x, list):
+            stapel.extend(x)
+
+
+def _ist_preisobjekt(o):
+    preis = o.get("price")
+    return (o.get("__typename") == "CofrPriceFeature"
+            or (isinstance(preis, dict) and preis.get("__typename") == "CofrPriceFeaturePrice")
+            or (o.get("__typename") is None and ("currency" in o or "isProductOfTypeMarketplace" in o)))
+
+
 def mms_preisfeld(text, praefix, sku):
     """Saturn/MediaMarkt (Plattform MMS): JSON-LD nennt keinen Verkäufer. Der eingebettete Seitenzustand enthält je
     Artikel ein Preisfeld „CofrPriceFeature“ mit id "<praefix><sku>" und isProductOfTypeMarketplace. Rückgabe
-    (marktplatz: bool, betrag, versand) des Hauptangebots oder None, falls nicht eindeutig belegt."""
+    (marktplatz: bool, betrag, versand) des Hauptangebots oder None, falls nicht eindeutig belegt.
+    Strukturell (D7-15/D7-18): alle Preisobjekte der Ziel-SKU im gesamten Zustand, jede Feldfolge, müssen gültig sein
+    und übereinstimmen. Andere Merkmale derselben SKU (Abholung, Lieferung, Medien, Verweise) zählen nicht."""
     if not sku:
         return None
-    t = text.replace('\\"', '"')
-    dec = json.JSONDecoder()
-    funde = set()
-    # D7-04: Anker ist die Feldfolge des Preisfelds; von dort zur umschließenden Klammer zurück und das vollständige
-    # Artikelobjekt dekodieren. Ausgewertet werden nur dessen eigene Felder, nie ein Folgeobjekt.
+    zustand = mms_zustand(text)
+    if zustand is None:
+        return None
     ziel = f"{praefix}{sku}"
-    for m in re.finditer(r'"id":"%s","currency":"EUR","isProductOfTypeMarketplace":(true|false)' % re.escape(ziel), t):
-        obj, pos = None, m.start()
-        for _ in range(60):
-            pos = t.rfind("{", 0, pos)
-            if pos < 0:
-                break
-            try:
-                kandidat, ende = dec.raw_decode(t, pos)
-            except ValueError:
-                continue
-            if isinstance(kandidat, dict) and kandidat.get("id") == ziel and ende > m.end():
-                obj = kandidat
-                break
-        if obj is None:
-            funde.add(None)  # nicht lesbar: kein Nachweis
+    funde = set()
+    for o in _alle_objekte(zustand):
+        if o.get("id") != ziel or not _ist_preisobjekt(o):
             continue
-        preis = obj.get("price") if isinstance(obj, dict) else None
-        if (obj.get("id") != f"{praefix}{sku}" or obj.get("currency") != "EUR"
-                or not isinstance(obj.get("isProductOfTypeMarketplace"), bool)):
-            funde.add(None)
-            continue
+        preis = o.get("price")
+        if (o.get("__typename") not in (None, "CofrPriceFeature") or o.get("currency") != "EUR"
+                or not isinstance(o.get("isProductOfTypeMarketplace"), bool)):
+            return None  # widersprüchlich oder unvollständig: kein Nachweis
         betrag = versand = None
         if isinstance(preis, dict) and preis.get("__typename") == "CofrPriceFeaturePrice":
             betrag, versand = zahl(preis.get("amount")), zahl(preis.get("shippingCost"))
-        funde.add((obj["isProductOfTypeMarketplace"], betrag if betrag_ok(betrag) else None,
+        funde.add((o["isProductOfTypeMarketplace"], betrag if betrag_ok(betrag) else None,
                    versand if betrag_ok(versand) else None))
-    return funde.pop() if len(funde) == 1 and None not in funde else None
+    return funde.pop() if len(funde) == 1 else None
 
 
 def pruefe_angebot(o, modell, quelle, text="", sku=None):
@@ -375,14 +484,116 @@ class Weitergeleitet(NichtAbrufbar):
     """Antwort kam von einer anderen URL (Weiterleitung): nicht auswerten, Quelle aber nicht für den Lauf sperren."""
 
 
+class _Seitenteile(html.parser.HTMLParser):
+    """Zerlegt HTML in sichtbaren Text, Titeltexte, Attributwerte aktiver Elemente und die Inhalte ausführbarer
+    Inline-Skripte (je Skript ein Eintrag)."""
+    UNSICHTBAR = {"template", "noscript"}
+    INLINE = {"a", "abbr", "b", "bdi", "bdo", "cite", "code", "data", "dfn", "em", "font", "i", "kbd", "mark", "q", "s",
+              "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.text, self.attribute, self.skripte, self.titel = [], [], [], []
+        self.jsonld = False  # echter JSON-LD-Skriptblock (nicht in Kommentar/<template>/<noscript>, D7-R7-05)
+        self.mehrdeutig = False  # Skript-Tag mit mehrfach gesetztem Attribut (D7-R8-01)
+        self._unsichtbar = 0
+        self._in = None  # "skript" (ausführbares Inline-Skript) oder "stumm" (Stil, Daten-Skript, Skript mit src)
+        self._skript = self._titel = None
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.UNSICHTBAR:
+            self._unsichtbar += 1
+        if self._unsichtbar:
+            return
+        self.attribute.extend(v for _, v in attrs if v)
+        if tag in ("script", "style"):
+            a = {}
+            for k, v in attrs:  # D7-R8-01: wie im Browser gilt der erste Wert eines mehrfach gesetzten Attributs
+                if k in a and tag == "script":
+                    self.mehrdeutig = True
+                a.setdefault(k, v)
+            # D7-R8-05: nur der vollständige JSON-LD-Medientyp, kein Teilstring
+            if tag == "script" and (a.get("type") or "").strip().lower() == "application/ld+json":
+                self.jsonld = True
+            aktiv = tag == "script" and (a.get("type") or "").strip().lower() in JS_TYPEN and "src" not in a
+            self._in = "skript" if aktiv else "stumm"
+            self._skript = [] if aktiv else None
+        elif tag == "title":
+            self._titel = []
+        elif tag not in self.INLINE:
+            self.text.append(" ")
+
+    def handle_startendtag(self, tag, attrs):
+        if not self._unsichtbar:
+            self.attribute.extend(v for _, v in attrs if v)
+            if tag not in self.INLINE:
+                self.text.append(" ")
+
+    def handle_endtag(self, tag):
+        if tag in self.UNSICHTBAR:
+            self._unsichtbar = max(0, self._unsichtbar - 1)
+        elif tag in ("script", "style"):
+            self._skript_ende()
+            self._in = None
+        elif tag == "title" and self._titel is not None:
+            self.titel.append(re.sub(r"\s+", " ", "".join(self._titel)))  # D7-R7-04: Umbrüche wie Leerzeichen
+            self._titel = None
+            self.text.append(" ")
+        elif tag not in self.INLINE and not self._unsichtbar:
+            self.text.append(" ")
+
+    def _skript_ende(self):
+        if self._skript is not None:
+            self.skripte.append("".join(self._skript))
+            self._skript = None
+
+    def handle_data(self, data):
+        if self._unsichtbar:
+            return
+        if self._in == "skript":
+            self._skript.append(data)
+        elif self._in is None:
+            self.text.append(data)
+            if self._titel is not None:
+                self._titel.append(data)
+
+
+def seitenzerlegung(text):
+    """Seitenteile einer Antwort (Parser-Objekt mit text, titel, attribute, skripte)."""
+    p = _Seitenteile()
+    try:
+        p.feed(re.sub(r"\r\n?", "\n", text))  # D7-R8-04: CR/CRLF wie in der HTML-Vorverarbeitung des Browsers
+        p.close()
+    except Exception:  # html.parser ist tolerant; im Zweifel mit dem bis dahin Gelesenen weiter
+        pass
+    p._skript_ende()  # nicht geschlossenes letztes Skript (Antwort endet im Skript)
+    return p
+
+
+def seitenteile(text):
+    """(sichtbarer Text, Attributwerte, Inline-Skripte) einer Antwort; Leerraum im Text zusammengefasst."""
+    p = seitenzerlegung(text)
+    return re.sub(r"\s+", " ", "".join(p.text)), "\n".join(p.attribute), "\n".join(p.skripte)
+
+
 def ist_challenge(text, inhaltstyp):
-    """Sperr-/Challenge-Seite? Nur HTML-Antworten (robots.txt von Saturn nennt selbst /cdn-cgi/challenge-platform/).
-    Eindeutige Merkmale sperren immer; schwache nur, wenn die Seite kein JSON-LD hat."""
-    if SPERRE.search(text):  # D7-11: ganzer Text, auch bei falsch deklariertem Inhaltstyp
+    """Sperr-/Challenge-Seite? Eine echte robots.txt nie (gleiche Prüfung wie robots_gueltig, D7-R6-03; Kommentare und
+    passive Pfade zählen nicht, D7-11/D7-17). Sonst sperren sichtbare Aufforderungen (auch Titel) und technische
+    Merkmale aktiver Elemente immer, unabhängig von Inhaltstyp, Position und Auszeichnung; schwache Merkmale nur bei
+    HTML ohne JSON-LD, und auch dann nur in denselben gefilterten Seitenteilen (D7-17)."""
+    if robots_gueltig(text):
+        return False
+    p = seitenzerlegung(text)
+    sichtbar = re.sub(r"\s+", " ", "".join(p.text))
+    attribute = "\n".join(p.attribute)
+    code = "\n".join(js_maskiert(x) for x in p.skripte)
+    if (SPERRE_TEXT.search(sichtbar) or any(SPERRE_TITEL.search(x) for x in p.titel)
+            or SPERRE_ATTRIBUT.search(attribute) or SPERRE_SKRIPT.search(code)):
         return True
     if "html" not in (inhaltstyp or "").lower():
         return False
-    return bool(CHALLENGE_SCHWACH.search(text[:20000])) and "application/ld+json" not in text
+    schwach = "\n".join((sichtbar, attribute, code))
+    return bool(CHALLENGE_SCHWACH.search(schwach)) and not p.jsonld
 
 
 class _KeineWeiterleitung(urllib.request.HTTPRedirectHandler):
@@ -392,7 +603,81 @@ class _KeineWeiterleitung(urllib.request.HTTPRedirectHandler):
         return None
 
 
-_OPENER = urllib.request.build_opener(_KeineWeiterleitung)
+class UnklarerRahmen(http.client.HTTPException):
+    """Antwortende nicht eindeutig belegt (D7-02/D7-16)."""
+
+
+class _StrengeAntwort(http.client.HTTPResponse):
+    """D7-02/D7-16: Antwortende muss eindeutig belegt sein. Erlaubt sind genau zwei Rahmen:
+    - Content-Length (ohne Transfer-Encoding): gelesene Länge wird in abrufen() verglichen;
+    - Transfer-Encoding chunked (Wert nach Leerraum-/Großschreibangleichung genau „chunked“): jede Größenzeile,
+      jedes Chunk-Ende und der Abschluss (Trailer, Leerzeile) streng mit CRLF.
+    Alles andere (anderes Transfer-Encoding, beides zugleich, Ende nur durch Verbindungsabbau) = UnklarerRahmen.
+    Überschreibt die internen Methoden `_get_chunk_left` und `_read_and_discard_trailer` (Python 3.11–3.13);
+    `test_d7_02_gekuerzte_200_antwort` sichert das Verhalten ab, falls sich die Interna ändern."""
+
+    def begin(self):
+        super().begin()
+        werte = self.headers.get_all("Transfer-Encoding") or []
+        laenge = self.headers.get_all("Content-Length") or []
+        if werte:
+            if len(werte) != 1 or werte[0].strip().lower() != "chunked" or laenge:
+                raise UnklarerRahmen(f"Transfer-Encoding {werte!r}, Content-Length {laenge!r}")
+            self.chunked, self.chunk_left, self.length = True, None, None
+        elif self.status == 200 and (len(laenge) != 1 or not LAENGE.fullmatch(laenge[0].strip(" \t"))):
+            raise UnklarerRahmen(f"weder chunked noch eindeutige Content-Length ({laenge!r})")
+
+    def _zeile(self):
+        z = self.fp.readline(http.client._MAXLINE + 1)
+        if len(z) > http.client._MAXLINE:
+            raise http.client.LineTooLong("chunk")
+        if not z.endswith(b"\r\n"):
+            raise http.client.IncompleteRead(b"")
+        return z[:-2]
+
+    def _get_chunk_left(self):
+        chunk_left = self.chunk_left
+        if not chunk_left:
+            if chunk_left is not None and self._safe_read(2) != b"\r\n":
+                raise http.client.IncompleteRead(b"")
+            groesse = self._zeile().split(b";", 1)[0].strip(b" \t")
+            if not re.fullmatch(rb"[0-9A-Fa-f]{1,16}", groesse):
+                raise http.client.IncompleteRead(b"")
+            chunk_left = int(groesse, 16)
+            if chunk_left == 0:
+                self._read_and_discard_trailer()
+                self._close_conn()
+                chunk_left = None
+            self.chunk_left = chunk_left
+        return chunk_left
+
+    def _read_and_discard_trailer(self):
+        while self._zeile() != b"":
+            pass
+
+
+class _StrengHTTP(http.client.HTTPConnection):
+    response_class = _StrengeAntwort
+
+
+class _StrengHTTPS(http.client.HTTPSConnection):
+    response_class = _StrengeAntwort
+
+
+class _HTTPHandler(urllib.request.HTTPHandler):
+    def http_open(self, req):
+        return self.do_open(_StrengHTTP, req)
+
+
+class _HTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        kw = {"context": self._context}
+        if getattr(self, "_check_hostname", None) is not None:
+            kw["check_hostname"] = self._check_hostname
+        return self.do_open(_StrengHTTPS, req, **kw)
+
+
+_OPENER = urllib.request.build_opener(_KeineWeiterleitung, _HTTPHandler, _HTTPSHandler)
 
 
 def abrufen(url):
@@ -407,10 +692,17 @@ def abrufen(url):
                     raise NichtAbrufbar(f"HTTP {r.status} (keine vollständige Antwort)")
                 if len(roh) > MAX_BYTES:
                     raise NichtAbrufbar("Antwort über der Lesegrenze (abgeschnitten)")
+                laenge = r.headers.get("Content-Length")
+                if laenge is not None:
+                    laenge = laenge.strip(" \t")
+                if laenge is not None and (not LAENGE.fullmatch(laenge) or int(laenge) != len(roh)):
+                    raise NichtAbrufbar("Antwort unvollständig (Länge passt nicht zu Content-Length)")  # D7-02
                 text = roh.decode(r.headers.get_content_charset() or "utf-8", "replace")
                 typ = r.headers.get("Content-Type", "")
                 if r.geturl() != url:  # zweite Sicherung, falls doch eine Weiterleitung verfolgt wurde
                     raise Weitergeleitet(f"Weiterleitung auf {r.geturl()[:120]}")
+        except http.client.HTTPException as e:  # D7-02/D7-16: vorzeitiges Ende oder unklarer Rahmen
+            raise NichtAbrufbar(f"Antwort unvollständig oder Rahmen unklar ({type(e).__name__})")
         except urllib.error.HTTPError as e:
             if 300 <= e.code < 400:
                 raise Weitergeleitet(f"Weiterleitung (HTTP {e.code}) auf {str(e.headers.get('Location') or '?')[:120]}")

@@ -96,7 +96,7 @@
       "titel": "Saturn-Testvorlage enthält fremde Angebotstexte und einen Kontopfad",
       "datei": "tests/vorlagen/saturn_s90h.html",
       "zeile": 4,
-      "beleg": "Kriterium „Keine persönlichen Daten, Pfade, Konto-URLs oder fremden Shoptexte in versionierten Dateien (Repo öffentlich).“ Die aus der Originalseite gekürzte Vorlage enthält Saturns Service- und Garantietexte sowie die MySaturn-Konto-URL `/de/myaccount/loyalty-benefits`.",
+      "beleg": "Kriterium „Keine persönlichen Daten, Pfade, Konto-URLs oder fremden Shoptexte in versionierten Dateien (Repo öffentlich).“ Die aus der Originalseite gekürzte Vorlage enthält Saturns Service- und Garantietexte sowie eine Konto-URL des Shops [im Protokoll entfernt].",
       "auswirkung": "Ein Push veröffentlicht kopierte Shoptexte und eine Konto-URL, die die Tests für EAN, SKU und Preisfeld nicht benötigen.",
       "vorschlag": "Die Vorlagen auf synthetische Testdaten für die tatsächlich geprüften Felder reduzieren. Service- und Garantietexte sowie Konto-URLs entfernen.",
       "im_pruefumfang": true

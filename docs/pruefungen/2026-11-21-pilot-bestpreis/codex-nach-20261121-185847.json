@@ -1,0 +1,44 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Drei schwere Befunde blockieren die Freigabe von Commit 11598dc199d3986e40e6002ed72786ddd420eb7a. Alle 62 Shopabfrage-Tests bestehen. Die zusätzlichen Offline-Gegenproben zeigen Lücken bei Chunked-Antworten, der CAPTCHA-Erkennung und dem Saturn-Preisnachweis.",
+  "befunde": [
+    {
+      "id": "D7-02",
+      "schwere": "schwer",
+      "titel": "Unvollständiger Chunked-Abschluss gibt Produktabruf frei",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 428,
+      "beleg": "Das Kriterium lautet „robots.txt live gelesen, nicht lesbar oder unvollständig übertragen = Quelle nicht abfragen“. In der Offline-Gegenprobe erhielt der echte HTTP-Decoder eine HTTP-200-Antwort mit einem Datenchunk für `User-agent: *` und `Disallow: ` sowie einem abschließenden `0` unmittelbar vor dem Verbindungsende. Trotz fehlender Zeilenabschlüsse lieferte `r.read()` den Körper ohne `IncompleteRead`. `robots_fuer()` gab einen Parser zurück, der `/de/product/` erlaubte. Der neue Test bricht innerhalb des Datenchunks ab und deckt den unvollständigen Abschluss nicht ab.",
+      "auswirkung": "Der Lauf kann die Quelle nach einem erkennbar unvollständigen robots.txt-Transfer abfragen. Produktantworten mit demselben Übertragungsfehler können ebenfalls bis zur Auswertung gelangen.",
+      "vorschlag": "Beim Chunked-Abruf den vollständigen Abschluss einschließlich der Leerzeile nach dem letzten Chunk beziehungsweise den Trailern verlangen. Testfälle für EOF nach `0` und nach `0\\r\\n` ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-11",
+      "schwere": "schwer",
+      "titel": "CAPTCHA-Erkennung übersieht sichtbare Aufforderungen und sperrt passive Inhalte",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 404,
+      "beleg": "Das Kriterium lautet „403/429/503/Challenge/ausdrückliche Captcha-Aufforderung = Quelle für den Lauf gesperrt; passive robots.txt-Pfade sperren nicht.“ In der Offline-Gegenprobe lieferte `ist_challenge()` für `Please complete the <strong>CAPTCHA</strong> to continue.` bei `text/plain` sowie bei `text/html` mit JSON-LD jeweils `False`. Umgekehrt lieferte dieselbe robots.txt mit einer passiven `Disallow`-Regel für `/cdn-cgi/challenge-platform/h/b/orchestrate/` bei `text/plain` `False` und bei `text/html` `True`, weil die schwache Prüfung in Zeile 408 wieder den ungefilterten Text durchsucht. Auch eine Produktseite mit JSON-LD und einem inaktiven `<template>` mit dem Label `Ich bin kein Roboter` lieferte `True`.",
+      "auswirkung": "Eine ausdrückliche Bot-Prüfung kann die Laufsperre verfehlen. Passive robots.txt-Pfade oder inaktive Formularvorlagen können eine reguläre Quelle für den gesamten Lauf sperren.",
+      "vorschlag": "Bei gültiger robots.txt passive Direktiven und Kommentare in beiden Prüfzweigen ausnehmen. Sichtbare Aufforderungen anhand normalisierten HTML-Texts erkennen und inaktive Vorlagen ausschließen. Die Gegenproben über `abrufen()` als Regressionstests abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-15",
+      "schwere": "schwer",
+      "titel": "Saturn-Preisnachweis übersieht widersprüchliches Objekt derselben SKU",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 258,
+      "beleg": "Das Kriterium lautet „Saturn: Eigenangebot nur bei eindeutigem Preisfeld (kein Marktplatz, gleicher Preis); widersprüchliche oder doppelte Felder = kein Nachweis.“ In der Offline-Gegenprobe enthielt der Seitenzustand zwei Preisobjekte zur SKU 111 für je 219,99 €. Das erste hatte den Marktplatzstatus `false`, das zweite `true`. Im zweiten Objekt stand `currency` hinter dem Marktplatzstatus. Der Regex-Anker erfasste nur das erste Objekt. `mms_preisfeld()` lieferte `(False, 219.99, 0.0)` und `auswerten_seite()` akzeptierte ein Eigenangebot. Erwartet war kein Nachweis.",
+      "auswirkung": "Ein widersprüchliches Saturn-Angebot kann als Eigenangebot in die Bestpreisauswahl gelangen.",
+      "vorschlag": "Preisobjekte zur Ziel-SKU unabhängig von der Feldreihenfolge erfassen und ihre Werte gemeinsam auf Widersprüche prüfen. Den Fall mit zwei Objekten und vertauschter Feldreihenfolge als Regressionstest ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "D7-09 – Der übernommene Alternate-Breadcrumb sowie die beanstandeten Shopzitate und Kontopfade sind aus dem geprüften Commit entfernt.",
+    "D7-14 – Doppelte Marktplatzschlüssel innerhalb desselben Saturn-Preisobjekts werden verworfen. Die Gegenprobe mit einem eindeutigen Objekt bleibt gültig."
+  ],
+  "pruefgrenzen": "Die 62 Shopabfrage-Tests liefen mit der lokal vorhandenen Python-3.13-Installation im isolierten Modus ohne Bytecode-Ausgabe. Der PowerShell-Gesamtlauf schreibt ein Laufprotokoll und blieb wegen des Nur-Lese-Auftrags ungeprüft. Die Gegenproben liefen offline. D7-05 und ältere öffentliche Git-Stände waren ausgenommen."
+}

@@ -52,7 +52,7 @@
       "titel": "Saturn-Vorlage enthält weiterhin übernommene Werbetexte",
       "datei": "tests/vorlagen/saturn_s90h.html",
       "zeile": 4,
-      "beleg": "Kriterium „Keine persönlichen Daten, Pfade, Konto-URLs oder fremden Shoptexte in versionierten Dateien (Repo öffentlich).“ Die Zusatzangebote und der Kontopfad wurden aus dem aktuellen Stand entfernt. Die laut Kopfkommentar aus der echten Shopseite gekürzte Vorlage enthält im Feld `name` weiterhin Werbezusätze wie „Glare Free mit Real Black & Real Color, Ultimate Gaming Pack“. Der frühere Kontopfad ist außerdem in dem Commit vorhanden, auf den die lokale Referenz `origin/main` zeigt.",
+      "beleg": "Kriterium „Keine persönlichen Daten, Pfade, Konto-URLs oder fremden Shoptexte in versionierten Dateien (Repo öffentlich).“ Die Zusatzangebote und der Kontopfad wurden aus dem aktuellen Stand entfernt. Die laut Kopfkommentar aus der echten Shopseite gekürzte Vorlage enthält im Feld `name` weiterhin Werbezusätze wie [Werbezusatz, im Protokoll entfernt]. Der frühere Kontopfad ist außerdem in dem Commit vorhanden, auf den die lokale Referenz `origin/main` zeigt.",
       "auswirkung": "Der zur Veröffentlichung vorgesehene Dateistand enthält weiterhin Shoptexte. Der Korrekturcommit entfernt den früheren Kontopfad aus der aktuellen Datei, während der ältere Commit erreichbar bleibt.",
       "vorschlag": "Die Vorlage auf synthetische Namen und die für EAN, Varianten, Angebot und Preisnachweis benötigten Felder kürzen. Die bereits veröffentlichte Historie bei der Freigabe berücksichtigen.",
       "im_pruefumfang": true

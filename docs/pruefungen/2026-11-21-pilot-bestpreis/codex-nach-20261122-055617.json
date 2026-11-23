@@ -1,0 +1,74 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Alle 64 Shopabfrage-Tests bestehen auf Commit 774e6f9b16a908c512ef31f80360a1aeaea05898. Die konkreten Gegenproben aus Runde 4 sind abgedeckt. Weitere Offline-Gegenproben zeigen, dass D7-02, D7-11 und D7-15 offen bleiben.",
+  "befunde": [
+    {
+      "id": "D7-02",
+      "schwere": "schwer",
+      "titel": "Chunked-Abschluss mit fehlendem CR wird akzeptiert",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 454,
+      "beleg": "Das Kriterium lautet „Unvollständige Übertragung (Content-Length, chunked ohne vollständigen Abschluss) = nicht abrufbar“. In der lokalen HTTP-Gegenprobe endete ein vollständiger robots.txt-Datenchunk mit `0\\r\\n\\n`. Zeile 454 akzeptierte das einzelne LF als abschließende Leerzeile. `robots_fuer()` gab einen Parser zurück, der `/de/product/` erlaubte. Erwartet war die Einstufung als nicht lesbar, weil das abschließende CRLF fehlt.",
+      "auswirkung": "Eine unvollständig gerahmte robots.txt kann den Produktabruf freigeben.",
+      "vorschlag": "Für den Chunked-Abschluss das vollständige CRLF verlangen und den Fall `0\\r\\n\\n` neben dem gültigen Abschluss mit Trailern über `abrufen()` testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-16",
+      "schwere": "schwer",
+      "titel": "Nachgestelltes Leerzeichen im Transfer-Encoding umgeht die Chunk-Prüfung",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 489,
+      "beleg": "Das Kriterium lautet „Unvollständige Übertragung (Content-Length, chunked ohne vollständigen Abschluss) = nicht abrufbar“. Bei `Transfer-Encoding: chunked ` mit einem nachgestellten Leerzeichen lieferte `abrufen()` die rohen Chunk-Daten zurück, obwohl der Endchunk fehlte. `auswerten_seite()` akzeptierte daraus ein Saturn-Angebot. Eine vollständig übertragene robots.txt mit demselben Header wurde wegen der im Text verbliebenen Chunk-Rahmung als nicht lesbar eingestuft.",
+      "auswirkung": "Eine unvollständige Produktantwort kann einen Preis liefern. Dieselbe gültige Header-Schreibweise kann bei einer vollständigen robots.txt eine Quelle aussperren.",
+      "vorschlag": "Den Transfer-Encoding-Wert bei der Wahl des HTTP-Framings normalisieren. Gültige und abgeschnittene Chunked-Antworten mit nachgestelltem Leerraum testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-11",
+      "schwere": "schwer",
+      "titel": "Inline-Auszeichnung innerhalb eines Wortes verdeckt die CAPTCHA-Aufforderung",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 430,
+      "beleg": "Das Kriterium lautet „Ausdrückliche Captcha-/Roboter-Aufforderungen im sichtbaren Text sperren die Quelle, unabhängig von Inhaltstyp, Position und Auszeichnung“. Eine lokale HTTP-Produktantwort mit JSON-LD und `<p>Please complete the CAP<strong>T</strong>CHA to continue.</p>` blieb abrufbar und lieferte ein Angebot. Zeile 430 macht aus dem sichtbar zusammenhängenden Wort `CAPTCHA` den Text `CAP T CHA`. Erwartet war eine Sperre.",
+      "auswirkung": "Der Pilot kann einen Preis aus einer Antwort übernehmen, die Nutzer ausdrücklich zur CAPTCHA-Eingabe auffordert.",
+      "vorschlag": "Text mithilfe eines HTML-Parsers extrahieren. Bei Inline-Auszeichnung zusammenhängende Textteile zusammenlassen und den Fall über `abrufen()` testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-17",
+      "schwere": "schwer",
+      "titel": "Passive Skripte, Vorlagen und robots.txt-Kommentare lösen Sperren aus",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 419,
+      "beleg": "Das Kriterium lautet „robots.txt-Anweisungen, Skripte und inaktive Vorlagen sperren nicht“. In der lokalen HTTP-Gegenprobe sperrte `abrufen()` eine gültige Produktseite sowohl mit `<template><div id='px-captcha'></div></template>` als auch mit `<script>const label='px-captcha';</script>`. Eine gültige robots.txt wurde wegen `/cdn-cgi/challenge-platform/h/b/orchestrate/` in einer Kommentarzeile ebenfalls verworfen. Die Rohtextprüfung läuft vor dem Entfernen inaktiver Inhalte und entfernt keine robots.txt-Kommentare.",
+      "auswirkung": "Passive Vorkommen eines Sperrbegriffs können eine für den Lauf zulässige Quelle ausschließen.",
+      "vorschlag": "Kommentare und inaktive Vorlagen vor den Sperrprüfungen ausnehmen. Technische Signale in Skripten anhand ihrer Funktion bewerten und die drei Gegenproben über `abrufen()` absichern.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-15",
+      "schwere": "schwer",
+      "titel": "Ein zweites Preisobjekt der Ziel-SKU kann ungeprüft bleiben",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 288,
+      "beleg": "Das Kriterium lautet „Saturn: Eigenangebot nur, wenn alle Preisobjekte der Ziel-SKU (jede Feldfolge) lesbar sind und übereinstimmen (kein Marktplatz, gleicher Preis)“. Neben einem gültigen Eigenangebot über 219,99 € wurde ein zweites Objekt derselben SKU mit `price.__typename = CofrPriceFeaturePrice` und 229,99 € verworfen, weil ihm `currency` und `isProductOfTypeMarketplace` fehlten. Auch ein zweites Marktplatzobjekt mit den doppelten Typfeldern `CofrPriceFeature` und `CofrMediaAssetsFeature` unmittelbar vor `id` wurde durch Zeilen 265–267 übersprungen. In beiden Offline-Gegenproben akzeptierte `auswerten_seite()` das Eigenangebot. Erwartet war jeweils kein Eigenangebotsnachweis.",
+      "auswirkung": "Ein unvollständiges Preisobjekt oder ein Marktplatzobjekt mit widersprüchlichem Typ kann bei der Prüfung eines Eigenangebots unberücksichtigt bleiben.",
+      "vorschlag": "Preisobjekte auch anhand des Typs im `price`-Feld erkennen. Ein Objekt erst nach Prüfung seiner eigenen Felder als anderes Merkmal überspringen und doppelte Typfelder als mehrdeutig behandeln.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-18",
+      "schwere": "schwer",
+      "titel": "Ein gültiges Medienobjekt kann den Eigenangebotsnachweis verhindern",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 269,
+      "beleg": "Das Kriterium lautet „andere Merkmale derselben SKU stören nicht“. In der Offline-Gegenprobe stand neben einem gültigen Eigenangebot ein gültiges `CofrMediaAssetsFeature` derselben SKU mit der Feldfolge `__typename`, `media`, `id`. Enthielt `media` 60 JSON-Objekte, erreichte die Rückwärtssuche die öffnende Klammer des Medienobjekts nicht. `mms_preisfeld()` lieferte `None` und `auswerten_seite()` verwarf das Eigenangebot.",
+      "auswirkung": "Ein gültiges Saturn-Angebot kann aus dem Preisvergleich fallen, abhängig von Feldreihenfolge und Umfang der Medienmetadaten.",
+      "vorschlag": "Die Objektgrenzen strukturell bestimmen. Einen Regressionstest mit Medienobjekt vor der Ziel-ID und ausreichend vielen verschachtelten Objekten ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Geprüft wurde lesend und offline mit Python 3.13.14. Der vollständige Test-Runner blieb wegen seiner Protokoll- und temporären Dateischreibvorgänge unausgeführt. Die im Auftrag genannten Ergebnisse des Gesamttestlaufs und des Livelaufs stammen aus der Selbstprüfung. D7-05, O12 und O13 lagen außerhalb des Prüfauftrags."
+}

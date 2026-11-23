@@ -1,0 +1,69 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Alle fünf früheren Befunde sind in ihren konkret beanstandeten Fällen nach dem geschnittenen Maßstab geschlossen. Fünf schwere Befunde bleiben. Saturn kann einen ungültigen oder überschriebenen Zustand als Eigenangebot akzeptieren. Die Sperrerkennung liefert bei einzelnen CR-Zeilenumbrüchen und bei einem falschen JSON-LD-Typ ein falsches Ergebnis.",
+  "befunde": [
+    {
+      "id": "D7-R8-01",
+      "schwere": "schwer",
+      "titel": "Doppelte Typattribute machen einen Datenblock zum Saturn-Nachweis",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 496,
+      "beleg": "Das Fertigkriterium verlangt „genau ein ausführbares Inline-Skript“. Ersetzt man in der Saturn-Ninja-Vorlage den Starttag des Zustandsskripts durch `<script type=\"application/json\" type=\"text/javascript\">`, liefert `auswerten_seite()` weiterhin ein Eigenangebot zu 219,99 €. Der HTML-Parser des Browsers behält bei doppelten Attributen den ersten Wert und führt den Datenblock nicht aus. `dict(attrs)` behält den letzten Wert, den Zeile 499 zur Einstufung verwendet.",
+      "auswirkung": "Saturn kann einen Preis als Eigenangebot erhalten, obwohl das einzige Zustandsskript im Browser inaktiv ist.",
+      "vorschlag": "Bei mehrfachen Attributen den ersten HTML-Attributwert verwenden oder mehrdeutige Skript-Tags als Nachweis verwerfen. Beide Reihenfolgen der Typattribute testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R8-02",
+      "schwere": "schwer",
+      "titel": "Python-Leerraum lässt syntaktisch ungültigen Saturn-Zustand zu",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 258,
+      "beleg": "Das Fertigkriterium verlangt „genau ein ausführbares Inline-Skript“. Ein U+0085 direkt vor `window.__PRELOADED_STATE__` wird vom Python-Muster `\\s*` akzeptiert. Die geänderte Saturn-Ninja-Vorlage ergibt weiterhin ein Eigenangebot zu 219,99 €. Die JavaScript-Gegenprobe mit demselben Präfix endet mit `SyntaxError`.",
+      "auswirkung": "Ein Skript, das seinen Zustand wegen eines Syntaxfehlers nie setzt, reicht als Nachweis für ein Eigenangebot.",
+      "vorschlag": "Für den Anfang, die Abstände um die Zuweisung und das Skriptende ECMAScript-Leerraum und ECMAScript-Zeilentrenner explizit abgleichen. U+0085 als Negativprobe ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R8-03",
+      "schwere": "schwer",
+      "titel": "Ein zweites Skript kann den akzeptierten Saturn-Zustand überschreiben",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 286,
+      "beleg": "Das Fertigkriterium lautet „Kein anderes ausführbares Skript nennt den Zustand im Code.“ Hängt man `<script>const n = `${(window.__PRELOADED_STATE__ = {})}`;</script>` an die gültige Saturn-Ninja-Vorlage an, meldet `auswerten_seite()` weiterhin das Eigenangebot zu 219,99 €. Die Maske verdeckt die ausführbare Interpolation samt Zuweisung. Die JavaScript-Gegenprobe bestätigt, dass eine solche Interpolation den vorher gesetzten Zustand überschreibt. Auch ein zweites Skript mit `window[\"__PRELOADED_STATE__\"] = {}` wird akzeptiert.",
+      "auswirkung": "Die Shopabfrage kann den Preis aus einem Zustand übernehmen, den der Browser unmittelbar danach ersetzt.",
+      "vorschlag": "Bei der Prüfung weiterer Skripte ausführbare Template-Interpolationen und Zugriffe über konstante Eigenschaftsnamen berücksichtigen. Im Zweifelsfall den Saturn-Nachweis verwerfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R8-04",
+      "schwere": "schwer",
+      "titel": "HTML-artige Skriptkommentare werden bei CR falsch abgegrenzt",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 263,
+      "beleg": "Die Kriterien verlangen „technische Merkmale aktiver Elemente sperren“ und dass „`-->` am Zeilenanfang“ nicht sperrt. Mit gültigem Produkt-JSON-LD liefert `ist_challenge()` für `<script><!-- Kommentar\\r_cf_chl_opt = {}\\r</script>` `False`, für `<script>var a = 1;\\r--> _cf_chl_opt = {}\\r</script>` dagegen `True`. `\\r` steht hier für ein tatsächliches CR ohne LF. Die neue Maske beendet den öffnenden Kommentar erst an LF und erkennt nach einem einzelnen CR keinen Zeilenanfang. Die JavaScript-Gegenprobe bestätigt die umgekehrte Einordnung.",
+      "auswirkung": "Die Abfrage kann eine echte Challenge übersehen oder eine normale Produktseite fehlerhaft sperren.",
+      "vorschlag": "HTML-Zeilenumbrüche vor der Skriptanalyse normalisieren und die übrigen ECMAScript-Zeilentrenner beim Maskieren beachten. Beide CR-Fälle als Regressionstests ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "D7-R8-05",
+      "schwere": "schwer",
+      "titel": "Ein falscher Skripttyp aktiviert die JSON-LD-Ausnahme",
+      "datei": "werkzeuge/shopabfrage.py",
+      "zeile": 497,
+      "beleg": "Das Fertigkriterium lautet „Die JSON-LD-Ausnahme gilt nur für einen echten geparsten Block.“ `ist_challenge()` liefert für `<div class=\"g-recaptcha\"></div>` mit `text/html` `True`. Mit vorangestelltem `<script type=\"text/not-ld+json\">{}</script>` liefert dieselbe Funktion `False`. Zeile 497 prüft den Typ per Teilstringsuche und setzt deshalb das JSON-LD-Merkmal für einen fremden Datentyp.",
+      "auswirkung": "Ein schwaches Captcha-Merkmal kann eine Sperrseite trotz fehlenden JSON-LD-Blocks nicht mehr auslösen.",
+      "vorschlag": "Die Ausnahme an den vollständigen JSON-LD-Medientyp und einen tatsächlich erfassten Block binden. Den falschen Typ als Negativprobe ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "D7-R7-01",
+    "D7-R7-02",
+    "D7-R7-03",
+    "D7-R7-04",
+    "D7-R7-05"
+  ],
+  "pruefgrenzen": "Commit 53c374bc8358bfb4207d20b9853f61d4d6b5ab47. Die 80 Shopabfrage-Tests liefen unabhängig mit Python 3.13.14 und `-I -B` erfolgreich. `tests/alle-tests.ps1` schreibt ein Laufprotokoll und kann `tests/kennzahlen.json` löschen. Der Gesamtlauf wurde deshalb im lesenden Prüfauftrag nicht wiederholt. „Fehler: 0“ und der Livelauf stammen aus der Selbstprüfung. D7-05 war vom Prüfauftrag ausgenommen."
+}
