@@ -88,7 +88,14 @@ def sperre_holen(domain):
     stempel = TAKT / (domain + ".zeit")
     try:
         if stempel.exists():
-            warte = ABSTAND - (time.time() - letzter_abruf(stempel))
+            # A2: nur ein abgeschlossener Abruf zählt ab seinem Ende. Leer, unlesbar, fremde Schreibweise oder die
+            # Markierung „laeuft“ (Vorgänger endete während des Versuchs, Versand unbekannt) zählt als „gerade eben“:
+            # voller Abstand ab der Übernahme der Sperre (der Vorgänger kann danach nichts mehr senden).
+            try:
+                vergangen = verstrichen(stempel.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError):   # nicht lesbar oder nicht dekodierbar = unbekannt
+                vergangen = None
+            warte = ABSTAND if vergangen is None else ABSTAND - vergangen
             if warte > 0:
                 time.sleep(warte)
     except BaseException:
@@ -97,24 +104,42 @@ def sperre_holen(domain):
     return lock, stempel
 
 
-def letzter_abruf(stempel):
-    """Zeit des letzten Abrufs aus dem Stempel; leer, unlesbar oder in der Zukunft gilt als gerade eben, damit der volle
-    Abstand gewartet wird (R5-01: nie 0)."""
-    jetzt = time.time()
+LAEUFT = "laeuft"   # Markierung im Zeitstempel: Abrufversuch begonnen, noch nicht abgeschlossen (A2)
+
+
+def verstrichen(text):
+    """Sekunden seit einem Abschlussstempel „<Wanduhr> <monotone Uhr>“, vorsichtig geschätzt, oder None (unbekannt:
+    voller Abstand). A2: gezählt wird das Minimum beider Uhren, nie unter 0. Ein Sprung der Systemuhr verlängert so
+    nur die Wartezeit; die monotone Uhr (systemweit seit dem Start) zählt nach einem Neustart weniger als real
+    vergangen ist. Gültig ist nur der ganze Text genau in der Schreibweise von stempel_setzen (repr beider Werte,
+    genau ein Leerzeichen, kein Vorzeichen); sonst runden float() oder fremde Trennungen still (z. B. „-1e-999“ zu
+    -0.0). Nur mögliche Werte: endlich, Wanduhr nicht vor 1970, monotone Uhr zwischen 0 und jetzt (ein größerer Wert
+    stammt aus einer früheren Startsitzung oder ist beschädigt). „laeuft …“, alte Einzelwerte, nan und inf: None."""
+    teile = text.split()
+    if len(teile) != 2:
+        return None
     try:
-        t = float(stempel.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return jetzt
-    return t if math.isfinite(t) and t <= jetzt else jetzt
+        wand, mono = float(teile[0]), float(teile[1])
+    except ValueError:
+        return None
+    if any(t.startswith("-") for t in teile) or text != f"{wand!r} {mono!r}":
+        return None
+    jetzt_mono = time.monotonic()
+    if not (math.isfinite(wand) and math.isfinite(mono) and wand >= 0 and 0 <= mono <= jetzt_mono):
+        return None
+    return max(0.0, min(time.time() - wand, jetzt_mono - mono))
 
 
-def stempel_schreiben(stempel):
+def stempel_setzen(stempel, laeuft=False):
     """Zeitstempel des Domaintakts atomar schreiben (R5-01): Hilfsdatei schreiben, auf den Datenträger bringen (fsync),
     dann per os.replace an die Stelle des alten Stempels; ein Abbruch dazwischen lässt den alten Stempel stehen.
-    Nur der Inhaber der Domainsperre schreibt, daher genügt ein fester Name der Hilfsdatei. Fehler brechen den Abruf ab."""
+    laeuft=True: „laeuft <Wanduhr> <monotone Uhr>“ vor dem Versuch; sonst „<Wanduhr> <monotone Uhr>“ nach dem Versuch
+    (A2). Nur der Inhaber der Domainsperre schreibt, daher genügt ein fester Name der Hilfsdatei. Fehler brechen den
+    Abruf ab."""
+    jetzt = f"{time.time()!r} {time.monotonic()!r}"
     neu = stempel.with_name(stempel.name + ".neu")
-    with open(neu, "w", encoding="utf-8") as f:
-        f.write(str(time.time()))
+    with open(neu, "w", encoding="utf-8", newline="") as f:
+        f.write(f"{LAEUFT} {jetzt}" if laeuft else jetzt)
         f.flush()
         os.fsync(f.fileno())
     os.replace(neu, stempel)
@@ -140,11 +165,11 @@ def holen(url):
         if grund:
             print(json.dumps({"url": url, "fehler": "Domain gesperrt (30 min meiden): " + grund}, ensure_ascii=False))
             raise SystemExit(3)
-        stempel_schreiben(stempel)   # R4-03: Beginn des Versuchs dauerhaft vor dem HTTP-Aufruf (auch bei hartem Abbruch)
+        stempel_setzen(stempel, laeuft=True)   # R4-03/A2: laufenden Versuch markieren, bevor die Anfrage abgeht
         try:
             r = einmal_abrufen(url)
         finally:
-            stempel_schreiben(stempel)   # Ende des Versuchs: der Abstand zählt wie bisher ab dem Ende
+            stempel_setzen(stempel)   # Ende des Versuchs: der Abstand zählt wie bisher ab dem Ende
     except sa.Weitergeleitet as e:
         print(json.dumps({"url": url, "fehler": "Weiterleitung, nicht verfolgt: " + str(e)}, ensure_ascii=False))
         raise SystemExit(5)

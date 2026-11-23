@@ -161,6 +161,55 @@ class Bau(unittest.TestCase):
             self.assertEqual((self.dist / d).read_text(encoding="utf-8"), '{"test": 1}')
             (self.dist / d).unlink()
 
+    def test_ziel_muss_neu_oder_leer_sein(self):
+        """A1: `--ziel` auf ein vorhandenes, nicht leeres Verzeichnis (z. B. `--ziel .` im Projektordner) bricht vor
+        dem ersten Löschen ab; ein leeres oder neues Verzeichnis ist erlaubt."""
+        with tempfile.TemporaryDirectory() as t:
+            ordner = Path(t) / "projekt"
+            (ordner / "app").mkdir(parents=True)
+            (ordner / "wichtig.txt").write_text("x", encoding="utf-8")
+            r = subprocess.run([sys.executable, "-I", "-X", "utf8", str(self.kopie / "werkzeuge" / "app_bauen.py"),
+                                "--ziel", "."], cwd=ordner, capture_output=True, text=True, encoding="utf-8")
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn("nicht leer", r.stderr)
+            self.assertEqual(sorted(p.name for p in ordner.iterdir()), ["app", "wichtig.txt"], "nichts gelöscht")
+            datei = Path(t) / "datei.txt"
+            datei.write_text("x", encoding="utf-8")
+            r = subprocess.run([sys.executable, "-I", "-X", "utf8", str(self.kopie / "werkzeuge" / "app_bauen.py"),
+                                "--ziel", str(datei)], capture_output=True, text=True, encoding="utf-8")
+            self.assertNotEqual(r.returncode, 0, "eine Datei ist kein Ziel")
+            self.assertIn("nicht leer", r.stderr, "Abbruch durch die Prüfung, nicht erst beim Schreiben")
+            self.assertEqual(datei.read_text(encoding="utf-8"), "x")
+            for name in ("leer", "neu"):
+                z = Path(t) / name
+                if name == "leer":
+                    z.mkdir()
+                r = subprocess.run([sys.executable, "-I", "-X", "utf8", str(self.kopie / "werkzeuge" / "app_bauen.py"),
+                                    "--ziel", str(z)], capture_output=True, text=True, encoding="utf-8")
+                self.assertEqual(r.returncode, 0, r.stderr)
+                self.assertTrue((z / "version.json").exists(), name)
+
+
+class BauZiel(unittest.TestCase):
+    def test_eigenes_ziel_wird_nie_aufgeraeumt(self):
+        """A1: Das Ziel ist bei der Leerprüfung leer, danach legt ein anderer Vorgang `wichtig.txt` an. Der Bau löscht
+        in einem eigenen Ziel trotzdem nichts (aufgeräumt wird nur dist/)."""
+        with tempfile.TemporaryDirectory() as t:
+            z = Path(t) / "ziel"
+            z.mkdir()
+            echt, erster = Path.iterdir, []
+
+            def iterdir(p):
+                if p == z and not erster:
+                    erster.append(1)
+                    (z / "wichtig.txt").write_text("x", encoding="utf-8")   # nach der Leerprüfung sichtbar
+                    return iter(())
+                return echt(p)
+            with mock.patch.object(Path, "iterdir", iterdir):
+                app_bauen.baue(daten_herkunft="a" * 40, ziel=z)
+            self.assertEqual(erster, [1])
+            self.assertEqual((z / "wichtig.txt").read_text(encoding="utf-8"), "x")
+
 
 class Version(unittest.TestCase):
     def test_vorlagen_aendern_die_version(self):
@@ -401,6 +450,17 @@ class Veroeffentlichen(unittest.TestCase):
                 else:
                     self.assertEqual(r.stdout.strip(), e["g"](e["ursprung"], "rev-parse", e["eltern"] + "^"),
                                      "gh-pages bleibt auf dem Vorgänger")
+
+    def test_follow_tags_veroeffentlicht_keine_tags(self):
+        """A3: push.followTags=true und ein annotiertes Tag am gh-pages-Elterncommit: gepusht wird nur gh-pages."""
+        def vorher(quelle, head):
+            for a in (("config", "push.followTags", "true"), ("fetch", "-q", "origin", "gh-pages"),
+                      ("tag", "-a", "-m", "lokal", "lokal-ungeprueft", "FETCH_HEAD")):
+                subprocess.run(["git", "-C", str(quelle), *a], check=True, capture_output=True, text=True)
+        e = self._lauf(self._gut, vorher=vorher)
+        self.assertEqual(e["code"], 0)
+        self.assertNotEqual(e["oben"], e["eltern"], "gh-pages gepusht")
+        self.assertEqual(e["g"](e["ursprung"], "tag", "-l"), "", "kein Tag auf dem Server")
 
     def test_bau_liest_genau_den_geprueften_commit(self):
         """R5-04: eine vorübergehende Änderung im Arbeitsbaum während des Baus gelangt nicht auf gh-pages."""

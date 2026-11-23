@@ -128,6 +128,10 @@ def baue(daten_herkunft=None, ziel=None):
     """daten_herkunft: Commit für finder-daten.json (veroeffentlichen.py, R2-02); lokal ohne.
     ziel: Ausgabeverzeichnis (Standard dist/); veroeffentlichen.py baut in ein eigenes frisches Verzeichnis (R3-01)."""
     DIST = Path(ziel) if ziel is not None else globals()["DIST"]
+    if ziel is not None and DIST.exists() and (not DIST.is_dir() or any(DIST.iterdir())):
+        # A1: ein eigenes Ziel muss neu oder leer sein; sonst löschte ein Aufräumen fremde Dateien (z. B. `--ziel .`
+        # im Projektordner samt .git). Aufgeräumt wird nur dist/ (Standard), die Preisdateien bleiben dort.
+        raise SystemExit(f"Abbruch: Ziel {DIST} ist nicht leer (nur ein neues oder leeres Verzeichnis)")
     f = (QUELLE / "kaufberatung.html").read_text(encoding="utf-8")
     pruefe_fragment(f)
     herkunft = json.loads((QUELLE / "herkunft.json").read_text(encoding="utf-8"))
@@ -135,7 +139,7 @@ def baue(daten_herkunft=None, ziel=None):
     for alt in ('<meta charset="utf-8">\n', "<title>Kaufberatung</title>\n"):
         assert f.count(alt) == 1, f"Anker {alt.strip()!r} {f.count(alt)}-mal"
         f = f.replace(alt, "", 1)
-    if DIST.exists():
+    if ziel is None and DIST.exists():   # A1: ein eigenes Ziel wird nie aufgeräumt, auch nach der Leerprüfung nicht
         for p in DIST.iterdir():
             if p.name in BEHALTEN:
                 continue
