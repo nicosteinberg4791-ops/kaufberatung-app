@@ -41,6 +41,10 @@ Schritt 1 (Einbau, 8ce6e78) und 2 (Daten, c0f9204: 301 Modelle, 389 Varianten, `
 
 ## Nächster Schritt
 
+**Finder-Abgleich A1–A3, Codex r3 starten** (Zweig `claude/finder-abgleich-a1-a3`, Stand da99679, Basis main ca9eacc, nichts gepusht). A1 (`--ziel` nur neu/leer, nie beschrieben), A2 (Domain-Abstand mit Wanduhr und monotoner Uhr), A3 (`--no-follow-tags`) umgesetzt; Codex r1 und r2 nicht bestanden, Befunde behoben; Besitzer 23.11.: A1-01/R2-01 (fremder Prozess tauscht Verzeichnisse) Restrisiko. Selbst geprüft bis da99679 (Sammellauf 0 Fehler, Datenbank 0 Fehler, Tests rot→grün). Befehl: `pruefe.ps1 -Pruefer codex -Stufe high -Art nach -Auftrag <...>/auftrag-r3.md -Vorbericht <...>/codex-nach-20261123-142906.json -Bewertung <...>/bewertung-r2.md -Basis 17599c1` (Pfade absolut). r3 ist das Rundenlimit (KERN §3). Offen außerhalb: R2-04 `gesperrt_bis` mit `exists()`. 17599c1 (nur Doku) ohne Hook committet.
+**Fertig, wenn:** Codex r3 bestanden, Bewertung r3 geschrieben, Merge nach main und gh-pages nur mit Freigabe.
+**Lesen:** `docs/pruefungen/2026-11-23-finder-abgleich/auftrag-r3.md`, `bewertung-r2.md`.
+
 **Pilot messen, Tag 2–5** (23.–26.11., Bauplan Schritt 8) nach dem Messplan in `messung.md`. Besitzer 22.11.: O12 vorläufig „beide messen, Entscheidung Tag 5“, damit Actions-Läufe Tag 2–5 freigegeben (je Tag ein `workflow_dispatch`). Saturn-URLs AF500EU/Z30 am 22.11. umgestellt (9dadd61). Mit dem Push vom 23.11. gelten die neuen URLs auch in Actions. Klären, ob die geplante lokale Messung (`messung/pilot/`, andere Sitzung) den lokalen Lauf übernimmt.
 **Fertig, wenn:** `messung.md` enthält Tag 2–5 je Umgebung, die Kennzahlen am Ende und eine Entscheidungsvorlage für O12 und Schritt 9.
 **Lesen:** `docs/pruefungen/2026-11-21-pilot-bestpreis/messung.md` (Messplan) · `daten/pilot_modelle.json`.
