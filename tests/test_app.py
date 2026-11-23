@@ -508,29 +508,62 @@ class Veroeffentlichen(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 self.v.kopie_holen(stand, k)
 
+    def _stand_roh(self, q, head, name):
+        """Commit auf head mit zusätzlicher Datei app/<name> (Bytes), Baum direkt per mktree gebildet: Git für Windows
+        lässt solche Pfade im Index aus ("Ignoring path"), mktree nimmt sie. Prüft die Vorbedingung."""
+        r = lambda *a, eingabe=None: subprocess.run(["git", "-C", str(q), *a], check=True, capture_output=True,
+                                                    input=eingabe).stdout
+        blob = r("hash-object", "-w", "--stdin", eingabe=b"x").strip()
+        app = r("mktree", "-z", eingabe=r("ls-tree", "-z", head + ":app") + b"100644 blob " + blob
+                + b"\t" + name + b"\0").strip()
+        wurzel = r("mktree", "-z", eingabe=b"".join(z + b"\0" for z in r("ls-tree", "-z", head).split(b"\0")
+                                                    if z and not z.endswith(b"\tapp"))
+                   + b"040000 tree " + app + b"\tapp\0").strip().decode()
+        stand = r("commit-tree", wurzel, "-p", head, "-m", "roh", eingabe=b"").strip().decode()
+        self.assertIn(b"\tapp/" + name + b"\0", r("ls-tree", "-r", "-z", stand), f"Vorbedingung: {name!r} im Stand")
+        return stand
+
     def test_pfade_unveraendert_und_ohne_steuerzeichen(self):
-        """R7-03: Pfade kommen unverändert aus dem Baum (Umlaute), ein Steuerzeichen (\\r) bricht ab statt zu \\n zu
-        werden."""
+        """R7-03/R8-02: Pfade kommen unverändert aus dem Baum (Umlaute); Steuer- und Formatzeichen (C0 \\r, C1 U+0085,
+        Richtungswechsel U+202E) brechen ab statt durchzugehen oder zu \\n zu werden."""
         e = self._lauf(self._gut, argv=["--trocken"])
         q = e["quelle"]
         umlaut = self._stand_mit(q, e["head"], {"app/größe.txt".encode("utf-8"): ("100644", b"g")})
         self.assertIn("app/größe.txt", self.v.baum_eintraege(umlaut, q))
-        # Git für Windows lässt solche Pfade im Index aus ("Ignoring path"), mktree nimmt sie: Baum direkt bilden
-        r = lambda *a, eingabe=None: subprocess.run(["git", "-C", str(q), *a], check=True, capture_output=True,
-                                                    input=eingabe).stdout
-        blob = r("hash-object", "-w", "--stdin", eingabe=b"x").strip()
-        app = r("mktree", "-z", eingabe=r("ls-tree", "-z", e["head"] + ":app") + b"100644 blob " + blob
-                + b"\ta\rb.txt\0").strip()
-        wurzel = r("mktree", "-z", eingabe=b"".join(z + b"\0" for z in r("ls-tree", "-z", e["head"]).split(b"\0")
-                                                    if z and not z.endswith(b"\tapp"))
-                   + b"040000 tree " + app + b"\tapp\0").strip().decode()
-        stand = r("commit-tree", wurzel, "-p", e["head"], "-m", "cr", eingabe=b"").strip().decode()
-        self.assertIn(b"\tapp/a\rb.txt\0", r("ls-tree", "-r", "-z", stand), "Vorbedingung: Pfad mit \\r im Stand")
-        with self.assertRaises(SystemExit):
-            self.v.baum_eintraege(stand, q)
-        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", q):
-            with self.assertRaises(SystemExit):
-                self.v.kopie_holen(stand, k)
+        for name in ("a\rb.txt", "a\u0085b.txt", "a‮b.txt"):
+            with self.subTest(name=name):
+                stand = self._stand_roh(q, e["head"], name.encode("utf-8"))
+                with self.assertRaises(SystemExit):
+                    self.v.baum_eintraege(stand, q)
+                with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", q):
+                    with self.assertRaises(SystemExit):
+                        self.v.kopie_holen(stand, k)
+
+    def test_windows_pfade_vor_dem_schreiben(self):
+        """R8-03: unter Windows unzulässige oder kollidierende Namen brechen ab, bevor eine Datei geschrieben wird."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        q = e["quelle"]
+        for name in (b"b\\c.txt", b"..\\raus.txt", b"a.", b"leer ", b"x:y.txt", b"a<b.txt", b'a"b.txt', b"a|b.txt",
+                     b"a?b.txt", b"a*b.txt", b"nul.txt", b"CON", b"com1.json", b"Seite.txt"):
+            with self.subTest(name=name):
+                stand = self._stand_roh(q, e["head"], name)
+                with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", q):
+                    with self.assertRaises(SystemExit):
+                        self.v.kopie_holen(stand, k)
+                    self.assertEqual(list(Path(k).rglob("*")), [], "nichts geschrieben")
+        f = self.v.windows_pfad_fehler
+        self.assertEqual(f([".gitignore", "app/größe.txt", "a.b/c.json", "console.txt", "nulli.txt"]), [])
+        self.assertTrue(f(["app/A/x.txt", "app/a/y.txt"]), "Ordner unterscheiden sich nur in der Schreibweise")
+
+    def test_laufzeitkonfiguration_bleibt(self):
+        """R8-01: vorhandene Git-Laufzeitkonfiguration (GIT_CONFIG_COUNT/KEY/VALUE, z. B. safe.directory in CI) bleibt
+        in jedem Git-Aufruf erhalten."""
+        probe = {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "kb.probe", "GIT_CONFIG_VALUE_0": "ja"}
+        import herkunft
+        with tempfile.TemporaryDirectory() as t, mock.patch.dict(os.environ, probe):
+            subprocess.run(["git", "init", "-q", t], check=True)
+            self.assertEqual(self.v.git("config", "--get", "kb.probe", cwd=t).stdout.strip(), "ja")
+            self.assertEqual({**os.environ, **herkunft.OHNE_ERSATZ}.get("GIT_CONFIG_KEY_0"), "kb.probe")
 
     def test_ohne_stand_kein_push(self):
         with mock.patch.object(self.v, "stand_lesen", return_value=("a" * 40, True, True)), \

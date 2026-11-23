@@ -18,9 +18,9 @@ from pathlib import Path
 
 SHA = re.compile(r"^[0-9a-f]{40}$")
 # R7-01: Originalobjekte und echte Elterncommits, ohne lokale Ersetzungsreferenzen (git replace) und Grafts
-# (Nullgerät als Graft-Datei: Git meldet sonst bei jedem Lesen den veralteten Graft-Mechanismus auf stderr)
-OHNE_ERSATZ = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": os.devnull, "GIT_CONFIG_COUNT": "1",
-               "GIT_CONFIG_KEY_0": "advice.graftFileDeprecated", "GIT_CONFIG_VALUE_0": "false"}
+# (Nullgerät als Graft-Datei). Git meldet dazu auf stderr den veralteten Graft-Mechanismus; das bleibt so: keine
+# GIT_CONFIG_*-Variablen setzen, sie überschrieben die Laufzeitkonfiguration des Aufrufers (R8-01, z. B. safe.directory)
+OHNE_ERSATZ = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": os.devnull}
 
 
 def fehler(online_text, neu, ist_vorfahr):

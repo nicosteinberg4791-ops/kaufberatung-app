@@ -19,3 +19,13 @@ Muster:
 - R8-01 ist ein echter Rückschritt aus der Korrektur selbst (die Abschaltung des Hinweises war Zusatz, nicht verlangt).
 - R8-02 und R8-03 betreffen Dateinamen, die es im Repo nicht gibt. Beide enden ohne Korrektur in einem Abbruch oder in einer exakt verglichenen Kopie.
 - Alle drei Korrekturen sind mechanisch und klein.
+
+## Behebung (O19 „Beheben und Runde 9“, 23.11.2026)
+
+| ID | Korrektur | Test (vor der Korrektur rot, danach grün) |
+|---|---|---|
+| R8-01 | `herkunft.OHNE_ERSATZ` setzt nur noch `GIT_NO_REPLACE_OBJECTS` und `GIT_GRAFT_FILE`. Der Graft-Hinweis auf stderr bleibt (alle Aufrufe fangen stderr ab). | `test_laufzeitkonfiguration_bleibt`: mit vorhandenem `GIT_CONFIG_COUNT/KEY_0/VALUE_0` liefert `git config --get` über `veroeffentlichen.git` den Wert des Aufrufers; `OHNE_ERSATZ` lässt `GIT_CONFIG_KEY_0` stehen. |
+| R8-02 | `baum_eintraege` lehnt jedes Zeichen der Unicode-Klasse C (Cc, Cf, Cs, Co, Cn) und Zeilen-/Absatztrenner (Zl, Zp) ab. | `test_pfade_unveraendert_und_ohne_steuerzeichen`: zusätzlich U+0085 (C1) und U+202E (Richtungswechsel, Cf); `\r` war schon grün. |
+| R8-03 | Neue reine Funktion `windows_pfad_fehler`, aufgerufen in `kopie_holen` vor dem ersten Schreiben: kein `\`, keine `<>:"\|?*`, kein Punkt oder Leerzeichen am Namensende, keine Gerätenamen (auch mit Endung), keine Pfade, die sich nur in der Schreibweise unterscheiden (auch Ordner). | `test_windows_pfade_vor_dem_schreiben`: 14 Namen, je Abbruch und leere Kopie. Vorher kam bei `<>"\|?*` ein `OSError`; `nul.txt`, `CON` und `com1.json` liefen ohne Abbruch durch. Dazu reine Fälle (gültige Namen, Ordnerkollision). |
+
+Alle 218 Pfade des Stands bestehen beide Prüfungen.

@@ -19,7 +19,8 @@ Push nur mit Auftrag des Besitzers bzw. nach bestandener Prüfung (AGENTS.md). B
     committet wird genau dieser Baum mit `git commit-tree` auf den geprüften gh-pages-Elterncommit, gepusht wird genau
     diese Commit-ID, und nur wenn gh-pages auf GitHub noch genau dieser Elterncommit ist (Lease, R5-03);
   - alle Git-Aufrufe und der Bau laufen ohne Ersetzungsreferenzen und Grafts (R7-01); die Bauquelle hat
-    nur normale Dateien (100644, R7-02); Pfade werden als Bytes gelesen, Steuerzeichen brechen ab (R7-03);
+    nur normale Dateien (100644, R7-02); Pfade werden als Bytes gelesen, Steuer- und Formatzeichen brechen ab
+    (R7-03, R8-02); unter Windows unzulässige oder kollidierende Namen brechen vor dem ersten Schreiben ab (R8-03);
   - `commit-tree` startet keine Commit-Hooks (R4-02): der Projekt-Hook prüft Quellcommits (tests/ fehlt im Seitenbaum);
     die für den Seitencommit vorgesehene Prüfung ist die Baumprüfung oben, die dieser Lauf selbst macht;
   - preise.json und finder-preise.json kommen nie aus dem Bau (dort ignoriert, ungeprüft, R2-01): vorhandene auf gh-pages
@@ -35,6 +36,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -133,7 +135,8 @@ def bau_erwartet(bau, eltern_preise):
 def baum_eintraege(baum, cwd):
     """{Pfad: (Modus, Typ, Objekt-ID)} eines Git-Baums, alle Eintragsarten (R5-02: Modus und Typ gehören zum Vergleich).
     Gelesen als Bytes, Pfade unverändert als UTF-8 (R7-03: der Textmodus machte aus \\r ein \\n); ein Pfad mit
-    Steuerzeichen bricht ab."""
+    Zeichen der Unicode-Klasse C (Steuer-, Format-, Ersatz-, private, nicht zugeordnete; C0, DEL, C1, Richtungswechsel)
+    oder einem Zeilen-/Absatztrenner bricht ab (R8-02)."""
     r = subprocess.run(["git", "-C", str(cwd), "ls-tree", "-r", "-z", baum], check=True, capture_output=True,
                        env=umgebung())
     aus = {}
@@ -145,7 +148,7 @@ def baum_eintraege(baum, cwd):
                 pfad = roh.decode("utf-8")
             except UnicodeDecodeError:
                 raise SystemExit(f"Abbruch, nichts veröffentlicht: Pfad {roh!r} in {baum[:12]} ist kein UTF-8")
-            if any(ord(c) < 32 or ord(c) == 127 for c in pfad):
+            if any(unicodedata.category(c)[0] == "C" or unicodedata.category(c) in ("Zl", "Zp") for c in pfad):
                 raise SystemExit(f"Abbruch, nichts veröffentlicht: Pfad {pfad!r} in {baum[:12]} enthält Steuerzeichen")
             aus[pfad] = (modus, art, sha)
     return aus
@@ -196,6 +199,30 @@ def objekte_lesen(shas):
     return aus
 
 
+GERAETE = {"CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$"} | {f"{g}{n}" for g in ("COM", "LPT")
+                                                             for n in "0123456789¹²³"}
+
+
+def windows_pfad_fehler(pfade):
+    """Gründe gegen das Auspacken dieser Pfade unter Windows (leer = in Ordnung, R8-03), geprüft vor dem ersten
+    Schreiben: kein \\, keine Zeichen <>:"|?*, kein Punkt oder Leerzeichen am Namensende (auch nicht . und ..), keine
+    Gerätenamen (auch mit Endung, z. B. nul.txt), keine zwei Pfade, die sich nur in Groß-/Kleinschreibung unterscheiden
+    (auch bei Ordnern). Reine Funktion, für Tests."""
+    f, gesehen = [], {}
+    for p in sorted(pfade):
+        teile = p.split("/")
+        for i, n in enumerate(teile):
+            if not n or any(c in '\\<>:"|?*' for c in n) or n[-1] in ". ":
+                f.append(f"{p}: Name {n!r} ist unter Windows unzulässig")
+            elif n.split(".")[0].rstrip(" ").upper() in GERAETE:
+                f.append(f"{p}: Name {n!r} ist ein Windows-Gerätename")
+            vorne = "/".join(teile[:i + 1])
+            frueher = gesehen.setdefault(vorne.casefold(), vorne)
+            if frueher != vorne:
+                f.append(f"{p}: {vorne!r} kollidiert unter Windows mit {frueher!r} (Groß-/Kleinschreibung)")
+    return f
+
+
 def kopie_fehler(ziel, eintraege):
     """Gründe, warum die Kopie in ziel nicht genau die Einträge des Commits ist (Pfade, Objekt-IDs, nichts zusätzlich).
     Reine Prüfung, für Tests (R5-04)."""
@@ -217,6 +244,10 @@ def kopie_holen(head, ziel):
     for p, (m, art, _) in sorted(eintraege.items()):
         if art != "blob" or m != DATEI:   # R7-02: auch nicht 100755 (das Ausführungsbit ginge in der Kopie verloren)
             raise SystemExit(f"Abbruch, nichts veröffentlicht: {p} im Stand ist keine normale Datei ({m} {art})")
+    fehler = windows_pfad_fehler(eintraege)
+    if fehler:   # R8-03: vor dem ersten Schreiben, nicht erst im Abgleich danach
+        raise SystemExit("Abbruch, nichts veröffentlicht: Pfade im Stand sind unter Windows nicht auspackbar\n  - "
+                         + "\n  - ".join(fehler[:10]))
     inhalt = objekte_lesen(sorted({e[2] for e in eintraege.values()}))
     for p, (_, _, sha) in sorted(eintraege.items()):
         datei = (ziel / p).resolve()
