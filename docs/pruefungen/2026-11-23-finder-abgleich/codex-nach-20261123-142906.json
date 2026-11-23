@@ -1,0 +1,77 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "A1-01 und A2-01 bleiben offen. Die unabhängig ausgeführte Datenbankprüfung meldete 0 Fehler und 56 Warnungen.",
+  "befunde": [
+    {
+      "id": "A1-01",
+      "schwere": "kritisch",
+      "titel": "Ein Pfadwechsel am Bauverzeichnis kann fremde Dateien überschreiben oder löschen",
+      "datei": "werkzeuge/app_bauen.py",
+      "zeile": 142,
+      "beleg": "`mkdtemp` legt das Verzeichnis exklusiv an. Danach verwenden `_baue` in Z. 144 und `rmtree` in Z. 152 denselben Pfad erneut. Kann ein anderer Prozess den Eintrag im Elternverzeichnis austauschen, schreibt `_baue` über einen Verzeichnislink oder eine Junction in den referenzierten Ordner, etwa bei `version.json` in Z. 197. Liegt beim Abbruch ein fremdes reguläres Verzeichnis unter dem Baupfad, entfernt `rmtree` dessen Inhalt.",
+      "auswirkung": "Fremde Dateien können auf Windows und POSIX außerhalb des eigentlichen Bauverzeichnisses überschrieben oder gelöscht werden. Die exklusive Anlage schützt nur den Zeitpunkt der Erstellung.",
+      "vorschlag": "Die Identität des Bauverzeichnisses für Schreiben, Umbenennen und Bereinigung absichern. Dazu den Elternpfad gegen Austausch schützen oder die Operationen plattformspezifisch an stabilen Verzeichnishandles verankern.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-01",
+      "schwere": "schwer",
+      "titel": "Windows ersetzt eine Junction zu einem nicht leeren Verzeichnis",
+      "datei": "werkzeuge/app_bauen.py",
+      "zeile": 147,
+      "beleg": "Das Fertigkriterium verlangt „das Ziel wird nur ersetzt, wenn es dann noch fehlt oder leer ist“. Wird das anfangs leere Ziel während des Baus durch eine Junction auf einen belegten Ordner ersetzt, liefert `z.exists()` in Z. 145 `True`. Windows entfernt mit `os.rmdir` die Junction unabhängig vom Inhalt des referenzierten Verzeichnisses. Anschließend kann `os.rename` den Bau an ihrer Stelle einsetzen.",
+      "auswirkung": "Der Bau meldet Erfolg, obwohl er bei diesem Zielzustand abbrechen müsste. Die Junction und damit der Zugriff auf ihren bisherigen Inhalt über den Zielpfad gehen verloren.",
+      "vorschlag": "Junctions und Verzeichnissymlinks beim abschließenden Austausch unter Schutz gegen Pfadwechsel ablehnen. Den Austausch durch eine Junction auf ein belegtes Verzeichnis als Windows-Regressionstest abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "A2-01",
+      "schwere": "schwer",
+      "titel": "Ein Fehler beim Lesen der Stempelmetadaten überspringt weiterhin die Wartezeit",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 90,
+      "beleg": "Das Fertigkriterium lautet „Ein vorhandener, nicht auflösbarer Stempel-Eintrag ergibt genau `ABSTAND`.“ Für einen Link ohne Ziel greift die Korrektur. Ergibt die Metadatenabfrage dagegen `PermissionError`, liefert die POSIX-Implementierung von `lexists` ebenfalls `False`. Eine In-Memory-Probe mit diesem Fehler bestätigte, dass `sperre_holen` keinen `sleep`-Aufruf ausführt. Der Lese-Fehlerpfad in Z. 94–98 wird dabei übersprungen.",
+      "auswirkung": "Ist der Stempel bei der Prüfung vorübergehend nicht auflösbar und gelingt anschließend das Setzen der Abrufmarkierung, kann `holen()` die Anfrage vor Ablauf der 61 Sekunden senden.",
+      "vorschlag": "Den Stempel mit `lstat` prüfen und bestätigte Abwesenheit von anderen Metadatenfehlern unterscheiden. Bei Letzteren einmal `ABSTAND` warten und diesen Pfad separat testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-02",
+      "schwere": "mittel",
+      "titel": "Ein Abbruch kann das Bauverzeichnis zurücklassen",
+      "datei": "werkzeuge/app_bauen.py",
+      "zeile": 152,
+      "beleg": "`rmtree(bau, ignore_errors=True)` unterdrückt Bereinigungsfehler, etwa wenn unter Windows ein offenes Dateihandle das Löschen einer Bauausgabe verhindert. Außerdem beginnt der `try`-Block erst nach `mkdtemp` in Z. 142. Ein `KeyboardInterrupt` nach erfolgreichem Anlegen und vor Eintritt in den geschützten Block umgeht die Bereinigung.",
+      "auswirkung": "Nach einem Abbruch können `.kb-bau-*` und bereits erzeugte Ausgaben liegen bleiben. Ein Bereinigungsfehler wird nicht gemeldet.",
+      "vorschlag": "Die Bereinigung bereits bei der Anlage absichern, die Löschung auf das nachweislich eigene Verzeichnis beschränken und verbleibende Reste mit Pfad melden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-03",
+      "schwere": "mittel",
+      "titel": "Ein fehlgeschlagenes Umbenennen lässt das zuvor leere Ziel verschwinden",
+      "datei": "werkzeuge/app_bauen.py",
+      "zeile": 150,
+      "beleg": "`os.rmdir(z)` in Z. 147 entfernt das vorhandene leere Ziel vor `os.rename`. In einer In-Memory-Probe mit `PermissionError` bei `os.rename` fehlte nach dem Abbruch sowohl das bisherige Ziel als auch das Bauverzeichnis. Die Fehlerbehandlung stellt das Ziel nicht wieder her.",
+      "auswirkung": "Ein fehlgeschlagener Bau kann ein vorbereitetes leeres Zielverzeichnis samt seinen Berechtigungen oder anderen Metadaten entfernen.",
+      "vorschlag": "Die Übergabe so gestalten, dass ein vorhandenes leeres Ziel bei einem fehlgeschlagenen Einsetzen des Baus erhalten bleibt. Die Rückabwicklung gegen gleichzeitige Zieländerungen absichern und mit einem Fehler bei `os.rename` testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-04",
+      "schwere": "mittel",
+      "titel": "Die 30-Minuten-Sperre wertet eine nicht auflösbare Sperrdatei als fehlend",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 150,
+      "beleg": "Der bekannte Altbefund liegt in `gesperrt_bis`: Für einen vorhandenen `.gesperrt`-Link ohne Ziel liefert `s.exists()` `False`, worauf die Funktion `None` zurückgibt. Beide Aufrufe in `holen()` behandeln diese Rückgabe als fehlende Sperre.",
+      "auswirkung": "Ein Abruf kann trotz eines vorhandenen, nicht auflösbaren Sperreintrags stattfinden.",
+      "vorschlag": "Bei der Bearbeitung des zurückgestellten Befunds fehlende Sperreinträge von vorhandenen, nicht auflösbaren Einträgen unterscheiden.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": [
+    "A2-02",
+    "A2-03"
+  ],
+  "pruefgrenzen": "Lesende Nachprüfung des Diffs am Commit 2d1479861191399db6c694528d038d517aa1f656. Der Sammellauf schreibt lokale Dateien und wurde deshalb nicht wiederholt. Seine Meldung „Fehler: 0“ stammt aus der Selbstprüfung des Bauers. Die Zeit- und Fehlerpfade wurden gezielt im Speicher geprüft. Die Befunde zu Verzeichniswechseln stützen sich auf Code und Dateisystemsemantik. Reale Pfadwechsel wurden nicht ausgeführt."
+}
