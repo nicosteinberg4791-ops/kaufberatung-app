@@ -1,0 +1,54 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "A1 lässt nach der Leerprüfung weiterhin das Überschreiben fremder Dateien zu. A2 überspringt bei einem vorhandenen, nicht auflösbaren Stempelpfad die vorgeschriebenen 61 Sekunden. Die Datenbankprüfung ergab Fehler 0 und 56 Warnungen.",
+  "befunde": [
+    {
+      "id": "A1-01",
+      "schwere": "kritisch",
+      "titel": "Der Bau kann nach der Leerprüfung fremde Dateien überschreiben",
+      "datei": "werkzeuge/app_bauen.py",
+      "zeile": 172,
+      "beleg": "Wenn nach der Leerprüfung in Zeile 131 ein anderer Vorgang `version.json` im Ziel anlegt, ersetzt `write_text()` in Zeile 172 deren Inhalt. Eine Simulation im Speicher mit der unveränderten Funktion `baue()` bestätigte das Überschreiben. Der Test in `tests/test_app.py:205` legt `wichtig.txt` an und prüft damit nur das Aufräumen. Wird der Zielpfad nach der Prüfung durch einen Verzeichnislink ersetzt, folgen die späteren Schreibzugriffe dem Link.",
+      "auswirkung": "Ein paralleler Vorgang kann den Inhalt einer vorhandenen Datei verlieren. Über einen ausgetauschten Zielpfad sind auch Dateien außerhalb des ursprünglich geprüften Verzeichnisses betroffen.",
+      "vorschlag": "Das geprüfte Ziel gegen einen Pfadwechsel absichern und Ausgabedateien bei `--ziel` exklusiv anlegen. Einen Regressionstest ergänzen, der nach der Leerprüfung `version.json` mit fremdem Inhalt anlegt und den Erhalt dieses Inhalts prüft.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "A2-01",
+      "schwere": "schwer",
+      "titel": "Ein nicht auflösbarer Stempelpfad überspringt die Wartezeit",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 90,
+      "beleg": "A2 verlangt: „alles andere (leer, unlesbar, alte Einzelwerte wie `0`/`-1e308`, Markierung `laeuft`, nan/inf, unmögliche Werte, fremde Schreibweise) ergibt den vollen Abstand.“ Bei einem vorhandenen `.zeit`-Link mit fehlendem Ziel liefert `Path.exists()` `False`. Damit überspringt `sperre_holen()` den gesamten Warteblock. Die Simulation ergab keinen `sleep`-Aufruf. Anschließend kann `os.replace()` in Zeile 145 den Link durch die laufende Markierung ersetzen und `holen()` den Abruf ausführen.",
+      "auswirkung": "Der nächste Abruf kann unmittelbar nach dem letzten tatsächlichen Versand erfolgen.",
+      "vorschlag": "Einen fehlenden Verzeichniseintrag von einem vorhandenen, unlesbaren oder nicht auflösbaren Eintrag unterscheiden. Für den zweiten Fall einen Test mit exakt 61 Sekunden Wartezeit ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "A2-02",
+      "schwere": "mittel",
+      "titel": "Der Zeitstempeltest kann in der ersten Stunde nach dem Systemstart fehlschlagen",
+      "datei": "tests/test_abruf.py",
+      "zeile": 228,
+      "beleg": "Der Test zieht von `time.monotonic()` pauschal 3600 Sekunden ab. Bei einem aktuellen Wert von beispielsweise 1001 Sekunden ist der Teststempel negativ und wird korrekt verworfen. `sperre_holen()` wartet daraufhin 61 Sekunden. Der in Zeile 237 eingesetzte `sleep`-Mock löst dabei `AssertionError` aus.",
+      "auswirkung": "Der Sammellauf kann auf einem frisch gestarteten System trotz korrekter Implementierung fehlschlagen.",
+      "vorschlag": "Beide Uhren im Test fest vorgeben und einen gültigen Abschlussstempel setzen, dessen Alter über 61 Sekunden liegt.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "A2-03",
+      "schwere": "mittel",
+      "titel": "Der Schreibabbruchtest erkennt den Verlust des atomaren Austauschs nicht",
+      "datei": "tests/test_abruf.py",
+      "zeile": 255,
+      "beleg": "Der Test löst den Fehler in `time.time()` aus. `stempel_setzen()` liest die Uhr in `werkzeuge/datenpflege/abruf.py:139` vor dem Öffnen einer Datei. Auch eine fehlerhafte Variante, die anschließend direkt in `.zeit` schreibt, bestünde den Test.",
+      "auswirkung": "Ein Rückfall auf direktes Schreiben kann den letzten vollständigen Stempel bei einem Schreibabbruch beschädigen, ohne dass der Test anschlägt.",
+      "vorschlag": "Den Fehler nach dem Öffnen injizieren, etwa bei `os.fsync()`, und danach die vollständigen Bytes des bisherigen Stempels prüfen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "A3. Der explizite RefSpec adressiert `refs/heads/gh-pages` und hat Vorrang vor `remote.origin.push` und `push.default`. Der Regressionstest setzt `push.followTags=true`, annotiert den Elterncommit und prüft die Tags im Ursprung."
+  ],
+  "pruefgrenzen": "Commit 8cb198dea12e8ea8b1b46e0eadadfaf5eb841733 lesend geprüft. Die Datenbankprüfung lief mit dem lokal installierten Python und zusätzlich `-B`. Der Sammellauf war im Nur-Lese-Auftrag wegen seiner temporären Repositories und des Laufprotokolls nicht ausführbar. Die beiden Randfälle wurden mit Speicher-Simulationen geprüft. Der Push-Test wurde anhand des Codes geprüft."
+}

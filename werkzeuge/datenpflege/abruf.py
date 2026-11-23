@@ -87,7 +87,7 @@ def sperre_holen(domain):
         time.sleep(2)
     stempel = TAKT / (domain + ".zeit")
     try:
-        if stempel.exists():
+        if os.path.lexists(stempel):   # Codex A2-01: auch ein Link ohne Ziel ist ein vorhandener, unlesbarer Stempel
             # A2: nur ein abgeschlossener Abruf zählt ab seinem Ende. Leer, unlesbar, fremde Schreibweise oder die
             # Markierung „laeuft“ (Vorgänger endete während des Versuchs, Versand unbekannt) zählt als „gerade eben“:
             # voller Abstand ab der Übernahme der Sperre (der Vorgänger kann danach nichts mehr senden).

@@ -1,0 +1,12 @@
+# Bewertung Codex r1 (Erstprüfung, high, Basis ca9eacc, Stand 8cb198d)
+
+Bericht: `codex-erst-20261123-140620.json` · Urteil nicht bestanden · geschlossen: A3.
+
+| Nr. | Schwere | Einordnung | Klasse | Suche | Korrektur | Probe |
+|---|---|---|---|---|---|---|
+| A1-01 | kritisch (Codex); eigene Einschätzung schwer, weil nur über ein Rennen mit einem zweiten Prozess oder einen ausgetauschten Zielpfad auslösbar | bestätigt (Simulation nachvollzogen: `write_text` ersetzt eine nach der Leerprüfung angelegte `version.json`) | Ausgabe in ein Verzeichnis, das nach der Prüfung ein anderer verändern kann | `grep -n "DIST /" werkzeuge/app_bauen.py` → alle Schreibzugriffe in `_baue`, jetzt nur im eigenen Bauverzeichnis | `baue()` baut bei `--ziel` in ein exklusiv angelegtes Nachbarverzeichnis (`mkdtemp`) und ersetzt das Ziel erst am Ende per `os.rmdir` (scheitert, wenn nicht mehr leer) und `os.rename` (folgt keinem Link); bei Abbruch wird nur das eigene Bauverzeichnis entfernt | `BauZiel.test_eigenes_ziel_wird_nie_aufgeraeumt_oder_ueberschrieben` (fremde `version.json` und `wichtig.txt` bleiben, kein Rest), `test_bau_schreibt_nur_ins_eigene_bauverzeichnis`; rot mit der Fassung 8cb198d |
+| A2-01 | schwer | bestätigt (`Path.exists()` ist für einen Link ohne Ziel `False`, Warteblock entfiel) | Vorhandensein über einen folgenden Zugriff geprüft | `grep -n "exists()" werkzeuge/datenpflege/abruf.py` → noch `gesperrt_bis` Z. 150 (30-min-Sperrdatei nach 403/429): ein Link ohne Ziel gälte als „nicht gesperrt“; außerhalb von A1–A3, offen an den Besitzer | `os.path.lexists(stempel)`: ein vorhandener, nicht lesbarer Eintrag ergibt `ABSTAND` | `Domainsperre.test_link_ohne_ziel_heisst_voller_abstand` (Windows: Junction, sonst Symlink); rot mit `exists()` |
+| A2-02 | mittel | bestätigt (Test zog 3600 s von `time.monotonic()` ab) | Test abhängig von der Laufzeit seit Systemstart | `grep -n "monotonic() -" tests/test_abruf.py` → keine weiteren | Test mit festen Uhren und gültigem, 3600 s altem Stempel; prüft auch den genauen Abschlussstempel | `test_zeitstempel_vor_dem_http_versuch` grün mit festen Uhren |
+| A2-03 | mittel | bestätigt (Fehler wurde schon beim Lesen der Uhr ausgelöst) | Abbruchtest vor dem kritischen Schritt | – | Fehler jetzt bei `os.fsync` nach Öffnen und Schreiben, geprüft werden die vollständigen alten Bytes | `test_abbruch_beim_schreiben_laesst_den_alten_stempel`; rot mit direktem Schreiben in den Stempel |
+
+Selbstprüfung nach der Korrektur: Sammellauf und `datenbank.py pruefen` siehe Commit; Mutanten je Korrektur rot, Originale grün.

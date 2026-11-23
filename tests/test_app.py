@@ -191,9 +191,10 @@ class Bau(unittest.TestCase):
 
 
 class BauZiel(unittest.TestCase):
-    def test_eigenes_ziel_wird_nie_aufgeraeumt(self):
-        """A1: Das Ziel ist bei der Leerprüfung leer, danach legt ein anderer Vorgang `wichtig.txt` an. Der Bau löscht
-        in einem eigenen Ziel trotzdem nichts (aufgeräumt wird nur dist/)."""
+    def test_eigenes_ziel_wird_nie_aufgeraeumt_oder_ueberschrieben(self):
+        """A1/Codex A1-01: Das Ziel ist bei der Leerprüfung leer, danach legt ein anderer Vorgang `wichtig.txt` und
+        `version.json` (gleicher Name wie eine Bauausgabe) an. Der Bau löscht und überschreibt im eigenen Ziel nichts,
+        bricht ab und lässt kein Bauverzeichnis liegen (aufgeräumt wird nur dist/)."""
         with tempfile.TemporaryDirectory() as t:
             z = Path(t) / "ziel"
             z.mkdir()
@@ -203,12 +204,33 @@ class BauZiel(unittest.TestCase):
                 if p == z and not erster:
                     erster.append(1)
                     (z / "wichtig.txt").write_text("x", encoding="utf-8")   # nach der Leerprüfung sichtbar
+                    (z / "version.json").write_text("fremd", encoding="utf-8")
                     return iter(())
                 return echt(p)
-            with mock.patch.object(Path, "iterdir", iterdir):
+            with mock.patch.object(Path, "iterdir", iterdir), self.assertRaises(SystemExit) as e:
                 app_bauen.baue(daten_herkunft="a" * 40, ziel=z)
+            self.assertIn("nicht mehr leer", str(e.exception))
             self.assertEqual(erster, [1])
             self.assertEqual((z / "wichtig.txt").read_text(encoding="utf-8"), "x")
+            self.assertEqual((z / "version.json").read_text(encoding="utf-8"), "fremd", "nicht überschrieben")
+            self.assertEqual(sorted(p.name for p in Path(t).iterdir()), ["ziel"], "kein Bauverzeichnis liegen geblieben")
+
+    def test_bau_schreibt_nur_ins_eigene_bauverzeichnis(self):
+        """Codex A1-01: Bis zum Ersetzen am Ende entsteht im Ziel nichts; ein neues Ziel enthält danach den Bau."""
+        with tempfile.TemporaryDirectory() as t:
+            z = Path(t) / "neu"
+            gesehen = []
+            echt = app_bauen._baue
+
+            def baue_und_pruefe(daten_herkunft, dist, anzeige, aufraeumen=False):
+                ergebnis = echt(daten_herkunft, dist, anzeige, aufraeumen)
+                gesehen.append((z.exists(), Path(dist).parent == Path(t), aufraeumen))
+                return ergebnis
+            with mock.patch.object(app_bauen, "_baue", baue_und_pruefe):
+                app_bauen.baue(daten_herkunft="a" * 40, ziel=z)
+            self.assertEqual(gesehen, [(False, True, False)])
+            self.assertTrue((z / "version.json").exists())
+            self.assertEqual(sorted(p.name for p in Path(t).iterdir()), ["neu"])
 
 
 class Version(unittest.TestCase):

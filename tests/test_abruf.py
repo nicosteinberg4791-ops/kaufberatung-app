@@ -223,22 +223,26 @@ class Domainsperre(unittest.TestCase):
     def test_zeitstempel_vor_dem_http_versuch(self):
         """R4-03/A2: während des Versuchs steht die Markierung „laeuft“ mit dem Beginn im Stempel, danach der
         Abschlussstempel „<Wanduhr> <monotone Uhr>“; keine Hilfsdatei bleibt liegen."""
+        uhr = {"wand": 1700003600.0, "mono": 4600.0}   # Codex A2-02: feste Uhren, unabhängig von der Laufzeit seit Start
+
+        class Uhr:
+            time = staticmethod(lambda: uhr["wand"])
+            monotonic = staticmethod(lambda: uhr["mono"])
+            sleep = staticmethod(lambda s: (_ for _ in ()).throw(AssertionError("Abstand längst vorbei")))
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
             stempel = Path(t) / "h.invalid.zeit"
-            stempel.write_text(f"{time.time() - 3600!r} {time.monotonic() - 3600!r}", encoding="utf-8")
-            vorher = time.time()
+            stempel.write_text("1700000000.0 1000.0", encoding="utf-8")   # gültig, 3600 s alt
 
             def abrufen(url):
                 art, beginn, _ = stempel.read_text(encoding="utf-8").split()
                 self.assertEqual(art, abruf.LAEUFT, "laufender Abruf markiert")
-                self.assertGreaterEqual(float(beginn), vorher, "Zeitstempel vor dem Versuch gesetzt")
+                self.assertEqual(float(beginn), 1700003600.0, "Zeitstempel vor dem Versuch gesetzt")
+                uhr.update(wand=1700003602.0, mono=4602.0)
                 return "ok"
             with unittest.mock.patch.object(abruf, "einmal_abrufen", side_effect=abrufen), \
-                    unittest.mock.patch("time.sleep", side_effect=AssertionError("Abstand längst vorbei")):
+                    unittest.mock.patch.object(abruf, "time", Uhr):
                 self.assertEqual(abruf.holen("https://h.invalid/a"), "ok")
-            wand, mono = stempel.read_text(encoding="utf-8").split()
-            self.assertGreaterEqual(float(wand), vorher)
-            self.assertIsNotNone(abruf.verstrichen(f"{wand} {mono}"), "eigener Abschlussstempel ist gültig")
+            self.assertEqual(stempel.read_text(encoding="utf-8"), "1700003602.0 4602.0", "Abschlussstempel nach dem Ende")
             self.assertFalse((Path(t) / "h.invalid.zeit.neu").exists(), "keine Hilfsdatei liegen geblieben")
             # harter Abbruch während eines Versuchs (Markierung bleibt stehen): der nächste wartet den vollen Abstand
             abruf.stempel_setzen(stempel, laeuft=True)
@@ -251,11 +255,34 @@ class Domainsperre(unittest.TestCase):
         """R5-01: bricht das Schreiben des neuen Stempels ab, bleibt der alte vollständig stehen."""
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
             stempel = Path(t) / "h.invalid.zeit"
-            stempel.write_text("1700000000.5 100.0", encoding="utf-8")
-            with unittest.mock.patch.object(abruf.time, "time", side_effect=RuntimeError("Abbruch")):
+            stempel.write_bytes(b"1700000000.5 100.0")
+            # Codex A2-03: Abbruch nach dem Öffnen und Schreiben (beim fsync), nicht schon beim Lesen der Uhr
+            with unittest.mock.patch.object(abruf.os, "fsync", side_effect=RuntimeError("Abbruch")):
                 with self.assertRaises(RuntimeError):
                     abruf.stempel_setzen(stempel)
-            self.assertEqual(stempel.read_text(encoding="utf-8"), "1700000000.5 100.0", "alter Stempel nicht geleert")
+            self.assertEqual(stempel.read_bytes(), b"1700000000.5 100.0", "alter Stempel vollständig erhalten")
+
+    def test_link_ohne_ziel_heisst_voller_abstand(self):
+        """Codex A2-01: ein vorhandener Stempel-Eintrag, dessen Ziel fehlt (Link bzw. Junction), ist unlesbar und
+        ergibt den vollen Abstand, statt als „kein Stempel“ zu gelten."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            stempel, ziel = Path(t) / "h.invalid.zeit", Path(t) / "weg"
+            try:
+                if os.name == "nt":
+                    import _winapi
+                    ziel.mkdir()
+                    _winapi.CreateJunction(str(ziel), str(stempel))
+                    ziel.rmdir()
+                else:
+                    os.symlink(ziel, stempel)
+            except (OSError, ImportError, AttributeError) as e:
+                self.skipTest(f"kein Link möglich: {e}")
+            self.assertFalse(stempel.exists())
+            self.assertTrue(os.path.lexists(stempel))
+            with unittest.mock.patch("time.sleep") as schlaf:
+                lock, _ = abruf.sperre_holen("h.invalid")
+                abruf.sperre_freigeben(lock)
+            schlaf.assert_called_once_with(abruf.ABSTAND)
 
     def test_unbekannter_stempel_heisst_voller_abstand(self):
         """A2: nur der eigene Abschlussstempel „repr(Wanduhr) repr(monotone Uhr)“ zählt. Alles andere ergibt den vollen

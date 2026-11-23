@@ -17,7 +17,9 @@ import argparse
 import hashlib
 import json
 import re
+import os
 import shutil
+import tempfile
 from datetime import datetime, timezone
 import sys
 from pathlib import Path
@@ -126,12 +128,35 @@ def versionshash(fragment, daten):
 
 def baue(daten_herkunft=None, ziel=None):
     """daten_herkunft: Commit für finder-daten.json (veroeffentlichen.py, R2-02); lokal ohne.
-    ziel: Ausgabeverzeichnis (Standard dist/); veroeffentlichen.py baut in ein eigenes frisches Verzeichnis (R3-01)."""
-    DIST = Path(ziel) if ziel is not None else globals()["DIST"]
-    if ziel is not None and DIST.exists() and (not DIST.is_dir() or any(DIST.iterdir())):
-        # A1: ein eigenes Ziel muss neu oder leer sein; sonst löschte ein Aufräumen fremde Dateien (z. B. `--ziel .`
-        # im Projektordner samt .git). Aufgeräumt wird nur dist/ (Standard), die Preisdateien bleiben dort.
-        raise SystemExit(f"Abbruch: Ziel {DIST} ist nicht leer (nur ein neues oder leeres Verzeichnis)")
+    ziel: Ausgabeverzeichnis (Standard dist/); veroeffentlichen.py baut in ein eigenes frisches Verzeichnis (R3-01).
+    A1: ein eigenes Ziel muss neu oder leer sein und wird nie aufgeräumt oder beschrieben. Gebaut wird in ein exklusiv
+    angelegtes Nachbarverzeichnis; erst am Ende ersetzt es das Ziel (os.rmdir scheitert, wenn das Ziel inzwischen
+    nicht mehr leer ist; os.rename folgt keinem Link). Ein Rennen oder ein ausgetauschter Zielpfad bricht so ab, statt
+    fremde Dateien zu löschen oder zu überschreiben. Aufgeräumt wird nur dist/ (Standard), die Preisdateien bleiben."""
+    if ziel is None:
+        return _baue(daten_herkunft, globals()["DIST"], "dist/", aufraeumen=True)
+    z = Path(ziel)
+    if z.exists() and (not z.is_dir() or any(z.iterdir())):
+        raise SystemExit(f"Abbruch: Ziel {z} ist nicht leer (nur ein neues oder leeres Verzeichnis)")
+    z.absolute().parent.mkdir(parents=True, exist_ok=True)
+    bau = Path(tempfile.mkdtemp(prefix=".kb-bau-", dir=z.absolute().parent))
+    try:
+        ergebnis = _baue(daten_herkunft, bau, str(z))
+        if z.exists() or z.is_symlink():
+            try:
+                os.rmdir(z)   # nur ein leeres Verzeichnis (oder ein Link darauf) verschwindet
+            except OSError:
+                raise SystemExit(f"Abbruch: Ziel {z} ist während des Baus nicht mehr leer, nichts geschrieben") from None
+        os.rename(bau, z)
+    except BaseException:
+        shutil.rmtree(bau, ignore_errors=True)
+        raise
+    return ergebnis
+
+
+def _baue(daten_herkunft, DIST, anzeige, aufraeumen=False):
+    """Bau nach DIST (dist/ oder das eigene Bauverzeichnis aus baue()); anzeige: Ziel für die Ausgabezeile;
+    aufraeumen nur für dist/."""
     f = (QUELLE / "kaufberatung.html").read_text(encoding="utf-8")
     pruefe_fragment(f)
     herkunft = json.loads((QUELLE / "herkunft.json").read_text(encoding="utf-8"))
@@ -139,7 +164,7 @@ def baue(daten_herkunft=None, ziel=None):
     for alt in ('<meta charset="utf-8">\n', "<title>Kaufberatung</title>\n"):
         assert f.count(alt) == 1, f"Anker {alt.strip()!r} {f.count(alt)}-mal"
         f = f.replace(alt, "", 1)
-    if ziel is None and DIST.exists():   # A1: ein eigenes Ziel wird nie aufgeräumt, auch nach der Leerprüfung nicht
+    if aufraeumen and DIST.exists():   # A1: nur dist/ wird aufgeräumt, nie ein eigenes Ziel
         for p in DIST.iterdir():
             if p.name in BEHALTEN:
                 continue
@@ -174,7 +199,6 @@ def baue(daten_herkunft=None, ziel=None):
     for seite in (ratgeber, finder):
         assert not re.search(r"(api[_-]?key|token|secret)\s*[:=]\s*['\"][A-Za-z0-9_\-]{16,}", seite, re.I), "möglicher Schlüssel im Ergebnis"
     groesse = (DIST / "finder-daten.json").stat().st_size
-    anzeige = "dist/" if ziel is None else str(DIST)
     print(f"gebaut: {anzeige} · App {v} · Inhalt {herkunft['version']} · ratgeber.html {len(ratgeber.encode('utf-8')):,} Bytes"
           f" · finder-daten.json {groesse:,} Bytes")
     return v
