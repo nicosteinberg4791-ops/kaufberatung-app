@@ -1,0 +1,22 @@
+{
+  "urteil": "bestanden_mit_hinweisen",
+  "zusammenfassung": "R9-01 und R9-02 sind geschlossen. Die lesenden Gegenproben auf NTFS bestätigten die Grenze von 255 UTF-16-Codeeinheiten und den Abbruch vor dem ersten Schreibaufruf bei potenziellen 8.3-Kurznamen. Alle 224 Pfade des geprüften Commits bestehen die Vorabprüfung. In der simulierten Hook-Umgebung gingen nur die vom Test gesetzten Git-Variablen an das abgefangene `git init`. Die gemeinsame Repo-Konfiguration blieb bytegleich. Die Korrekturen haben keine belegte Regression eingeführt.",
+  "befunde": [
+    {
+      "id": "R10-01",
+      "schwere": "mittel",
+      "titel": "Datei und gleichnamiges Verzeichnis passieren die Vorabprüfung",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 227,
+      "beleg": "Basis und Prüfcommit liefern für `windows_pfad_fehler([\"app/a\", \"app/a/b.txt\"])` jeweils `[]`. Zeile 227 erfasst den Pfad `app/a` ohne seine Rolle als Datei oder Verzeichnis. Mit simulierten Einträgen eines fehlerhaften Git-Baums und abgefangenen Schreibaufrufen rief `kopie_holen` zuerst `write_bytes` für `app/a` auf und versuchte danach, `app/a` als Verzeichnis anzulegen.",
+      "auswirkung": "Bei einem solchen fehlerhaften Git-Baum bricht das Auspacken erst nach dem ersten Schreibaufruf in der Wegwerf-Kopie ab. Die Veröffentlichung wird nicht erreicht.",
+      "vorschlag": "Vor dem Auspacken prüfen, ob ein Dateipfad zugleich als Verzeichnispräfix eines anderen Pfads vorkommt.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": [
+    "R9-01",
+    "R9-02"
+  ],
+  "pruefgrenzen": "Der dokumentierte Sammellauf meldet „Fehler: 0“. Da er Git-Testrepos und ein Laufprotokoll anlegt, stützt sich die unabhängige Nachprüfung auf lesende Gegenproben mit abgefangenen Schreibaufrufen und abgefangenem `git init`. Die Gesamtpfadlänge war gemäß Auftrag ausgenommen."
+}

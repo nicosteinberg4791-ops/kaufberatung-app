@@ -1,0 +1,30 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "R8-01 und R8-02 sind geschlossen. R8-03 bleibt offen, weil die Windows-Vorprüfung eine unzulässige Namenskomponente und eine Kollision mit einem 8.3-Kurznamen passieren lässt.",
+  "befunde": [
+    {
+      "id": "R9-01",
+      "schwere": "schwer",
+      "titel": "Zu lange NTFS-Namenskomponente wird erst beim Schreiben erkannt",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 215,
+      "beleg": "Das Fertigkriterium lautet „Unter Windows unzulässige oder nur in der Schreibweise verschiedene Pfade brechen in `kopie_holen` vor dem ersten Schreiben ab (`windows_pfad_fehler`).“ Eine einzelne Komponente aus 256 ASCII-Zeichen passiert Zeile 215. Bei einem lesenden Aufruf von `GetFileAttributesW` mit erweitertem Windows-Pfad liefert NTFS für 255 Zeichen Fehler 2 (Datei fehlt) und für 256 Zeichen Fehler 123 (ungültiger Name). Das Komponentenlimit greift damit auch bei umgangenem `MAX_PATH`. Mit abgefangenen Schreibaufrufen erreicht `kopie_holen` zuerst `write_bytes` für `app/good.txt` und danach für den ungültigen Namen.",
+      "auswirkung": "Beim Auspacken können bereits Dateien und Verzeichnisse in der Wegwerf-Kopie entstehen, bevor Windows den ungültigen Namen zurückweist.",
+      "vorschlag": "Jede Pfadkomponente vor dem Auspacken in UTF-16-Codeeinheiten gegen das Komponentenlimit des Zielvolumes prüfen. Im Regressionstest einen gültigen Pfad vor die ungültige Komponente sortieren und prüfen, dass kein Schreibaufruf erfolgt.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R9-02",
+      "schwere": "mittel",
+      "titel": "NTFS-Kurznamen können auf dasselbe Schreibziel zeigen",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 220,
+      "beleg": "`windows_pfad_fehler` akzeptiert `werkzeuge/veroeffentlichen.py` und `werkzeuge/veroef~1.py` gemeinsam. Auf dem geprüften NTFS-Volume bestätigt `Path.samefile`, dass beide Namen dieselbe Datei bezeichnen. Beim lesenden Test mit abgefangenen Schreibaufrufen übergab `kopie_holen` zweimal `veroeffentlichen.py` an `write_bytes`. Erst der exakte Abgleich in Zeile 258 meldete den fehlenden Kurznamenspfad.",
+      "auswirkung": "Auf NTFS-Volumes mit aktivierter Kurznamenvergabe kann eine Datei in der Wegwerf-Kopie zweimal beschrieben werden. Der anschließende Abgleich stoppt die Veröffentlichung.",
+      "vorschlag": "Potenzielle 8.3-Kurznamenskollisionen vor dem Auspacken konservativ ausschließen und den bereits aufgelösten Kurznamen als Regression testen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": ["R8-01", "R8-02"],
+  "pruefgrenzen": "Geprüft wurde der Diff e7a30fa..00bfb961138112dff6f0ac504ff24927b3f1ab7e. Alle 219 Pfade des geprüften Commits bestanden beide Pfadprüfungen. Im Diff fanden sich keine nach den Projektregeln unzulässigen öffentlichen Inhalte. Der Sammellauf schreibt temporäre Testdateien und ein Laufprotokoll. Für „Fehler: 0“ liegt daher die dokumentierte Selbstprüfung des Bauers vor. Die unabhängigen Stichproben liefen lesend und fingen Schreibaufrufe ab."
+}

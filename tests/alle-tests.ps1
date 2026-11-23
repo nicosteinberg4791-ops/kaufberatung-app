@@ -4,7 +4,7 @@
 
 .BESCHREIBUNG
   Fehler (zählen, Exitcode = Zahl der Fehler, Commit wird abgebrochen):
-    unittest tests/test_*.py (falls vorhanden) · Pester tests/*.Tests.ps1 (falls vorhanden).
+    unittest tests/test_*.py (falls vorhanden) · Pester tests/*.Tests.ps1 (falls vorhanden) · node --test tests/test_*.mjs.
   Ohne eine einzige Testdatei bleibt der Lauf grün (Gerüst); sobald das Projekt Tests schreibt, laufen sie hier.
   Hook einrichten (einmal je Klon): git config core.hooksPath .githooks
   Ausgabe am Ende: „Fehler: N · Warnungen: M“.
@@ -95,6 +95,12 @@ if ($pesterDateien.Count) {
   $o = $tests.Replace("'", "''")
   $r = Lauf { & powershell.exe -NoProfile -Command "try { Import-Module Pester -MaximumVersion '3.99' -ErrorAction Stop } catch { 'Pester nicht ladbar: ' + `$_.Exception.Message; exit 91 }; `$rot = 0; foreach (`$d in @(Get-ChildItem -LiteralPath '$o' -Filter '*.Tests.ps1' -File | Sort-Object Name)) { `$e = Invoke-Pester -Script `$d.FullName -PassThru -Quiet; if (`$null -eq `$e -or `$e.TotalCount -lt 1) { 'ohne Testergebnis: ' + `$d.Name; `$rot++; continue }; `$rot += `$e.FailedCount }; exit `$rot" }
   Melde 'Pester tests/*.Tests.ps1' ($r.Code -eq 0) $r.Text
+}
+# 3. node --test für den Finder (tests/test_*.mjs; webpush.test.mjs läuft schon über test_app.py)
+$nodeTests = @(Get-ChildItem -LiteralPath $tests -Filter 'test_*.mjs' -File | Sort-Object Name | ForEach-Object { $_.FullName })
+if ($nodeTests.Count) {
+  $r = Lauf { node --test @nodeTests }
+  Melde 'node --test tests/test_*.mjs' ($r.Code -eq 0) $r.Text
 }
 if (-not $pyTests.Count -and -not $pesterDateien.Count) {
   Warne 'noch keine Tests im Projekt (tests/test_*.py oder tests/*.Tests.ps1)'

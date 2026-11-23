@@ -1,0 +1,151 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Commit 1b1581f0aee81e618e37f78464bbe2e150eb28c0 ist nicht zur Veröffentlichung freigabefähig. Die Datenbankschranke lässt unbelegte Testnoten durch, der Datenworkflow löst kein Pages-Deployment aus, und die Entdeckung kann ihre Abrufgrenzen überschreiten.",
+  "befunde": [
+    {
+      "id": "F-01",
+      "schwere": "kritisch",
+      "titel": "Unbelegte Testpunkte umgehen den Datenblattabschlag",
+      "datei": "werkzeuge/datenbank.py",
+      "zeile": 167,
+      "beleg": "FORMAT.md:46 verlangt „nur Links auf Testberichte, keine übernommenen Noten oder Texte“. Die Schranke akzeptiert `tests[].punkte` zusammen mit URL und Titel, und der Bau reicht den Eintrag in Zeile 254 vollständig durch. Die Speicherprobe meldete 0 Schrankenfehler. `app/finder/bewertung.js:142` errechnete daraus bei 90 Rohpunkten eine als getestet gekennzeichnete Note von 96.",
+      "auswirkung": "Ein Datensatz kann ohne belegten unabhängigen Test die Kappung bei 84 umgehen und die Rangfolge sowie Kaufempfehlungen verfälschen.",
+      "vorschlag": "Testlinks auf `url` und `titel` mit geprüften Typen beschränken und beim Bau nur diese Felder ausgeben.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-02",
+      "schwere": "schwer",
+      "titel": "Der Datenworkflow kann grün enden, während Pages den alten Stand ausliefert",
+      "datei": ".github/workflows/finder-daten.yml",
+      "zeile": 62,
+      "beleg": "D11 verlangt „geht automatisch live, wenn `datenbank.py pruefen` grün ist“. Der Workflow nutzt das `GITHUB_TOKEN` für den Push auf `gh-pages` und beendet sich danach ohne Deploy-Schritt. Bei der vorgesehenen branchbasierten Veröffentlichung lösen solche Pushes laut GitHub keinen Pages-Build aus. [GitHub-Dokumentation zur Veröffentlichungsquelle](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#troubleshooting-publishing-from-a-branch)",
+      "auswirkung": "Neue Modelle können auf `main` und `gh-pages` stehen, während die öffentliche App weiterhin die bisherige `finder-daten.json` erhält.",
+      "vorschlag": "Nach dem Datenupdate ein Pages-Deployment mit minimalen Rechten auslösen und als Abnahme prüfen, dass die Live-URL den neuen Datenstand ausliefert.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-03",
+      "schwere": "schwer",
+      "titel": "Die Routine prüft den Netto-Diff und pusht die gesamte Historie",
+      "datei": "werkzeuge/datenpflege/routine.py",
+      "zeile": 103,
+      "beleg": "Das Fertigkriterium lautet „nur `daten/produkte/*.json` geändert“. Legt ein Zwischencommit eine fremde Datei an und entfernt ein Folgecommit sie wieder, fehlt sie im Netto-Diff. Bleibt eine erlaubte Produktänderung übrig, pusht Zeile 125 beide Commits. Außerdem löst der Push `HEAD` erneut auf, sodass sich der geprüfte und der gepushte Commit nach einem parallelen Commit unterscheiden können.",
+      "auswirkung": "Fremde Dateien und darin enthaltene Daten können in der öffentlichen Historie landen. Ein nach der Prüfung entstandener Commit kann ebenfalls veröffentlicht werden.",
+      "vorschlag": "Den zu prüfenden Commit festhalten, alle neu veröffentlichten Commits samt Pfaden prüfen oder genau einen Datencommit auf der geprüften Basis zulassen. Die Tests dem festgehaltenen Stand zuordnen und dessen SHA pushen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-04",
+      "schwere": "schwer",
+      "titel": "HTTP-Wiederholungen unterschreiten den Abrufabstand",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 85,
+      "beleg": "Das Fertigkriterium verlangt „Takt ≥ 61 s“. Der Helfer taktet `sa.abrufen(url)` als Ganzes. Darin wiederholt `werkzeuge/shopabfrage.py:419` bei HTTP 500 und Zeile 423 bei Netzfehlern nach `PAUSE = 3.0` Sekunden. Eine simulierte HTTP-500-Antwort ergab zwei HTTP-Versuche mit einer Pause von 3 Sekunden.",
+      "auswirkung": "Ein einzelner Entdeckungslauf kann auf einer Listenseite mehr HTTP-Abrufe auslösen als vorgesehen und die Mindestpause unterschreiten.",
+      "vorschlag": "Jeden einzelnen HTTP-Versuch unter den Domain-Takt stellen und Wiederholungen bei D10 auf die zulässige Seitenzahl anrechnen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-05",
+      "schwere": "schwer",
+      "titel": "Die Sechs-Tage-Sperre fehlt bei leeren Ergebnissen und parallelen Läufen",
+      "datei": "werkzeuge/entdeckung.py",
+      "zeile": 195,
+      "beleg": "Das Fertigkriterium verlangt „höchstens alle 6 Tage“. Antwortet die erste Seite ohne verwertbare ItemList, wird nur `letzter_fehler` gespeichert. `zu_frueh()` liest ausschließlich `abgerufen`. Zwei simulierte Aufrufe für dieselbe Kategorie im selben Zeitfenster lösten daher zwei Seitenabrufe aus. Parallel gestartete Läufe können die Prüfung in Zeile 159 ebenfalls beide passieren, bevor einer den Zeitstempel speichert.",
+      "auswirkung": "Wiederholte Aufrufe mit `--kategorie` und überlappende Läufe können dieselbe Kategorie innerhalb der Sperrfrist erneut abrufen.",
+      "vorschlag": "Den Abrufversuch vor dem ersten HTTP-Abruf mit einer exklusiven Sperre reservieren und den Zeitstempel unabhängig vom letzten erfolgreichen Kandidatenergebnis speichern.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-06",
+      "schwere": "schwer",
+      "titel": "Die robots.txt-Prüfung kann trotz Abrufverbot freigeben",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 113,
+      "beleg": "Das Fertigkriterium verlangt „robots.txt, 403/429 → Abbruch, nie umgangen“. Die lokale robots.txt wird ohne Ablauf weiterverwendet. Zeile 123 prüft `*`, obwohl `werkzeuge/shopabfrage.py:400` einen benannten User-Agent sendet. Der eingesetzte Parser unterstützt die dokumentierten Platzhalterregeln nur teilweise, und die Zusatzmuster decken feste Pfade ab. Ein leerer Regeltext nach HTTP 200 wurde in der Parserprobe als erlaubt ausgewertet.",
+      "auswirkung": "Geänderte Regeln, Regeln für den tatsächlichen User-Agent oder eine leere Ersatzantwort können zu einem Abruf führen, für den die aktuelle robots.txt keine Freigabe gibt.",
+      "vorschlag": "Die Ablage regelmäßig erneuern, den tatsächlichen User-Agent prüfen, Platzhalterregeln korrekt auswerten und bei unlesbarem oder nicht verlässlich auswertbarem Regelstand abbrechen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-07",
+      "schwere": "schwer",
+      "titel": "Die Preisprüfung akzeptiert Shops ohne Freigabe",
+      "datei": "werkzeuge/datenbank.py",
+      "zeile": 204,
+      "beleg": "FORMAT.md:44 verlangt „Andere Händler nicht ohne Freigabe.“ Die Schranke lehnt nur Treffer in der aus `automatisch: false` ermittelten Sperrliste ab. Die Speicherprobe mit einer nicht als Hersteller oder Shop freigegebenen HTTPS-Domain ergab 0 Fehler.",
+      "auswirkung": "Die Routine kann Angebote beliebiger unbekannter Händler veröffentlichen und damit Budgetauswahl und Kaufempfehlungen beeinflussen.",
+      "vorschlag": "Preisdomains gegen freigegebene Shops oder explizit zugeordnete Herstellershops prüfen. Die Sperrliste zusätzlich auf den kanonischen Host anwenden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-08",
+      "schwere": "schwer",
+      "titel": "Eine beschädigte Finder-Datei kann den Finder und seinen Offline-Stand blockieren",
+      "datei": "app/finder/bewertung.js",
+      "zeile": 360,
+      "beleg": "Auslöser ist eine Finder-Datei mit `null` als Element in `felder`. Der Service Worker akzeptiert die Antwort in `app/sw.js:40` und ersetzt in Zeile 54 die Cachekopie. Die Seitenprüfung akzeptiert das Array ebenfalls. Im Hauptpfad bricht die Budgetansicht beim Lesen von `f.id` in `app/finder/finder.js:209` ab. Eine Speicherprobe bestätigte auch den Abbruch der Direktauswertung mit einem TypeError. Soll ist der letzte brauchbare Stand oder die vorhandene Fehlermeldung.",
+      "auswirkung": "Der Finder kann nach der Kategorienwahl hängen bleiben. Offline bleibt der Fehler bestehen, weil die beschädigte Antwort die verwendbare Cachekopie ersetzt hat.",
+      "vorschlag": "Die für Navigation und Bewertung erforderlichen Strukturen und Typen vor dem Cache-Update und vor dem Rendern prüfen. Ungültige Antworten sollen den letzten brauchbaren Stand erhalten.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-09",
+      "schwere": "schwer",
+      "titel": "Klassengrenzen werden ungeprüft als CSS interpretiert",
+      "datei": "app/finder/finder.js",
+      "zeile": 459,
+      "beleg": "Das Fertigkriterium verlangt „alle fremden Werte nur als Text (kein innerHTML mit Daten)“. `datenPruefen()` prüft `klassen` nur auf Array-Form. `notenSkala()` setzt `k.ab` in Zeile 459 und Zeile 465 unmittelbar in ein `style`-Attribut ein. Die Typumwandlung beim Sortieren ändert den ursprünglichen Wert nicht.",
+      "auswirkung": "Ein fremder String kann als CSS-Deklaration wirken und Teile der Bewertungsanzeige verändern oder verdecken.",
+      "vorschlag": "Klassengrenzen und Kappung als endliche Zahlen im Bereich 0 bis 100 validieren und daraus erst die CSS-Prozentwerte bilden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-10",
+      "schwere": "schwer",
+      "titel": "Der Finder meldet trotz passendem Budgetmodell, dass nichts passt",
+      "datei": "app/finder/bewertung.js",
+      "zeile": 272,
+      "beleg": "Auslöser in der Speicherprobe: Budget 100 €, passendes Modell zu 90 € ohne Note und passendes Modell zu 150 € mit Note. Ist: `auswerten()` liefert `ueber_budget` mit dem 150-€-Modell, obwohl ein Modell im Budget in der Rangliste steht. `app/finder/finder.js:485` zeigt „Im Budget passt nichts“. Soll: Das 90-€-Modell im Budget ausweisen und seine fehlende Note kenntlich machen.",
+      "auswirkung": "Nutzer können den Hinweis als Aufforderung verstehen, mehr auszugeben, obwohl ein Modell im Preisrahmen verfügbar ist.",
+      "vorschlag": "Die Budgetpassung getrennt von der Bewertbarkeit ermitteln. Den Überbudget-Hinweis nur anzeigen, wenn kein passendes Modell mit bekanntem Preis im Budget liegt.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-11",
+      "schwere": "schwer",
+      "titel": "Der manuelle Veröffentlichungsweg bindet den Build nicht an den geprüften Stand",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 53,
+      "beleg": "AGENTS.md verlangt „Weitere Pushes von App-Fassungen nach bestandener Prüfung“. Der Aufruf baut direkt aus dem aktuellen Arbeitsbaum und pusht in Zeile 64. Es gibt keine Prüfung auf einen sauberen Baum, die freigegebene SHA oder Übereinstimmung mit `origin/main`. Damit kann derselbe Aufruf nach einer lokalen Änderung oder aus einem älteren Worktree ungeprüfte Dateien veröffentlichen.",
+      "auswirkung": "Der Pages-Stand kann von der geprüften Fassung abweichen oder aktuellere Finder-Daten mit einem älteren Stand überschreiben.",
+      "vorschlag": "Den Veröffentlichungsbuild an die freigegebene Commit-SHA binden und vor dem Build den sauberen Arbeitsbaum sowie den erwarteten Stand von `origin/main` prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-12",
+      "schwere": "mittel",
+      "titel": "Änderungen an Build-Vorlagen erzeugen keine neue Service-Worker-Version",
+      "datei": "werkzeuge/app_bauen.py",
+      "zeile": 135,
+      "beleg": "Der Versionshash umfasst Inhalt, Daten und Dateien unter `app/`. Die Vorlagen `KOPF`, `FUSS` und `FINDER_KOPF` stehen in `app_bauen.py` und gehen nicht in den Hash ein. Eine Änderung allein am erzeugten Seitenkopf ändert damit HTML, lässt `sw.js` aber bytegleich. `app/sw.js:78` liefert weiterhin die bereits gespeicherte Navigation aus.",
+      "auswirkung": "Installierte Apps können nach einer Veröffentlichung mit geänderten HTML-Vorlagen die veraltete Hülle behalten.",
+      "vorschlag": "Die HTML-Vorlagen oder das gerenderte HTML mit festem Versionsplatzhalter in den Hash aufnehmen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "F-13",
+      "schwere": "schwer",
+      "titel": "Die öffentliche Übergabe enthält einen wörtlichen Shoptext",
+      "datei": "docs/uebergabe-finder.md",
+      "zeile": 67,
+      "beleg": "Das Fertigkriterium lautet „Öffentliches Repo: keine persönlichen Daten, lokalen Pfade, Konto-URLs, kopierten Shoptexte.“ Die Zeile übernimmt zur JBL Bar 800 wörtlich „optimiert die Sprachverständlichkeit“ und kennzeichnet Alternate als Quelle.",
+      "auswirkung": "Mit dem Diff würde ein Auszug aus der Shopbeschreibung im öffentlichen Repo veröffentlicht.",
+      "vorschlag": "Die Funktionsangabe in eigenen Worten dokumentieren und den Quellenbeleg erhalten.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Lesende Erstprüfung am angegebenen Commit. Die Datenbankschranke lief mit Fehler 0 und 56 Warnungen. 34 Finder-Tests und der gezielt ausgeführte Service-Worker-Push-Test waren grün. Der vollständige PowerShell-Sammellauf wurde wegen seiner Schreibzugriffe auf temporäre Dateien und das Laufprotokoll nicht ausgeführt. Produktdaten wurden nur über die Schranke geprüft. Browsermigration, Saturn-Liveabrufe, Push und Pages-Deployment wurden nicht ausgeführt. Die Pages-Aussage bezieht sich auf die vorgesehene branchbasierte Veröffentlichung und die dokumentierte GitHub-Funktion. Die rechtliche Einstufung war nicht Gegenstand der Prüfung."
+}

@@ -440,6 +440,7 @@ test("Service Worker: Treffer bleiben einzeln stehen, nur Tests ersetzen einande
     },
     caches: {}, fetch: async () => { throw new Error("kein Netz"); }, console, URL, Response: class {},
   };
+  kontext.importScripts = () => {};   // bewertung.js (F-08) braucht dieser Test nicht
   vm.createContext(kontext);
   vm.runInContext(quelle, kontext);
   const pushe = async (daten) => {
@@ -458,7 +459,9 @@ test("Service Worker: Treffer bleiben einzeln stehen, nur Tests ersetzen einande
   assert.equal(gezeigt[0][1].tag, undefined);
   assert.equal(gezeigt[1][1].tag, undefined, "zweiter Treffer ersetzt den ersten nicht");
   assert.equal(gezeigt[2][1].tag, "kb-push-test");
-  assert.equal(gezeigt[3][1].data.ziel, "./#preiswecker", "fremdes Ziel wird verworfen");
+  // D8: Ratgeber-Abschnitte liegen auf ratgeber.html; die Abfrage sendet weiter "./#abschnitt"
+  assert.equal(gezeigt[0][1].data.ziel, "ratgeber.html#preiswecker", "Abschnitt wird auf den Ratgeber umgelenkt");
+  assert.equal(gezeigt[3][1].data.ziel, "ratgeber.html#preiswecker", "fremdes Ziel wird verworfen");
   assert.equal(gezeigt[4][1].body, "kein json");
   assert.equal(gezeigt[5][0], "Kaufberatung");
 });

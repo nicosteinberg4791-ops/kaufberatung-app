@@ -27,13 +27,13 @@ def png_groesse(pfad):
 
 
 class Bau(unittest.TestCase):
-    """Baut einmal in einer Kopie (app/, quelle/, werkzeuge/), damit dist/ im Projekt unberührt bleibt."""
+    """Baut einmal in einer Kopie (app/, quelle/, werkzeuge/, daten/), damit dist/ im Projekt unberührt bleibt."""
 
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
         cls.kopie = Path(cls.tmp.name) / "kb"
-        for d in ("app", "quelle", "werkzeuge"):
+        for d in ("app", "quelle", "werkzeuge", "daten"):
             shutil.copytree(WURZEL / d, cls.kopie / d, ignore=shutil.ignore_patterns("__pycache__"))
         cls.lauf = subprocess.run([sys.executable, "-I", str(cls.kopie / "werkzeuge" / "app_bauen.py")],
                                   capture_output=True, text=True, encoding="utf-8")
@@ -89,7 +89,7 @@ class Bau(unittest.TestCase):
 
     def test_seite_verweist_auf_versionierte_dateien(self):
         liste, _ = self.dateien()
-        seite = (self.dist / "index.html").read_text(encoding="utf-8")
+        seite = (self.dist / "ratgeber.html").read_text(encoding="utf-8")
         for d in liste:
             if d.startswith(("app.js", "app.css")):
                 self.assertIn(d, seite)
@@ -100,7 +100,7 @@ class Bau(unittest.TestCase):
     def test_inhalt_unveraendert(self):
         f = (WURZEL / "quelle" / "kaufberatung.html").read_text(encoding="utf-8")
         f = f.replace('<meta charset="utf-8">\n', "", 1).replace("<title>Kaufberatung</title>\n", "", 1)
-        seite = (self.dist / "index.html").read_text(encoding="utf-8")
+        seite = (self.dist / "ratgeber.html").read_text(encoding="utf-8")
         self.assertIn(f, seite, "Inhalt der Kaufberatung wurde verändert")
         # Hülle vor dem Inhalt: app.js muss vor den Seitenskripten laufen
         self.assertLess(seite.index("app.js?v="), seite.index(f[:200]))
@@ -109,7 +109,7 @@ class Bau(unittest.TestCase):
         node = shutil.which("node")
         if not node:
             self.skipTest("node nicht vorhanden")
-        for d in ("app.js", "sw.js"):
+        for d in ("app.js", "sw.js", "finder-app.js", "finder.js", "bewertung.js"):
             r = subprocess.run([node, "--check", str(self.dist / d)], capture_output=True, text=True, encoding="utf-8")
             self.assertEqual(r.returncode, 0, f"{d}: {r.stderr}")
 
@@ -119,6 +119,566 @@ class Bau(unittest.TestCase):
                 t = p.read_text(encoding="utf-8")
                 self.assertNotRegex(t, r"gh[pousr]_[A-Za-z0-9]{20,}", p.name)
                 self.assertNotRegex(t, r"sk-[A-Za-z0-9]{20,}", p.name)
+
+
+    def test_finder_startseite(self):
+        """D8: index.html ist der Finder mit Hülle und versionierten Verweisen; alle Verweise sind im App-Cache."""
+        liste, _ = self.dateien()
+        seite = (self.dist / "index.html").read_text(encoding="utf-8")
+        version = json.loads((self.dist / "version.json").read_text(encoding="utf-8"))["app"]
+        self.assertIn('<main id="inhalt"', seite)
+        self.assertIn('<link rel="manifest" href="manifest.webmanifest">', seite)
+        self.assertNotIn("Manifest, Symbole und app.js", seite, "Anker der Hülle steht noch in der Seite")
+        for d in ("finder.css", "bewertung.js", "finder-app.js", "finder.js"):
+            self.assertIn(f"{d}?v={version}", seite)
+            self.assertIn(f"{d}?v={version}", liste)
+        for d in ("index.html", "ratgeber.html"):
+            self.assertIn(d, liste)
+        # finder-app.js (Weiterleitung, Service Worker) vor finder.js
+        self.assertLess(seite.index("finder-app.js?v="), seite.index("finder.js?v="))
+        self.assertEqual(seite.count("<title>"), 1)
+
+    def test_finder_daten(self):
+        j = json.loads((self.dist / "finder-daten.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(j["kategorien"]), 14)
+        self.assertGreater(sum(len(k["modelle"]) for k in j["kategorien"]), 200)
+        liste, _ = self.dateien()
+        for d in ("finder-daten.json", "finder-preise.json", "preise.json"):
+            self.assertNotIn(d, liste, f"{d} gehört nicht in den App-Cache (netz-zuerst)")
+
+    def test_sw_ziele_ratgeber(self):
+        _, sw = self.dateien()
+        self.assertNotIn('ziel: "./#preiswecker"', sw)
+        self.assertIn('"ratgeber.html#preiswecker"', sw)
+
+    def test_preise_bleiben_beim_neubau(self):
+        for d in ("preise.json", "finder-preise.json"):
+            (self.dist / d).write_text('{"test": 1}', encoding="utf-8")
+        r = subprocess.run([sys.executable, "-I", str(self.kopie / "werkzeuge" / "app_bauen.py")],
+                           capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        for d in ("preise.json", "finder-preise.json"):
+            self.assertEqual((self.dist / d).read_text(encoding="utf-8"), '{"test": 1}')
+            (self.dist / d).unlink()
+
+
+class Version(unittest.TestCase):
+    def test_vorlagen_aendern_die_version(self):
+        """F-12: eine Änderung nur an KOPF, FUSS oder FINDER_KOPF ergibt eine neue Service-Worker-Version."""
+        v0 = app_bauen.versionshash("x", b"{}")
+        self.assertEqual(v0, app_bauen.versionshash("x", b"{}"))
+        for name in ("KOPF", "FUSS", "FINDER_KOPF"):
+            with mock.patch.object(app_bauen, name, getattr(app_bauen, name) + "<!-- neu -->"):
+                self.assertNotEqual(app_bauen.versionshash("x", b"{}"), v0, name)
+
+
+class Veroeffentlichen(unittest.TestCase):
+    """F-11: Veröffentlichung nur vom geprüften, sauberen Stand; neuere Online-Daten bleiben."""
+    def setUp(self):
+        sys.path.insert(0, str(WURZEL / "werkzeuge"))
+        import veroeffentlichen
+        self.v = veroeffentlichen
+
+    def test_stand_bindung(self):
+        h = "0680c2c" + "a" * 33
+        self.assertEqual(self.v.stand_fehler("0680c2c", h, True, True), [])
+        self.assertTrue(self.v.stand_fehler(None, h, True, True))
+        self.assertTrue(self.v.stand_fehler("1111111", h, True, True))
+        self.assertTrue(self.v.stand_fehler("0680", h, True, True))          # zu kurz
+        self.assertTrue(self.v.stand_fehler("0680c2c", h, False, True))      # schmutziger Baum
+        self.assertTrue(self.v.stand_fehler("0680c2c", h, True, False))      # origin/main fehlt
+
+    def test_preisdateien_nie_aus_dist(self):
+        """R2-01: lokale Preisdateien in dist/ (ignoriert, ungeprüft) gehen nie auf gh-pages."""
+        with tempfile.TemporaryDirectory() as t:
+            t = Path(t)
+            (t / "dist").mkdir(); (t / "seiten").mkdir()
+            (t / "dist" / "finder-preise.json").write_text('{"stand": "2026-11-20", "preise": {"x": {"eur": 1}}}', encoding="utf-8")
+            (t / "dist" / "preise.json").write_text('{"lokal": true}', encoding="utf-8")
+            (t / "dist" / "index.html").write_text("<p>neu</p>", encoding="utf-8")
+            with mock.patch.object(self.v, "WURZEL", t), mock.patch.object(self.v, "SEITEN", t / "seiten"):
+                self.v.spiegeln()
+                self.assertEqual(json.loads((t / "seiten" / "finder-preise.json").read_text(encoding="utf-8")),
+                                 {"stand": None, "preise": {}}, "fehlende Datei: fester Startstand")
+                self.assertFalse((t / "seiten" / "preise.json").exists(), "preise.json nie aus dist")
+                (t / "seiten" / "finder-preise.json").write_text('{"online": 1}', encoding="utf-8")
+                self.v.spiegeln()
+                self.assertEqual((t / "seiten" / "finder-preise.json").read_text(encoding="utf-8"), '{"online": 1}')
+                self.assertTrue((t / "seiten" / "index.html").exists())
+
+    def test_bereitgestellte_daten_pruefen(self):
+        """R3-01: vor dem Commit muss die bereitgestellte finder-daten.json die geprüfte Herkunft tragen und dem eigenen Bau
+        gleichen."""
+        h = "a" * 40
+        gut = json.dumps({"herkunft": h, "kategorien": []})
+        f = self.v.bereitgestellt_fehler
+        self.assertIsNone(f(gut, gut, h))
+        self.assertTrue(f(None, gut, h), "fehlt")
+        self.assertTrue(f("kaputt", gut, h), "kein JSON")
+        self.assertTrue(f(json.dumps({"kategorien": []}), gut, h), "ohne Herkunft (paralleler App-Bau)")
+        self.assertTrue(f(json.dumps({"herkunft": "b" * 40}), json.dumps({"herkunft": "b" * 40}), h), "andere Herkunft")
+        self.assertTrue(f(json.dumps({"herkunft": h, "kategorien": [1]}), gut, h), "anderer Inhalt als der eigene Bau")
+
+    def _lauf(self, schreibe_daten, argv=None, hook_sperrt=False, vor_commit=None, vor=None, waehrend_bau=None,
+              nach=None, vorher=None):
+        """main() gegen echte lokale Test-Repositorys (R4-01/R4-02): Quelle mit origin (bare) und gh-pages; der Bau
+        schreibt in sein Ziel und gleichzeitig ein paralleler App-Bau nach dist/. hook_sperrt: aktiver pre-commit-Hook,
+        der jeden Commit ablehnt (wie der Projekt-Hook im Seitenbaum ohne tests/). vor_commit(seiten): läuft direkt vor
+        jedem commit/commit-tree im Seitenbaum (paralleler Git-Vorgang). vor {git-Befehl: f(seiten, ursprung, eltern)}:
+        läuft direkt vor diesem Befehl im Seitenbaum (R5-02/R5-03). waehrend_bau(quelle): ändert den Arbeitsbaum der
+        Quelle während des Baus, danach wird er zurückgesetzt (R5-04). nach {git-Befehl: f(seiten, ergebnis)}: ersetzt das
+        Ergebnis dieses Befehls im Seitenbaum (R6-01). vorher(quelle, head): läuft direkt vor main (R7-01). Der Bau
+        liest app/seite.txt aus seiner Quelle
+        (wie der echte Bau app/ liest) und schreibt sie in index.html."""
+        sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
+        umgebung = mock.patch.dict(os.environ, sauber, clear=True)
+        umgebung.start(); self.addCleanup(umgebung.stop)
+        t = Path(tempfile.mkdtemp()); self.addCleanup(shutil.rmtree, t, True)
+
+        def g(cwd, *a):
+            return subprocess.run(["git", "-C", str(cwd), *a], check=True, capture_output=True, text=True).stdout.strip()
+        ursprung, quelle, seite = t / "ursprung.git", t / "quelle", t / "seite"
+        g(t, "init", "-q", "--bare", str(ursprung))
+        for r in (quelle, seite):
+            g(t, "init", "-q", str(r))
+            g(r, "config", "user.name", "Test"); g(r, "config", "user.email", "test@example.invalid")
+            g(r, "config", "core.autocrlf", "false")
+        (quelle / ".gitignore").write_text(".veroeffentlichung/\ndist/\n", encoding="utf-8")
+        (quelle / "app").mkdir()
+        (quelle / "app" / "seite.txt").write_text("geprueft", encoding="utf-8")
+        g(quelle, "add", "-A"); g(quelle, "commit", "-q", "-m", "quelle")
+        head = g(quelle, "rev-parse", "HEAD")
+        g(quelle, "remote", "add", "origin", str(ursprung)); g(quelle, "push", "-q", "origin", "HEAD:refs/heads/main")
+        (seite / "uralt.txt").write_text("vorgaenger", encoding="utf-8")
+        g(seite, "add", "-A"); g(seite, "commit", "-q", "-m", "seite davor")   # gh-pages hat einen Vorgänger (R5-03)
+        (seite / "uralt.txt").unlink()
+        (seite / "index.html").write_text("<p>alt</p>", encoding="utf-8")
+        (seite / "alt.js").write_text("// alt", encoding="utf-8")
+        (seite / "preise.json").write_text('{"online": 1}', encoding="utf-8")
+        (seite / "finder-daten.json").write_text(json.dumps({"herkunft": head}), encoding="utf-8")
+        g(seite, "add", "-A"); g(seite, "commit", "-q", "-m", "seite")
+        eltern = g(seite, "rev-parse", "HEAD")
+        g(seite, "push", "-q", str(ursprung), "HEAD:refs/heads/gh-pages")
+        if hook_sperrt:
+            (t / "hooks").mkdir()
+            (t / "hooks" / "pre-commit").write_text("#!/bin/sh\necho 'tests/alle-tests.ps1 fehlt' >&2\nexit 127\n",
+                                                    encoding="utf-8", newline="\n")
+            g(quelle, "config", "core.hooksPath", str(t / "hooks"))
+        (quelle / "dist").mkdir()
+        ziele, seiten = [], quelle / ".veroeffentlichung"
+
+        def bau(wurzel, daten_herkunft, ziel):
+            ziele.append(ziel)
+            z = Path(ziel)
+            (z / "finder").mkdir(parents=True, exist_ok=True)
+            if waehrend_bau:
+                waehrend_bau(quelle)
+            (z / "index.html").write_text("<p>" + (Path(wurzel) / "app" / "seite.txt").read_text(encoding="utf-8")
+                                          + "</p>", encoding="utf-8")
+            (quelle / "app" / "seite.txt").write_text("geprueft", encoding="utf-8")   # Arbeitsbaum wieder sauber
+            (z / "finder" / "a.js").write_text("// neu", encoding="utf-8")
+            (z / "preise.json").write_text('{"lokal": 1}', encoding="utf-8")   # nie aus dem Bau (R2-01)
+            (z / "finder-daten.json").write_text(schreibe_daten(daten_herkunft), encoding="utf-8")
+            (quelle / "dist" / "finder-daten.json").write_text('{"kategorien": []}', encoding="utf-8")   # paralleler Bau
+            return "v1"
+        echt = self.v.git
+
+        def git(*a, **kw):
+            if a and Path(kw.get("cwd") or "") == seiten:
+                if vor_commit and a[0] in ("commit", "commit-tree"):
+                    vor_commit(seiten)
+                if vor and a[0] in vor:
+                    vor[a[0]](seiten, ursprung, eltern)
+                if nach and a[0] in nach:
+                    return nach[a[0]](seiten, echt(*a, **kw))
+            return echt(*a, **kw)
+        # Bau im Prozess aus dem Arbeitsbaum (alter Weg) oder als eigener Lauf aus der Kopie des Commits (R5-04)
+        with mock.patch.object(self.v, "WURZEL", quelle), mock.patch.object(self.v, "SEITEN", seiten), \
+             mock.patch.object(self.v, "git", side_effect=git), \
+             mock.patch.object(app_bauen, "baue", side_effect=lambda daten_herkunft=None, ziel=None:
+                               bau(quelle, daten_herkunft, ziel)), \
+             mock.patch.object(self.v, "app_bau_starten", create=True, side_effect=lambda kopie, ziel, h:
+                               bau(kopie, h, ziel)):
+            if vorher:
+                vorher(quelle, head)
+            code = self.v.main(["--stand", head] if argv is None else argv)
+        r = subprocess.run(["git", "-C", str(ursprung), "rev-parse", "gh-pages"], capture_output=True, text=True)
+        oben = r.stdout.strip()
+        zeige = lambda pfad: subprocess.run(["git", "-C", str(ursprung), "show", f"gh-pages:{pfad}"],
+                                            capture_output=True, text=True)
+        return dict(code=code, ziele=ziele, quelle=quelle, seiten=seiten, head=head, eltern=eltern, oben=oben,
+                    zeige=zeige, g=g, ursprung=ursprung)
+
+    @staticmethod
+    def _gut(h):
+        return json.dumps({"herkunft": h, "kategorien": []})
+
+    def test_baut_in_eigenes_verzeichnis(self):
+        """R3-01: ein paralleler App-Bau in dist/ gelangt nicht in den Seitenbaum (Trockenlauf prüft den Baum)."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        self.assertEqual(e["code"], 0)
+        self.assertEqual(len(e["ziele"]), 1)
+        self.assertIsNotNone(e["ziele"][0], "Bau mit eigenem Ziel")
+        self.assertNotEqual(Path(e["ziele"][0]).resolve(), (e["quelle"] / "dist").resolve(), "nicht das gemeinsame dist/")
+        self.assertEqual(json.loads((e["seiten"] / "finder-daten.json").read_text(encoding="utf-8"))["herkunft"], e["head"])
+        self.assertEqual(e["oben"], e["eltern"], "trocken: nichts gepusht")
+
+    def test_falsche_herkunft_im_bau_bricht_ab(self):
+        e = self._lauf(lambda h: json.dumps({"kategorien": []}))
+        self.assertEqual(e["code"], 1, "Datei ohne geprüfte Herkunft wird nicht bereitgestellt")
+        self.assertEqual(e["oben"], e["eltern"], "nichts gepusht")
+
+    def test_commit_genau_der_gepruefte_baum(self):
+        """R4-01: gepusht wird genau der geprüfte Baum auf dem geprüften Elterncommit, als feste Commit-ID."""
+        e = self._lauf(self._gut)
+        self.assertEqual(e["code"], 0)
+        self.assertNotEqual(e["oben"], e["eltern"])
+        self.assertEqual(e["g"](e["ursprung"], "rev-parse", "gh-pages^"), e["eltern"], "Elterncommit = geprüfter Stand")
+        self.assertEqual(json.loads(e["zeige"]("finder-daten.json").stdout)["herkunft"], e["head"])
+        self.assertEqual(e["zeige"]("preise.json").stdout, '{"online": 1}', "Preisdatei von gh-pages bleibt")
+        self.assertEqual(e["zeige"]("finder-preise.json").stdout.strip(), '{"stand": null, "preise": {}}')
+        self.assertEqual(e["zeige"]("finder/a.js").stdout, "// neu")
+        self.assertNotEqual(e["zeige"]("alt.js").returncode, 0, "alte Datei entfernt")
+        self.assertEqual(e["g"](e["seiten"], "rev-parse", "HEAD"), e["oben"], "Seitenbaum steht auf dem Commit")
+        self.assertEqual(e["g"](e["seiten"], "status", "--porcelain"), "", "Seitenbaum sauber")
+
+    def test_indexaenderung_nach_pruefung_gelangt_nicht_in_den_commit(self):
+        """R4-01: ein paralleler Git-Vorgang stellt nach der Prüfung eine andere finder-daten.json bereit."""
+        def fremd(seiten):
+            (seiten / "finder-daten.json").write_text('{"kategorien": ["fremd"]}', encoding="utf-8")
+            subprocess.run(["git", "-C", str(seiten), "add", "-A"], check=True, capture_output=True)
+        e = self._lauf(self._gut, vor_commit=fremd)
+        self.assertEqual(e["code"], 0)
+        self.assertEqual(json.loads(e["zeige"]("finder-daten.json").stdout)["herkunft"], e["head"],
+                         "gepusht ist der geprüfte Inhalt, nicht der später bereitgestellte")
+
+    def test_aktiver_hook_verhindert_den_seitencommit_nicht(self):
+        """R4-02: der Projekt-Hook (tests/ fehlt im Seitenbaum) blockiert den Seitencommit nicht."""
+        e = self._lauf(self._gut, hook_sperrt=True)
+        self.assertEqual(e["code"], 0)
+        self.assertEqual(json.loads(e["zeige"]("finder-daten.json").stdout)["herkunft"], e["head"])
+
+    def test_baum_fehler(self):
+        """R4-01/R5-02: der Baum muss genau dem Soll gleichen (keine fremde, fehlende oder abweichende Datei; Modus, Typ
+        und Objekt-ID gemeinsam)."""
+        f = self.v.baum_fehler
+        d = lambda z: ("100644", "blob", z * 40)
+        soll = {"index.html": d("1"), "finder-daten.json": d("2")}
+        self.assertEqual(f(dict(soll), soll), [])
+        self.assertTrue(f({**soll, "fremd.js": d("3")}, soll))
+        self.assertTrue(f({"index.html": d("1")}, soll))
+        self.assertTrue(f({**soll, "index.html": d("9")}, soll))
+        self.assertTrue(f({**soll, "index.html": ("160000", "commit", "1" * 40)}, soll), "Untermodul statt Datei")
+        self.assertTrue(f({**soll, "index.html": ("120000", "blob", "1" * 40)}, soll), "Link mit gleicher Blob-ID")
+        self.assertTrue(f({**soll, "index.html": ("100755", "blob", "1" * 40)}, soll), "ausführbar")
+        self.assertEqual(self.v.blob_sha(b""), "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391", "Git-Objekt-ID der leeren Datei")
+
+    def test_moduswechsel_bei_gleicher_blob_id_bricht_ab(self):
+        """R5-02: ein fremder Vorgang macht index.html vor write-tree zum symbolischen Link mit gleicher Blob-ID."""
+        def link(seiten, ursprung, eltern):
+            r = lambda *a: subprocess.run(["git", "-C", str(seiten), *a], check=True, capture_output=True,
+                                          text=True).stdout.strip()
+            r("update-index", "--cacheinfo", "120000," + r("rev-parse", ":index.html") + ",index.html")
+        e = self._lauf(self._gut, vor={"write-tree": link})
+        self.assertEqual(e["code"], 1, "Moduswechsel wird erkannt")
+        self.assertEqual(e["oben"], e["eltern"], "nichts gepusht")
+
+    def test_push_nur_auf_den_geprueften_elterncommit(self):
+        """R5-03: wird gh-pages vor dem Push zurückgesetzt oder gelöscht, wird nichts gepusht (Lease auf den Elterncommit)."""
+        eingriffe = {
+            "zurueckgesetzt": lambda s, u, e: subprocess.run(["git", "-C", str(u), "update-ref", "refs/heads/gh-pages",
+                                                              e + "^"], check=True, capture_output=True),
+            "geloescht": lambda s, u, e: subprocess.run(["git", "-C", str(u), "update-ref", "-d", "refs/heads/gh-pages"],
+                                                        check=True, capture_output=True)}
+        for name, eingriff in eingriffe.items():
+            with self.subTest(name):
+                e = self._lauf(self._gut, vor={"push": eingriff})
+                self.assertEqual(e["code"], 1, "Push abgelehnt")
+                r = subprocess.run(["git", "-C", str(e["ursprung"]), "rev-parse", "--verify", "-q", "gh-pages"],
+                                   capture_output=True, text=True)
+                if name == "geloescht":
+                    self.assertNotEqual(r.returncode, 0, "gh-pages nicht neu angelegt")
+                else:
+                    self.assertEqual(r.stdout.strip(), e["g"](e["ursprung"], "rev-parse", e["eltern"] + "^"),
+                                     "gh-pages bleibt auf dem Vorgänger")
+
+    def test_bau_liest_genau_den_geprueften_commit(self):
+        """R5-04: eine vorübergehende Änderung im Arbeitsbaum während des Baus gelangt nicht auf gh-pages."""
+        e = self._lauf(self._gut, waehrend_bau=lambda q: (q / "app" / "seite.txt").write_text("fremd", encoding="utf-8"))
+        self.assertEqual(e["code"], 0)
+        self.assertEqual(e["zeige"]("index.html").stdout, "<p>geprueft</p>", "gebaut aus dem geprüften Commit")
+
+    def test_kopie_holen_entspricht_dem_commit(self):
+        """R5-04: die Bauquelle ist genau der Inhalt des Commits (ohne Arbeitsbaumänderung, ohne unversionierte Dateien)."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        (e["quelle"] / "app" / "seite.txt").write_text("fremd", encoding="utf-8")
+        (e["quelle"] / "app" / "neu.txt").write_text("unversioniert", encoding="utf-8")
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
+            self.v.kopie_holen(e["head"], k)
+            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprueft")
+            self.assertFalse((Path(k) / "app" / "neu.txt").exists())
+            self.assertFalse((Path(k) / ".veroeffentlichung").exists())
+
+    def test_kopie_holen_ohne_lokale_attribute(self):
+        """R5-04: export-ignore in .git/info/attributes lässt keine Datei des Commits aus der Bauquelle fallen."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        info = e["quelle"] / ".git" / "info"; info.mkdir(exist_ok=True)
+        (info / "attributes").write_text("app/seite.txt export-ignore\n", encoding="utf-8")
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
+            self.v.kopie_holen(e["head"], k)
+            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprueft")
+
+    def test_kopie_nur_normale_dateien(self):
+        """R5-04: ein Stand mit Link (120000) wird nicht als Bauquelle ausgepackt."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        g, q = e["g"], e["quelle"]
+        g(q, "update-index", "--add", "--cacheinfo", "120000," + g(q, "rev-parse", "HEAD:app/seite.txt") + ",app/link")
+        stand = g(q, "commit-tree", g(q, "write-tree"), "-p", e["head"], "-m", "link")
+        g(q, "reset", "-q")
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", q):
+            with self.assertRaises(SystemExit):
+                self.v.kopie_holen(stand, k)
+
+    def test_kopie_fehler(self):
+        """R5-04: Abgleich der Kopie mit dem Commit (Pfade und Objekt-IDs, nichts zusätzlich)."""
+        with tempfile.TemporaryDirectory() as k:
+            k = Path(k); (k / "a").mkdir(); (k / "a" / "x.txt").write_bytes(b"x")
+            soll = {"a/x.txt": ("100644", "blob", self.v.blob_sha(b"x"))}
+            f = self.v.kopie_fehler
+            self.assertEqual(f(k, soll), [])
+            self.assertTrue(f(k, {**soll, "b.txt": ("100644", "blob", self.v.blob_sha(b"b"))}), "fehlt")
+            self.assertTrue(f(k, {"a/x.txt": ("100644", "blob", self.v.blob_sha(b"y"))}), "anderer Inhalt")
+            (k / "fremd.txt").write_bytes(b"f")
+            self.assertTrue(f(k, soll), "zusätzlich")
+
+    def test_leerer_unterbaum_bricht_ab(self):
+        """R6-01: ein zusätzlicher leerer Unterbaum im geschriebenen Seitenbaum (Plumbing) wird erkannt."""
+        def leer(seiten, ergebnis):
+            # Bytes und -z: der Textmodus von subprocess schreibt unter Windows CRLF in die Eingabe
+            r = lambda *a, eingabe=b"": subprocess.run(["git", "-C", str(seiten), *a], check=True, capture_output=True,
+                                                       input=eingabe).stdout
+            leerbaum = r("mktree", "-z").strip()
+            zeilen = r("ls-tree", "-z", ergebnis.stdout.strip()) + b"040000 tree " + leerbaum + b"\tleer\0"
+            ergebnis.stdout = r("mktree", "-z", eingabe=zeilen).decode("ascii")
+            return ergebnis
+        e = self._lauf(self._gut, nach={"write-tree": leer})
+        self.assertEqual(e["code"], 1, "Verzeichniseintrag außerhalb des eigenen Baus wird erkannt")
+        self.assertEqual(e["oben"], e["eltern"], "nichts gepusht")
+
+    @staticmethod
+    def _stand_mit(q, eltern, eintraege):
+        """Commit auf eltern, dessen Baum der von eltern ist plus eintraege {Pfad (Bytes): (Modus, Inhalt)}; über einen
+        eigenen Index (Bytes und -z, unveränderte Pfade). Rückgabe Commit-ID."""
+        with tempfile.TemporaryDirectory() as t:
+            env = {**os.environ, "GIT_INDEX_FILE": str(Path(t) / "index")}
+            r = lambda *a, eingabe=None: subprocess.run(["git", "-C", str(q), *a], check=True, capture_output=True,
+                                                         input=eingabe, env=env).stdout.strip()
+            r("read-tree", eltern)
+            zeilen = b"".join(m.encode() + b" " + r("hash-object", "-w", "--stdin", eingabe=inhalt) + b"\t" + p + b"\0"
+                              for p, (m, inhalt) in eintraege.items())
+            r("update-index", "-z", "--add", "--index-info", eingabe=zeilen)
+            return r("commit-tree", r("write-tree").decode(), "-p", eltern, "-m", "stand", eingabe=b"").decode()
+
+    def _ersetzt(self, q, head):
+        """R7-01: lokale Ersetzungsreferenz, die head durch einen Commit mit anderem app/seite.txt ersetzt."""
+        fremd = self._stand_mit(q, head, {b"app/seite.txt": ("100644", b"fremd")})
+        subprocess.run(["git", "-C", str(q), "replace", head, fremd], check=True, capture_output=True)
+        r = subprocess.run(["git", "-C", str(q), "show", f"{head}:app/seite.txt"], check=True, capture_output=True)
+        self.assertEqual(r.stdout, b"fremd", "Vorbedingung: Git liest über die Ersetzung")
+
+    def test_kopie_ohne_ersetzungsreferenzen(self):
+        """R7-01: eine lokale Ersetzungsreferenz (git replace) tauscht die Bauquelle nicht aus."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        self._ersetzt(e["quelle"], e["head"])
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
+            self.v.kopie_holen(e["head"], k)
+            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprueft")
+
+    def test_lauf_ohne_ersetzungsreferenzen(self):
+        """R7-01: der ganze Lauf (Stand, Kopie, Seitenbaum) arbeitet mit den Originalobjekten des geprüften Commits."""
+        e = self._lauf(self._gut, vorher=self._ersetzt)
+        self.assertEqual(e["code"], 0)
+        self.assertEqual(e["zeige"]("index.html").stdout, "<p>geprueft</p>", "gebaut aus dem Originalinhalt")
+
+    def test_kopie_nicht_ausfuehrbar(self):
+        """R7-02: ein Stand mit ausführbarer Datei (100755) wird nicht ausgepackt (das Ausführungsbit ginge verloren)."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        stand = self._stand_mit(e["quelle"], e["head"], {b"app/lauf.sh": ("100755", b"#!/bin/sh\n")})
+        with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
+            with self.assertRaises(SystemExit):
+                self.v.kopie_holen(stand, k)
+
+    def _stand_roh(self, q, head, name):
+        """Commit auf head mit zusätzlicher Datei app/<name> (Bytes), Baum direkt per mktree gebildet: Git für Windows
+        lässt solche Pfade im Index aus ("Ignoring path"), mktree nimmt sie. Prüft die Vorbedingung."""
+        r = lambda *a, eingabe=None: subprocess.run(["git", "-C", str(q), *a], check=True, capture_output=True,
+                                                    input=eingabe).stdout
+        blob = r("hash-object", "-w", "--stdin", eingabe=b"x").strip()
+        app = r("mktree", "-z", eingabe=r("ls-tree", "-z", head + ":app") + b"100644 blob " + blob
+                + b"\t" + name + b"\0").strip()
+        wurzel = r("mktree", "-z", eingabe=b"".join(z + b"\0" for z in r("ls-tree", "-z", head).split(b"\0")
+                                                    if z and not z.endswith(b"\tapp"))
+                   + b"040000 tree " + app + b"\tapp\0").strip().decode()
+        stand = r("commit-tree", wurzel, "-p", head, "-m", "roh", eingabe=b"").strip().decode()
+        self.assertIn(b"\tapp/" + name + b"\0", r("ls-tree", "-r", "-z", stand), f"Vorbedingung: {name!r} im Stand")
+        return stand
+
+    def test_pfade_unveraendert_und_ohne_steuerzeichen(self):
+        """R7-03/R8-02: Pfade kommen unverändert aus dem Baum (Umlaute); Steuer- und Formatzeichen (C0 \\r, C1 U+0085,
+        Richtungswechsel U+202E) brechen ab statt durchzugehen oder zu \\n zu werden."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        q = e["quelle"]
+        umlaut = self._stand_mit(q, e["head"], {"app/größe.txt".encode("utf-8"): ("100644", b"g")})
+        self.assertIn("app/größe.txt", self.v.baum_eintraege(umlaut, q))
+        for name in ("a\rb.txt", "a\u0085b.txt", "a‮b.txt"):
+            with self.subTest(name=name):
+                stand = self._stand_roh(q, e["head"], name.encode("utf-8"))
+                with self.assertRaises(SystemExit):
+                    self.v.baum_eintraege(stand, q)
+                with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", q):
+                    with self.assertRaises(SystemExit):
+                        self.v.kopie_holen(stand, k)
+
+    def test_windows_pfade_vor_dem_schreiben(self):
+        """R8-03: unter Windows unzulässige oder kollidierende Namen brechen ab, bevor eine Datei geschrieben wird."""
+        e = self._lauf(self._gut, argv=["--trocken"])
+        q = e["quelle"]
+        for name in (b"b\\c.txt", b"..\\raus.txt", b"a.", b"leer ", b"x:y.txt", b"a<b.txt", b'a"b.txt', b"a|b.txt",
+                     b"a?b.txt", b"a*b.txt", b"nul.txt", b"CON", b"com1.json", b"Seite.txt",
+                     b"z" * 256, b"veroef~1.py"):   # R9-01 Komponente > 255, R9-02 8.3-Kurzname
+            with self.subTest(name=name):
+                stand = self._stand_roh(q, e["head"], name)
+                with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", q):
+                    with self.assertRaises(SystemExit):
+                        self.v.kopie_holen(stand, k)
+                    self.assertEqual(list(Path(k).rglob("*")), [], "nichts geschrieben")
+        f = self.v.windows_pfad_fehler
+        self.assertEqual(f([".gitignore", "app/größe.txt", "a.b/c.json", "console.txt", "nulli.txt"]), [])
+        self.assertTrue(f(["app/A/x.txt", "app/a/y.txt"]), "Ordner unterscheiden sich nur in der Schreibweise")
+        # R9-01: Grenze 255 UTF-16-Codeeinheiten je Komponente (ä = 1, 😀 = 2 Einheiten)
+        self.assertEqual(f(["app/" + "ä" * 255, "a" * 255 + "/x.txt"]), [])
+        self.assertTrue(f(["app/" + "😀" * 128]), "256 UTF-16-Einheiten")
+        self.assertTrue(f(["z" * 256 + "/x.txt"]), "zu langer Ordnername")
+        # R9-02: 8.3-Kurzname kann dieselbe Datei treffen wie der lange Name
+        self.assertTrue(f(["werkzeuge/veroeffentlichen.py", "werkzeuge/veroef~1.py"]))
+        self.assertTrue(f(["progra~12/x.txt"]), "Kurzname als Ordner")
+        self.assertEqual(f(["a~b.txt", "app/~x.txt"]), [], "Tilde ohne Ziffer ist kein Kurzname")
+
+    def test_laufzeitkonfiguration_bleibt(self):
+        """R8-01: vorhandene Git-Laufzeitkonfiguration (GIT_CONFIG_COUNT/KEY/VALUE, z. B. safe.directory in CI) bleibt
+        in jedem Git-Aufruf erhalten. Ohne die GIT_*-Variablen des Aufrufers: im Commit-Hook ist GIT_DIR gesetzt, und
+        `git init` schriebe dann core.bare=true in die Konfiguration des echten Repos."""
+        probe = {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "kb.probe", "GIT_CONFIG_VALUE_0": "ja"}
+        sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
+        import herkunft
+        with tempfile.TemporaryDirectory() as t, mock.patch.dict(os.environ, {**sauber, **probe}, clear=True):
+            subprocess.run(["git", "init", "-q", t], check=True)
+            self.assertEqual(self.v.git("config", "--get", "kb.probe", cwd=t).stdout.strip(), "ja")
+            self.assertEqual({**os.environ, **herkunft.OHNE_ERSATZ}.get("GIT_CONFIG_KEY_0"), "kb.probe")
+
+    def test_ohne_stand_kein_push(self):
+        with mock.patch.object(self.v, "stand_lesen", return_value=("a" * 40, True, True)), \
+             mock.patch.object(self.v, "arbeitsbaum") as ab, mock.patch.object(app_bauen, "baue") as bau, \
+             mock.patch.object(self.v, "baue_aus_stand", create=True) as bau2:
+            self.assertEqual(self.v.main([]), 1)
+            ab.assert_not_called(); bau.assert_not_called(); bau2.assert_not_called()
+
+
+class Herkunft(unittest.TestCase):
+    """R2-02/R2-07: finder-daten.json wird nur durch einen Stand ersetzt, der die Online-Herkunft enthält."""
+    A, B = "a" * 40, "b" * 40
+
+    def setUp(self):
+        import herkunft
+        self.h = herkunft
+
+    def test_regeln(self):
+        # ist_vorfahr(x, x) = Commit x vorhanden (git merge-base --is-ancestor x x)
+        vorfahr = lambda alt, neu: (alt, neu) in {(self.A, self.B), (self.A, self.A), (self.B, self.B)}
+        f = lambda online, neu: self.h.fehler(online, neu, vorfahr)
+        self.assertIsNone(f(None, self.B), "keine Online-Datei")
+        # R3-05: neuer Stand wird immer geprüft (Format und vorhandenes Commit), auch ohne oder mit unlesbarer Online-Datei
+        U = "c" * 40
+        self.assertTrue(f(None, "xyz"), "ohne Online-Datei, neuer Stand ungültig")
+        self.assertTrue(f("kaputt", "B" * 40), "unlesbare Online-Datei, neuer Stand ungültig")
+        self.assertTrue(f(None, U), "ohne Online-Datei, neuer Stand unbekannt")
+        self.assertTrue(f(json.dumps({"herkunft": U}), U), "gleicher unbekannter SHA")
+        self.assertIsNone(f("kaputt", self.B), "unlesbare Online-Datei darf ersetzt werden")
+        self.assertIsNone(f(json.dumps({"herkunft": self.B}), self.B), "gleicher Stand")
+        self.assertIsNone(f(json.dumps({"herkunft": self.A}), self.B), "Online ist Vorfahr")
+        self.assertTrue(f(json.dumps({"herkunft": self.B}), self.A), "Online ist neuer")
+        self.assertTrue(f(json.dumps({"stand": "2026-11-22"}), self.B), "Online ohne Herkunft")
+        self.assertTrue(f(json.dumps({"herkunft": "<script>"}), self.B), "ungültige Herkunft")
+        self.assertTrue(f(json.dumps({"herkunft": self.A}), None), "neuer Stand ohne Herkunft")
+
+    def test_echtes_repo_und_cli(self):
+        sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
+        with mock.patch.dict(os.environ, sauber, clear=True), tempfile.TemporaryDirectory() as t:
+            t = Path(t)
+            g = lambda *a: subprocess.run(["git", "-C", str(t), *a], check=True, capture_output=True, text=True).stdout.strip()
+            g("init", "-q"); g("config", "user.name", "Test"); g("config", "user.email", "test@example.invalid")
+            g("commit", "-q", "--allow-empty", "-m", "a"); a = g("rev-parse", "HEAD")
+            g("commit", "-q", "--allow-empty", "-m", "b"); b = g("rev-parse", "HEAD")
+            online = t / "online.json"
+            cli = lambda neu: subprocess.run([sys.executable, "-I", str(WURZEL / "werkzeuge" / "herkunft.py"), "pruefen",
+                                              str(online), neu, str(t)], capture_output=True, text=True).returncode
+            self.assertEqual(cli(b), 0, "ohne Online-Datei")
+            online.write_text(json.dumps({"herkunft": a}), encoding="utf-8")
+            self.assertEqual(cli(b), 0)
+            online.write_text(json.dumps({"herkunft": b}), encoding="utf-8")
+            self.assertEqual(cli(a), 1, "alter Lauf darf neueren Stand nicht ersetzen")
+            online.write_text(json.dumps({"herkunft": "c" * 40}), encoding="utf-8")
+            self.assertEqual(cli(b), 1, "unbekannte Herkunft")
+            online.write_text(json.dumps({"herkunft": "c" * 40}), encoding="utf-8")
+            self.assertEqual(cli("c" * 40), 1, "R3-05: gleicher unbekannter SHA")
+            online.unlink()
+            self.assertEqual(cli("d" * 40), 1, "R3-05: ohne Online-Datei, unbekannter neuer SHA")
+            self.assertEqual(cli("main"), 1, "R3-05: ohne Online-Datei, kein SHA")
+            # R4-05: die Objekt-ID eines annotierten Tags ist kein Commit, weder als neuer Stand noch als Online-Herkunft
+            g("tag", "-a", "t1", "-m", "Tag", b); tag = g("rev-parse", "t1")
+            self.assertNotEqual(tag, b)
+            self.assertEqual(cli(tag), 1, "R4-05: Tag-ID als neuer Stand")
+            online.write_text(json.dumps({"herkunft": tag}), encoding="utf-8")
+            self.assertEqual(cli(b), 1, "R4-05: Tag-ID als Online-Herkunft")
+            # R7-01: eine lokale Ersetzung von b durch einen Commit ohne Vorfahr a ändert die Prüfung nicht
+            x = g("commit-tree", g("rev-parse", f"{b}^{{tree}}"), "-m", "ohne Vorfahr")
+            g("replace", b, x)
+            self.assertNotEqual(subprocess.run(["git", "-C", str(t), "merge-base", "--is-ancestor", a, b]).returncode, 0,
+                                "Vorbedingung: Git folgt der Ersetzung")
+            self.assertTrue(self.h.git_vorfahr(t)(a, b), "R7-01: Vorfahr nach den Originalobjekten")
+            online.write_text(json.dumps({"herkunft": a}), encoding="utf-8")
+            self.assertEqual(cli(b), 0, "R7-01: CLI nach den Originalobjekten")
+            # R7-01 (gleiche Klasse): ein Graft gibt einem Commit einen fremden Elterncommit
+            c = g("commit-tree", g("rev-parse", f"{a}^{{tree}}"), "-m", "fremd")
+            (t / ".git" / "info").mkdir(exist_ok=True)
+            (t / ".git" / "info" / "grafts").write_text(f"{b} {c}\n", encoding="utf-8")
+            self.assertEqual(subprocess.run(["git", "-C", str(t), "-c", "advice.graftFileDeprecated=false", "merge-base",
+                                             "--is-ancestor", c, b], env={**os.environ, "GIT_NO_REPLACE_OBJECTS": "1"},
+                                            capture_output=True).returncode, 0, "Vorbedingung: Git folgt dem Graft")
+            self.assertFalse(self.h.git_vorfahr(t)(c, b), "R7-01: Graft macht keinen fremden Commit zum Vorfahr")
+            online.write_text(json.dumps({"herkunft": c}), encoding="utf-8")
+            self.assertEqual(cli(b), 1, "R7-01: CLI ohne Grafts")
+
+    def test_bau_schreibt_herkunft(self):
+        import datenbank
+        with tempfile.TemporaryDirectory() as t:
+            z = Path(t) / "d.json"
+            _, fehler, _ = datenbank.bauen(z, herkunft=self.A)
+            self.assertEqual(fehler, [])
+            self.assertEqual(json.loads(z.read_text(encoding="utf-8"))["herkunft"], self.A)
+            with self.assertRaises(ValueError):
+                datenbank.bauen(z, herkunft="main")
+
+    def test_workflow_prueft_herkunft_vor_jedem_kopieren(self):
+        wf = (WURZEL / ".github" / "workflows" / "finder-daten.yml").read_text(encoding="utf-8")
+        self.assertIn("fetch-depth: 0", wf)
+        self.assertIn('--herkunft "$GITHUB_SHA"', wf)
+        schritt = wf.split("Auf gh-pages veröffentlichen", 1)[1].split("- name:", 1)[0]
+        kopien = schritt.count('cp "$RUNNER_TEMP/finder-daten.json"')
+        self.assertEqual(kopien, 2)
+        for teil in schritt.split('cp "$RUNNER_TEMP/finder-daten.json"')[:-1]:
+            letzte = teil.rsplit("git worktree add", 1)[-1].rsplit("git reset", 1)[-1]
+            self.assertIn("werkzeuge/herkunft.py pruefen", letzte, "Prüfung direkt vor jedem Kopieren")
 
 
 class Rahmen(unittest.TestCase):

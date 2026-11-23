@@ -1,0 +1,117 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Commit c4360f125b22d83c860e60ee7bab6055a99c7f95 ist für gh-pages gesperrt. F-05, F-06, F-08 und F-11 bleiben offen.",
+  "befunde": [
+    {
+      "id": "R2-01",
+      "schwere": "schwer",
+      "titel": "Die Veröffentlichung kann lokale Preisdateien außerhalb des geprüften Commits übernehmen",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 79,
+      "beleg": "Das Fertigkriterium lautet „pusht nur einen sauberen, geprüften Stand nach gh-pages“. `dist/finder-preise.json` ist im Prüfworktree vorhanden und wird von Git ignoriert. `app_bauen.py:135` behält diese Datei beim Build. Fehlt sie auf gh-pages, übernimmt `spiegeln()` die vorhandene lokale Datei und Zeile 109 nimmt sie in den Seitencommit auf. Die Sauberkeitsprüfung erfasst sie nicht.",
+      "auswirkung": "Bei der ersten Finder-Veröffentlichung können lokal verbliebene Preiswerte aus einem anderen Lauf öffentlich werden. Der genehmigte Commit legt den veröffentlichten Preisstand dann nicht fest.",
+      "vorschlag": "Den geprüften Commit in ein frisches Ausgabeverzeichnis bauen. Bestehende Preisdateien aus gh-pages erhalten und fehlende ausschließlich aus einem definierten Startstand erzeugen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-02",
+      "schwere": "schwer",
+      "titel": "Eine neuere Finder-Datei kann bei gleichem Tagesstempel überschrieben werden",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 53,
+      "beleg": "Das Fertigkriterium lautet „ohne neuere `finder-daten.json` zu ersetzen“. `datenbank.py:304` bildet `stand` aus dem höchsten Tagesdatum aller Kategorien. In der Speicherprobe hatten beide Dateien denselben `stand`, der Online-Bestand enthielt einen zusätzlichen Eintrag. `daten_aelter()` lieferte `False`, sodass Zeile 102 die ältere Datei spiegeln würde. Ein regulärer Fast-Forward-Push schützt nur vor Änderungen seit der gewählten gh-pages-Basis.",
+      "auswirkung": "Eine App-Veröffentlichung kann bereits veröffentlichte Modelle, Datenblattwerte oder Preise zurücksetzen. Das ist auch möglich, wenn sich nur eine Kategorie ändert und eine andere Kategorie weiterhin das höchste Datum liefert.",
+      "vorschlag": "Die Datenherkunft eindeutig mitführen und vor dem Ersetzen prüfen. Bei abweichendem Inhalt und ungeklärter Reihenfolge den aktuellen gh-pages-Datenstand erhalten oder abbrechen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-03",
+      "schwere": "schwer",
+      "titel": "Der Service Worker speichert weiterhin Finder-Daten, die die Startseite lahmlegen",
+      "datei": "app/finder/bewertung.js",
+      "zeile": 403,
+      "beleg": "Auslöser war eine ansonsten gültige Beispieldatei mit einem Objekt statt eines Datums in `stand`. Die Speicherprobe mit `{ \"toString\": null }` bestätigte, dass `datenPruefen()` die Datei durchlässt und `app/sw.js:58` sie über die gültige Kopie schreibt. `app/finder/finder.js:129` warf beim Formatieren des Datums einen `TypeError`. Der Hauptbereich blieb leer. Soll ist die letzte brauchbare Kopie oder die vorhandene Fehlermeldung.",
+      "auswirkung": "Eine einzelne beschädigte Antwort kann den Einstieg online und anschließend auch offline blockieren.",
+      "vorschlag": "Optionale Metadaten und tatsächlich gerenderte Modellwerte anhand ihrer Typen prüfen. Die Regression mit derselben beschädigten Antwort in DOM und Service Worker testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-04",
+      "schwere": "schwer",
+      "titel": "Die robots.txt-Auswertung bevorzugt in einem Fall die kürzere Freigabe",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 178,
+      "beleg": "Das Fertigkriterium lautet „robots.txt, 403/429 → Abbruch, nie umgangen“. Eine lokale Parserprobe mit `Disallow: /de/category/px` und `Allow: /de/category/%70` gab `/de/category/px` frei. `%70` steht für `p`, sodass die normalisierte Verbotsregel spezifischer ist. Der Parser gleicht den dekodierten Text ab, bestimmt den Vorrang aber mit der Länge der Rohregel. [RFC 9309, Abschnitt 2.2.2](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.2.2)",
+      "auswirkung": "Die Entdeckung kann eine Kategorieseite trotz passender Verbotsregel abrufen.",
+      "vorschlag": "Pfade und Regeln für Vergleich und Längenbestimmung gleich normalisieren. Prozentkodierte reservierte Zeichen und kodierte Literale wie `%2A` von echten Platzhaltern unterscheiden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-05",
+      "schwere": "schwer",
+      "titel": "Ein vorhandener ungültiger Zeitstempel kann die Sechs-Tage-Sperre aufheben",
+      "datei": "werkzeuge/entdeckung.py",
+      "zeile": 198,
+      "beleg": "Das Fertigkriterium lautet „höchstens alle 6 Tage“. Nach einem kürzlichen fehlgeschlagenen Abruf steht nur `versucht` im Ergebnis. Ist dieser Eintrag beschädigt und enthält `\"\"`, `0` oder `false`, meldet `zu_frueh()` in der Speicherprobe jeweils keine Sperre. Außerhalb der Zeitstempelprüfung kann der nächste Lauf bei erlaubtem robots.txt-Pfad erneut abrufen. Soll ist eine Sperre bei unlesbarem Zeitstempel.",
+      "auswirkung": "Ein beschädigter Zeitstempel nach einem Versuch ohne Ergebnis kann einen weiteren Kategorieabruf innerhalb von sechs Tagen freigeben.",
+      "vorschlag": "Fehlende und vorhandene Felder anhand des Schlüssels unterscheiden. Bei jedem vorhandenen, ungültigen Wert sperren und den konkreten Eintrag melden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-06",
+      "schwere": "schwer",
+      "titel": "Zwei Prozesse können beim Aufräumen einer verwaisten Datei beide die Laufsperre erhalten",
+      "datei": "werkzeuge/entdeckung.py",
+      "zeile": 221,
+      "beleg": "Das Fertigkriterium lautet „höchstens alle 6 Tage“. In einer Speicherprobe mit gesteuerter Reihenfolge sahen zwei Läufe dieselbe alte Sperre. Lauf A ersetzte sie und erhielt die Sperre. Danach löschte Lauf B den Pfad anhand seiner früheren Altersprüfung und erhielt ebenfalls die Sperre. Beide können so den alten Ergebnisstand vor der ersten Reservierung lesen und dieselbe Kategorie abrufen. Soll ist genau ein Inhaber.",
+      "auswirkung": "Parallele Neustarts nach einem Abbruch können den Kategorieabruf verdoppeln und sich beim Speichern gegenseitig den Kandidatenstand überschreiben.",
+      "vorschlag": "Eine vom Betriebssystem gehaltene Dateisperre verwenden, die beim Prozessende frei wird. Gleichzeitige Wiederaufnahme nach einem Abbruch als Regression testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-07",
+      "schwere": "schwer",
+      "titel": "Ein erneut gestarteter Datenworkflow kann neuere Modelle von Pages entfernen",
+      "datei": ".github/workflows/finder-daten.yml",
+      "zeile": 59,
+      "beleg": "D11 verlangt „nie automatisch löschen“. Auslöser ist der erneute Start eines älteren erfolgreichen Workflow-Laufs, nachdem ein neuerer Lauf ein Modell veröffentlicht hat. Checkout und Build verwenden den Commit des alten Laufs, der Push-Schritt setzt aber auf dem aktuellen gh-pages auf und kopiert die ältere Datei. Der Commit ist dadurch ein Fast-Forward. Auch die neue Abnahme kann grün werden, weil sie gegen den alten Build prüft. Soll ist der Erhalt des neueren Datenstands.",
+      "auswirkung": "Bereits veröffentlichte Modelle und Korrekturen können bis zum nächsten aktuellen Lauf aus dem Finder verschwinden.",
+      "vorschlag": "Die Herkunft des veröffentlichten Finder-Datenstands mitführen und vor dem ersten Push sowie nach jedem erneuten Aufsetzen prüfen. Überholte Läufe vor dem Kopieren beenden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-08",
+      "schwere": "schwer",
+      "titel": "Die neue Statuszeile nennt den Vornamen des Besitzers",
+      "datei": "STATUS.md",
+      "zeile": 40,
+      "beleg": "AGENTS.md verlangt „keine persönlichen Daten (Namen, E-Mail, lokale Pfade, Konto-URLs) in versionierten Dateien“. Die neu hinzugefügte Klammer am Ende des nächsten Schritts nennt den Vornamen des Besitzers.",
+      "auswirkung": "Bei einer späteren Veröffentlichung des Quellzweigs würde der Vorname im öffentlichen Repository stehen.",
+      "vorschlag": "Den Vornamen durch die Rollenbezeichnung „Besitzer“ ersetzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-09",
+      "schwere": "mittel",
+      "titel": "Die Statusansage behandelt ein Modell ohne Note als Punkteempfehlung",
+      "datei": "app/finder/finder.js",
+      "zeile": 434,
+      "beleg": "Für `ohne_note` zeigt die Karte „Keine Note: zu wenig Daten“. Die Live-Region hängt für jede gesetzte Empfehlung `note(r.empfehlung.note) + \" Punkte\"` an. Mit `note === null` entsteht „Empfehlung: …, – Punkte“.",
+      "auswirkung": "Nutzer mit Screenreader erhalten über die Statusansage keinen verständlichen Hinweis auf die fehlende Bewertung.",
+      "vorschlag": "Bei `ohne_note` in der Live-Region „Modell ohne Note“ ansagen und den Punktetext weglassen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "F-01",
+    "F-02",
+    "F-03",
+    "F-04",
+    "F-07",
+    "F-09",
+    "F-10",
+    "F-12",
+    "F-13"
+  ],
+  "pruefgrenzen": "Der Datenbanklauf ergab 301 Modelle, 389 Varianten, Fehler 0 und 56 Warnungen. Die 42 Node-Tests aus `tests/test_*.mjs` bestanden. Der vollständige Sammellauf benötigt Schreibzugriff für Testdateien und Protokoll. Ein separater Web-Push-Testlauf stieß beim Anlegen temporärer Verzeichnisse auf `EPERM`. F-02 ist als Fehlalarm bestätigt. Die öffentlichen Actions-Daten zeigen erfolgreiche Pages-Deployments zu denselben Bot-Commits der Preisabfrage, darunter 859eddcfab59 und e122f59d6d15. Der neue Live-Abnahmeschritt für Finder-Daten wurde im Zielworkflow noch nicht ausgeführt. Die versionierten Dateien entsprachen dem Prüfcommit. Im Arbeitsbaum lagen drei unversionierte Prüfdateien, bei denen `--stand` regulär abbrechen würde."
+}

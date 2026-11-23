@@ -1,0 +1,1808 @@
+{
+ "kategorie": "smartphone",
+ "stand": "2026-11-21",
+ "quellen": {
+  "sam-galaxy-a17-black-128gb-sm-a175fzkbeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a17-black-128gb-sm-a175fzkbeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A17 (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a175fzkbeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a175fzkbeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A175FZKBEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-a17-5g-black-128gb-sm-a176bzkaeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a17-5g-black-128gb-sm-a176bzkaeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A17 5G (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a176bzkaeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a176bzkaeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A176BZKAEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-a18-black-128gb-sm-a185fzkdeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a18-black-128gb-sm-a185fzkdeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A18 (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a185fzkdeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a185fzkdeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A185FZKDEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-a16-5g-blue-black-128gb-sm-a166bzkdeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a16-5g-blue-black-128gb-sm-a166bzkdeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A16 5G (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a166bzkdeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a166bzkdeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A166BZKDEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-a27-5g-black-128gb-sm-a276bzkbeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a27-5g-black-128gb-sm-a276bzkbeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A27 5G (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a276bzkbeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a276bzkbeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A276BZKBEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-a27-5g-black-256gb-sm-a276bzkceub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a27-5g-black-256gb-sm-a276bzkceub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A27 5G (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a276bzkceub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a276bzkceub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A276BZKCEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-a37-5g-awesome-charcoal-128gb-sm-a376bzabeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a37-5g-awesome-charcoal-128gb-sm-a376bzabeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A37 5G (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a376bzabeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a376bzabeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A376BZABEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-a37-5g-awesome-charcoal-256gb-sm-a376bzageub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a37-5g-awesome-charcoal-256gb-sm-a376bzageub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A37 5G (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a376bzageub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a376bzageub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A376BZAGEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A57 5G (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a576bzabeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a576bzabeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A576BZABEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-a57-5g-awesome-gray-256gb-sm-a576bzadeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a57-5g-awesome-gray-256gb-sm-a576bzadeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy A57 5G (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-a576bzadeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-a576bzadeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-A576BZADEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-s25-fe-jetblack-128gb-sm-s731bzkdeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-s/galaxy-s25-fe-jetblack-128gb-sm-s731bzkdeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy S25 FE (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s731bzkdeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s731bzkdeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S731BZKDEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-s25-fe-jetblack-256gb-sm-s731bzkgeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-s/galaxy-s25-fe-jetblack-256gb-sm-s731bzkgeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy S25 FE (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s731bzkgeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s731bzkgeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S731BZKGEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-s26-fe-graphite-128gb-sm-s741bzkdeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-s/galaxy-s26-fe-graphite-128gb-sm-s741bzkdeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy S26 FE (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s741bzkdeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s741bzkdeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S741BZKDEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-s/galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy S26 FE (Spezifikationen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s741bzkgeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s741bzkgeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S741BZKGEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-s26": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-s26/buy/",
+   "titel": "Samsung Deutschland Galaxy S26 (Kaufseite, Display und Speicheroptionen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s942bzvgeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s942bzvgeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S942BZVGEUB",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s942bzvheub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s942bzvheub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S942BZVHEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-s26-plus": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-s26/buy/",
+   "titel": "Samsung Deutschland Galaxy S26 und S26+ (Kaufseite, Display und Speicheroptionen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s947bzvdeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s947bzvdeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S947BZVDEUB",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s947bzvgeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s947bzvgeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S947BZVGEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-s26-ultra": {
+   "url": "https://www.samsung.com/de/smartphones/galaxy-s26-ultra/buy/",
+   "titel": "Samsung Deutschland Galaxy S26 Ultra (Kaufseite, Display und Speicheroptionen)",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s948bzvdeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s948bzvdeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S948BZVDEUB",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-s948bzvgeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-s948bzvgeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-S948BZVGEUB",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2347998": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2347998",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2347998 (Google G4H7L)",
+   "gelesen": "2026-11-21"
+  },
+  "google-store-pixel-10a-technische-daten": {
+   "url": "https://store.google.com/de/product/pixel_10a_specs?hl=de",
+   "titel": "Google Store Pixel 10a Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2347994": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2347994",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2347994 (Google GK2MP)",
+   "gelesen": "2026-11-21"
+  },
+  "google-store-pixel-10-technische-daten": {
+   "url": "https://store.google.com/de/product/pixel_10_specs?hl=de",
+   "titel": "Google Store Pixel 10 Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2347995": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2347995",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2347995 (Google GEHN3)",
+   "gelesen": "2026-11-21"
+  },
+  "google-store-pixel-10-pro-und-pro-xl-technische-daten": {
+   "url": "https://store.google.com/de/product/pixel_10_pro_specs?hl=de",
+   "titel": "Google Store Pixel 10 Pro und Pro XL Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2647668": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2647668",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2647668 (Google GUJ0N)",
+   "gelesen": "2026-11-21"
+  },
+  "google-store-pixel-11-technische-daten": {
+   "url": "https://store.google.com/de/product/pixel_11_specs?hl=de",
+   "titel": "Google Store Pixel 11 Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2647669": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2647669",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2647669 (Google GM45K); Modellnummer GM45K laut Googles Sicherheits- und Rechtshinweisen (support.google.com, Antwort 17033799) = Pixel 11 Pro",
+   "gelesen": "2026-11-21"
+  },
+  "google-store-pixel-11-pro-und-pro-xl-technische-daten": {
+   "url": "https://store.google.com/de/product/pixel_11_pro_specs?hl=de",
+   "titel": "Google Store Pixel 11 Pro und Pro XL Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2647670": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2647670",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2647670 (Google G4HCD); Modellnummer G4HCD laut Googles Sicherheits- und Rechtshinweisen (support.google.com, Antwort 17033799) = Pixel 11 Pro XL",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2523882": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2523882",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2523882 (Xiaomi 25113PN0EG)",
+   "gelesen": "2026-11-21"
+  },
+  "xiaomi-deutschland-xiaomi-17-spezifikationen": {
+   "url": "https://www.mi.com/de/product/xiaomi-17/specs/",
+   "titel": "Xiaomi Deutschland Xiaomi 17 Spezifikationen",
+   "gelesen": "2026-11-21"
+  },
+  "xiaomi-deutschland-xiaomi-17t-spezifikationen": {
+   "url": "https://www.mi.com/de/product/xiaomi-17t/specs/",
+   "titel": "Xiaomi Deutschland Xiaomi 17T Spezifikationen",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2402623": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2402623",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2402623 (Apple A3520, iPhone 17)",
+   "gelesen": "2026-11-21"
+  },
+  "apple-iphone-17-technische-daten": {
+   "url": "https://support.apple.com/de-de/125089",
+   "titel": "Apple Support iPhone 17 Technische Daten (Modell A3520)",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2564902": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2564902",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2564902 (Motorola g67, XT2621-2)",
+   "gelesen": "2026-11-21"
+  },
+  "alternate-moto-g67-128gb-100188302": {
+   "url": "https://www.alternate.de/Motorola/moto-g67-128GB-Handy/html/product/100188302",
+   "titel": "Alternate Produktseite Motorola moto g67 128GB (PBAU0003SE)",
+   "gelesen": "2026-11-21"
+  }
+ },
+ "modelle": [
+  {
+   "id": "samsung-galaxy-a17",
+   "hersteller": "Samsung",
+   "name": "Galaxy A17",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-a17-128gb",
+     "name": "128 GB",
+     "mpn": "SM-A175FZKBEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 4,
+      "display_zoll": 6.7,
+      "akku_ausdauer_h": 51,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "B",
+      "energieklasse": "A",
+      "ip_schutz": "IP54",
+      "update_jahre": 5,
+      "fuenf_g": false,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a17-black-128gb-sm-a175fzkbeub",
+      "ram_gb": "sam-galaxy-a17-black-128gb-sm-a175fzkbeub",
+      "display_zoll": "sam-galaxy-a17-black-128gb-sm-a175fzkbeub",
+      "akku_ausdauer_h": "fiche-sm-a175fzkbeub",
+      "ladezyklen": "fiche-sm-a175fzkbeub",
+      "reparierbarkeit": "fiche-sm-a175fzkbeub",
+      "fallklasse": "fiche-sm-a175fzkbeub",
+      "energieklasse": "fiche-sm-a175fzkbeub",
+      "ip_schutz": "fiche-sm-a175fzkbeub",
+      "update_jahre": "fiche-sm-a175fzkbeub",
+      "fuenf_g": "sam-galaxy-a17-black-128gb-sm-a175fzkbeub",
+      "betriebssystem": "fiche-sm-a175fzkbeub"
+     },
+     "ean": [
+      "8806097651192"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-a17-5g",
+   "hersteller": "Samsung",
+   "name": "Galaxy A17 5G",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-a17-5g-128gb",
+     "name": "128 GB",
+     "mpn": "SM-A176BZKAEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 4,
+      "display_zoll": 6.7,
+      "display_hz": 90,
+      "akku_ausdauer_h": 43,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "B",
+      "energieklasse": "B",
+      "ip_schutz": "IP54",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a17-5g-black-128gb-sm-a176bzkaeub",
+      "ram_gb": "sam-galaxy-a17-5g-black-128gb-sm-a176bzkaeub",
+      "display_zoll": "sam-galaxy-a17-5g-black-128gb-sm-a176bzkaeub",
+      "display_hz": "sam-galaxy-a17-5g-black-128gb-sm-a176bzkaeub",
+      "akku_ausdauer_h": "fiche-sm-a176bzkaeub",
+      "ladezyklen": "fiche-sm-a176bzkaeub",
+      "reparierbarkeit": "fiche-sm-a176bzkaeub",
+      "fallklasse": "fiche-sm-a176bzkaeub",
+      "energieklasse": "fiche-sm-a176bzkaeub",
+      "ip_schutz": "fiche-sm-a176bzkaeub",
+      "update_jahre": "fiche-sm-a176bzkaeub",
+      "fuenf_g": "sam-galaxy-a17-5g-black-128gb-sm-a176bzkaeub",
+      "betriebssystem": "fiche-sm-a176bzkaeub"
+     },
+     "ean": [
+      "8806097642671"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-a18",
+   "hersteller": "Samsung",
+   "name": "Galaxy A18",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-a18-128gb",
+     "name": "128 GB",
+     "mpn": "SM-A185FZKDEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 4,
+      "display_zoll": 6.7,
+      "akku_ausdauer_h": 51,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "B",
+      "energieklasse": "A",
+      "update_jahre": 5,
+      "fuenf_g": false,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a18-black-128gb-sm-a185fzkdeub",
+      "ram_gb": "sam-galaxy-a18-black-128gb-sm-a185fzkdeub",
+      "display_zoll": "sam-galaxy-a18-black-128gb-sm-a185fzkdeub",
+      "akku_ausdauer_h": "fiche-sm-a185fzkdeub",
+      "ladezyklen": "fiche-sm-a185fzkdeub",
+      "reparierbarkeit": "fiche-sm-a185fzkdeub",
+      "fallklasse": "fiche-sm-a185fzkdeub",
+      "energieklasse": "fiche-sm-a185fzkdeub",
+      "update_jahre": "fiche-sm-a185fzkdeub",
+      "fuenf_g": "sam-galaxy-a18-black-128gb-sm-a185fzkdeub",
+      "betriebssystem": "fiche-sm-a185fzkdeub"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-a16-5g",
+   "hersteller": "Samsung",
+   "name": "Galaxy A16 5G",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-a16-5g-128gb",
+     "name": "128 GB",
+     "mpn": "SM-A166BZKDEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 4,
+      "display_zoll": 6.7,
+      "display_hz": 90,
+      "akku_ausdauer_h": 43,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "B",
+      "energieklasse": "B",
+      "ip_schutz": "IP54",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a16-5g-blue-black-128gb-sm-a166bzkdeub",
+      "ram_gb": "sam-galaxy-a16-5g-blue-black-128gb-sm-a166bzkdeub",
+      "display_zoll": "sam-galaxy-a16-5g-blue-black-128gb-sm-a166bzkdeub",
+      "display_hz": "sam-galaxy-a16-5g-blue-black-128gb-sm-a166bzkdeub",
+      "akku_ausdauer_h": "fiche-sm-a166bzkdeub",
+      "ladezyklen": "fiche-sm-a166bzkdeub",
+      "reparierbarkeit": "fiche-sm-a166bzkdeub",
+      "fallklasse": "fiche-sm-a166bzkdeub",
+      "energieklasse": "fiche-sm-a166bzkdeub",
+      "ip_schutz": "fiche-sm-a166bzkdeub",
+      "update_jahre": "fiche-sm-a166bzkdeub",
+      "fuenf_g": "sam-galaxy-a16-5g-blue-black-128gb-sm-a166bzkdeub",
+      "betriebssystem": "fiche-sm-a166bzkdeub"
+     },
+     "ean": [
+      "8806095781754"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-a27-5g",
+   "hersteller": "Samsung",
+   "name": "Galaxy A27 5G",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-a27-5g-128gb",
+     "name": "128 GB",
+     "mpn": "SM-A276BZKBEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 6,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 51,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "B",
+      "energieklasse": "A",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a27-5g-black-128gb-sm-a276bzkbeub",
+      "ram_gb": "sam-galaxy-a27-5g-black-128gb-sm-a276bzkbeub",
+      "display_zoll": "sam-galaxy-a27-5g-black-128gb-sm-a276bzkbeub",
+      "display_hz": "sam-galaxy-a27-5g-black-128gb-sm-a276bzkbeub",
+      "akku_ausdauer_h": "fiche-sm-a276bzkbeub",
+      "ladezyklen": "fiche-sm-a276bzkbeub",
+      "reparierbarkeit": "fiche-sm-a276bzkbeub",
+      "fallklasse": "fiche-sm-a276bzkbeub",
+      "energieklasse": "fiche-sm-a276bzkbeub",
+      "update_jahre": "fiche-sm-a276bzkbeub",
+      "fuenf_g": "sam-galaxy-a27-5g-black-128gb-sm-a276bzkbeub",
+      "betriebssystem": "fiche-sm-a276bzkbeub"
+     }
+    },
+    {
+     "id": "samsung-galaxy-a27-5g-256gb",
+     "name": "256 GB",
+     "mpn": "SM-A276BZKCEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 8,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 51,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "B",
+      "energieklasse": "A",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a27-5g-black-256gb-sm-a276bzkceub",
+      "ram_gb": "sam-galaxy-a27-5g-black-256gb-sm-a276bzkceub",
+      "display_zoll": "sam-galaxy-a27-5g-black-256gb-sm-a276bzkceub",
+      "display_hz": "sam-galaxy-a27-5g-black-256gb-sm-a276bzkceub",
+      "akku_ausdauer_h": "fiche-sm-a276bzkceub",
+      "ladezyklen": "fiche-sm-a276bzkceub",
+      "reparierbarkeit": "fiche-sm-a276bzkceub",
+      "fallklasse": "fiche-sm-a276bzkceub",
+      "energieklasse": "fiche-sm-a276bzkceub",
+      "update_jahre": "fiche-sm-a276bzkceub",
+      "fuenf_g": "sam-galaxy-a27-5g-black-256gb-sm-a276bzkceub",
+      "betriebssystem": "fiche-sm-a276bzkceub"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-a37-5g",
+   "hersteller": "Samsung",
+   "name": "Galaxy A37 5G",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-a37-5g-128gb",
+     "name": "128 GB",
+     "mpn": "SM-A376BZABEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 6,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 53,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "B",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a37-5g-awesome-charcoal-128gb-sm-a376bzabeub",
+      "ram_gb": "sam-galaxy-a37-5g-awesome-charcoal-128gb-sm-a376bzabeub",
+      "display_zoll": "sam-galaxy-a37-5g-awesome-charcoal-128gb-sm-a376bzabeub",
+      "display_hz": "sam-galaxy-a37-5g-awesome-charcoal-128gb-sm-a376bzabeub",
+      "akku_ausdauer_h": "fiche-sm-a376bzabeub",
+      "ladezyklen": "fiche-sm-a376bzabeub",
+      "reparierbarkeit": "fiche-sm-a376bzabeub",
+      "fallklasse": "fiche-sm-a376bzabeub",
+      "energieklasse": "fiche-sm-a376bzabeub",
+      "ip_schutz": "fiche-sm-a376bzabeub",
+      "update_jahre": "fiche-sm-a376bzabeub",
+      "fuenf_g": "sam-galaxy-a37-5g-awesome-charcoal-128gb-sm-a376bzabeub",
+      "betriebssystem": "fiche-sm-a376bzabeub"
+     }
+    },
+    {
+     "id": "samsung-galaxy-a37-5g-256gb",
+     "name": "256 GB",
+     "mpn": "SM-A376BZAGEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 8,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 53,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "B",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a37-5g-awesome-charcoal-256gb-sm-a376bzageub",
+      "ram_gb": "sam-galaxy-a37-5g-awesome-charcoal-256gb-sm-a376bzageub",
+      "display_zoll": "sam-galaxy-a37-5g-awesome-charcoal-256gb-sm-a376bzageub",
+      "display_hz": "sam-galaxy-a37-5g-awesome-charcoal-256gb-sm-a376bzageub",
+      "akku_ausdauer_h": "fiche-sm-a376bzageub",
+      "ladezyklen": "fiche-sm-a376bzageub",
+      "reparierbarkeit": "fiche-sm-a376bzageub",
+      "fallklasse": "fiche-sm-a376bzageub",
+      "energieklasse": "fiche-sm-a376bzageub",
+      "ip_schutz": "fiche-sm-a376bzageub",
+      "update_jahre": "fiche-sm-a376bzageub",
+      "fuenf_g": "sam-galaxy-a37-5g-awesome-charcoal-256gb-sm-a376bzageub",
+      "betriebssystem": "fiche-sm-a376bzageub"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-a57-5g",
+   "hersteller": "Samsung",
+   "name": "Galaxy A57 5G",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-a57-5g-128gb",
+     "name": "128 GB",
+     "mpn": "SM-A576BZABEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 8,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 52,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub",
+      "ram_gb": "sam-galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub",
+      "display_zoll": "sam-galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub",
+      "display_hz": "sam-galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub",
+      "akku_ausdauer_h": "fiche-sm-a576bzabeub",
+      "ladezyklen": "fiche-sm-a576bzabeub",
+      "reparierbarkeit": "fiche-sm-a576bzabeub",
+      "fallklasse": "fiche-sm-a576bzabeub",
+      "energieklasse": "fiche-sm-a576bzabeub",
+      "ip_schutz": "fiche-sm-a576bzabeub",
+      "update_jahre": "fiche-sm-a576bzabeub",
+      "fuenf_g": "sam-galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub",
+      "betriebssystem": "fiche-sm-a576bzabeub"
+     },
+     "preis": {
+      "eur": 409.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/smartphones/galaxy-a/galaxy-a57-5g-awesome-gray-128gb-sm-a576bzabeub/",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "samsung-galaxy-a57-5g-256gb",
+     "name": "256 GB",
+     "mpn": "SM-A576BZADEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 8,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 52,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-a57-5g-awesome-gray-256gb-sm-a576bzadeub",
+      "ram_gb": "sam-galaxy-a57-5g-awesome-gray-256gb-sm-a576bzadeub",
+      "display_zoll": "sam-galaxy-a57-5g-awesome-gray-256gb-sm-a576bzadeub",
+      "display_hz": "sam-galaxy-a57-5g-awesome-gray-256gb-sm-a576bzadeub",
+      "akku_ausdauer_h": "fiche-sm-a576bzadeub",
+      "ladezyklen": "fiche-sm-a576bzadeub",
+      "reparierbarkeit": "fiche-sm-a576bzadeub",
+      "fallklasse": "fiche-sm-a576bzadeub",
+      "energieklasse": "fiche-sm-a576bzadeub",
+      "ip_schutz": "fiche-sm-a576bzadeub",
+      "update_jahre": "fiche-sm-a576bzadeub",
+      "fuenf_g": "sam-galaxy-a57-5g-awesome-gray-256gb-sm-a576bzadeub",
+      "betriebssystem": "fiche-sm-a576bzadeub"
+     },
+     "preis": {
+      "eur": 403.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-A57-5G-256GB-Handy/html/product/100197796",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-s25-fe",
+   "hersteller": "Samsung",
+   "name": "Galaxy S25 FE",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-s25-fe-128gb",
+     "name": "128 GB",
+     "mpn": "SM-S731BZKDEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 8,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 42,
+      "ladezyklen": 2000,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "optischer_zoom": 3,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s25-fe-jetblack-128gb-sm-s731bzkdeub",
+      "ram_gb": "sam-galaxy-s25-fe-jetblack-128gb-sm-s731bzkdeub",
+      "display_zoll": "sam-galaxy-s25-fe-jetblack-128gb-sm-s731bzkdeub",
+      "display_hz": "sam-galaxy-s25-fe-jetblack-128gb-sm-s731bzkdeub",
+      "akku_ausdauer_h": "fiche-sm-s731bzkdeub",
+      "ladezyklen": "fiche-sm-s731bzkdeub",
+      "reparierbarkeit": "fiche-sm-s731bzkdeub",
+      "fallklasse": "fiche-sm-s731bzkdeub",
+      "energieklasse": "fiche-sm-s731bzkdeub",
+      "ip_schutz": "fiche-sm-s731bzkdeub",
+      "update_jahre": "fiche-sm-s731bzkdeub",
+      "fuenf_g": "sam-galaxy-s25-fe-jetblack-128gb-sm-s731bzkdeub",
+      "optischer_zoom": "sam-galaxy-s25-fe-jetblack-128gb-sm-s731bzkdeub",
+      "betriebssystem": "fiche-sm-s731bzkdeub"
+     },
+     "ean": [
+      "8806097644729"
+     ]
+    },
+    {
+     "id": "samsung-galaxy-s25-fe-256gb",
+     "name": "256 GB",
+     "mpn": "SM-S731BZKGEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 8,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 42,
+      "ladezyklen": 2000,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "optischer_zoom": 3,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s25-fe-jetblack-256gb-sm-s731bzkgeub",
+      "ram_gb": "sam-galaxy-s25-fe-jetblack-256gb-sm-s731bzkgeub",
+      "display_zoll": "sam-galaxy-s25-fe-jetblack-256gb-sm-s731bzkgeub",
+      "display_hz": "sam-galaxy-s25-fe-jetblack-256gb-sm-s731bzkgeub",
+      "akku_ausdauer_h": "fiche-sm-s731bzkgeub",
+      "ladezyklen": "fiche-sm-s731bzkgeub",
+      "reparierbarkeit": "fiche-sm-s731bzkgeub",
+      "fallklasse": "fiche-sm-s731bzkgeub",
+      "energieklasse": "fiche-sm-s731bzkgeub",
+      "ip_schutz": "fiche-sm-s731bzkgeub",
+      "update_jahre": "fiche-sm-s731bzkgeub",
+      "fuenf_g": "sam-galaxy-s25-fe-jetblack-256gb-sm-s731bzkgeub",
+      "optischer_zoom": "sam-galaxy-s25-fe-jetblack-256gb-sm-s731bzkgeub",
+      "betriebssystem": "fiche-sm-s731bzkgeub"
+     },
+     "ean": [
+      "8806097644675"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-s26-fe",
+   "hersteller": "Samsung",
+   "name": "Galaxy S26 FE",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-s26-fe-128gb",
+     "name": "128 GB",
+     "mpn": "SM-S741BZKDEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 8,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 50,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "optischer_zoom": 3,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s26-fe-graphite-128gb-sm-s741bzkdeub",
+      "ram_gb": "sam-galaxy-s26-fe-graphite-128gb-sm-s741bzkdeub",
+      "display_zoll": "sam-galaxy-s26-fe-graphite-128gb-sm-s741bzkdeub",
+      "display_hz": "sam-galaxy-s26-fe-graphite-128gb-sm-s741bzkdeub",
+      "akku_ausdauer_h": "fiche-sm-s741bzkdeub",
+      "ladezyklen": "fiche-sm-s741bzkdeub",
+      "reparierbarkeit": "fiche-sm-s741bzkdeub",
+      "fallklasse": "fiche-sm-s741bzkdeub",
+      "energieklasse": "fiche-sm-s741bzkdeub",
+      "ip_schutz": "fiche-sm-s741bzkdeub",
+      "update_jahre": "fiche-sm-s741bzkdeub",
+      "fuenf_g": "sam-galaxy-s26-fe-graphite-128gb-sm-s741bzkdeub",
+      "optischer_zoom": "sam-galaxy-s26-fe-graphite-128gb-sm-s741bzkdeub",
+      "betriebssystem": "fiche-sm-s741bzkdeub"
+     }
+    },
+    {
+     "id": "samsung-galaxy-s26-fe-256gb",
+     "name": "256 GB",
+     "mpn": "SM-S741BZKGEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 8,
+      "display_zoll": 6.7,
+      "display_hz": 120,
+      "akku_ausdauer_h": 50,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "fuenf_g": true,
+      "optischer_zoom": 3,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub",
+      "ram_gb": "sam-galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub",
+      "display_zoll": "sam-galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub",
+      "display_hz": "sam-galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub",
+      "akku_ausdauer_h": "fiche-sm-s741bzkgeub",
+      "ladezyklen": "fiche-sm-s741bzkgeub",
+      "reparierbarkeit": "fiche-sm-s741bzkgeub",
+      "fallklasse": "fiche-sm-s741bzkgeub",
+      "energieklasse": "fiche-sm-s741bzkgeub",
+      "ip_schutz": "fiche-sm-s741bzkgeub",
+      "update_jahre": "fiche-sm-s741bzkgeub",
+      "fuenf_g": "sam-galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub",
+      "optischer_zoom": "sam-galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub",
+      "betriebssystem": "fiche-sm-s741bzkgeub"
+     },
+     "preis": {
+      "eur": 799.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/smartphones/galaxy-s/galaxy-s26-fe-graphite-256gb-sm-s741bzkgeub/",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-s26",
+   "hersteller": "Samsung",
+   "name": "Galaxy S26",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-s26-256gb",
+     "name": "256 GB",
+     "mpn": "SM-S942BZVGEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 6.3,
+      "akku_ausdauer_h": 51,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s26",
+      "ram_gb": "sam-galaxy-s26",
+      "display_zoll": "sam-galaxy-s26",
+      "akku_ausdauer_h": "fiche-sm-s942bzvgeub",
+      "ladezyklen": "fiche-sm-s942bzvgeub",
+      "reparierbarkeit": "fiche-sm-s942bzvgeub",
+      "fallklasse": "fiche-sm-s942bzvgeub",
+      "energieklasse": "fiche-sm-s942bzvgeub",
+      "ip_schutz": "fiche-sm-s942bzvgeub",
+      "update_jahre": "fiche-sm-s942bzvgeub",
+      "betriebssystem": "fiche-sm-s942bzvgeub"
+     }
+    },
+    {
+     "id": "samsung-galaxy-s26-512gb",
+     "name": "512 GB",
+     "mpn": "SM-S942BZVHEUB",
+     "werte": {
+      "speicher_gb": 512,
+      "ram_gb": 12,
+      "display_zoll": 6.3,
+      "akku_ausdauer_h": 51,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s26",
+      "ram_gb": "sam-galaxy-s26",
+      "display_zoll": "sam-galaxy-s26",
+      "akku_ausdauer_h": "fiche-sm-s942bzvheub",
+      "ladezyklen": "fiche-sm-s942bzvheub",
+      "reparierbarkeit": "fiche-sm-s942bzvheub",
+      "fallklasse": "fiche-sm-s942bzvheub",
+      "energieklasse": "fiche-sm-s942bzvheub",
+      "ip_schutz": "fiche-sm-s942bzvheub",
+      "update_jahre": "fiche-sm-s942bzvheub",
+      "betriebssystem": "fiche-sm-s942bzvheub"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-s26-plus",
+   "hersteller": "Samsung",
+   "name": "Galaxy S26+",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-s26-plus-256gb",
+     "name": "256 GB",
+     "mpn": "SM-S947BZVDEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 6.7,
+      "akku_ausdauer_h": 55,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s26-plus",
+      "ram_gb": "sam-galaxy-s26-plus",
+      "display_zoll": "sam-galaxy-s26-plus",
+      "akku_ausdauer_h": "fiche-sm-s947bzvdeub",
+      "ladezyklen": "fiche-sm-s947bzvdeub",
+      "reparierbarkeit": "fiche-sm-s947bzvdeub",
+      "fallklasse": "fiche-sm-s947bzvdeub",
+      "energieklasse": "fiche-sm-s947bzvdeub",
+      "ip_schutz": "fiche-sm-s947bzvdeub",
+      "update_jahre": "fiche-sm-s947bzvdeub",
+      "betriebssystem": "fiche-sm-s947bzvdeub"
+     }
+    },
+    {
+     "id": "samsung-galaxy-s26-plus-512gb",
+     "name": "512 GB",
+     "mpn": "SM-S947BZVGEUB",
+     "werte": {
+      "speicher_gb": 512,
+      "ram_gb": 12,
+      "display_zoll": 6.7,
+      "akku_ausdauer_h": 55,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s26-plus",
+      "ram_gb": "sam-galaxy-s26-plus",
+      "display_zoll": "sam-galaxy-s26-plus",
+      "akku_ausdauer_h": "fiche-sm-s947bzvgeub",
+      "ladezyklen": "fiche-sm-s947bzvgeub",
+      "reparierbarkeit": "fiche-sm-s947bzvgeub",
+      "fallklasse": "fiche-sm-s947bzvgeub",
+      "energieklasse": "fiche-sm-s947bzvgeub",
+      "ip_schutz": "fiche-sm-s947bzvgeub",
+      "update_jahre": "fiche-sm-s947bzvgeub",
+      "betriebssystem": "fiche-sm-s947bzvgeub"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-s26-ultra",
+   "hersteller": "Samsung",
+   "name": "Galaxy S26 Ultra",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-s26-ultra-256gb",
+     "name": "256 GB",
+     "mpn": "SM-S948BZVDEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 6.9,
+      "akku_ausdauer_h": 55,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s26-ultra",
+      "ram_gb": "sam-galaxy-s26-ultra",
+      "display_zoll": "sam-galaxy-s26-ultra",
+      "akku_ausdauer_h": "fiche-sm-s948bzvdeub",
+      "ladezyklen": "fiche-sm-s948bzvdeub",
+      "reparierbarkeit": "fiche-sm-s948bzvdeub",
+      "fallklasse": "fiche-sm-s948bzvdeub",
+      "energieklasse": "fiche-sm-s948bzvdeub",
+      "ip_schutz": "fiche-sm-s948bzvdeub",
+      "update_jahre": "fiche-sm-s948bzvdeub",
+      "betriebssystem": "fiche-sm-s948bzvdeub"
+     }
+    },
+    {
+     "id": "samsung-galaxy-s26-ultra-512gb",
+     "name": "512 GB",
+     "mpn": "SM-S948BZVGEUB",
+     "werte": {
+      "speicher_gb": 512,
+      "ram_gb": 12,
+      "display_zoll": 6.9,
+      "akku_ausdauer_h": 55,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android"
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-s26-ultra",
+      "ram_gb": "sam-galaxy-s26-ultra",
+      "display_zoll": "sam-galaxy-s26-ultra",
+      "akku_ausdauer_h": "fiche-sm-s948bzvgeub",
+      "ladezyklen": "fiche-sm-s948bzvgeub",
+      "reparierbarkeit": "fiche-sm-s948bzvgeub",
+      "fallklasse": "fiche-sm-s948bzvgeub",
+      "energieklasse": "fiche-sm-s948bzvgeub",
+      "ip_schutz": "fiche-sm-s948bzvgeub",
+      "update_jahre": "fiche-sm-s948bzvgeub",
+      "betriebssystem": "fiche-sm-s948bzvgeub"
+     }
+    }
+   ]
+  },
+  {
+   "id": "google-pixel-10a",
+   "hersteller": "Google",
+   "name": "Pixel 10a",
+   "jahr": 2026,
+   "varianten": [
+    {
+     "id": "google-pixel-10a-128gb",
+     "name": "128 GB",
+     "werte": {
+      "akku_ausdauer_h": 53.23,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 7,
+      "betriebssystem": "android",
+      "speicher_gb": 128,
+      "ram_gb": 8,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2347998",
+      "ladezyklen": "eprel-2347998",
+      "reparierbarkeit": "eprel-2347998",
+      "fallklasse": "eprel-2347998",
+      "energieklasse": "eprel-2347998",
+      "ip_schutz": "eprel-2347998",
+      "update_jahre": "eprel-2347998",
+      "betriebssystem": "eprel-2347998",
+      "speicher_gb": "google-store-pixel-10a-technische-daten",
+      "ram_gb": "google-store-pixel-10a-technische-daten",
+      "display_zoll": "google-store-pixel-10a-technische-daten",
+      "display_hz": "google-store-pixel-10a-technische-daten",
+      "fuenf_g": "google-store-pixel-10a-technische-daten"
+     }
+    },
+    {
+     "id": "google-pixel-10a-256gb",
+     "name": "256 GB",
+     "werte": {
+      "akku_ausdauer_h": 53.23,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 7,
+      "betriebssystem": "android",
+      "speicher_gb": 256,
+      "ram_gb": 8,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2347998",
+      "ladezyklen": "eprel-2347998",
+      "reparierbarkeit": "eprel-2347998",
+      "fallklasse": "eprel-2347998",
+      "energieklasse": "eprel-2347998",
+      "ip_schutz": "eprel-2347998",
+      "update_jahre": "eprel-2347998",
+      "betriebssystem": "eprel-2347998",
+      "speicher_gb": "google-store-pixel-10a-technische-daten",
+      "ram_gb": "google-store-pixel-10a-technische-daten",
+      "display_zoll": "google-store-pixel-10a-technische-daten",
+      "display_hz": "google-store-pixel-10a-technische-daten",
+      "fuenf_g": "google-store-pixel-10a-technische-daten"
+     }
+    }
+   ]
+  },
+  {
+   "id": "google-pixel-10",
+   "hersteller": "Google",
+   "name": "Pixel 10",
+   "jahr": 2025,
+   "varianten": [
+    {
+     "id": "google-pixel-10-128gb",
+     "name": "128 GB",
+     "werte": {
+      "akku_ausdauer_h": 49.38,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 7,
+      "betriebssystem": "android",
+      "speicher_gb": 128,
+      "ram_gb": 12,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2347994",
+      "ladezyklen": "eprel-2347994",
+      "reparierbarkeit": "eprel-2347994",
+      "fallklasse": "eprel-2347994",
+      "energieklasse": "eprel-2347994",
+      "ip_schutz": "eprel-2347994",
+      "update_jahre": "eprel-2347994",
+      "betriebssystem": "eprel-2347994",
+      "speicher_gb": "google-store-pixel-10-technische-daten",
+      "ram_gb": "google-store-pixel-10-technische-daten",
+      "display_zoll": "google-store-pixel-10-technische-daten",
+      "display_hz": "google-store-pixel-10-technische-daten",
+      "fuenf_g": "google-store-pixel-10-technische-daten"
+     }
+    },
+    {
+     "id": "google-pixel-10-256gb",
+     "name": "256 GB",
+     "werte": {
+      "akku_ausdauer_h": 49.38,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 7,
+      "betriebssystem": "android",
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2347994",
+      "ladezyklen": "eprel-2347994",
+      "reparierbarkeit": "eprel-2347994",
+      "fallklasse": "eprel-2347994",
+      "energieklasse": "eprel-2347994",
+      "ip_schutz": "eprel-2347994",
+      "update_jahre": "eprel-2347994",
+      "betriebssystem": "eprel-2347994",
+      "speicher_gb": "google-store-pixel-10-technische-daten",
+      "ram_gb": "google-store-pixel-10-technische-daten",
+      "display_zoll": "google-store-pixel-10-technische-daten",
+      "display_hz": "google-store-pixel-10-technische-daten",
+      "fuenf_g": "google-store-pixel-10-technische-daten"
+     }
+    }
+   ]
+  },
+  {
+   "id": "google-pixel-10-pro",
+   "hersteller": "Google",
+   "name": "Pixel 10 Pro",
+   "jahr": 2025,
+   "varianten": [
+    {
+     "id": "google-pixel-10-pro-128gb",
+     "name": "128 GB",
+     "werte": {
+      "akku_ausdauer_h": 51.15,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 7,
+      "betriebssystem": "android",
+      "speicher_gb": 128,
+      "ram_gb": 16,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2347995",
+      "ladezyklen": "eprel-2347995",
+      "reparierbarkeit": "eprel-2347995",
+      "fallklasse": "eprel-2347995",
+      "energieklasse": "eprel-2347995",
+      "ip_schutz": "eprel-2347995",
+      "update_jahre": "eprel-2347995",
+      "betriebssystem": "eprel-2347995",
+      "speicher_gb": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "ram_gb": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "display_zoll": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "display_hz": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "fuenf_g": "google-store-pixel-10-pro-und-pro-xl-technische-daten"
+     }
+    },
+    {
+     "id": "google-pixel-10-pro-256gb",
+     "name": "256 GB",
+     "werte": {
+      "akku_ausdauer_h": 51.15,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 7,
+      "betriebssystem": "android",
+      "speicher_gb": 256,
+      "ram_gb": 16,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2347995",
+      "ladezyklen": "eprel-2347995",
+      "reparierbarkeit": "eprel-2347995",
+      "fallklasse": "eprel-2347995",
+      "energieklasse": "eprel-2347995",
+      "ip_schutz": "eprel-2347995",
+      "update_jahre": "eprel-2347995",
+      "betriebssystem": "eprel-2347995",
+      "speicher_gb": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "ram_gb": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "display_zoll": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "display_hz": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "fuenf_g": "google-store-pixel-10-pro-und-pro-xl-technische-daten"
+     }
+    },
+    {
+     "id": "google-pixel-10-pro-512gb",
+     "name": "512 GB",
+     "werte": {
+      "akku_ausdauer_h": 51.15,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 7,
+      "betriebssystem": "android",
+      "speicher_gb": 512,
+      "ram_gb": 16,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2347995",
+      "ladezyklen": "eprel-2347995",
+      "reparierbarkeit": "eprel-2347995",
+      "fallklasse": "eprel-2347995",
+      "energieklasse": "eprel-2347995",
+      "ip_schutz": "eprel-2347995",
+      "update_jahre": "eprel-2347995",
+      "betriebssystem": "eprel-2347995",
+      "speicher_gb": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "ram_gb": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "display_zoll": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "display_hz": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
+      "fuenf_g": "google-store-pixel-10-pro-und-pro-xl-technische-daten"
+     }
+    }
+   ]
+  },
+  {
+   "id": "google-pixel-11",
+   "hersteller": "Google",
+   "name": "Pixel 11",
+   "jahr": 2026,
+   "varianten": [
+    {
+     "id": "google-pixel-11-256gb",
+     "name": "256 GB",
+     "werte": {
+      "akku_ausdauer_h": 48.83,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android",
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2647668",
+      "ladezyklen": "eprel-2647668",
+      "reparierbarkeit": "eprel-2647668",
+      "fallklasse": "eprel-2647668",
+      "energieklasse": "eprel-2647668",
+      "ip_schutz": "eprel-2647668",
+      "update_jahre": "eprel-2647668",
+      "betriebssystem": "eprel-2647668",
+      "speicher_gb": "google-store-pixel-11-technische-daten",
+      "ram_gb": "google-store-pixel-11-technische-daten",
+      "display_zoll": "google-store-pixel-11-technische-daten",
+      "display_hz": "google-store-pixel-11-technische-daten",
+      "fuenf_g": "google-store-pixel-11-technische-daten"
+     }
+    },
+    {
+     "id": "google-pixel-11-512gb",
+     "name": "512 GB",
+     "werte": {
+      "akku_ausdauer_h": 48.83,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android",
+      "speicher_gb": 512,
+      "ram_gb": 12,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2647668",
+      "ladezyklen": "eprel-2647668",
+      "reparierbarkeit": "eprel-2647668",
+      "fallklasse": "eprel-2647668",
+      "energieklasse": "eprel-2647668",
+      "ip_schutz": "eprel-2647668",
+      "update_jahre": "eprel-2647668",
+      "betriebssystem": "eprel-2647668",
+      "speicher_gb": "google-store-pixel-11-technische-daten",
+      "ram_gb": "google-store-pixel-11-technische-daten",
+      "display_zoll": "google-store-pixel-11-technische-daten",
+      "display_hz": "google-store-pixel-11-technische-daten",
+      "fuenf_g": "google-store-pixel-11-technische-daten"
+     }
+    }
+   ]
+  },
+  {
+   "id": "google-pixel-11-pro",
+   "hersteller": "Google",
+   "name": "Pixel 11 Pro",
+   "jahr": 2026,
+   "varianten": [
+    {
+     "id": "google-pixel-11-pro-256gb",
+     "name": "256 GB",
+     "werte": {
+      "akku_ausdauer_h": 47.6,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "B",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android",
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2647669",
+      "ladezyklen": "eprel-2647669",
+      "reparierbarkeit": "eprel-2647669",
+      "fallklasse": "eprel-2647669",
+      "energieklasse": "eprel-2647669",
+      "ip_schutz": "eprel-2647669",
+      "update_jahre": "eprel-2647669",
+      "betriebssystem": "eprel-2647669",
+      "speicher_gb": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "ram_gb": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "display_zoll": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "display_hz": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "fuenf_g": "google-store-pixel-11-pro-und-pro-xl-technische-daten"
+     }
+    },
+    {
+     "id": "google-pixel-11-pro-512gb",
+     "name": "512 GB",
+     "werte": {
+      "akku_ausdauer_h": 47.6,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "B",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android",
+      "speicher_gb": 512,
+      "ram_gb": 16,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2647669",
+      "ladezyklen": "eprel-2647669",
+      "reparierbarkeit": "eprel-2647669",
+      "fallklasse": "eprel-2647669",
+      "energieklasse": "eprel-2647669",
+      "ip_schutz": "eprel-2647669",
+      "update_jahre": "eprel-2647669",
+      "betriebssystem": "eprel-2647669",
+      "speicher_gb": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "ram_gb": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "display_zoll": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "display_hz": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "fuenf_g": "google-store-pixel-11-pro-und-pro-xl-technische-daten"
+     }
+    }
+   ]
+  },
+  {
+   "id": "google-pixel-11-pro-xl",
+   "hersteller": "Google",
+   "name": "Pixel 11 Pro XL",
+   "jahr": 2026,
+   "varianten": [
+    {
+     "id": "google-pixel-11-pro-xl-256gb",
+     "name": "256 GB",
+     "werte": {
+      "akku_ausdauer_h": 50.17,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android",
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 6.8,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2647670",
+      "ladezyklen": "eprel-2647670",
+      "reparierbarkeit": "eprel-2647670",
+      "fallklasse": "eprel-2647670",
+      "energieklasse": "eprel-2647670",
+      "ip_schutz": "eprel-2647670",
+      "update_jahre": "eprel-2647670",
+      "betriebssystem": "eprel-2647670",
+      "speicher_gb": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "ram_gb": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "display_zoll": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "display_hz": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "fuenf_g": "google-store-pixel-11-pro-und-pro-xl-technische-daten"
+     }
+    },
+    {
+     "id": "google-pixel-11-pro-xl-512gb",
+     "name": "512 GB",
+     "werte": {
+      "akku_ausdauer_h": 50.17,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "B",
+      "fallklasse": "A",
+      "energieklasse": "B",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android",
+      "speicher_gb": 512,
+      "ram_gb": 16,
+      "display_zoll": 6.8,
+      "display_hz": 120,
+      "fuenf_g": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2647670",
+      "ladezyklen": "eprel-2647670",
+      "reparierbarkeit": "eprel-2647670",
+      "fallklasse": "eprel-2647670",
+      "energieklasse": "eprel-2647670",
+      "ip_schutz": "eprel-2647670",
+      "update_jahre": "eprel-2647670",
+      "betriebssystem": "eprel-2647670",
+      "speicher_gb": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "ram_gb": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "display_zoll": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "display_hz": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
+      "fuenf_g": "google-store-pixel-11-pro-und-pro-xl-technische-daten"
+     }
+    }
+   ]
+  },
+  {
+   "id": "xiaomi-17",
+   "hersteller": "Xiaomi",
+   "name": "17",
+   "jahr": 2026,
+   "varianten": [
+    {
+     "id": "xiaomi-17-256gb",
+     "name": "256 GB",
+     "werte": {
+      "akku_ausdauer_h": 64,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android",
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true,
+      "ladeleistung_w": 100,
+      "kabellos_laden": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2523882",
+      "ladezyklen": "eprel-2523882",
+      "reparierbarkeit": "eprel-2523882",
+      "fallklasse": "eprel-2523882",
+      "energieklasse": "eprel-2523882",
+      "ip_schutz": "eprel-2523882",
+      "update_jahre": "eprel-2523882",
+      "betriebssystem": "eprel-2523882",
+      "speicher_gb": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "ram_gb": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "display_zoll": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "display_hz": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "fuenf_g": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "ladeleistung_w": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "kabellos_laden": "xiaomi-deutschland-xiaomi-17-spezifikationen"
+     }
+    },
+    {
+     "id": "xiaomi-17-512gb",
+     "name": "512 GB",
+     "werte": {
+      "akku_ausdauer_h": 64,
+      "ladezyklen": 1000,
+      "reparierbarkeit": "C",
+      "fallklasse": "A",
+      "energieklasse": "A",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "betriebssystem": "android",
+      "speicher_gb": 512,
+      "ram_gb": 12,
+      "display_zoll": 6.3,
+      "display_hz": 120,
+      "fuenf_g": true,
+      "ladeleistung_w": 100,
+      "kabellos_laden": true
+     },
+     "belege": {
+      "akku_ausdauer_h": "eprel-2523882",
+      "ladezyklen": "eprel-2523882",
+      "reparierbarkeit": "eprel-2523882",
+      "fallklasse": "eprel-2523882",
+      "energieklasse": "eprel-2523882",
+      "ip_schutz": "eprel-2523882",
+      "update_jahre": "eprel-2523882",
+      "betriebssystem": "eprel-2523882",
+      "speicher_gb": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "ram_gb": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "display_zoll": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "display_hz": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "fuenf_g": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "ladeleistung_w": "xiaomi-deutschland-xiaomi-17-spezifikationen",
+      "kabellos_laden": "xiaomi-deutschland-xiaomi-17-spezifikationen"
+     }
+    }
+   ]
+  },
+  {
+   "id": "xiaomi-17t",
+   "hersteller": "Xiaomi",
+   "name": "17T",
+   "jahr": 2026,
+   "varianten": [
+    {
+     "id": "xiaomi-17t-256gb",
+     "name": "256 GB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 6.59,
+      "display_hz": 120,
+      "fuenf_g": true,
+      "ladeleistung_w": 67,
+      "ip_schutz": "IP68"
+     },
+     "belege": {
+      "speicher_gb": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "ram_gb": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "display_zoll": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "display_hz": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "fuenf_g": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "ladeleistung_w": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "ip_schutz": "xiaomi-deutschland-xiaomi-17t-spezifikationen"
+     }
+    },
+    {
+     "id": "xiaomi-17t-512gb",
+     "name": "512 GB",
+     "werte": {
+      "speicher_gb": 512,
+      "ram_gb": 12,
+      "display_zoll": 6.59,
+      "display_hz": 120,
+      "fuenf_g": true,
+      "ladeleistung_w": 67,
+      "ip_schutz": "IP68"
+     },
+     "belege": {
+      "speicher_gb": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "ram_gb": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "display_zoll": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "display_hz": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "fuenf_g": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "ladeleistung_w": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
+      "ip_schutz": "xiaomi-deutschland-xiaomi-17t-spezifikationen"
+     }
+    }
+   ]
+  },
+  {
+   "id": "apple-iphone-17",
+   "hersteller": "Apple",
+   "name": "iPhone 17",
+   "jahr": 2025,
+   "werte": {
+    "akku_ausdauer_h": 41,
+    "ladezyklen": 1000,
+    "reparierbarkeit": "C",
+    "fallklasse": "B",
+    "energieklasse": "A",
+    "ip_schutz": "IP68",
+    "betriebssystem": "ios",
+    "display_zoll": 6.3,
+    "display_hz": 120,
+    "fuenf_g": true,
+    "optischer_zoom": 2,
+    "kabellos_laden": true
+   },
+   "belege": {
+    "akku_ausdauer_h": "eprel-2402623",
+    "ladezyklen": "eprel-2402623",
+    "reparierbarkeit": "eprel-2402623",
+    "fallklasse": "eprel-2402623",
+    "energieklasse": "eprel-2402623",
+    "ip_schutz": "eprel-2402623",
+    "betriebssystem": "eprel-2402623",
+    "display_zoll": "apple-iphone-17-technische-daten",
+    "display_hz": "apple-iphone-17-technische-daten",
+    "fuenf_g": "apple-iphone-17-technische-daten",
+    "optischer_zoom": "apple-iphone-17-technische-daten",
+    "kabellos_laden": "apple-iphone-17-technische-daten"
+   },
+   "varianten": [
+    {
+     "id": "apple-iphone-17-256gb",
+     "name": "256 GB",
+     "werte": {
+      "speicher_gb": 256
+     },
+     "belege": {
+      "speicher_gb": "apple-iphone-17-technische-daten"
+     },
+     "preis": {
+      "eur": 1099.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Handys-Smartphones/Apple-iPhone-17-256GB-Sage/3405243",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "apple-iphone-17-512gb",
+     "name": "512 GB",
+     "werte": {
+      "speicher_gb": 512
+     },
+     "belege": {
+      "speicher_gb": "apple-iphone-17-technische-daten"
+     }
+    }
+   ]
+  },
+  {
+   "id": "motorola-moto-g67",
+   "hersteller": "Motorola",
+   "name": "moto g67",
+   "jahr": 2026,
+   "werte": {
+    "akku_ausdauer_h": 59.43,
+    "ladezyklen": 1200,
+    "reparierbarkeit": "A",
+    "fallklasse": "B",
+    "energieklasse": "A",
+    "betriebssystem": "android",
+    "display_zoll": 6.78,
+    "display_hz": 120,
+    "fuenf_g": true,
+    "ram_gb": 4
+   },
+   "belege": {
+    "akku_ausdauer_h": "eprel-2564902",
+    "ladezyklen": "eprel-2564902",
+    "reparierbarkeit": "eprel-2564902",
+    "fallklasse": "eprel-2564902",
+    "energieklasse": "eprel-2564902",
+    "betriebssystem": "eprel-2564902",
+    "display_zoll": "alternate-moto-g67-128gb-100188302",
+    "display_hz": "alternate-moto-g67-128gb-100188302",
+    "fuenf_g": "alternate-moto-g67-128gb-100188302",
+    "ram_gb": "alternate-moto-g67-128gb-100188302"
+   },
+   "varianten": [
+    {
+     "id": "motorola-moto-g67-128gb",
+     "name": "128 GB",
+     "mpn": "PBAU0003SE",
+     "ean": [
+      "840493610283"
+     ],
+     "werte": {
+      "speicher_gb": 128
+     },
+     "belege": {
+      "speicher_gb": "alternate-moto-g67-128gb-100188302"
+     }
+    }
+   ]
+  }
+ ]
+}

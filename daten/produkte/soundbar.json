@@ -1,0 +1,628 @@
+{
+ "kategorie": "soundbar",
+ "stand": "2026-11-21",
+ "quellen": {
+  "sonos-ray": {
+   "url": "https://www.sonos.com/de-de/shop/ray",
+   "titel": "Sonos Ray Produktseite",
+   "gelesen": "2026-11-21"
+  },
+  "sonos-beam2": {
+   "url": "https://www.sonos.com/de-de/shop/beam",
+   "titel": "Sonos Beam (Gen. 2) Produktseite",
+   "gelesen": "2026-11-21"
+  },
+  "sonos-beam-ultra": {
+   "url": "https://www.sonos.com/de-de/shop/beam-ultra",
+   "titel": "Sonos Beam Ultra Produktseite",
+   "gelesen": "2026-11-21"
+  },
+  "sonos-arc-ultra": {
+   "url": "https://www.sonos.com/de-de/shop/arc-ultra",
+   "titel": "Sonos Arc Ultra Produktseite",
+   "gelesen": "2026-11-21"
+  },
+  "bose-smart-soundbar": {
+   "url": "https://www.bose.de/de_de/products/speakers/home_theater/bose-smart-soundbar.html",
+   "titel": "Bose Smart Soundbar Produktseite",
+   "gelesen": "2026-11-21"
+  },
+  "bose-smart-ultra": {
+   "url": "https://www.bose.de/de_de/products/speakers/home_theater/bose-smart-soundbar-ultra.html",
+   "titel": "Bose Smart Ultra Soundbar Produktseite",
+   "gelesen": "2026-11-21"
+  },
+  "sam-hw-b760gf": {
+   "url": "https://www.samsung.com/de/audio-devices/soundbar/b750f-black-hw-b760gf-zg/",
+   "titel": "Samsung Produktseite HW-B760GF",
+   "gelesen": "2026-11-21"
+  },
+  "sam-hw-s710gd": {
+   "url": "https://www.samsung.com/de/audio-devices/soundbar/s700d-black-hw-s710gd-zg/",
+   "titel": "Samsung Produktseite HW-S710GD",
+   "gelesen": "2026-11-21"
+  },
+  "sam-hw-s810gd": {
+   "url": "https://www.samsung.com/de/audio-devices/soundbar/s800d-black-hw-s810gd-zg/",
+   "titel": "Samsung Produktseite HW-S810GD",
+   "gelesen": "2026-11-21"
+  },
+  "sam-hw-q995gh": {
+   "url": "https://www.samsung.com/de/audio-devices/soundbar/q990h-black-hw-q995gh-zg/",
+   "titel": "Samsung Produktseite HW-Q995GH",
+   "gelesen": "2026-11-21"
+  },
+  "alt-jbl-bar800": {
+   "url": "https://www.alternate.de/JBL/Bar-800-Soundbar/html/product/1850564",
+   "titel": "Alternate Datenblatt JBL Bar 800",
+   "gelesen": "2026-11-21"
+  },
+  "alt-sony-htsf150": {
+   "url": "https://www.alternate.de/Sony/HTSF150-Soundbar/html/product/1439781",
+   "titel": "Alternate Datenblatt Sony HT-SF150",
+   "gelesen": "2026-11-21"
+  },
+  "yamaha-srb30a-b40a": {
+   "url": "https://de.yamaha.com/de/audio/home-audio/products/sound-bar/sr-b30a/specs.html",
+   "titel": "Yamaha SR-B30A/SR-B40A Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "sat-yamaha-srb30a": {
+   "url": "https://www.saturn.de/de/product/_yamaha-sr-b30a-dolby-atmos-soundbar-soundbar-schwarz-2904980.html",
+   "titel": "Saturn Produktseite Yamaha SR-B30A (Ausstattung)",
+   "gelesen": "2026-11-21"
+  }
+ },
+ "modelle": [
+  {
+   "id": "sonos-ray",
+   "hersteller": "Sonos",
+   "name": "Ray",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "sonos-ray-standard",
+     "name": "Soundbar",
+     "werte": {
+      "subwoofer": "keiner",
+      "dolby_atmos": false,
+      "dts_x": false,
+      "earc": false,
+      "raumkalibrierung": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "erweiterbar": true,
+      "breite_cm": 55.7
+     },
+     "belege": {
+      "subwoofer": "sonos-ray",
+      "dolby_atmos": "sonos-ray",
+      "dts_x": "sonos-ray",
+      "earc": "sonos-ray",
+      "raumkalibrierung": "sonos-ray",
+      "wlan_streaming": "sonos-ray",
+      "sprachmodus": "sonos-ray",
+      "erweiterbar": "sonos-ray",
+      "breite_cm": "sonos-ray"
+     },
+     "preis": {
+      "eur": 179.0,
+      "haendler": "Sonos",
+      "url": "https://www.sonos.com/de-de/shop/ray",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sonos-beam-gen2",
+   "hersteller": "Sonos",
+   "name": "Beam (Gen. 2)",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "sonos-beam-gen2-standard",
+     "name": "Soundbar",
+     "werte": {
+      "subwoofer": "keiner",
+      "dolby_atmos": true,
+      "dts_x": false,
+      "earc": true,
+      "raumkalibrierung": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "erweiterbar": true,
+      "breite_cm": 65.1
+     },
+     "belege": {
+      "subwoofer": "sonos-beam2",
+      "dolby_atmos": "sonos-beam2",
+      "dts_x": "sonos-beam2",
+      "earc": "sonos-beam2",
+      "raumkalibrierung": "sonos-beam2",
+      "wlan_streaming": "sonos-beam2",
+      "sprachmodus": "sonos-beam2",
+      "erweiterbar": "sonos-beam2",
+      "breite_cm": "sonos-beam2"
+     },
+     "preis": {
+      "eur": 349.0,
+      "haendler": "Sonos",
+      "url": "https://www.sonos.com/de-de/shop/beam",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sonos-beam-ultra",
+   "hersteller": "Sonos",
+   "name": "Beam Ultra",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "sonos-beam-ultra-standard",
+     "name": "Soundbar",
+     "werte": {
+      "subwoofer": "keiner",
+      "dolby_atmos": true,
+      "dts_x": false,
+      "earc": true,
+      "raumkalibrierung": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "erweiterbar": true,
+      "breite_cm": 75
+     },
+     "belege": {
+      "subwoofer": "sonos-beam-ultra",
+      "dolby_atmos": "sonos-beam-ultra",
+      "dts_x": "sonos-beam-ultra",
+      "earc": "sonos-beam-ultra",
+      "raumkalibrierung": "sonos-beam-ultra",
+      "wlan_streaming": "sonos-beam-ultra",
+      "sprachmodus": "sonos-beam-ultra",
+      "erweiterbar": "sonos-beam-ultra",
+      "breite_cm": "sonos-beam-ultra"
+     },
+     "preis": {
+      "eur": 699.0,
+      "haendler": "Sonos",
+      "url": "https://www.sonos.com/de-de/shop/beam-ultra",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sonos-arc-ultra",
+   "hersteller": "Sonos",
+   "name": "Arc Ultra",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "sonos-arc-ultra-standard",
+     "name": "Soundbar",
+     "werte": {
+      "kanaele": "9.1.4",
+      "subwoofer": "keiner",
+      "dolby_atmos": true,
+      "dts_x": false,
+      "earc": true,
+      "raumkalibrierung": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "erweiterbar": true,
+      "breite_cm": 117.8
+     },
+     "belege": {
+      "kanaele": "sonos-arc-ultra",
+      "subwoofer": "sonos-arc-ultra",
+      "dolby_atmos": "sonos-arc-ultra",
+      "dts_x": "sonos-arc-ultra",
+      "earc": "sonos-arc-ultra",
+      "raumkalibrierung": "sonos-arc-ultra",
+      "wlan_streaming": "sonos-arc-ultra",
+      "sprachmodus": "sonos-arc-ultra",
+      "erweiterbar": "sonos-arc-ultra",
+      "breite_cm": "sonos-arc-ultra"
+     },
+     "preis": {
+      "eur": 849.0,
+      "haendler": "Sonos",
+      "url": "https://www.sonos.com/de-de/shop/arc-ultra",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bose-smart-soundbar",
+   "hersteller": "Bose",
+   "name": "Smart Soundbar",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "bose-smart-soundbar-standard",
+     "name": "Soundbar",
+     "werte": {
+      "subwoofer": "keiner",
+      "dolby_atmos": true,
+      "raumkalibrierung": false,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "erweiterbar": true,
+      "breite_cm": 69.4
+     },
+     "belege": {
+      "subwoofer": "bose-smart-soundbar",
+      "dolby_atmos": "bose-smart-soundbar",
+      "raumkalibrierung": "bose-smart-soundbar",
+      "wlan_streaming": "bose-smart-soundbar",
+      "sprachmodus": "bose-smart-soundbar",
+      "erweiterbar": "bose-smart-soundbar",
+      "breite_cm": "bose-smart-soundbar"
+     },
+     "preis": {
+      "eur": 329.95,
+      "haendler": "Bose",
+      "url": "https://www.bose.de/de_de/products/speakers/home_theater/bose-smart-soundbar.html",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bose-smart-ultra",
+   "hersteller": "Bose",
+   "name": "Smart Ultra Soundbar",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "bose-smart-ultra-standard",
+     "name": "Soundbar",
+     "werte": {
+      "kanaele": "5.1.2",
+      "subwoofer": "keiner",
+      "dolby_atmos": true,
+      "earc": true,
+      "raumkalibrierung": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "breite_cm": 104.5
+     },
+     "belege": {
+      "kanaele": "bose-smart-ultra",
+      "subwoofer": "bose-smart-ultra",
+      "dolby_atmos": "bose-smart-ultra",
+      "earc": "bose-smart-ultra",
+      "raumkalibrierung": "bose-smart-ultra",
+      "wlan_streaming": "bose-smart-ultra",
+      "sprachmodus": "bose-smart-ultra",
+      "breite_cm": "bose-smart-ultra"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-hw-b760gf",
+   "hersteller": "Samsung",
+   "name": "B-Serie HW-B760GF",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-hw-b760gf-standard",
+     "name": "Soundbar",
+     "mpn": "HW-B760GF/ZG",
+     "ean": [
+      "8806097160922"
+     ],
+     "werte": {
+      "kanaele": "5.1",
+      "subwoofer": "extern_kabellos",
+      "dolby_atmos": false,
+      "dts_x": false,
+      "earc": false,
+      "sprachmodus": true,
+      "erweiterbar": true,
+      "breite_cm": 103
+     },
+     "belege": {
+      "kanaele": "sam-hw-b760gf",
+      "subwoofer": "sam-hw-b760gf",
+      "dolby_atmos": "sam-hw-b760gf",
+      "dts_x": "sam-hw-b760gf",
+      "earc": "sam-hw-b760gf",
+      "sprachmodus": "sam-hw-b760gf",
+      "erweiterbar": "sam-hw-b760gf",
+      "breite_cm": "sam-hw-b760gf"
+     },
+     "preis": {
+      "eur": 239.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/audio-devices/soundbar/b750f-black-hw-b760gf-zg/",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-hw-s710gd",
+   "hersteller": "Samsung",
+   "name": "S-Serie HW-S710GD",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-hw-s710gd-standard",
+     "name": "Soundbar",
+     "mpn": "HW-S710GD/ZG",
+     "ean": [
+      "8806095475172"
+     ],
+     "werte": {
+      "kanaele": "3.1",
+      "subwoofer": "extern_kabellos",
+      "dolby_atmos": true,
+      "dts_x": true,
+      "earc": true,
+      "raumkalibrierung": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "erweiterbar": true,
+      "leistung_w": 250,
+      "breite_cm": 89
+     },
+     "belege": {
+      "kanaele": "sam-hw-s710gd",
+      "subwoofer": "sam-hw-s710gd",
+      "dolby_atmos": "sam-hw-s710gd",
+      "dts_x": "sam-hw-s710gd",
+      "earc": "sam-hw-s710gd",
+      "raumkalibrierung": "sam-hw-s710gd",
+      "wlan_streaming": "sam-hw-s710gd",
+      "sprachmodus": "sam-hw-s710gd",
+      "erweiterbar": "sam-hw-s710gd",
+      "leistung_w": "sam-hw-s710gd",
+      "breite_cm": "sam-hw-s710gd"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-hw-s810gd",
+   "hersteller": "Samsung",
+   "name": "S-Serie HW-S810GD",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-hw-s810gd-standard",
+     "name": "Soundbar",
+     "mpn": "HW-S810GD/ZG",
+     "ean": [
+      "8806095427126"
+     ],
+     "werte": {
+      "kanaele": "3.1.2",
+      "subwoofer": "extern_kabellos",
+      "dolby_atmos": true,
+      "dts_x": true,
+      "earc": true,
+      "raumkalibrierung": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "erweiterbar": true,
+      "leistung_w": 330,
+      "breite_cm": 116
+     },
+     "belege": {
+      "kanaele": "sam-hw-s810gd",
+      "subwoofer": "sam-hw-s810gd",
+      "dolby_atmos": "sam-hw-s810gd",
+      "dts_x": "sam-hw-s810gd",
+      "earc": "sam-hw-s810gd",
+      "raumkalibrierung": "sam-hw-s810gd",
+      "wlan_streaming": "sam-hw-s810gd",
+      "sprachmodus": "sam-hw-s810gd",
+      "erweiterbar": "sam-hw-s810gd",
+      "leistung_w": "sam-hw-s810gd",
+      "breite_cm": "sam-hw-s810gd"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-hw-q995gh",
+   "hersteller": "Samsung",
+   "name": "Q-Serie HW-Q995GH",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "samsung-hw-q995gh-standard",
+     "name": "Soundbar",
+     "mpn": "HW-Q995GH/ZG",
+     "ean": [
+      "8806097992738"
+     ],
+     "werte": {
+      "kanaele": "11.1.4",
+      "subwoofer": "extern_kabellos",
+      "dolby_atmos": true,
+      "dts_x": true,
+      "earc": true,
+      "raumkalibrierung": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "breite_cm": 123.2
+     },
+     "belege": {
+      "kanaele": "sam-hw-q995gh",
+      "subwoofer": "sam-hw-q995gh",
+      "dolby_atmos": "sam-hw-q995gh",
+      "dts_x": "sam-hw-q995gh",
+      "earc": "sam-hw-q995gh",
+      "raumkalibrierung": "sam-hw-q995gh",
+      "wlan_streaming": "sam-hw-q995gh",
+      "sprachmodus": "sam-hw-q995gh",
+      "breite_cm": "sam-hw-q995gh"
+     },
+     "preis": {
+      "eur": 1049.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/audio-devices/soundbar/q990h-black-hw-q995gh-zg/",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "jbl-bar-800",
+   "hersteller": "JBL",
+   "name": "Bar 800",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "jbl-bar-800-standard",
+     "name": "Soundbar",
+     "mpn": "JBLBAR800PROBLKEP",
+     "ean": [
+      "6925281996719"
+     ],
+     "werte": {
+      "kanaele": "5.1.2",
+      "subwoofer": "extern_kabellos",
+      "dolby_atmos": true,
+      "wlan_streaming": true,
+      "sprachmodus": true,
+      "leistung_w": 720
+     },
+     "belege": {
+      "kanaele": "alt-jbl-bar800",
+      "subwoofer": "alt-jbl-bar800",
+      "dolby_atmos": "alt-jbl-bar800",
+      "wlan_streaming": "alt-jbl-bar800",
+      "sprachmodus": "alt-jbl-bar800",
+      "leistung_w": "alt-jbl-bar800"
+     },
+     "preis": {
+      "eur": 459.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/JBL/Bar-800-Soundbar/html/product/1850564",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sony-ht-sf150",
+   "hersteller": "Sony",
+   "name": "HT-SF150",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "sony-ht-sf150-standard",
+     "name": "Soundbar",
+     "mpn": "HTSF150.CEL",
+     "ean": [
+      "4548736067325"
+     ],
+     "werte": {
+      "kanaele": "2.0",
+      "subwoofer": "keiner",
+      "wlan_streaming": false,
+      "leistung_w": 120,
+      "breite_cm": 90.0
+     },
+     "belege": {
+      "kanaele": "alt-sony-htsf150",
+      "subwoofer": "alt-sony-htsf150",
+      "wlan_streaming": "alt-sony-htsf150",
+      "leistung_w": "alt-sony-htsf150",
+      "breite_cm": "alt-sony-htsf150"
+     },
+     "preis": {
+      "eur": 77.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Sony/HTSF150-Soundbar/html/product/1439781",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "yamaha-sr-b40a",
+   "hersteller": "Yamaha",
+   "name": "SR-B40A",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "yamaha-sr-b40a-standard",
+     "name": "Soundbar",
+     "werte": {
+      "kanaele": "2.1",
+      "subwoofer": "extern_kabellos",
+      "dolby_atmos": true,
+      "earc": true,
+      "wlan_streaming": false,
+      "leistung_w": 200,
+      "breite_cm": 91.0
+     },
+     "belege": {
+      "kanaele": "yamaha-srb30a-b40a",
+      "subwoofer": "yamaha-srb30a-b40a",
+      "dolby_atmos": "yamaha-srb30a-b40a",
+      "earc": "yamaha-srb30a-b40a",
+      "wlan_streaming": "yamaha-srb30a-b40a",
+      "leistung_w": "yamaha-srb30a-b40a",
+      "breite_cm": "yamaha-srb30a-b40a"
+     }
+    }
+   ]
+  },
+  {
+   "id": "yamaha-sr-b30a",
+   "hersteller": "Yamaha",
+   "name": "SR-B30A",
+   "werte": {},
+   "belege": {},
+   "varianten": [
+    {
+     "id": "yamaha-sr-b30a-standard",
+     "name": "Soundbar",
+     "werte": {
+      "kanaele": "2.1",
+      "subwoofer": "integriert",
+      "dolby_atmos": true,
+      "earc": true,
+      "wlan_streaming": false,
+      "leistung_w": 120,
+      "breite_cm": 91.0,
+      "sprachmodus": true
+     },
+     "belege": {
+      "kanaele": "yamaha-srb30a-b40a",
+      "subwoofer": "yamaha-srb30a-b40a",
+      "dolby_atmos": "yamaha-srb30a-b40a",
+      "earc": "yamaha-srb30a-b40a",
+      "wlan_streaming": "yamaha-srb30a-b40a",
+      "leistung_w": "yamaha-srb30a-b40a",
+      "breite_cm": "yamaha-srb30a-b40a",
+      "sprachmodus": "sat-yamaha-srb30a"
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+# Bewertung Codex r6 – Finder-Veröffentlichung (22.11.2026)
+
+Bericht: `codex-nach-20261122-121613.json` (Codex gpt-6.2-sol high, Stand 648bf1f, 391 s, 1,27 Mio. Eingabe-Tokens, davon 94 Tsd. ungecacht) · Urteil: nicht bestanden · geschlossen R5-02, R5-03 · offen R5-01, R5-04, R5-05 (Folgebefunde) · neu R6-01, R6-02.
+Einordnung nach Skill `pruefschleife` Schritt 5, am Code bzw. im Wegwerf-Repo belegt; **noch nichts behoben** (Runde 6 über Rundenlimit, Runde 7 nur mit Entscheid des Besitzers, O17).
+
+| ID | Schwere | Einordnung | Beleg und Korrekturvorschlag |
+|---|---|---|---|
+| R5-01 | schwer | bestätigt (eng: bricht der Lauf beim Schreiben des Endstempels ab, zählt der Abstand ab dem Beginn statt ab dem Ende des Versuchs; Beginn zu Beginn bleibt ≥ 61 s, die Kopfregel „höchstens 1 Abruf pro 60 s“ hält) | Vor dem HTTP-Aufruf den Zustand „laufend“ atomar schreiben, am Ende atomar durch die Endzeit ersetzen; ein liegengebliebenes „laufend“ = voller Abstand ab Übernahme der Sperre. Test: Abbruch nach langem Abruf, Folgeabruf wartet 61 s. |
+| R5-04 | schwer | bestätigt (Wegwerf-Repo: `export-ignore` in `.git/info/attributes` lässt Dateien aus `git archive` fallen; `kopie_holen` gleicht nicht mit dem Commit ab) | Entpackte Kopie vor dem Bau gegen `git ls-tree -r <head>` prüfen (Pfade, Modi, Blob-IDs, nichts zusätzlich) oder die Kopie direkt aus den Objekten schreiben. Test: `export-ignore` auf eine Datendatei. Erreichbar nur durch eine lokale Einstellung im Repo. |
+| R6-01 | schwer | bestätigt (Wegwerf-Repo: `ls-tree -r` ohne `-t` zeigt keine `tree`-Einträge; ein zusätzlicher leerer Unterbaum bliebe unsichtbar) | Erwarteten Wurzelbaum aus dem Soll bilden (`git mktree` bzw. eigener Index) und seine ID mit `write-tree` vergleichen. Test: leerer Unterbaum im Index. Erreichbar nur über Plumbing oder Sparse-Index im Seitenbaum. |
+| R5-05 | mittel | bestätigt (Code: `teile.port or STANDARDPORT` setzt für Port 0 den Standardport; `replace(':', '_')` macht Ablagenamen mehrdeutig) | Standardport nur bei `port is None`, Port 0 ablehnen, Ablagename eindeutig (z. B. SHA-256 des Ursprungs). Tests: Port 0, IPv6 gegen `2001_db8__1`. Die gepflegten Shop-URLs haben weder Port noch IPv6. |
+| R6-02 | mittel | bestätigt, außerhalb des Prüfumfangs (Code: Sperr-, Zeit- und Sperrvermerkdatei heißen nach dem Host; `2001:db8::1.lock` ist unter Windows kein gültiger Dateiname) | Gemeinsamer, Windows-tauglicher Schlüssel je Host für alle drei Dateien. Vorher schon so; die gepflegten Shop-URLs haben keine IPv6-Hosts. |
+
+Fehlalarme: 0 von 5. Keine bewusste Entscheidung, nichts ungeklärt.
+Muster: Die Befunde werden mit jeder Runde enger. R5-04 und R6-01 setzen einen gezielten lokalen Eingriff ins Repo voraus, R5-05 und R6-02 Eingaben, die der Datenbestand nicht enthält, R5-01 ein Abbruchfenster von Mikrosekunden. Veröffentlichungsrelevant (gh-pages) sind nur R5-04 und R6-01; R5-01, R5-05 und R6-02 betreffen das lokale Werkzeug `abruf.py` der Datenpflege, das nicht ausgeliefert wird. Alle Korrekturen sind klein und gut testbar.
+
+## Behebung (Paketschnitt, O17 vom Besitzer entschieden, 22.11.2026)
+
+Das Paket wurde geschnitten: Runde 7 prüft nur noch `werkzeuge/veroeffentlichen.py`. R5-01, R5-05 und R6-02 betreffen das lokale Werkzeug `werkzeuge/datenpflege/abruf.py`, das nicht ausgeliefert wird. Sie sind bestätigt und offen und kommen in ein eigenes Paket; Gegenstand von r7 sind sie nicht.
+
+| ID | Behebung | Beleg |
+|---|---|---|
+| R5-04 | `kopie_holen` schreibt die Bauquelle jetzt direkt aus den Git-Objekten (`ls-tree -r -z` und `cat-file --batch`): kein `git archive`, keine Attribute, keine Filter. Erlaubt sind nur normale Dateien (100644/100755), Pfade außerhalb der Kopie führen zum Abbruch. Danach gleicht `kopie_fehler` die Kopie mit dem Commit ab (Pfade, Objekt-IDs, nichts zusätzlich) | `test_kopie_holen_ohne_lokale_attribute` (export-ignore in `.git/info/attributes`), `test_kopie_nur_normale_dateien` (120000), `test_kopie_fehler`: vorher rot, jetzt grün |
+| R6-01 | `soll_baum` baut aus dem Soll mit einem eigenen leeren Index (`GIT_INDEX_FILE`, `update-index --index-info`, `write-tree`) die erwartete Wurzelbaum-ID. Commit und Push gibt es nur, wenn diese ID gleich dem geschriebenen Baum ist | `test_leerer_unterbaum_bricht_ab` (zusätzlicher leerer Unterbaum per `mktree` im Ergebnis von `write-tree`): vorher gepusht, jetzt Abbruch ohne Push |

@@ -1,0 +1,94 @@
+# Finder-Daten veröffentlichen (D8, D11): bei jeder Änderung der Produktdatenbank auf main prüfen, bauen und nur
+# finder-daten.json auf gh-pages ersetzen. Die App lädt die Datei netz-zuerst (sw.js), eine neue App-Fassung ist dafür
+# nicht nötig. Schranke: python -I werkzeuge/datenbank.py pruefen muss 0 Fehler melden, sonst bleibt der alte Stand
+# online und der Lauf wird rot. Keine Secrets nötig (GITHUB_TOKEN genügt). Pushes von github-actions[bot] auf gh-pages
+# lösen den Pages-Bau aus (belegt: pages/builds, pusher github-actions[bot], 20./21.11.2026); der letzte Schritt prüft das
+# trotzdem als Abnahme: die öffentliche finder-daten.json muss bytegleich mit dem Bau sein (F-02).
+# Herkunft (R2-07): die Datei trägt den Commit, aus dem sie gebaut ist; vor jedem Kopieren prüft werkzeuge/herkunft.py,
+# dass der Online-Stand in diesem Commit enthalten ist. Ein neu gestarteter alter Lauf setzt so nie neuere Daten zurück
+# (Lauf wird rot, nichts gepusht).
+name: Finder-Daten
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "daten/produkte/**"
+      - "daten/schema/**"
+      - "daten/quellen.json"
+      - "werkzeuge/datenbank.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # nur für den Push von finder-daten.json auf gh-pages
+  pages: read       # nur für die Adresse der Seite (Abnahme)
+
+concurrency:
+  group: gh-pages-finder-daten
+  cancel-in-progress: false
+
+jobs:
+  daten:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Repo holen
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # volle Historie für die Herkunftsprüfung (merge-base)
+
+      - name: Produktdaten prüfen (Schranke)
+        run: python3 -X utf8 -I werkzeuge/datenbank.py pruefen
+
+      - name: finder-daten.json bauen
+        run: python3 -X utf8 -I werkzeuge/datenbank.py bauen "$RUNNER_TEMP/finder-daten.json" --herkunft "$GITHUB_SHA"
+
+      - name: Gebaute Datei grob prüfen
+        run: |
+          python3 -X utf8 -I - "$RUNNER_TEMP/finder-daten.json" <<'EOF'
+          import json, sys
+          d = json.load(open(sys.argv[1], encoding="utf-8"))
+          assert isinstance(d.get("kategorien"), list) and len(d["kategorien"]) >= 14, "Kategorien fehlen"
+          n = sum(len(k["modelle"]) for k in d["kategorien"])
+          assert n >= 200, f"nur {n} Varianten"
+          print(f"ok: {len(d['kategorien'])} Kategorien, {n} Varianten, Stand {d.get('stand')}")
+          EOF
+
+      - name: Auf gh-pages veröffentlichen (nur finder-daten.json, nur bei Änderung)
+        run: |
+          git fetch --no-tags --depth=1 origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
+          git worktree add -B gh-pages .veroeffentlichung origin/gh-pages
+          cd .veroeffentlichung
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 -X utf8 -I ../werkzeuge/herkunft.py pruefen finder-daten.json "$GITHUB_SHA" ..
+          cp "$RUNNER_TEMP/finder-daten.json" finder-daten.json
+          git add finder-daten.json
+          if git diff --cached --quiet; then echo "finder-daten.json unverändert"; exit 0; fi
+          git commit -q -m "Finder-Daten ${GITHUB_SHA::7}"
+          # Die tägliche Preisabfrage pusht ebenfalls auf gh-pages: bei Konflikt neu aufsetzen (nur eigene Datei)
+          for versuch in 1 2 3; do
+            if git push -q origin gh-pages; then echo "gepusht: gh-pages/finder-daten.json"; exit 0; fi
+            git fetch --no-tags --depth=1 origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
+            git reset -q --hard origin/gh-pages
+            python3 -X utf8 -I ../werkzeuge/herkunft.py pruefen finder-daten.json "$GITHUB_SHA" ..
+            cp "$RUNNER_TEMP/finder-daten.json" finder-daten.json
+            git add finder-daten.json
+            if git diff --cached --quiet; then echo "finder-daten.json schon aktuell"; exit 0; fi
+            git commit -q -m "Finder-Daten ${GITHUB_SHA::7}"
+          done
+          echo "::error::Push auf gh-pages dreimal gescheitert"; exit 1
+
+      - name: Abnahme – Pages liefert den neuen Stand aus (bis 10 min)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          basis="$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .html_url)"
+          url="${basis%/}/finder-daten.json"
+          soll="$(sha256sum "$RUNNER_TEMP/finder-daten.json" | cut -d' ' -f1)"
+          for i in $(seq 1 20); do
+            ist="$(curl -fsSL -H 'Cache-Control: no-cache' "$url?lauf=$GITHUB_RUN_ID-$i" | sha256sum | cut -d' ' -f1 || true)"
+            if [ "$ist" = "$soll" ]; then echo "live und bytegleich: $url"; exit 0; fi
+            sleep 30
+          done
+          echo "::error::Pages liefert nach 10 min nicht den gebauten Stand ($url)"; exit 1

@@ -1,0 +1,44 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Die Veröffentlichung kann durch den Verlust bestehender Git-Konfiguration abbrechen. R7-03 bleibt offen, weil die Pfadprüfung Unicode-Steuerzeichen durchlässt und unter Windows einen veränderten Pfad zum Schreiben übergibt.",
+  "befunde": [
+    {
+      "id": "R8-01",
+      "schwere": "schwer",
+      "titel": "Die neue Git-Umgebung überschreibt vorhandene Laufzeitkonfiguration",
+      "datei": "werkzeuge/herkunft.py",
+      "zeile": 22,
+      "beleg": "OHNE_ERSATZ setzt GIT_CONFIG_COUNT auf 1 und überschreibt den ersten Konfigurationseintrag. Im geprüften Worktree wird safe.directory über diese Laufzeitkonfiguration gesetzt. Lesend reproduziert: git rev-parse HEAD liefert mit der ursprünglichen Umgebung Exit 0 und mit umgebung() Exit 128 („detected dubious ownership“). git_vorfahr(HEAD, HEAD) liefert dadurch False. Der erste Fetch im Veröffentlichungspfad nutzt dieselbe Umgebung (werkzeuge/veroeffentlichen.py:55, :76). Bestehende Git-Einstellungen müssen wirksam bleiben.",
+      "auswirkung": "Die Veröffentlichung scheitert bereits beim Abruf. Die Herkunftsprüfung lehnt einen vorhandenen Commit ab. Ein separater lesender Test bestätigte außerdem, dass eine per Laufzeitkonfiguration gesetzte Push-URL verloren geht.",
+      "vorschlag": "Nur die beiden Schutzvariablen in OHNE_ERSATZ setzen. Die Graft-Warnung mit git -c advice.graftFileDeprecated=false unterdrücken oder den Eintrag an die vorhandene Laufzeitkonfiguration anhängen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R8-02",
+      "schwere": "schwer",
+      "titel": "Unicode-Steuerzeichen passieren die Pfadprüfung",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 148,
+      "beleg": "Das Abnahmekriterium lautet „Baumpfade kommen unverändert an, Steuerzeichen brechen ab.“ Die Prüfung erfasst nur Codepunkte unter 32 und den Wert 127. Ein lesender Test von baum_eintraege mit simulierter ls-tree-Ausgabe bestätigte, dass ein UTF-8-Pfad mit U+0085 unverändert akzeptiert wird. U+0085 gehört zur Unicode-Kategorie Cc.",
+      "auswirkung": "Ein Baumpfad mit einem C1-Steuerzeichen passiert die vorgeschriebene Abbruchprüfung und gelangt in die Baukopie.",
+      "vorschlag": "Unicode-Steuerzeichen der Kategorie Cc ablehnen und den Pfadtest um einen C1-Fall ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R8-03",
+      "schwere": "mittel",
+      "titel": "Windows-Pfadprüfung greift erst nach dem Schreibversuch",
+      "datei": "werkzeuge/veroeffentlichen.py",
+      "zeile": 222,
+      "beleg": "R7-03 fordert „Auf dem Zielsystem unzulässige Namen vor dem Schreiben ablehnen.“ Ein im Git-Dateinamen wörtlich enthaltener Rückwärtsschrägstrich wird unter Windows als Verzeichnistrenner ausgewertet. Ein lesender Test mit abgefangenen Dateisystem-Schreibaufrufen bestätigte, dass kopie_holen den veränderten Zielpfad an write_bytes übergibt. Der exakte Pfadvergleich folgt erst in Zeile 227.",
+      "auswirkung": "Ein auf einem anderen Betriebssystem gültiger Git-Dateiname kann unter Windows zunächst unter einem anderen Pfad in der temporären Kopie landen. Der nachgelagerte Vergleich bricht anschließend ab.",
+      "vorschlag": "Alle Baumpfade anhand der Regeln des Zielsystems validieren, bevor die erste Datei oder das erste Unterverzeichnis angelegt wird.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "R7-01",
+    "R7-02"
+  ],
+  "pruefgrenzen": "Geprüft wurde fe31ae2f5cde7619a03812aacb4bf70622cc12da. Der eigenständige Datenbanklauf ergab 0 Fehler und 56 Warnungen. Der Sammellauf wurde wegen seiner Datei- und Protokollschreibvorgänge nicht wiederholt. Für Sammellauf, Bau und Trockenlauf gilt der Selbstprüfungsnachweis des Bauers. Im Diff wurden keine für das öffentliche Repo ausgeschlossenen Angaben gefunden."
+}

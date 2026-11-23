@@ -1,0 +1,1292 @@
+{
+ "kategorie": "tablet",
+ "stand": "2026-11-21",
+ "quellen": {
+  "sam-galaxy-tab-a11-gray-64gb-sm-x130nzaaeub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-gray-64gb-sm-x130nzaaeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab A11 (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x130nzaaeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x130nzaaeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X130NZAAEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-a11-gray-128gb-sm-x130nzaeeub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-gray-128gb-sm-x130nzaeeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab A11 (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x130nzaeeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x130nzaeeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X130NZAEEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-a11-plus-gray-128gb-sm-x230nzareub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-plus-gray-128gb-sm-x230nzareub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab A11+ (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x230nzareub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x230nzareub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X230NZAREUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-a11-plus-gray-256gb-sm-x230nzapeub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-plus-gray-256gb-sm-x230nzapeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab A11+ (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x230nzapeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x230nzapeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X230NZAPEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab A11+ (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x236bzareub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x236bzareub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X236BZAREUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s10-lite-gray-128gb-sm-x400nzareub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-lite-gray-128gb-sm-x400nzareub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S10 Lite (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x400nzareub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x400nzareub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X400NZAREUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s10-lite-gray-256gb-sm-x400nzapeub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-lite-gray-256gb-sm-x400nzapeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S10 Lite (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x400nzapeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x400nzapeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X400NZAPEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S10 FE (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x520nzareub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x520nzareub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X520NZAREUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S10 FE (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x520nzapeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x520nzapeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X520NZAPEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S10 FE+ (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x620nzareub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x620nzareub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X620NZAREUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s10-fe-plus-gray-256gb-sm-x620nzapeub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-plus-gray-256gb-sm-x620nzapeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S10 FE+ (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x620nzapeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x620nzapeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X620NZAPEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s11-gray-128gb-sm-x730nzareub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s11-gray-128gb-sm-x730nzareub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S11 (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x730nzareub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x730nzareub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X730NZAREUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s11-gray-256gb-sm-x730nzapeub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s11-gray-256gb-sm-x730nzapeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S11 (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x730nzapeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x730nzapeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X730NZAPEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S12+ (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x840nzareub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x840nzareub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X840NZAREUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S12+ (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x840nzapeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x840nzapeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X840NZAPEUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S12 Ultra (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x940nzareub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x940nzareub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X940NZAREUB",
+   "gelesen": "2026-11-21"
+  },
+  "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub": {
+   "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub/",
+   "titel": "Samsung Deutschland Produktseite Galaxy Tab S12 Ultra (Spezifikationen) - ppi aus Auflösung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "fiche-sm-x940nzapeub": {
+   "url": "https://images.samsung.com/is/content/samsung/p6/common/energylabel/common-energylabel-sm-x940nzapeub-productfiche.pdf",
+   "titel": "Samsung EU-Produktdatenblatt (Verordnung 2023/1669) SM-X940NZAPEUB",
+   "gelesen": "2026-11-21"
+  },
+  "apple-ipad-11-spezifikationen": {
+   "url": "https://www.apple.com/de/ipad-11/specs/",
+   "titel": "Apple Deutschland iPad 11 Zoll Technische Daten",
+   "gelesen": "2026-11-21"
+  },
+  "apple-pis-a3354": {
+   "url": "https://regulatoryinfo.apple.com/cwt/api/ext/file?fileId=energyLabels/A3354_V1/A3354/A3354_Product_Information_Sheet_DE_German.pdf",
+   "titel": "Apple Produktdatenblatt EU-Energielabel Modell A3354 (Verordnung 2023/1669)",
+   "gelesen": "2026-11-21"
+  },
+  "apple-pis-a3355": {
+   "url": "https://regulatoryinfo.apple.com/cwt/api/ext/file?fileId=energyLabels/A3355_V1/A3355/A3355_Product_Information_Sheet_DE_German.pdf",
+   "titel": "Apple Produktdatenblatt EU-Energielabel Modell A3355 (Verordnung 2023/1669)",
+   "gelesen": "2026-11-21"
+  },
+  "eprel-2583821": {
+   "url": "https://eprel.ec.europa.eu/screen/product/smartphonestablets20231669/2583821",
+   "titel": "EU-Produktdatenbank EPREL, Registrierung 2583821 (Lenovo Idea Tab Pro Gen 2, TB390FU)",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se": {
+   "url": "https://www.proshop.de/iPad-Tablet/Lenovo-Idea-Tab-Pro-Gen-2-8GB-128GB/3453545",
+   "titel": "Proshop Produktseite Lenovo Idea Tab Pro Gen 2 8GB/128GB (ZAHD0631SE) - ppi aus Aufloesung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  },
+  "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se": {
+   "url": "https://www.proshop.de/iPad-Tablet/Lenovo-Idea-Tab-Pro-Gen-2-ZAHC-tablet-Android-16-or-later-256-GB-13/3484809",
+   "titel": "Proshop Produktseite Lenovo Idea Tab Pro Gen 2 ZAHC 256 GB (ZAHC0169SE)",
+   "gelesen": "2026-11-21"
+  },
+  "alternate-redmi-pad-2-100151233": {
+   "url": "https://www.alternate.de/Xiaomi/Redmi-Pad-2-Tablet-PC/html/product/100151233",
+   "titel": "Alternate Produktseite Xiaomi Redmi Pad 2 (VHU5659EU): Datenblatt und EU-Energielabel-Angaben; ppi aus Aufloesung und Diagonale berechnet",
+   "gelesen": "2026-11-21"
+  }
+ },
+ "modelle": [
+  {
+   "id": "samsung-galaxy-tab-a11",
+   "hersteller": "Samsung",
+   "name": "Galaxy Tab A11",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-tab-a11-64gb",
+     "name": "64 GB",
+     "mpn": "SM-X130NZAAEUB",
+     "werte": {
+      "speicher_gb": 64,
+      "ram_gb": 4,
+      "display_zoll": 8.7,
+      "akku_ausdauer_h": 103,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "C",
+      "energieklasse": "C",
+      "ip_schutz": "IP52",
+      "update_jahre": 5,
+      "ppi": 180,
+      "mobilfunk": false,
+      "lautsprecher_anzahl": 2
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-a11-gray-64gb-sm-x130nzaaeub",
+      "ram_gb": "sam-galaxy-tab-a11-gray-64gb-sm-x130nzaaeub",
+      "display_zoll": "sam-galaxy-tab-a11-gray-64gb-sm-x130nzaaeub",
+      "akku_ausdauer_h": "fiche-sm-x130nzaaeub",
+      "ladezyklen": "fiche-sm-x130nzaaeub",
+      "reparierbarkeit": "fiche-sm-x130nzaaeub",
+      "fallklasse": "fiche-sm-x130nzaaeub",
+      "energieklasse": "fiche-sm-x130nzaaeub",
+      "ip_schutz": "fiche-sm-x130nzaaeub",
+      "update_jahre": "fiche-sm-x130nzaaeub",
+      "ppi": "sam-galaxy-tab-a11-gray-64gb-sm-x130nzaaeub",
+      "mobilfunk": "sam-galaxy-tab-a11-gray-64gb-sm-x130nzaaeub",
+      "lautsprecher_anzahl": "sam-galaxy-tab-a11-gray-64gb-sm-x130nzaaeub"
+     },
+     "ean": [
+      "8806097781950"
+     ]
+    },
+    {
+     "id": "samsung-galaxy-tab-a11-128gb",
+     "name": "128 GB",
+     "mpn": "SM-X130NZAEEUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 8,
+      "display_zoll": 8.7,
+      "akku_ausdauer_h": 103,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "C",
+      "energieklasse": "C",
+      "ip_schutz": "IP52",
+      "update_jahre": 5,
+      "ppi": 180,
+      "mobilfunk": false,
+      "lautsprecher_anzahl": 2
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-a11-gray-128gb-sm-x130nzaeeub",
+      "ram_gb": "sam-galaxy-tab-a11-gray-128gb-sm-x130nzaeeub",
+      "display_zoll": "sam-galaxy-tab-a11-gray-128gb-sm-x130nzaeeub",
+      "akku_ausdauer_h": "fiche-sm-x130nzaeeub",
+      "ladezyklen": "fiche-sm-x130nzaeeub",
+      "reparierbarkeit": "fiche-sm-x130nzaeeub",
+      "fallklasse": "fiche-sm-x130nzaeeub",
+      "energieklasse": "fiche-sm-x130nzaeeub",
+      "ip_schutz": "fiche-sm-x130nzaeeub",
+      "update_jahre": "fiche-sm-x130nzaeeub",
+      "ppi": "sam-galaxy-tab-a11-gray-128gb-sm-x130nzaeeub",
+      "mobilfunk": "sam-galaxy-tab-a11-gray-128gb-sm-x130nzaeeub",
+      "lautsprecher_anzahl": "sam-galaxy-tab-a11-gray-128gb-sm-x130nzaeeub"
+     },
+     "ean": [
+      "8806097781936"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-tab-a11-plus",
+   "hersteller": "Samsung",
+   "name": "Galaxy Tab A11+",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-tab-a11-plus-128gb",
+     "name": "128 GB",
+     "mpn": "SM-X230NZAREUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 6,
+      "display_zoll": 11.0,
+      "akku_ausdauer_h": 96,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "E",
+      "ip_schutz": "IP52",
+      "update_jahre": 5,
+      "ppi": 207,
+      "mobilfunk": false
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x230nzareub",
+      "ram_gb": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x230nzareub",
+      "display_zoll": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x230nzareub",
+      "akku_ausdauer_h": "fiche-sm-x230nzareub",
+      "ladezyklen": "fiche-sm-x230nzareub",
+      "reparierbarkeit": "fiche-sm-x230nzareub",
+      "fallklasse": "fiche-sm-x230nzareub",
+      "energieklasse": "fiche-sm-x230nzareub",
+      "ip_schutz": "fiche-sm-x230nzareub",
+      "update_jahre": "fiche-sm-x230nzareub",
+      "ppi": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x230nzareub",
+      "mobilfunk": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x230nzareub"
+     },
+     "ean": [
+      "8806097855040"
+     ],
+     "preis": {
+      "eur": 209.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-plus-gray-128gb-sm-x230nzareub/",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "samsung-galaxy-tab-a11-plus-256gb",
+     "name": "256 GB",
+     "mpn": "SM-X230NZAPEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 8,
+      "display_zoll": 11.0,
+      "akku_ausdauer_h": 96,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "E",
+      "ip_schutz": "IP52",
+      "update_jahre": 5,
+      "ppi": 207,
+      "mobilfunk": false
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-a11-plus-gray-256gb-sm-x230nzapeub",
+      "ram_gb": "sam-galaxy-tab-a11-plus-gray-256gb-sm-x230nzapeub",
+      "display_zoll": "sam-galaxy-tab-a11-plus-gray-256gb-sm-x230nzapeub",
+      "akku_ausdauer_h": "fiche-sm-x230nzapeub",
+      "ladezyklen": "fiche-sm-x230nzapeub",
+      "reparierbarkeit": "fiche-sm-x230nzapeub",
+      "fallklasse": "fiche-sm-x230nzapeub",
+      "energieklasse": "fiche-sm-x230nzapeub",
+      "ip_schutz": "fiche-sm-x230nzapeub",
+      "update_jahre": "fiche-sm-x230nzapeub",
+      "ppi": "sam-galaxy-tab-a11-plus-gray-256gb-sm-x230nzapeub",
+      "mobilfunk": "sam-galaxy-tab-a11-plus-gray-256gb-sm-x230nzapeub"
+     },
+     "ean": [
+      "8806097855088"
+     ],
+     "preis": {
+      "eur": 259.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-plus-gray-256gb-sm-x230nzapeub/",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "samsung-galaxy-tab-a11-plus-128gb-lte",
+     "name": "128 GB (5G/LTE)",
+     "mpn": "SM-X236BZAREUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 6,
+      "display_zoll": 11.0,
+      "akku_ausdauer_h": 96,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "E",
+      "ip_schutz": "IP52",
+      "update_jahre": 5,
+      "ppi": 207,
+      "mobilfunk": true,
+      "lautsprecher_anzahl": 2
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub",
+      "ram_gb": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub",
+      "display_zoll": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub",
+      "akku_ausdauer_h": "fiche-sm-x236bzareub",
+      "ladezyklen": "fiche-sm-x236bzareub",
+      "reparierbarkeit": "fiche-sm-x236bzareub",
+      "fallklasse": "fiche-sm-x236bzareub",
+      "energieklasse": "fiche-sm-x236bzareub",
+      "ip_schutz": "fiche-sm-x236bzareub",
+      "update_jahre": "fiche-sm-x236bzareub",
+      "ppi": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub",
+      "mobilfunk": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub",
+      "lautsprecher_anzahl": "sam-galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub"
+     },
+     "ean": [
+      "8806097854845"
+     ],
+     "preis": {
+      "eur": 239.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-a/galaxy-tab-a11-plus-gray-128gb-sm-x236bzareub/",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-tab-s10-lite",
+   "hersteller": "Samsung",
+   "name": "Galaxy Tab S10 Lite",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-tab-s10-lite-128gb",
+     "name": "128 GB",
+     "mpn": "SM-X400NZAREUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 6,
+      "display_zoll": 10.9,
+      "akku_ausdauer_h": 87,
+      "ladezyklen": 2000,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "F",
+      "update_jahre": 5,
+      "ppi": 228,
+      "mobilfunk": false,
+      "stift": true
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s10-lite-gray-128gb-sm-x400nzareub",
+      "ram_gb": "sam-galaxy-tab-s10-lite-gray-128gb-sm-x400nzareub",
+      "display_zoll": "sam-galaxy-tab-s10-lite-gray-128gb-sm-x400nzareub",
+      "akku_ausdauer_h": "fiche-sm-x400nzareub",
+      "ladezyklen": "fiche-sm-x400nzareub",
+      "reparierbarkeit": "fiche-sm-x400nzareub",
+      "fallklasse": "fiche-sm-x400nzareub",
+      "energieklasse": "fiche-sm-x400nzareub",
+      "update_jahre": "fiche-sm-x400nzareub",
+      "ppi": "sam-galaxy-tab-s10-lite-gray-128gb-sm-x400nzareub",
+      "mobilfunk": "sam-galaxy-tab-s10-lite-gray-128gb-sm-x400nzareub",
+      "stift": "sam-galaxy-tab-s10-lite-gray-128gb-sm-x400nzareub"
+     },
+     "ean": [
+      "8806097638575"
+     ]
+    },
+    {
+     "id": "samsung-galaxy-tab-s10-lite-256gb",
+     "name": "256 GB",
+     "mpn": "SM-X400NZAPEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 8,
+      "display_zoll": 10.9,
+      "akku_ausdauer_h": 87,
+      "ladezyklen": 2000,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "F",
+      "update_jahre": 5,
+      "ppi": 228,
+      "mobilfunk": false,
+      "stift": true
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s10-lite-gray-256gb-sm-x400nzapeub",
+      "ram_gb": "sam-galaxy-tab-s10-lite-gray-256gb-sm-x400nzapeub",
+      "display_zoll": "sam-galaxy-tab-s10-lite-gray-256gb-sm-x400nzapeub",
+      "akku_ausdauer_h": "fiche-sm-x400nzapeub",
+      "ladezyklen": "fiche-sm-x400nzapeub",
+      "reparierbarkeit": "fiche-sm-x400nzapeub",
+      "fallklasse": "fiche-sm-x400nzapeub",
+      "energieklasse": "fiche-sm-x400nzapeub",
+      "update_jahre": "fiche-sm-x400nzapeub",
+      "ppi": "sam-galaxy-tab-s10-lite-gray-256gb-sm-x400nzapeub",
+      "mobilfunk": "sam-galaxy-tab-s10-lite-gray-256gb-sm-x400nzapeub",
+      "stift": "sam-galaxy-tab-s10-lite-gray-256gb-sm-x400nzapeub"
+     },
+     "ean": [
+      "8806097638629"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-tab-s10-fe",
+   "hersteller": "Samsung",
+   "name": "Galaxy Tab S10 FE",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-tab-s10-fe-128gb",
+     "name": "128 GB",
+     "mpn": "SM-X520NZAREUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 8,
+      "display_zoll": 10.9,
+      "akku_ausdauer_h": 96,
+      "ladezyklen": 2000,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "F",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 249,
+      "mobilfunk": false,
+      "stift": true
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub",
+      "ram_gb": "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub",
+      "display_zoll": "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub",
+      "akku_ausdauer_h": "fiche-sm-x520nzareub",
+      "ladezyklen": "fiche-sm-x520nzareub",
+      "reparierbarkeit": "fiche-sm-x520nzareub",
+      "fallklasse": "fiche-sm-x520nzareub",
+      "energieklasse": "fiche-sm-x520nzareub",
+      "ip_schutz": "fiche-sm-x520nzareub",
+      "update_jahre": "fiche-sm-x520nzareub",
+      "ppi": "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub",
+      "mobilfunk": "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub",
+      "stift": "sam-galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub"
+     },
+     "preis": {
+      "eur": 409.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-gray-128gb-sm-x520nzareub/",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "samsung-galaxy-tab-s10-fe-256gb",
+     "name": "256 GB",
+     "mpn": "SM-X520NZAPEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 10.9,
+      "akku_ausdauer_h": 96,
+      "ladezyklen": 2000,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "F",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 249,
+      "mobilfunk": false,
+      "stift": true
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub",
+      "ram_gb": "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub",
+      "display_zoll": "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub",
+      "akku_ausdauer_h": "fiche-sm-x520nzapeub",
+      "ladezyklen": "fiche-sm-x520nzapeub",
+      "reparierbarkeit": "fiche-sm-x520nzapeub",
+      "fallklasse": "fiche-sm-x520nzapeub",
+      "energieklasse": "fiche-sm-x520nzapeub",
+      "ip_schutz": "fiche-sm-x520nzapeub",
+      "update_jahre": "fiche-sm-x520nzapeub",
+      "ppi": "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub",
+      "mobilfunk": "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub",
+      "stift": "sam-galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub"
+     },
+     "preis": {
+      "eur": 489.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-gray-256gb-sm-x520nzapeub/",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-tab-s10-fe-plus",
+   "hersteller": "Samsung",
+   "name": "Galaxy Tab S10 FE+",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-tab-s10-fe-plus-128gb",
+     "name": "128 GB",
+     "mpn": "SM-X620NZAREUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 8,
+      "display_zoll": 13.1,
+      "akku_ausdauer_h": 99,
+      "ladezyklen": 2000,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "F",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 259,
+      "mobilfunk": false,
+      "stift": true
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub",
+      "ram_gb": "sam-galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub",
+      "display_zoll": "sam-galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub",
+      "akku_ausdauer_h": "fiche-sm-x620nzareub",
+      "ladezyklen": "fiche-sm-x620nzareub",
+      "reparierbarkeit": "fiche-sm-x620nzareub",
+      "fallklasse": "fiche-sm-x620nzareub",
+      "energieklasse": "fiche-sm-x620nzareub",
+      "ip_schutz": "fiche-sm-x620nzareub",
+      "update_jahre": "fiche-sm-x620nzareub",
+      "ppi": "sam-galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub",
+      "mobilfunk": "sam-galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub",
+      "stift": "sam-galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub"
+     },
+     "ean": [
+      "8806097197508"
+     ],
+     "preis": {
+      "eur": 529.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s10-fe-plus-gray-128gb-sm-x620nzareub/",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "samsung-galaxy-tab-s10-fe-plus-256gb",
+     "name": "256 GB",
+     "mpn": "SM-X620NZAPEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 13.1,
+      "akku_ausdauer_h": 99,
+      "ladezyklen": 2000,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "F",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 259,
+      "mobilfunk": false,
+      "stift": true
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s10-fe-plus-gray-256gb-sm-x620nzapeub",
+      "ram_gb": "sam-galaxy-tab-s10-fe-plus-gray-256gb-sm-x620nzapeub",
+      "display_zoll": "sam-galaxy-tab-s10-fe-plus-gray-256gb-sm-x620nzapeub",
+      "akku_ausdauer_h": "fiche-sm-x620nzapeub",
+      "ladezyklen": "fiche-sm-x620nzapeub",
+      "reparierbarkeit": "fiche-sm-x620nzapeub",
+      "fallklasse": "fiche-sm-x620nzapeub",
+      "energieklasse": "fiche-sm-x620nzapeub",
+      "ip_schutz": "fiche-sm-x620nzapeub",
+      "update_jahre": "fiche-sm-x620nzapeub",
+      "ppi": "sam-galaxy-tab-s10-fe-plus-gray-256gb-sm-x620nzapeub",
+      "mobilfunk": "sam-galaxy-tab-s10-fe-plus-gray-256gb-sm-x620nzapeub",
+      "stift": "sam-galaxy-tab-s10-fe-plus-gray-256gb-sm-x620nzapeub"
+     },
+     "ean": [
+      "8806097197584"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-tab-s11",
+   "hersteller": "Samsung",
+   "name": "Galaxy Tab S11",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-tab-s11-128gb",
+     "name": "128 GB",
+     "mpn": "SM-X730NZAREUB",
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 12,
+      "display_zoll": 11.0,
+      "akku_ausdauer_h": 81,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "G",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 276,
+      "mobilfunk": false,
+      "stift": true
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s11-gray-128gb-sm-x730nzareub",
+      "ram_gb": "sam-galaxy-tab-s11-gray-128gb-sm-x730nzareub",
+      "display_zoll": "sam-galaxy-tab-s11-gray-128gb-sm-x730nzareub",
+      "akku_ausdauer_h": "fiche-sm-x730nzareub",
+      "ladezyklen": "fiche-sm-x730nzareub",
+      "reparierbarkeit": "fiche-sm-x730nzareub",
+      "fallklasse": "fiche-sm-x730nzareub",
+      "energieklasse": "fiche-sm-x730nzareub",
+      "ip_schutz": "fiche-sm-x730nzareub",
+      "update_jahre": "fiche-sm-x730nzareub",
+      "ppi": "sam-galaxy-tab-s11-gray-128gb-sm-x730nzareub",
+      "mobilfunk": "sam-galaxy-tab-s11-gray-128gb-sm-x730nzareub",
+      "stift": "sam-galaxy-tab-s11-gray-128gb-sm-x730nzareub"
+     },
+     "ean": [
+      "8806097712237"
+     ],
+     "preis": {
+      "eur": 799.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s11-gray-128gb-sm-x730nzareub/",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "samsung-galaxy-tab-s11-256gb",
+     "name": "256 GB",
+     "mpn": "SM-X730NZAPEUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 11.0,
+      "akku_ausdauer_h": 81,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "G",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 276,
+      "mobilfunk": false,
+      "stift": true
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s11-gray-256gb-sm-x730nzapeub",
+      "ram_gb": "sam-galaxy-tab-s11-gray-256gb-sm-x730nzapeub",
+      "display_zoll": "sam-galaxy-tab-s11-gray-256gb-sm-x730nzapeub",
+      "akku_ausdauer_h": "fiche-sm-x730nzapeub",
+      "ladezyklen": "fiche-sm-x730nzapeub",
+      "reparierbarkeit": "fiche-sm-x730nzapeub",
+      "fallklasse": "fiche-sm-x730nzapeub",
+      "energieklasse": "fiche-sm-x730nzapeub",
+      "ip_schutz": "fiche-sm-x730nzapeub",
+      "update_jahre": "fiche-sm-x730nzapeub",
+      "ppi": "sam-galaxy-tab-s11-gray-256gb-sm-x730nzapeub",
+      "mobilfunk": "sam-galaxy-tab-s11-gray-256gb-sm-x730nzapeub",
+      "stift": "sam-galaxy-tab-s11-gray-256gb-sm-x730nzapeub"
+     },
+     "ean": [
+      "8806097712282"
+     ],
+     "preis": {
+      "eur": 869.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s11-gray-256gb-sm-x730nzapeub/",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-tab-s12-plus",
+   "hersteller": "Samsung",
+   "name": "Galaxy Tab S12+",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-tab-s12-plus-256gb",
+     "name": "256 GB",
+     "mpn": "SM-X840NZAREUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 12.6,
+      "akku_ausdauer_h": 80,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "G",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 262,
+      "mobilfunk": false,
+      "stift": true,
+      "lautsprecher_anzahl": 4
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub",
+      "ram_gb": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub",
+      "display_zoll": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub",
+      "akku_ausdauer_h": "fiche-sm-x840nzareub",
+      "ladezyklen": "fiche-sm-x840nzareub",
+      "reparierbarkeit": "fiche-sm-x840nzareub",
+      "fallklasse": "fiche-sm-x840nzareub",
+      "energieklasse": "fiche-sm-x840nzareub",
+      "ip_schutz": "fiche-sm-x840nzareub",
+      "update_jahre": "fiche-sm-x840nzareub",
+      "ppi": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub",
+      "mobilfunk": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub",
+      "stift": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub",
+      "lautsprecher_anzahl": "sam-galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub"
+     },
+     "preis": {
+      "eur": 1299.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-plus-gray-256gb-sm-x840nzareub/",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "samsung-galaxy-tab-s12-plus-512gb",
+     "name": "512 GB",
+     "mpn": "SM-X840NZAPEUB",
+     "werte": {
+      "speicher_gb": 512,
+      "ram_gb": 12,
+      "display_zoll": 12.6,
+      "akku_ausdauer_h": 80,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "G",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 262,
+      "mobilfunk": false,
+      "stift": true,
+      "lautsprecher_anzahl": 4
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub",
+      "ram_gb": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub",
+      "display_zoll": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub",
+      "akku_ausdauer_h": "fiche-sm-x840nzapeub",
+      "ladezyklen": "fiche-sm-x840nzapeub",
+      "reparierbarkeit": "fiche-sm-x840nzapeub",
+      "fallklasse": "fiche-sm-x840nzapeub",
+      "energieklasse": "fiche-sm-x840nzapeub",
+      "ip_schutz": "fiche-sm-x840nzapeub",
+      "update_jahre": "fiche-sm-x840nzapeub",
+      "ppi": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub",
+      "mobilfunk": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub",
+      "stift": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub",
+      "lautsprecher_anzahl": "sam-galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub"
+     },
+     "preis": {
+      "eur": 1499.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-plus-gray-512gb-sm-x840nzapeub/",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "samsung-galaxy-tab-s12-ultra",
+   "hersteller": "Samsung",
+   "name": "Galaxy Tab S12 Ultra",
+   "varianten": [
+    {
+     "id": "samsung-galaxy-tab-s12-ultra-256gb",
+     "name": "256 GB",
+     "mpn": "SM-X940NZAREUB",
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 12,
+      "display_zoll": 14.5,
+      "akku_ausdauer_h": 88,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "G",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 240,
+      "mobilfunk": false,
+      "stift": true,
+      "lautsprecher_anzahl": 4
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub",
+      "ram_gb": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub",
+      "display_zoll": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub",
+      "akku_ausdauer_h": "fiche-sm-x940nzareub",
+      "ladezyklen": "fiche-sm-x940nzareub",
+      "reparierbarkeit": "fiche-sm-x940nzareub",
+      "fallklasse": "fiche-sm-x940nzareub",
+      "energieklasse": "fiche-sm-x940nzareub",
+      "ip_schutz": "fiche-sm-x940nzareub",
+      "update_jahre": "fiche-sm-x940nzareub",
+      "ppi": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub",
+      "mobilfunk": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub",
+      "stift": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub",
+      "lautsprecher_anzahl": "sam-galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub"
+     },
+     "preis": {
+      "eur": 1539.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-ultra-gray-256gb-sm-x940nzareub/",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "samsung-galaxy-tab-s12-ultra-512gb",
+     "name": "512 GB",
+     "mpn": "SM-X940NZAPEUB",
+     "werte": {
+      "speicher_gb": 512,
+      "ram_gb": 12,
+      "display_zoll": 14.5,
+      "akku_ausdauer_h": 88,
+      "ladezyklen": 1200,
+      "reparierbarkeit": "C",
+      "fallklasse": "E",
+      "energieklasse": "G",
+      "ip_schutz": "IP68",
+      "update_jahre": 5,
+      "ppi": 240,
+      "mobilfunk": false,
+      "stift": true,
+      "lautsprecher_anzahl": 4
+     },
+     "belege": {
+      "speicher_gb": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub",
+      "ram_gb": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub",
+      "display_zoll": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub",
+      "akku_ausdauer_h": "fiche-sm-x940nzapeub",
+      "ladezyklen": "fiche-sm-x940nzapeub",
+      "reparierbarkeit": "fiche-sm-x940nzapeub",
+      "fallklasse": "fiche-sm-x940nzapeub",
+      "energieklasse": "fiche-sm-x940nzapeub",
+      "ip_schutz": "fiche-sm-x940nzapeub",
+      "update_jahre": "fiche-sm-x940nzapeub",
+      "ppi": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub",
+      "mobilfunk": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub",
+      "stift": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub",
+      "lautsprecher_anzahl": "sam-galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub"
+     },
+     "preis": {
+      "eur": 1739.0,
+      "haendler": "Samsung Deutschland",
+      "url": "https://www.samsung.com/de/tablets/galaxy-tab-s/galaxy-tab-s12-ultra-gray-512gb-sm-x940nzapeub/",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "apple-ipad-11",
+   "hersteller": "Apple",
+   "name": "iPad 11 Zoll",
+   "varianten": [
+    {
+     "id": "apple-ipad-11-128-a3354",
+     "name": "128 GB Wi-Fi",
+     "werte": {
+      "speicher_gb": 128,
+      "display_zoll": 10.9,
+      "ppi": 264,
+      "stift": true,
+      "mobilfunk": false,
+      "akku_ausdauer_h": 67,
+      "ladezyklen": 1000,
+      "energieklasse": "G",
+      "fallklasse": "E",
+      "update_jahre": 5,
+      "reparierbarkeit": "C"
+     },
+     "belege": {
+      "speicher_gb": "apple-ipad-11-spezifikationen",
+      "display_zoll": "apple-ipad-11-spezifikationen",
+      "ppi": "apple-ipad-11-spezifikationen",
+      "stift": "apple-ipad-11-spezifikationen",
+      "mobilfunk": "apple-ipad-11-spezifikationen",
+      "akku_ausdauer_h": "apple-pis-a3354",
+      "ladezyklen": "apple-pis-a3354",
+      "energieklasse": "apple-pis-a3354",
+      "fallklasse": "apple-pis-a3354",
+      "update_jahre": "apple-pis-a3354",
+      "reparierbarkeit": "apple-pis-a3354"
+     },
+     "preis": {
+      "eur": 539.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/iPad-Tablet/Apple-iPad-A16-11-Wi-Fi-128GB-Silver/3348696",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "apple-ipad-11-256-a3354",
+     "name": "256 GB Wi-Fi",
+     "werte": {
+      "speicher_gb": 256,
+      "display_zoll": 10.9,
+      "ppi": 264,
+      "stift": true,
+      "mobilfunk": false,
+      "akku_ausdauer_h": 67,
+      "ladezyklen": 1000,
+      "energieklasse": "G",
+      "fallklasse": "E",
+      "update_jahre": 5,
+      "reparierbarkeit": "C"
+     },
+     "belege": {
+      "speicher_gb": "apple-ipad-11-spezifikationen",
+      "display_zoll": "apple-ipad-11-spezifikationen",
+      "ppi": "apple-ipad-11-spezifikationen",
+      "stift": "apple-ipad-11-spezifikationen",
+      "mobilfunk": "apple-ipad-11-spezifikationen",
+      "akku_ausdauer_h": "apple-pis-a3354",
+      "ladezyklen": "apple-pis-a3354",
+      "energieklasse": "apple-pis-a3354",
+      "fallklasse": "apple-pis-a3354",
+      "update_jahre": "apple-pis-a3354",
+      "reparierbarkeit": "apple-pis-a3354"
+     }
+    },
+    {
+     "id": "apple-ipad-11-512-a3354",
+     "name": "512 GB Wi-Fi",
+     "werte": {
+      "speicher_gb": 512,
+      "display_zoll": 10.9,
+      "ppi": 264,
+      "stift": true,
+      "mobilfunk": false,
+      "akku_ausdauer_h": 67,
+      "ladezyklen": 1000,
+      "energieklasse": "G",
+      "fallklasse": "E",
+      "update_jahre": 5,
+      "reparierbarkeit": "C"
+     },
+     "belege": {
+      "speicher_gb": "apple-ipad-11-spezifikationen",
+      "display_zoll": "apple-ipad-11-spezifikationen",
+      "ppi": "apple-ipad-11-spezifikationen",
+      "stift": "apple-ipad-11-spezifikationen",
+      "mobilfunk": "apple-ipad-11-spezifikationen",
+      "akku_ausdauer_h": "apple-pis-a3354",
+      "ladezyklen": "apple-pis-a3354",
+      "energieklasse": "apple-pis-a3354",
+      "fallklasse": "apple-pis-a3354",
+      "update_jahre": "apple-pis-a3354",
+      "reparierbarkeit": "apple-pis-a3354"
+     }
+    },
+    {
+     "id": "apple-ipad-11-128-a3355",
+     "name": "128 GB Wi-Fi + Cellular",
+     "werte": {
+      "speicher_gb": 128,
+      "display_zoll": 10.9,
+      "ppi": 264,
+      "stift": true,
+      "mobilfunk": true,
+      "akku_ausdauer_h": 67,
+      "ladezyklen": 1000,
+      "energieklasse": "G",
+      "fallklasse": "E",
+      "update_jahre": 5,
+      "reparierbarkeit": "C"
+     },
+     "belege": {
+      "speicher_gb": "apple-ipad-11-spezifikationen",
+      "display_zoll": "apple-ipad-11-spezifikationen",
+      "ppi": "apple-ipad-11-spezifikationen",
+      "stift": "apple-ipad-11-spezifikationen",
+      "mobilfunk": "apple-ipad-11-spezifikationen",
+      "akku_ausdauer_h": "apple-pis-a3355",
+      "ladezyklen": "apple-pis-a3355",
+      "energieklasse": "apple-pis-a3355",
+      "fallklasse": "apple-pis-a3355",
+      "update_jahre": "apple-pis-a3355",
+      "reparierbarkeit": "apple-pis-a3355"
+     }
+    },
+    {
+     "id": "apple-ipad-11-256-a3355",
+     "name": "256 GB Wi-Fi + Cellular",
+     "werte": {
+      "speicher_gb": 256,
+      "display_zoll": 10.9,
+      "ppi": 264,
+      "stift": true,
+      "mobilfunk": true,
+      "akku_ausdauer_h": 67,
+      "ladezyklen": 1000,
+      "energieklasse": "G",
+      "fallklasse": "E",
+      "update_jahre": 5,
+      "reparierbarkeit": "C"
+     },
+     "belege": {
+      "speicher_gb": "apple-ipad-11-spezifikationen",
+      "display_zoll": "apple-ipad-11-spezifikationen",
+      "ppi": "apple-ipad-11-spezifikationen",
+      "stift": "apple-ipad-11-spezifikationen",
+      "mobilfunk": "apple-ipad-11-spezifikationen",
+      "akku_ausdauer_h": "apple-pis-a3355",
+      "ladezyklen": "apple-pis-a3355",
+      "energieklasse": "apple-pis-a3355",
+      "fallklasse": "apple-pis-a3355",
+      "update_jahre": "apple-pis-a3355",
+      "reparierbarkeit": "apple-pis-a3355"
+     }
+    },
+    {
+     "id": "apple-ipad-11-512-a3355",
+     "name": "512 GB Wi-Fi + Cellular",
+     "werte": {
+      "speicher_gb": 512,
+      "display_zoll": 10.9,
+      "ppi": 264,
+      "stift": true,
+      "mobilfunk": true,
+      "akku_ausdauer_h": 67,
+      "ladezyklen": 1000,
+      "energieklasse": "G",
+      "fallklasse": "E",
+      "update_jahre": 5,
+      "reparierbarkeit": "C"
+     },
+     "belege": {
+      "speicher_gb": "apple-ipad-11-spezifikationen",
+      "display_zoll": "apple-ipad-11-spezifikationen",
+      "ppi": "apple-ipad-11-spezifikationen",
+      "stift": "apple-ipad-11-spezifikationen",
+      "mobilfunk": "apple-ipad-11-spezifikationen",
+      "akku_ausdauer_h": "apple-pis-a3355",
+      "ladezyklen": "apple-pis-a3355",
+      "energieklasse": "apple-pis-a3355",
+      "fallklasse": "apple-pis-a3355",
+      "update_jahre": "apple-pis-a3355",
+      "reparierbarkeit": "apple-pis-a3355"
+     }
+    }
+   ]
+  },
+  {
+   "id": "lenovo-idea-tab-pro-gen-2",
+   "hersteller": "Lenovo",
+   "name": "Idea Tab Pro Gen 2",
+   "jahr": 2026,
+   "werte": {
+    "akku_ausdauer_h": 105.28,
+    "ladezyklen": 1000,
+    "reparierbarkeit": "A",
+    "fallklasse": "E",
+    "energieklasse": "F",
+    "ip_schutz": "IP52",
+    "display_zoll": 13.0,
+    "ppi": 318,
+    "display_hz": 144,
+    "lautsprecher_anzahl": 4,
+    "tastatur_anschluss": true
+   },
+   "belege": {
+    "akku_ausdauer_h": "eprel-2583821",
+    "ladezyklen": "eprel-2583821",
+    "reparierbarkeit": "eprel-2583821",
+    "fallklasse": "eprel-2583821",
+    "energieklasse": "eprel-2583821",
+    "ip_schutz": "eprel-2583821",
+    "display_zoll": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se",
+    "ppi": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se",
+    "display_hz": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se",
+    "lautsprecher_anzahl": "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se",
+    "tastatur_anschluss": "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se"
+   },
+   "varianten": [
+    {
+     "id": "lenovo-idea-tab-pro-gen-2-128gb",
+     "name": "128 GB",
+     "mpn": "ZAHD0631SE",
+     "ean": [
+      "199273487431"
+     ],
+     "werte": {
+      "speicher_gb": 128,
+      "ram_gb": 8
+     },
+     "belege": {
+      "speicher_gb": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se",
+      "ram_gb": "proshop-lenovo-idea-tab-pro-gen-2-zahd0631se"
+     },
+     "preis": {
+      "eur": 399.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/iPad-Tablet/Lenovo-Idea-Tab-Pro-Gen-2-8GB-128GB/3453545",
+      "stand": "2026-11-21"
+     }
+    },
+    {
+     "id": "lenovo-idea-tab-pro-gen-2-256gb",
+     "name": "256 GB",
+     "mpn": "ZAHC0169SE",
+     "ean": [
+      "199275552304"
+     ],
+     "werte": {
+      "speicher_gb": 256,
+      "ram_gb": 8
+     },
+     "belege": {
+      "speicher_gb": "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se",
+      "ram_gb": "proshop-lenovo-idea-tab-pro-gen-2-zahc0169se"
+     },
+     "preis": {
+      "eur": 487.29,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/iPad-Tablet/Lenovo-Idea-Tab-Pro-Gen-2-ZAHC-tablet-Android-16-or-later-256-GB-13/3484809",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "xiaomi-redmi-pad-2",
+   "hersteller": "Xiaomi",
+   "name": "Redmi Pad 2",
+   "jahr": 2025,
+   "werte": {
+    "akku_ausdauer_h": 114.67,
+    "ladezyklen": 1000,
+    "reparierbarkeit": "C",
+    "fallklasse": "B",
+    "energieklasse": "E",
+    "ip_schutz": "IP52",
+    "display_zoll": 11.0,
+    "ppi": 274,
+    "display_hz": 90,
+    "ram_gb": 4
+   },
+   "belege": {
+    "akku_ausdauer_h": "alternate-redmi-pad-2-100151233",
+    "ladezyklen": "alternate-redmi-pad-2-100151233",
+    "reparierbarkeit": "alternate-redmi-pad-2-100151233",
+    "fallklasse": "alternate-redmi-pad-2-100151233",
+    "energieklasse": "alternate-redmi-pad-2-100151233",
+    "ip_schutz": "alternate-redmi-pad-2-100151233",
+    "display_zoll": "alternate-redmi-pad-2-100151233",
+    "ppi": "alternate-redmi-pad-2-100151233",
+    "display_hz": "alternate-redmi-pad-2-100151233",
+    "ram_gb": "alternate-redmi-pad-2-100151233"
+   },
+   "varianten": [
+    {
+     "id": "xiaomi-redmi-pad-2-128gb",
+     "name": "128 GB",
+     "mpn": "VHU5659EU",
+     "ean": [
+      "6932554433383"
+     ],
+     "werte": {
+      "speicher_gb": 128
+     },
+     "belege": {
+      "speicher_gb": "alternate-redmi-pad-2-100151233"
+     },
+     "preis": {
+      "eur": 167.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Xiaomi/Redmi-Pad-2-Tablet-PC/html/product/100151233",
+      "stand": "2026-11-21"
+     }
+    }
+   ]
+  }
+ ]
+}
