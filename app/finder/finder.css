@@ -1,5 +1,5 @@
 /* Finden & Vergleichen – gleiche Tokens wie die Kaufberatung („Tageslicht und Abend“, docs/DESIGN.md).
-   Eine auffällige Stelle: die Notenskala in der Empfehlung (Klassenbänder, Spanne, Grenze ohne Test).
+   Eine auffällige Stelle: die große Punktzahl in der Empfehlung (D12: ohne Klassenwörter und Kappung).
    Alles andere bleibt ruhig: eine Schriftfamilie, Tinte auf hellem Grau, Grün nur für „passt/vorn“. */
 
 :root {
@@ -26,7 +26,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-bottom: 6rem; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
   font: 400 1rem/1.5 var(--font); font-feature-settings: "tnum" 0;
@@ -49,14 +49,15 @@ button { cursor: pointer; }
 .sprung:focus { top: 12px; }
 
 /* ---------- Rahmen ---------- */
-.leiste, .haupt, .fuss { width: 100%; max-width: 42rem; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+/* P1-02: Layoutklasse .hauptspalte, „haupt“ allein ist nur der Knopfstil (knopf haupt) */
+.leiste, .hauptspalte, .fuss { width: 100%; max-width: 42rem; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
 .leiste {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding-top: calc(8px + env(safe-area-inset-top, 0px)); padding-bottom: 4px;
 }
 .leiste-marke { font-weight: 700; letter-spacing: -.01em; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
 .leiste-link { color: var(--muted); font-size: .9rem; display: inline-flex; align-items: center; min-height: 44px; text-align: right; }
-.haupt { padding-bottom: 8rem; outline: none; }
+.hauptspalte { padding-bottom: 8rem; outline: none; }
 .laden { padding: 3rem 0; color: var(--muted); }
 
 /* ---------- Schirme ---------- */
@@ -161,46 +162,57 @@ button { cursor: pointer; }
 .karte .gross { font-size: 1.15rem; font-weight: 620; }
 .auswahl { color: var(--muted); font-size: .9rem; margin-bottom: .25rem; }
 
+/* Deine Angaben: Frage leise, Antwort kräftig, zweispaltig ab etwas Breite */
+.angaben { display: grid; gap: .4rem; }
+.angaben-titel { font-size: .95rem; font-weight: 600; color: var(--muted); }
+.angaben-liste { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; border-top: 1px solid var(--line); }
+.angaben-liste dt { color: var(--muted); font-size: .86rem; line-height: 1.3; padding-top: .5rem; }
+.angaben-liste dd { margin: 0; font-weight: 620; line-height: 1.3; padding: .1rem 0 .5rem; border-bottom: 1px solid var(--line); }
+@media (min-width: 34rem) {
+  .angaben-liste { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); column-gap: 16px; }
+  .angaben-liste dt, .angaben-liste dd { padding: .5rem 0; border-bottom: 1px solid var(--line); }
+  .angaben-liste dd { text-align: right; }
+}
+
 .empfehlung { padding: 20px 18px 18px; gap: .5rem; }
 .karte-kopf { font-size: .9rem; font-weight: 600; color: var(--good); }
 .karte-kopf.warn { color: var(--warn); }
 .hersteller { color: var(--muted); font-size: .9rem; margin-top: .25rem; }
 .modell { font-size: 1.55rem; line-height: 1.15; font-weight: 680; letter-spacing: -.02em; margin-top: -.25rem; }
 .variante { color: var(--muted); }
-.note-zeile { display: flex; align-items: flex-end; gap: 14px; margin-top: .5rem; }
+.note-block { display: grid; gap: .35rem; margin-top: .4rem; }
+.note-zeile { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 4px 14px; }
 .note-zahl { line-height: .9; white-space: nowrap; }
-.note-zahl .zahl { font-size: clamp(3.6rem, 18vw, 4.6rem); font-weight: 720; letter-spacing: -.05em; }
+.note-zahl .zahl { font-size: clamp(3.2rem, 15vw, 4.2rem); font-weight: 720; letter-spacing: -.05em; }
 .note-zahl .von { font-size: .95rem; color: var(--muted); font-weight: 500; letter-spacing: 0; }
-.note-text { padding-bottom: .35rem; }
-.klasse { font-size: 1.3rem; font-weight: 650; line-height: 1.2; }
-.marke { font-size: .82rem; color: var(--muted); }
+.note-zeile .marke { padding-bottom: .35rem; }
+.marke { font-size: .86rem; color: var(--muted); }
+.note-herkunft summary { display: flex; align-items: center; min-height: 44px; font-weight: 600; font-size: .92rem; cursor: pointer; width: fit-content; }
+.note-herkunft[open] { display: grid; gap: .4rem; padding-bottom: .25rem; }
 
-/* Notenskala: Bänder der Klassen, aktuelle Klasse getönt, Spanne als Balken, ab Kappung schraffiert */
-.skala { margin: .6rem 0 .2rem; }
-.skala-bahn { position: relative; height: 14px; border-radius: 7px; background: var(--seg-bg); }
-.skala-stufe { position: absolute; top: 0; bottom: 0; box-shadow: inset -2px 0 0 var(--surface); }
-.skala-stufe:first-child { border-radius: 7px 0 0 7px; }
-.skala-stufe.an { background: var(--good-bg); box-shadow: inset -2px 0 0 var(--surface), inset 0 0 0 1px color-mix(in srgb, var(--good) 45%, transparent); }
-.skala-test {
-  position: absolute; top: 0; bottom: 0; border-radius: 0 7px 7px 0;
-  background: repeating-linear-gradient(135deg, transparent 0 3px, color-mix(in srgb, var(--muted) 45%, transparent) 3px 4px);
-}
+/* Notenskala (aufgeklappt): Bahn 0–100, Füllung bis zur Note, Spanne als Balken */
+.skala { margin: .2rem 0 .1rem; }
+.skala-bahn { position: relative; height: 14px; border-radius: 7px; background: var(--seg-bg); overflow: visible; }
+.skala-fuellung { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; background: var(--good-bg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--good) 40%, transparent); }
 .skala-spanne { position: absolute; top: 4px; bottom: 4px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 22%, transparent); }
 .skala-punkt {
   position: absolute; top: 50%; width: 20px; height: 20px; border-radius: 50%;
   background: var(--ink); border: 3px solid var(--surface); transform: translate(-50%, -50%);
   box-shadow: 0 0 0 1px var(--ink);
 }
-.skala-marken { position: relative; height: 1.2rem; margin-top: 4px; font-size: .72rem; color: var(--muted); }
+.skala-marken { position: relative; height: 1.2rem; margin-top: 4px; font-size: .8rem; color: var(--muted); }
 .skala-marken span { position: absolute; transform: translateX(-50%); }
-.skala-hinweis { font-size: .78rem; color: var(--muted); text-align: right; }
+.skala-marken span:first-child { transform: none; }
+.skala-marken span:last-child { transform: translateX(-100%); }
 
 .warnung { background: var(--warn-bg); color: var(--ink); border-radius: 12px; padding: 10px 12px; font-size: .92rem; }
 .staerken { margin-top: .35rem; }
 .staerken h3 { font-size: .9rem; font-weight: 600; color: var(--muted); margin-bottom: .3rem; }
 .staerken ul { padding-left: 1.15rem; display: grid; gap: .2rem; }
 .staerken li::marker { color: var(--good); }
-.kauf { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: .6rem; padding-top: .9rem; border-top: 1px solid var(--line); }
+.kauf { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: .5rem 0 .25rem; padding: .9rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.tests h3 { font-size: .9rem; font-weight: 600; color: var(--muted); }
+.tests ul { list-style: none; padding: 0; }
 .preis-betrag { font-size: 1.6rem; font-weight: 680; letter-spacing: -.02em; line-height: 1.1; }
 .preis-betrag.klein { font-size: 1.1rem; }
 .preis-quelle { font-size: .82rem; color: var(--muted); }
@@ -238,7 +250,10 @@ button { cursor: pointer; }
   display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: 4px 10px; align-items: start;
   padding: 12px 4px 6px; border-bottom: 1px solid var(--line);
 }
+.rang-eintrag.ohne-nr { grid-template-columns: minmax(0, 1fr) auto; }
 .rang-eintrag.erste { background: var(--good-bg); border-radius: 12px; border-bottom-color: transparent; padding-left: 8px; padding-right: 8px; margin: 4px -4px; }
+.offen { display: grid; gap: .5rem; margin-top: 1rem; }
+.offen-titel { font-size: 1.05rem; font-weight: 640; }
 .rang-nr { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; padding-top: .15rem; }
 .rang-name { font-weight: 600; line-height: 1.3; }
 .hersteller-inline { color: var(--muted); font-weight: 450; }
@@ -247,7 +262,6 @@ button { cursor: pointer; }
 .rang-werte { text-align: right; }
 .rang-note { display: grid; justify-items: end; line-height: 1.05; }
 .rang-note .zahl { font-size: 1.5rem; font-weight: 700; letter-spacing: -.03em; }
-.rang-klasse { font-size: .78rem; color: var(--muted); }
 .rang-preis { font-size: .95rem; font-weight: 600; margin-top: .3rem; white-space: nowrap; }
 
 /* ---------- Vergleich ---------- */
@@ -269,12 +283,14 @@ button { cursor: pointer; }
 .ablage {
   position: fixed; z-index: 30; left: 50%; transform: translateX(-50%);
   bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(calc(100% - 24px), 40rem);
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 8px 8px 16px;
+  display: flex; align-items: center; gap: 6px; padding: 8px 8px 8px 14px;
   background: var(--surface); border-radius: var(--r-panel);
   box-shadow: inset 0 1px 0 var(--edge), 0 0 0 1px var(--line), 0 24px 48px -24px rgba(16, 24, 40, .45);
 }
-.ablage-text { flex: 1 1 8rem; font-weight: 600; font-size: .92rem; }
-.ablage .knopf { min-height: 44px; padding: 0 16px; font-size: .92rem; }
+.ablage-text { flex: 1 1 auto; min-width: 0; font-weight: 600; font-size: .92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ablage .knopf { min-height: 44px; padding: 0 14px; font-size: .92rem; flex: none; }
+/* 07 B12: unten Platz in Höhe der Ablage (eine Zeile, notfalls zwei) */
+.mit-ablage .fuss { padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px)); }
 @starting-style { .ablage { opacity: 0; transform: translate(-50%, 10px); } }
 .ablage { transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out); }
 

@@ -1814,6 +1814,12 @@
       "vrr": "ph-55oled811",
       "lautsprecher_w": "ph-55oled811",
       "tuner_triple": "ph-55oled811"
+     },
+     "preis": {
+      "eur": 1099.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_philips-ambilight-tv-55oled81112-oled-tv-flat-55-zoll-139-cm-uhd-4k-smart-tv-ambilight-3058569.html",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1900,6 +1906,12 @@
       "vrr": "ph-55oled761",
       "lautsprecher_w": "ph-55oled761",
       "tuner_triple": "ph-55oled761"
+     },
+     "preis": {
+      "eur": 929.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_philips-ambilight-tv-55oled76112-oled-tv-flat-55-zoll-139-cm-uhd-4k-smart-tv-ambilight-3058568.html",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -2521,7 +2533,12 @@
       "diagonale_zoll": "mm-tcl-55p7l",
       "energieklasse_sdr": "mm-tcl-55p7l"
      },
-     "preis": null
+     "preis": {
+      "eur": 399.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_tcl-55p7l-qled-tv-flat-55-zoll-1397-cm-qled-4k-smart-tv-3045313.html",
+      "stand": "2026-11-24"
+     }
     }
    ]
   },

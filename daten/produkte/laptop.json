@@ -185,7 +185,12 @@
      "belege": {
       "ssd_gb": "apple-neo-specs"
      },
-     "preis": null,
+     "preis": {
+      "eur": 730.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Apple/MacBook-Neo-13-Notebook/html/product/100192511",
+      "stand": "2026-11-24"
+     },
      "mpn": "MHFA4D/A"
     },
     {
@@ -250,7 +255,12 @@
       "ram_gb": "apple-air-specs",
       "ssd_gb": "apple-air-specs"
      },
-     "preis": null,
+     "preis": {
+      "eur": 1286.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Apple/MacBook-Air-34-5-cm-13-6-Zoll-2026-Notebook/html/product/100192451",
+      "stand": "2026-11-24"
+     },
      "mpn": "MDH74D/A"
     },
     {
@@ -316,7 +326,12 @@
       "ram_gb": "apple-air-specs",
       "ssd_gb": "apple-air-specs"
      },
-     "preis": null,
+     "preis": {
+      "eur": 1545.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Apple/MacBook-Air-15-Zoll-2026-Notebook/html/product/100192567",
+      "stand": "2026-11-24"
+     },
      "mpn": "MDV94D/A"
     }
    ]
@@ -422,7 +437,12 @@
       "ram_gb": "apple-pro-specs",
       "ssd_gb": "apple-pro-specs"
      },
-     "preis": null,
+     "preis": {
+      "eur": 2693.34,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Laptops/Apple-MacBook-Pro-142-M5-Pro-24-GB-RAM-1-TB-SSD-German/3451511",
+      "stand": "2026-11-24"
+     },
      "mpn": "MGDN4D/A"
     }
    ]
@@ -475,7 +495,12 @@
       "ram_gb": "apple-pro-specs",
       "ssd_gb": "apple-pro-specs"
      },
-     "preis": null,
+     "preis": {
+      "eur": 3172.39,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Laptops/Apple-MacBook-Pro-162-M5-Pro-24-GB-RAM-1-TB-SSD-German/3451501",
+      "stand": "2026-11-24"
+     },
      "mpn": "MGE44D/A"
     }
    ]

@@ -318,7 +318,13 @@
      },
      "ean": [
       "8806097651192"
-     ]
+     ],
+     "preis": {
+      "eur": 176.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-A17-128GB-Handy/html/product/100156557",
+      "stand": "2026-11-24"
+     }
     }
    ]
   },
@@ -363,7 +369,13 @@
      },
      "ean": [
       "8806097642671"
-     ]
+     ],
+     "preis": {
+      "eur": 190.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-A17-5G-128GB-Handy/html/product/100151938",
+      "stand": "2026-11-24"
+     }
     }
    ]
   },
@@ -401,6 +413,12 @@
       "update_jahre": "fiche-sm-a185fzkdeub",
       "fuenf_g": "sam-galaxy-a18-black-128gb-sm-a185fzkdeub",
       "betriebssystem": "fiche-sm-a185fzkdeub"
+     },
+     "preis": {
+      "eur": 214.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-A18-128GB-Handy/html/product/100225410",
+      "stand": "2026-11-24"
      }
     }
    ]
@@ -486,6 +504,12 @@
       "update_jahre": "fiche-sm-a276bzkbeub",
       "fuenf_g": "sam-galaxy-a27-5g-black-128gb-sm-a276bzkbeub",
       "betriebssystem": "fiche-sm-a276bzkbeub"
+     },
+     "preis": {
+      "eur": 242.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-A27-5G-128GB-Handy/html/product/100209728",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -561,6 +585,12 @@
       "update_jahre": "fiche-sm-a376bzabeub",
       "fuenf_g": "sam-galaxy-a37-5g-awesome-charcoal-128gb-sm-a376bzabeub",
       "betriebssystem": "fiche-sm-a376bzabeub"
+     },
+     "preis": {
+      "eur": 309.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-A37-5G-128GB-Handy/html/product/100197807",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -596,6 +626,12 @@
       "update_jahre": "fiche-sm-a376bzageub",
       "fuenf_g": "sam-galaxy-a37-5g-awesome-charcoal-256gb-sm-a376bzageub",
       "betriebssystem": "fiche-sm-a376bzageub"
+     },
+     "preis": {
+      "eur": 396.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-A37-5G-256GB-Handy/html/product/100197828",
+      "stand": "2026-11-24"
      }
     }
    ]
@@ -732,7 +768,13 @@
      },
      "ean": [
       "8806097644729"
-     ]
+     ],
+     "preis": {
+      "eur": 499.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Handys-Smartphones/Samsung-Galaxy-S25-FE-128GB8GB-Jetblack/3398116",
+      "stand": "2026-11-24"
+     }
     },
     {
      "id": "samsung-galaxy-s25-fe-256gb",
@@ -897,6 +939,12 @@
       "ip_schutz": "fiche-sm-s942bzvgeub",
       "update_jahre": "fiche-sm-s942bzvgeub",
       "betriebssystem": "fiche-sm-s942bzvgeub"
+     },
+     "preis": {
+      "eur": 749.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-S26-256GB-Handy/html/product/100191439",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -966,6 +1014,12 @@
       "ip_schutz": "fiche-sm-s947bzvdeub",
       "update_jahre": "fiche-sm-s947bzvdeub",
       "betriebssystem": "fiche-sm-s947bzvdeub"
+     },
+     "preis": {
+      "eur": 929.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-S26plus-256GB-Handy/html/product/100191445",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1035,6 +1089,12 @@
       "ip_schutz": "fiche-sm-s948bzvdeub",
       "update_jahre": "fiche-sm-s948bzvdeub",
       "betriebssystem": "fiche-sm-s948bzvdeub"
+     },
+     "preis": {
+      "eur": 1144.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-S26-Ultra-256GB-Handy/html/product/100191449",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1066,6 +1126,12 @@
       "ip_schutz": "fiche-sm-s948bzvgeub",
       "update_jahre": "fiche-sm-s948bzvgeub",
       "betriebssystem": "fiche-sm-s948bzvgeub"
+     },
+     "preis": {
+      "eur": 1691.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-S26-Ultra-512GB-Handy/html/product/100191860",
+      "stand": "2026-11-24"
      }
     }
    ]
@@ -1108,6 +1174,12 @@
       "display_zoll": "google-store-pixel-10a-technische-daten",
       "display_hz": "google-store-pixel-10a-technische-daten",
       "fuenf_g": "google-store-pixel-10a-technische-daten"
+     },
+     "preis": {
+      "eur": 452.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Google/Pixel-10a-128GB-Handy/html/product/100191624",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1184,6 +1256,12 @@
       "display_zoll": "google-store-pixel-10-technische-daten",
       "display_hz": "google-store-pixel-10-technische-daten",
       "fuenf_g": "google-store-pixel-10-technische-daten"
+     },
+     "preis": {
+      "eur": 559.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Google/Pixel-10-128GB-Handy/html/product/100153392",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1260,6 +1338,12 @@
       "display_zoll": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
       "display_hz": "google-store-pixel-10-pro-und-pro-xl-technische-daten",
       "fuenf_g": "google-store-pixel-10-pro-und-pro-xl-technische-daten"
+     },
+     "preis": {
+      "eur": 677.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Google/Pixel-10-Pro-128GB-Handy/html/product/100153412",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1370,6 +1454,12 @@
       "display_zoll": "google-store-pixel-11-technische-daten",
       "display_hz": "google-store-pixel-11-technische-daten",
       "fuenf_g": "google-store-pixel-11-technische-daten"
+     },
+     "preis": {
+      "eur": 814.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Google/Pixel-11-256GB-Handy/html/product/100217020",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1446,6 +1536,12 @@
       "display_zoll": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
       "display_hz": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
       "fuenf_g": "google-store-pixel-11-pro-und-pro-xl-technische-daten"
+     },
+     "preis": {
+      "eur": 953.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Google/Pixel-11-Pro-256GB-Handy/html/product/100217039",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1522,6 +1618,12 @@
       "display_zoll": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
       "display_hz": "google-store-pixel-11-pro-und-pro-xl-technische-daten",
       "fuenf_g": "google-store-pixel-11-pro-und-pro-xl-technische-daten"
+     },
+     "preis": {
+      "eur": 1399.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Handys-Smartphones/Google-Pixel-11-Pro-XL-256GB12GB-Obsidian/3498392",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1670,6 +1772,12 @@
       "fuenf_g": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "ladeleistung_w": "xiaomi-deutschland-xiaomi-17t-spezifikationen",
       "ip_schutz": "xiaomi-deutschland-xiaomi-17t-spezifikationen"
+     },
+     "preis": {
+      "eur": 520.0,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Xiaomi/17T-256GB-Handy/html/product/100204095",
+      "stand": "2026-11-24"
      }
     },
     {
@@ -1800,6 +1908,12 @@
      },
      "belege": {
       "speicher_gb": "alternate-moto-g67-128gb-100188302"
+     },
+     "preis": {
+      "eur": 169.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/Handys-Smartphones/Motorola-moto-g67-128GB4GB-PANTONE-Arctic-Seal/3440905",
+      "stand": "2026-11-24"
      }
     }
    ]

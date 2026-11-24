@@ -30,7 +30,11 @@ class Element extends Knoten {
   removeAttribute(k) { delete this.attr[k]; }
   set className(v) { this.attr.class = v; } get className() { return this.attr.class || ""; }
   get id() { return this.attr.id || ""; }
-  get classList() { const e = this; return { add: c => { e.className = (e.className + " " + c).trim(); }, contains: c => e.className.split(/\s+/).includes(c) }; }
+  get classList() {
+    const e = this, hat = c => e.className.split(/\s+/).includes(c);
+    return { add: c => { if (!hat(c)) e.className = (e.className + " " + c).trim(); }, contains: hat,
+      toggle: (c, an) => { const soll = an === undefined ? !hat(c) : !!an; e.className = e.className.split(/\s+/).filter(x => x && x !== c).concat(soll ? [c] : []).join(" "); return soll; } };
+  }
   addEventListener(t, f) { (this.hoerer[t] = this.hoerer[t] || []).push(f); }
   ausloesen(t) { for (const f of this.hoerer[t] || []) f({ target: this, preventDefault() {} }); }
   focus() { this.dok.activeElement = this; }
@@ -85,6 +89,26 @@ test("Quelltext: kein innerHTML, Links nur mit noopener noreferrer", () => {
   assert.equal(/<script[^>]+src="https?:/i.test(fs.readFileSync(path.join(ORDNER, "index.html"), "utf8")), false);
 });
 
+test("P1-02: „haupt“ ist nur noch Knopfstil, das Layout heißt .hauptspalte (Browserbefund 24.11., Codex P1-02)", () => {
+  const css = fs.readFileSync(path.join(ORDNER, "finder.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  // jeder Selektorteil mit der Klasse .haupt (Wortgrenze, nicht .rang-haupt/.hauptspalte) ist genau .knopf.haupt
+  const selektoren = [...css.matchAll(/(^|\})([^{}]+)\{/g)].flatMap(m => m[2].split(",").map(x => x.trim()));
+  const mitHaupt = selektoren.filter(x => /\.haupt(?![\w-])/.test(x));
+  assert.ok(mitHaupt.length >= 1);
+  for (const x of mitHaupt) assert.match(x, /^\.knopf\.haupt$/, "Selektor trifft mehr als den Knopf: " + x);
+  assert.match(css, /(^|\})\s*\.leiste, \.hauptspalte, \.fuss \{[^}]*width: 100%/);
+  assert.match(fs.readFileSync(path.join(ORDNER, "index.html"), "utf8"), /<main id="inhalt" class="hauptspalte"/);
+  // in den Skripten steht „haupt“ als Klasse nur zusammen mit „knopf“ (Ablage, Angebotslink, Neu laden, Weiter)
+  for (const datei of ["finder.js", "finder-app.js"]) {
+    const js = fs.readFileSync(path.join(ORDNER, datei), "utf8");
+    for (const m of js.matchAll(/(?:class(?:Name)?\s*[:=]\s*)"([^"]*)"/g)) {
+      if (m[1].split(/\s+/).includes("haupt")) assert.ok(m[1].split(/\s+/).includes("knopf"), datei + ": " + m[1]);
+    }
+  }
+  const text = (css.match(/\.ablage-text \{([^}]*)\}/) || [])[1] || "";
+  assert.match(text, /white-space: nowrap/);
+});
+
 test("Ablauf Fernseher: Kacheln → Budget → Fragen → Ergebnis mit Empfehlung und Aufpreis-Hinweis", async () => {
   const { dok, ort, geschichte } = await starte();
   const kacheln = alle(dok.body).filter(e => e.className.includes("kachel") && e.tagName === "BUTTON");
@@ -106,8 +130,8 @@ test("Ablauf Fernseher: Kacheln → Budget → Fragen → Ergebnis mit Empfehlun
   assert.match(ort.hash, /a=zweck\.spiele/);
   knopf(dok, "Ergebnis zeigen").ausloesen("click");
   const t = text(dok.body);
-  assert.ok(t.includes("Unsere Empfehlung bis 600 €"), t.slice(0, 400));
-  assert.ok(t.includes("aus Datenblatt"));
+  assert.ok(t.includes("Passt am besten zu dir bis 600 €"), t.slice(0, 400));
+  assert.ok(t.includes("aus dem Datenblatt, kein Test"));
   assert.ok(t.includes("Zum Angebot"));
   assert.ok(t.includes("Alle passenden Modelle"));
   const angebot = alle(dok.body).find(e => e.tagName === "A" && text(e) === "Zum Angebot");
@@ -120,7 +144,7 @@ test("Ablauf Fernseher: Kacheln → Budget → Fragen → Ergebnis mit Empfehlun
 test("Ergebnis aus der Adresse, Budget ändern ohne Neuaufbau, Vergleich, Sortierung", async () => {
   const { dok, ort } = await starte("#k=fernseher&s=ergebnis&b=500");
   let t = text(dok.body);
-  assert.ok(t.includes("Für 140 € mehr bekommst du +16 Punkte (Klasse „gut“ statt „ordentlich“)."), t.slice(0, 600));
+  assert.ok(t.includes("Für 140 € mehr bekommst du +16 Punkte."), t.slice(0, 600));
   const feld = dok.getElementById("budget-fernseher-oben");
   assert.ok(feld);
   feld.focus(); feld.value = "1500"; feld.ausloesen("input");
@@ -128,7 +152,7 @@ test("Ergebnis aus der Adresse, Budget ändern ohne Neuaufbau, Vergleich, Sortie
   assert.equal(dok.activeElement, feld);
   assert.match(ort.hash, /b=1500/);
   t = text(dok.body);
-  assert.ok(t.includes("Unsere Empfehlung bis 1.500 €"));
+  assert.ok(t.includes("Passt am besten zu dir bis 1.500 €"));
   // zwei Modelle vergleichen
   const schalter = alle(dok.body).filter(e => e.tagName === "INPUT" && e.attr.type === "checkbox" && e.id.startsWith("vgl-rang-"));
   schalter[0].checked = true; schalter[0].ausloesen("change");
@@ -136,14 +160,16 @@ test("Ergebnis aus der Adresse, Budget ändern ohne Neuaufbau, Vergleich, Sortie
   s2[1].checked = true; s2[1].ausloesen("change");
   assert.match(ort.hash, /v=[a-z0-9-]+~[a-z0-9-]+/);
   t = text(dok.body);
-  assert.ok(t.includes("2 von 3 zum Vergleich"));
+  assert.ok(t.includes("2 von 3 gewählt"));
+  assert.ok(dok.body.classList.contains("mit-ablage"), "07 B12: Platz für die Ablage");
   assert.ok(alle(dok.body).some(e => e.className.includes("vgl-wert vorn")), "gewonnene Felder hervorgehoben");
   assert.equal(dok.getElementById("ablage").hidden, false);
   // Sortierung nach Preis
   const preis = alle(dok.body).find(e => e.tagName === "INPUT" && e.attr.name === "sortierung" && e.attr.value === "preis");
   preis.checked = true; preis.ausloesen("change");
   assert.match(ort.hash, /o=preis/);
-  const preise = alle(dok.body).filter(e => e.className === "rang-preis").map(e => text(e));
+  // sortiert wird die Rangliste; Modelle ohne Note stehen getrennt darunter (07 B10)
+  const preise = alle(alle(dok.body).find(e => e.className === "rang")).filter(e => e.className === "rang-preis").map(e => text(e));
   const zahlen = preise.filter(p => p !== "–").map(p => Number(p.replace(/[^\d,]/g, "").replace(",", ".")));
   assert.deepEqual(zahlen, zahlen.slice().sort((a, b) => a - b));
   // Egal-Budget: kein Aufpreis-Hinweis
@@ -168,7 +194,7 @@ test("Budget aus der Adresse im Ergebnis: Feld und Schnellwahl ziehen nach (Brow
   await app.zurueck("#k=fernseher&s=ergebnis&b=1500");
   assert.equal(app.dok.getElementById("budget-fernseher-oben"), feld, "Feld bleibt dasselbe Element");
   assert.equal(feld.value, "1500", "Eingabefeld zeigt das Budget aus der Adresse");
-  assert.ok(text(app.dok.body).includes("Unsere Empfehlung bis 1.500 €"));
+  assert.ok(text(app.dok.body).includes("Passt am besten zu dir bis 1.500 €"));
   const gedrueckt = alle(app.dok.body).filter(e => e.getAttribute("aria-pressed") === "true" && e.getAttribute("data-budget"));
   assert.ok(gedrueckt.every(e => e.getAttribute("data-budget") === "1500"), "keine alte Schnellwahl bleibt markiert");
 });
@@ -199,11 +225,11 @@ test("Fremde Texte bleiben Text; nur https-Links; aktuelle Preise überlagern", 
 });
 
 // ---------- Codex r1 (Finder-Veröffentlichung) ----------
-test("F-08/F-09: beschädigte Felder oder Klassengrenzen zeigen die Fehlermeldung statt abzubrechen", async () => {
+test("F-08/F-09: beschädigte Felder oder Spanne zeigen die Fehlermeldung statt abzubrechen", async () => {
   const d1 = JSON.parse(BEISPIEL); d1.kategorien[0].felder.push(null);
   const a = await starte("#k=fernseher&s=ergebnis", JSON.stringify(d1));
   assert.ok(text(a.dok.body).includes("beschädigt"));
-  const d2 = JSON.parse(BEISPIEL); d2.regeln.klassen[0].ab = "0;background:red";
+  const d2 = JSON.parse(BEISPIEL); d2.regeln.datenblatt_abschlag.spanne_plus_minus = "0;background:red";
   const b = await starte("#k=fernseher&s=ergebnis", JSON.stringify(d2));
   assert.ok(text(b.dok.body).includes("beschädigt"));
   assert.equal(alle(b.dok.body).some(e => /background/.test(e.getAttribute("style") || "")), false);
@@ -241,4 +267,174 @@ test("R3-02: Kategorie constructor / Feld prototype zeigt die Fehlermeldung stat
   const f = d.kategorien[0].felder.find(x => x.gewicht > 0); f.id = "prototype";
   const a = await starte("#k=constructor&s=ergebnis", JSON.stringify(d));
   assert.ok(text(a.dok.body).includes("beschädigt"), text(a.dok.body).slice(0, 200));
+});
+
+// ---------- P1 Sofortfixes (UX-Neuausrichtung, 24.11.2026) ----------
+const klassen = (dok, k) => alle(dok.body).filter(e => e.className.split(/\s+/).includes(k));
+
+test("P1/D12: keine Klassenwörter, keine Kappung, Preis vor der Note, Rechnung eingeklappt", async () => {
+  const { dok } = await starte("#k=fernseher&s=ergebnis&b=500");
+  const t = text(dok.body);
+  for (const wort of ["sehr gut", "hervorragend", "ordentlich", "Unsere Empfehlung", "nur mit unabhängigem Test", "Klasse"]) {
+    assert.equal(t.includes(wort), false, "kein „" + wort + "“");
+  }
+  assert.equal(klassen(dok, "skala-stufe").length + klassen(dok, "skala-test").length + klassen(dok, "rang-klasse").length, 0);
+  const karte = klassen(dok, "empfehlung")[0];
+  const reihenfolge = karte.childNodes.map(k => k.className);
+  assert.ok(reihenfolge.indexOf("kauf") >= 0 && reihenfolge.indexOf("kauf") < reihenfolge.indexOf("note-block"), "08 F: Preis vor Note: " + reihenfolge);
+  const details = alle(karte).find(e => e.tagName === "DETAILS");
+  assert.ok(details && text(details).includes("So kommt die Note zustande"));
+  assert.ok(alle(details).some(e => e.className === "skala"), "Skala steckt in der eingeklappten Erklärung");
+});
+
+test("P1 07 B15/B10: gleiche angezeigte Note = gleicher Rang, ohne Note eigene Gruppe ohne Rang mit „fehlt“", async () => {
+  const { dok } = await starte("#k=fernseher&s=ergebnis&b=500");
+  const [bewertet, offen] = alle(dok.body).filter(e => e.className === "rang");
+  // Beispieldaten: zwei Größen derselben Serie mit 56 Punkten, dann 41 und 39
+  assert.deepEqual(alle(bewertet).filter(e => e.className === "rang-nr").map(e => text(e)), ["1", "1", "3", "4"]);
+  assert.ok(text(dok.body).includes("Noch nicht bewertbar (1)"));
+  assert.equal(alle(offen).filter(e => e.className === "rang-nr").length, 0, "keine Rangnummer");
+  assert.ok(alle(offen).some(e => e.className.includes("ohne-nr")));
+  assert.match(text(offen), /fehlt: /);
+  assert.equal(text(dok.body).includes("zu wenig Daten für eine Note"), false);
+});
+
+test("P1 08 F: Deine Angaben mit Fragetext", async () => {
+  const { dok } = await starte("#k=fernseher&s=ergebnis&b=600&g=50-55&a=zweck.spiele~ton.ja");
+  const dt = alle(dok.body).filter(e => e.tagName === "DT").map(e => text(e));
+  const dd = alle(dok.body).filter(e => e.tagName === "DD").map(e => text(e));
+  assert.ok(dt.includes("Wofür nutzt du den Fernseher meistens?"), dt.join(" | "));
+  assert.equal(dd[dt.indexOf("Wofür nutzt du den Fernseher meistens?")], "Spielkonsole oder PC");
+  assert.equal(dd[dt.indexOf("Größe")], "50 bis 55 Zoll");
+  assert.equal(dt.length, 3);
+});
+
+test("P1 08 G: ohne Preis keine Empfehlung, auch bei Budget egal", async () => {
+  const d = JSON.parse(BEISPIEL);
+  const tv = d.kategorien.find(k => k.id === "fernseher");
+  const spitze = tv.modelle.find(m => m.id === "tv-a4-65");
+  spitze.preis = null;
+  const { dok } = await starte("#k=fernseher&s=ergebnis", JSON.stringify(d));
+  const karte = klassen(dok, "empfehlung")[0];
+  assert.ok(karte, "es gibt eine Empfehlung");
+  assert.equal(text(karte).includes("Preis unbekannt"), false, text(karte).slice(0, 200));
+  // nur Modelle ohne Preis: Hinweis statt Empfehlung
+  for (const m of tv.modelle) m.preis = null;
+  const leer = await starte("#k=fernseher&s=ergebnis", JSON.stringify(d));
+  assert.equal(klassen(leer.dok, "empfehlung").length, 0);
+  assert.ok(text(leer.dok.body).includes("kennen wir gerade keinen Preis"));
+});
+
+test("P1 07 B08 / Testlinks: Variante „Standard“ und doppelte Typnummer weg, Tests anderer als Link", async () => {
+  const d = JSON.parse(BEISPIEL);
+  const af = d.kategorien.find(k => k.id === "airfryer");
+  af.modelle.forEach((m, i) => { m.variante = i % 2 ? "Standard" : m.name.split(" ").pop(); });
+  af.modelle.forEach(m => { m.tests = [{ url: "https://example.org/test/" + m.id, titel: "Test bei Beispiel-Labor" }]; });
+  const { dok } = await starte("#k=airfryer&s=ergebnis", JSON.stringify(d));
+  const t = text(dok.body);
+  assert.equal(/, Standard/.test(t), false);
+  for (const m of af.modelle) assert.equal(t.includes(m.name + ", " + m.name.split(" ").pop()), false, "Typnummer doppelt: " + m.name);
+  assert.ok(t.includes("Tests anderer"));
+  const testlink = alle(dok.body).find(e => e.tagName === "A" && text(e) === "Test bei Beispiel-Labor");
+  assert.equal(testlink.getAttribute("rel"), "noopener noreferrer");
+  assert.ok(testlink.getAttribute("href").startsWith("https://example.org/test/"));
+});
+
+test("P1-01: gleiche angezeigte Note → gleicher Rang in jeder Sortierung", async () => {
+  const raenge = async o => {
+    const { dok } = await starte("#k=fernseher&s=ergebnis&b=500&o=" + o);
+    const [bewertet] = alle(dok.body).filter(e => e.className === "rang");
+    return Object.fromEntries(alle(bewertet).filter(e => e.className.startsWith("rang-eintrag")).map(li => [
+      text(alle(li).find(e => e.className === "rang-name")), text(alle(li).find(e => e.className === "rang-nr"))]));
+  };
+  const note = await raenge("note");
+  assert.deepEqual(Object.values(note).sort(), ["1", "1", "3", "4"]);
+  assert.deepEqual(await raenge("preis"), note, "Günstigste");
+  assert.deepEqual(await raenge("effizienz"), note, "Punkte je Euro");
+});
+
+test("P1-03: gemischte Daten – Meldung nennt Note, Preis und Budget statt pauschal „kein Preis“", async () => {
+  const d = JSON.parse(BEISPIEL);
+  const tv = d.kategorien.find(k => k.id === "fernseher");
+  for (const m of tv.modelle) m.preis = null;
+  const ohneNote = tv.modelle.find(m => m.id === "tv-c6-32");
+  ohneNote.teilpunkte = {};
+  ohneNote.preis = { eur: 100.5, haendler: "Beispielshop", url: "https://example.org/c6", stand: "2026-11-20" };
+  const { dok } = await starte("#k=fernseher&s=ergebnis&b=95", JSON.stringify(d));
+  const t = text(dok.body);
+  assert.equal(klassen(dok, "empfehlung").length, 0);
+  assert.equal(t.includes("Für die passenden Modelle kennen wir gerade keinen Preis"), false, t.slice(0, 500));
+  assert.ok(t.includes("Für die Modelle mit Note kennen wir gerade keinen Preis, und die Modelle mit Preis liegen über deinem Budget und haben keine Note, weil Datenblattwerte fehlen."), t.slice(0, 500));
+  // ohne jeden Preis bleibt die bisherige Meldung
+  ohneNote.preis = null;
+  const leer = await starte("#k=fernseher&s=ergebnis&b=95", JSON.stringify(d));
+  assert.ok(text(leer.dok.body).includes("Für die passenden Modelle kennen wir gerade keinen Preis"));
+});
+
+test("P1-04: zählt kein Merkmal (alle Gewichte 0), nennt die Ansicht das statt fehlender Datenblattwerte", async () => {
+  const d = JSON.parse(BEISPIEL);
+  const tv = d.kategorien.find(k => k.id === "fernseher");
+  for (const f of tv.felder) f.gewicht = 0;
+  const { dok } = await starte("#k=fernseher&s=ergebnis&b=500", JSON.stringify(d));
+  const t = text(dok.body);
+  const offen = alle(dok.body).find(e => e.className === "offen");
+  assert.ok(offen, t.slice(0, 300));
+  const zeilen = alle(offen).filter(e => e.className.startsWith("rang-eintrag"));
+  assert.ok(zeilen.length >= 1);
+  for (const z of zeilen) assert.ok(text(z).includes("kein Merkmal zählt in die Note"), text(z));
+  assert.ok(text(offen).includes("Für deine Angaben zählt gerade kein Merkmal in die Note."));
+  assert.equal(t.includes("Datenblattwerte"), false, "keine falsche Ursache: " + t.slice(0, 600));
+  assert.equal(t.includes("zu wenig Daten"), false);
+  // Gegenfall: fehlende Werte nennen weiter „fehlt: …“
+  const normal = await starte("#k=fernseher&s=ergebnis&b=500");
+  assert.ok(text(normal.dok.body).includes("Für eine Note fehlen zu viele Datenblattwerte."));
+});
+
+test("P1-03/P1-04 r2: ohne Note nennt die Meldung Notengrund und Preisgrund, auch gemischt (Codex r2)", async () => {
+  const preis = eur => ({ eur, haendler: "Beispielshop", url: "https://example.org/p" + eur, stand: "2026-11-20" });
+  // Air Fryer, nur die Sync-Funktion gewichtet: beim Einkorbmodell nicht anwendbar (kein Merkmal zählt),
+  // beim Zweikorbmodell fehlt ihr Wert (zu wenig Daten)
+  const meldung = async (p1, p2, b) => {
+    const d = JSON.parse(BEISPIEL);
+    const af = d.kategorien.find(k => k.id === "airfryer");
+    for (const f of af.felder) f.gewicht = f.id === "sync_funktion" ? 10 : 0;
+    for (const fr of af.fragen) for (const a of fr.antworten) a.gewichte = {};
+    const ein = af.modelle.find(m => m.werte.koerbe === 1), zwei = af.modelle.find(m => m.werte.koerbe === 2);
+    delete zwei.teilpunkte.sync_funktion;
+    ein.preis = p1; zwei.preis = p2; af.modelle = [ein, zwei];
+    const { dok } = await starte("#k=airfryer&s=ergebnis" + (b ? "&b=" + b : ""), JSON.stringify(d));
+    assert.equal(klassen(dok, "empfehlung").length, 0);
+    return text(klassen(dok, "karte").find(k => k.className.includes("leise")));
+  };
+  const gemischt = "Keins der passenden Modelle hat eine Note: Bei einigen fehlen Datenblattwerte, bei den anderen zählt für deine Angaben kein Merkmal.";
+  let t = await meldung(preis(100), preis(110), 95);
+  assert.ok(t.includes(gemischt) && t.includes("Alle liegen über deinem Budget."), t);
+  t = await meldung(null, null, null);
+  assert.ok(t.includes(gemischt) && t.includes("Einen Preis kennen wir für keins."), t);
+  t = await meldung(preis(100), null, 95);
+  assert.ok(t.includes("Die Modelle mit Preis liegen über deinem Budget, für die übrigen kennen wir keinen Preis."), t);
+  assert.equal(t.includes("reichen die Datenblattangaben"), false, t);
+});
+
+test("P1-03/P1-04 r3: gemischt mit Note – Notengrund der Modelle mit Preis (kein Merkmal / beides)", async () => {
+  const preis = eur => ({ eur, haendler: "Beispielshop", url: "https://example.org/q" + eur, stand: "2026-11-20" });
+  // Air Fryer, nur Sync gewichtet: Zweikorb mit Sync-Wert hat eine Note (ohne Preis); Einkorb: Sync nicht anwendbar
+  // (kein Merkmal), zweites Zweikorbmodell ohne Sync-Wert (Datenblatt fehlt)
+  const meldung = async mitLuecke => {
+    const d = JSON.parse(BEISPIEL);
+    const af = d.kategorien.find(k => k.id === "airfryer");
+    for (const f of af.felder) f.gewicht = f.id === "sync_funktion" ? 10 : 0;
+    for (const fr of af.fragen) for (const a of fr.antworten) a.gewichte = {};
+    const ein = af.modelle.find(m => m.werte.koerbe === 1), zwei = af.modelle.find(m => m.werte.koerbe === 2);
+    const luecke = JSON.parse(JSON.stringify(zwei)); luecke.id = "af-luecke"; luecke.modell = "Luecke"; delete luecke.teilpunkte.sync_funktion;
+    zwei.preis = null; ein.preis = preis(100); luecke.preis = preis(120);
+    af.modelle = mitLuecke ? [zwei, ein, luecke] : [zwei, ein];
+    const { dok } = await starte("#k=airfryer&s=ergebnis&b=95", JSON.stringify(d));
+    assert.equal(klassen(dok, "empfehlung").length, 0);
+    return text(klassen(dok, "karte").find(k => k.className.includes("leise")));
+  };
+  let t = await meldung(false);
+  assert.ok(t.includes("haben keine Note, weil für deine Angaben kein Merkmal zählt."), t);
+  t = await meldung(true);
+  assert.ok(t.includes("haben keine Note, weil Datenblattwerte fehlen oder für deine Angaben kein Merkmal zählt."), t);
 });
