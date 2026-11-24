@@ -477,7 +477,7 @@
       h("h2", { id: "prio-titel", class: "prio-titel", tabindex: "-1" }, ["Deine Prioritäten verschieben"]),
       h("p", { class: "hilfe" }, ["Je Merkmal fünf Stufen von „aus“ bis „viel mehr“. Die Liste darunter rechnet sofort neu. Der Preis zählt nie in die Note."]),
       h("div", { class: "regler-liste" }, offen.map(zeile)),
-      rest.length ? h("details", { class: "regler-mehr" }, [h("summary", null, ["Alle Merkmale (" + felder.length + ")"]), h("div", { class: "regler-liste" }, rest.map(zeile))]) : null,
+      rest.length ? h("details", { class: "regler-mehr" }, [h("summary", { "data-fokus": "mehr-regler" }, ["Alle Merkmale (" + felder.length + ")"]), h("div", { class: "regler-liste" }, rest.map(zeile))]) : null,
       reglerZurueck = h("button", { type: "button", id: "prio-zurueck", class: "knopf neben", "data-fokus": "prio-zurueck", on: { click: () => {
         zustand = Object.assign({}, zustand, { p: {} });
         try { history.replaceState(null, "", alsAdresse(zustand)); } catch (e) { /* ohne Verlauf */ }
@@ -554,7 +554,9 @@
     for (const t of teile) if (t) for (const k of alleKnoten(t)) if (k.tagName === "DETAILS" && offen.has(k.className)) k.open = true;
   }
   function fokusFreilegen(f) {
-    for (let k = f && f.parentNode; k; k = k.parentNode) if (k.tagName === "DETAILS" && !k.open) k.open = true;
+    // G1-R3-01: eine fokussierte Bereichsüberschrift (summary) öffnet ihren eigenen Bereich nicht
+    const start = f && f.tagName === "SUMMARY" && f.parentNode ? f.parentNode.parentNode : f && f.parentNode;
+    for (let k = start; k; k = k.parentNode) if (k.tagName === "DETAILS" && !k.open) k.open = true;
   }
   function alleKnoten(k, l) {
     l = l || [];
@@ -678,7 +680,7 @@
       ]),
       notenSkala(e, { achse: true }),
       h("details", { class: "note-herkunft" }, [
-        h("summary", null, ["So kommt die Note zustande"]),
+        h("summary", { "data-fokus": "mehr-note" }, ["So kommt die Note zustande"]),
         h("p", { class: "hilfe" }, [erklaerung]),
       ]),
     ]);
@@ -750,7 +752,7 @@
     return h("section", { class: "herkunft", "aria-labelledby": "herkunft-titel" }, [
       h("h3", { id: "herkunft-titel" }, ["Woher die Punkte kommen"]),
       h("ul", { class: "hz-liste" }, offen.map(zeile)),
-      rest.length ? h("details", { class: "hz-mehr" }, [h("summary", null, ["Alle Merkmale (" + zeilen.length + ")"]), h("ul", { class: "hz-liste" }, rest.map(zeile))]) : null,
+      rest.length ? h("details", { class: "hz-mehr" }, [h("summary", { "data-fokus": "mehr-herkunft" }, ["Alle Merkmale (" + zeilen.length + ")"]), h("ul", { class: "hz-liste" }, rest.map(zeile))]) : null,
     ]);
   }
 
@@ -1003,6 +1005,7 @@
     }
     const fokus = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute("data-fokus") : null;
     if (glasBeobachter) glasBeobachter.disconnect();   // G1-04: der alte Schirm verschwindet ganz
+    gleitenStoppen();   // G1-R3-02: ebenso seine Gleitbewegungen
     budgetTeile = [];
     const offen = schluessel === letzterSchirm ? offeneBereiche([wurzel]) : new Set();
     let schirm;

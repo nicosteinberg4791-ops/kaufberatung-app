@@ -743,3 +743,58 @@ test("G1-R2-02: eingeschaltete Bewegungsreduktion bricht laufende Gleitbewegunge
     assert.equal(gestartet, n, "reduziert: keine neue Bewegung");
   } finally { delete Element.prototype.getBoundingClientRect; delete Element.prototype.animate; }
 });
+
+// ---------- G1 Codex r3 (G1-R3-01, G1-R3-02) ----------
+test("G1-R3-01: fokussierte Bereichsüberschriften behalten nach dem Neuaufbau den Fokus, zu bleibt zu", async () => {
+  const fokusEcht = Element.prototype.focus;
+  Element.prototype.focus = function () {
+    for (let k = this.parentNode; k; k = k.parentNode) if (k.tagName === "DETAILS" && !k.open && this.tagName !== "SUMMARY") return;
+    this.dok.activeElement = this;
+  };
+  const summary = (dok, klasse) => alle(klassen(dok, klasse)[0]).find(e => e.tagName === "SUMMARY");
+  try {
+    // Körper neu gefüllt (Adresswechsel 500 € → 900 €): „So kommt die Note zustande“ aufgeklappt und zugeklappt
+    for (const offen of [true, false]) {
+      const app = await starte("#k=fernseher&s=ergebnis&b=500");
+      klassen(app.dok, "note-herkunft")[0].open = offen;
+      summary(app.dok, "note-herkunft").focus();
+      const alt = summary(app.dok, "note-herkunft");
+      await app.zurueck("#k=fernseher&s=ergebnis&b=900");
+      assert.notEqual(summary(app.dok, "note-herkunft"), alt, "Probe braucht den Neuaufbau");
+      assert.equal(app.dok.activeElement, summary(app.dok, "note-herkunft"), "Fokus auf der neuen Überschrift");
+      assert.equal(!!klassen(app.dok, "note-herkunft")[0].open, offen, "Bereich bleibt, wie er war");
+    }
+    // Panel neu gebaut (andere Feldauswahl): Überschrift „Alle Merkmale“ der Regler, zugeklappt
+    const app = await starte("#k=fernseher&s=ergebnis&a=ton.ja");
+    summary(app.dok, "regler-mehr").focus();
+    const panel = app.dok.getElementById("prio");
+    await app.zurueck("#k=fernseher&s=ergebnis");
+    assert.notEqual(app.dok.getElementById("prio"), panel, "Probe braucht den Neuaufbau");
+    assert.equal(app.dok.activeElement, summary(app.dok, "regler-mehr"));
+    assert.equal(!!klassen(app.dok, "regler-mehr")[0].open, false, "zugeklappt bleibt zugeklappt");
+    // Punkteherkunft „Alle Merkmale“: Regler rechnet neu, Fokus bleibt auf der Überschrift
+    const hz = summary(app.dok, "hz-mehr");
+    hz.focus();
+    const r = regler(app.dok)[0];
+    r.value = "3"; r.ausloesen("input");
+    assert.notEqual(summary(app.dok, "hz-mehr"), hz, "Probe braucht den Neuaufbau");
+    assert.equal(app.dok.activeElement, summary(app.dok, "hz-mehr"));
+  } finally { Element.prototype.focus = fokusEcht; }
+});
+
+test("G1-R3-02: Schirmwechsel beendet laufende Gleitbewegungen", async () => {
+  const laufend = new Set();
+  Element.prototype.getBoundingClientRect = function () { const p = this.parentNode; return { top: p ? p.childNodes.indexOf(this) * 100 : 0 }; };
+  Element.prototype.animate = function () { const a = { cancel() { laufend.delete(a); } }; laufend.add(a); return a; };
+  try {
+    for (const ziel of ["#k=fernseher&s=budget", "#k=fernseher&s=fragen", ""]) {
+      const app = await starte("#k=fernseher&s=ergebnis");
+      const erster = regler(app.dok)[0];
+      erster.value = "0"; erster.ausloesen("input");
+      assert.ok(laufend.size > 0, "Gleitbewegung läuft");
+      await app.zurueck(ziel);
+      assert.equal(app.dok.getElementById("ergebnis-koerper"), null, "Ergebnisschirm verlassen: " + ziel);
+      assert.equal(laufend.size, 0, "keine Bewegung läuft mehr: " + ziel);
+    }
+  } finally { delete Element.prototype.getBoundingClientRect; delete Element.prototype.animate; }
+});
