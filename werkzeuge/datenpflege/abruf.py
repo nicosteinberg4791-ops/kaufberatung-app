@@ -21,6 +21,7 @@ import re
 import stat
 import sys
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 import urllib.parse
@@ -180,6 +181,17 @@ def stempel_setzen(stempel, laeuft=False):
     os.replace(neu, stempel)
 
 
+# Buchstaben ohne Zeichenbild (Default_Ignorable_Code_Point der Kategorie Lo: Hangul-Füller)
+_FUELLER = frozenset((0x115F, 0x1160, 0x3164, 0xFFA0))
+
+
+def _sichtbar(c):
+    """Zeichen mit eigenem Zeichenbild (r1–r3): nur Buchstaben, Ziffern, Satz- und Sonderzeichen (Kategorien L, N, P,
+    S) ohne die Hangul-Füller. Leerraum, Steuer- und Formatzeichen (BOM, U+200B), kombinierende Zeichen und
+    Variantenwähler (Mn, Me, z. B. U+FE0F, U+20E3, U+E0100) zählen nicht."""
+    return unicodedata.category(c)[0] in "LNPS" and ord(c) not in _FUELLER
+
+
 def gesperrt_bis(domain):
     """Grund der Domainsperre (nicht leerer Text) oder None. R2-04 (fail-closed): None nur, wenn der Sperrvermerk sicher
     fehlt (FileNotFoundError) oder eine normale Datei ist, die älter als SPERRDAUER ist. Jeder andere Zustand sperrt:
@@ -200,8 +212,7 @@ def gesperrt_bis(domain):
         grund = s.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as e:
         return f"Sperrvermerk nicht lesbar ({type(e).__name__})"
-    # r1/r2: nur Leerraum oder unsichtbare Formatzeichen (BOM, U+200B) ergeben einen sichtbaren Ersatzgrund
-    return grund if any(c.isprintable() and not c.isspace() for c in grund) else "Sperrvermerk ohne Grund"
+    return grund if any(map(_sichtbar, grund)) else "Sperrvermerk ohne Grund"
 
 
 def holen(url):
@@ -395,6 +406,8 @@ def robots_ok(url):
     teile = urllib.parse.urlsplit(url)
     if "%" in teile.netloc:   # r2 R2-02/R2-03: urllib dekodiert die Authority anders als urlsplit (Host, Port)
         return False, "URL mit Prozentkodierung in Host oder Port"
+    if "@" in teile.netloc:   # r3 R3-01: urllib liest einen Nutzerteil anders (z. B. „p@h.invalid“ als Port)
+        return False, "URL mit Nutzerteil (@) in der Authority"
     for m in GESPERRT_PFADE:
         if re.search(m, teile.path + ("?" + teile.query if teile.query else "")):
             return False, "Pfad laut robots-Regel gesperrt: " + m

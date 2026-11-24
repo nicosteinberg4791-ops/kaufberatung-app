@@ -10,3 +10,12 @@ Bericht: `codex-nach-20261124-090915.json` (Codex gpt-6.2-sol high, Stand 8bb2ec
 Fehlalarme: 0. Beide Befunde sind fail-closed (kein unerlaubter Abruf), die Korrekturen sind je eine Zeile plus Test.
 
 **Vorlage O22 (Besitzer):** (A) beide beheben, Tests rot→grün, schmale Runde 4 nur auf diesen Diff; (B) beide beheben ohne weitere Runde und als selbst geprüft vermerken; (C) als Restrisiko annehmen. Empfehlung: A, weil es eine bestätigte, offene „schwer“-Einstufung gibt und die Runde klein bleibt.
+
+## Behebung (O22 = A, Besitzer 24.11.2026)
+
+| ID | Behebung | Probe |
+|---|---|---|
+| R2-04a | `_sichtbar`: als sichtbar zählen nur Zeichen der Kategorien L, N, P, S ohne die Hangul-Füller (U+115F, U+1160, U+3164, U+FFA0); Mn/Me (U+FE0F, U+20E3, U+034F, U+E0100), Cf, Leerraum und Steuerzeichen ergeben „Sperrvermerk ohne Grund“ | `test_sperrvermerk_…`: U+FE0F, U+20E3, Hangul-Füller, U+034F + U+E0100 (vorher rot) |
+| R3-01 | `robots_ok` lehnt `@` in der Authority ab (nach der `%`-Prüfung), `main` endet mit Exit 4 ohne Abruf | `test_port_null_…`: `u:p@`, `u@`, leerer Nutzerteil; `main` ruft `holen` nicht auf (vorher rot) |
+
+Rot vor der Korrektur: 8 Fehlschläge in 2 Tests, grün danach (33 Tests). Nachprüfung: `auftrag-r4.md` (schmal, Diff ab 10d405f).

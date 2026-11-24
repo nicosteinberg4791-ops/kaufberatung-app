@@ -178,6 +178,15 @@ class Robots(unittest.TestCase):
                         "https://[fe80::1%25eth0]/a", "https://u%40x@h.invalid/a", "https://h.invalid:8%34/a"):
                 with self.subTest(url=url):
                     self.assertEqual(abruf.robots_ok(url), (False, "URL mit Prozentkodierung in Host oder Port"))
+            # Codex r3 R3-01: Nutzerteil (urllib liest „p@h.invalid“ als Port)
+            for url in ("https://u:p@h.invalid/a", "https://u@h.invalid/a", "https://@h.invalid/a"):
+                with self.subTest(url=url):
+                    self.assertEqual(abruf.robots_ok(url), (False, "URL mit Nutzerteil (@) in der Authority"))
+            h.assert_not_called()
+        with unittest.mock.patch.object(abruf, "holen") as h, unittest.mock.patch("builtins.print"):
+            self.assertEqual(abruf.main.__module__, "abruf")
+            with unittest.mock.patch.object(abruf.sys, "argv", ["abruf.py", "https://u:p@h.invalid/a"]):
+                self.assertEqual(abruf.main(), 4, "main bricht vor dem Abruf ab")
             h.assert_not_called()
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)), \
                 unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nAllow: /\n"):
@@ -522,7 +531,8 @@ class Domainsperre(unittest.TestCase):
             os.utime(vermerk, (time.time() - 1801, time.time() - 1801))
             self.assertIsNone(abruf.gesperrt_bis("h.invalid"), "nach 30 min frei")
             for inhalt in (b"", b"\xff\xfe\x81", b" \n\t", "﻿".encode(), "​".encode(),
-                           "﻿ ​⁠".encode()):
+                           "﻿ ​⁠".encode(), "️".encode(), "⃣".encode(),
+                           "ㅤᅟ".encode(), "͏\U000e0100".encode()):   # Codex r3: ohne Zeichenbild
                 with self.subTest(inhalt=inhalt):
                     vermerk.write_bytes(inhalt)
                     grund = abruf.gesperrt_bis("h.invalid")
