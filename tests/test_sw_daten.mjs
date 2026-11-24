@@ -37,14 +37,14 @@ function swStarten(antwort) {
   return { speicher, holen, geladen, kontext };
 }
 
-test("F-08: gültige Datei ersetzt die Kopie, beschädigte (null in felder, Klassengrenze als Text, HTML) nicht", async () => {
+test("F-08: gültige Datei ersetzt die Kopie, beschädigte (null in felder, Spanne als Text, HTML) nicht", async () => {
   let aktuell = BEISPIEL;
   const sw = swStarten(() => new Response(aktuell, { status: 200 }));
   assert.deepEqual(sw.geladen, ["bewertung.js?v=test"]);
   assert.equal(await sw.holen(), BEISPIEL);
   assert.equal(sw.speicher.get("finder-daten.json"), BEISPIEL);
   const kaputt1 = JSON.parse(BEISPIEL); kaputt1.kategorien[0].felder.push(null);
-  const kaputt2 = JSON.parse(BEISPIEL); kaputt2.regeln.klassen[0].ab = "0;background:red";
+  const kaputt2 = JSON.parse(BEISPIEL); kaputt2.regeln.datenblatt_abschlag.spanne_plus_minus = "0;background:red";
   const kaputt3 = JSON.parse(BEISPIEL); kaputt3.stand = { toString: null };   // R2-03
   const kaputt4 = JSON.parse(BEISPIEL); kaputt4.kategorien[0].id = "constructor";   // R3-02
   kaputt4.kategorien[0].felder.find(x => x.gewicht > 0).id = "prototype";

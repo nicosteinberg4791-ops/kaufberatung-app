@@ -306,7 +306,7 @@ def bauen(ziel, herkunft=None):
     if fehler:
         return daten, fehler, warnungen
     aus = {"stand": max((d["stand"] for d in daten), default=None), "regeln": {k: schema[k] for k in
-           ("klassen", "unterschiedsschwelle_punkte", "datenblatt_abschlag", "aufpreis_regeln")}, "kategorien": []}
+           ("unterschiedsschwelle_punkte", "datenblatt_abschlag", "aufpreis_regeln")}, "kategorien": []}   # D12: ohne klassen
     if herkunft is not None:
         aus["herkunft"] = herkunft
     nach_kat = {d["kategorie"]: d for d in daten}

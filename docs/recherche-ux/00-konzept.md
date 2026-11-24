@@ -190,6 +190,8 @@ danach P7 Zusammenführen → Gesamtprüfung → Veröffentlichung (kritisch, Co
 
 ## 5. Entscheidungen des Besitzers
 
+**Entschieden am 24.11.2026: siehe `docs/entscheidungen.md` D12–D24.** Abweichend vom Vorschlag gilt bei Nr. 1 D12: Die Gesamtnote bleibt, nur Kappung und Klassenwörter entfallen. Damit fällt in P1 „Ausstattung statt Note“ weg, und P2 baut keine zwei Achsen. Alle anderen Punkte wurden wie empfohlen entschieden.
+
 1. **Notenmodell: keine Gesamtnote ohne Test, zwei Achsen.** Empfehlung: ja. Folgen: D9 (Kappung 84, Klassen) wird abgelöst; „sehr gut“ verschwindet, bis Testdaten da sind; die Gewichte je Nutzung braucht deine fachliche Freigabe [02 c].
 2. **Testquelle je Kategorie.** Empfehlung: zunächst nur Links (Warentest, RTINGS u. a.). Schriftliche Anfrage für Einzelwerte an Notebookcheck (Laptop/Tablet) und eine ANC-Quelle. Warentest-Lizenz erst bei Bedarf. Folge: „Getestet“ bleibt vorerst überwiegend leer, ehrlich gekennzeichnet [03 §11, 04].
 3. **Zielzahl ~620 Modelle** (5 Bänder × ≥ 6 Modelle, ≥ 3 Hersteller, ≥ 80 % mit Preis und Bewertung) [06 §2]. Empfehlung: ja, als einmaliger Ausbau, Stufen 1–2 zuerst (~1 Tag). Folge: ~670 Abrufe, 2–3 Tage, danach höherer Pflegeaufwand für Preise.

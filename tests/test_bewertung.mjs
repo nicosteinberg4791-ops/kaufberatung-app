@@ -12,7 +12,7 @@ const require = createRequire(import.meta.url);
 const B = require(path.join(PROJEKT, "app", "finder", "bewertung.js"));
 
 const SCHEMA = JSON.parse(fs.readFileSync(path.join(PROJEKT, "daten", "schema", "kategorien.json"), "utf8"));
-const REGELN = Object.fromEntries(["klassen", "unterschiedsschwelle_punkte", "datenblatt_abschlag", "aufpreis_regeln"].map(k => [k, SCHEMA[k]]));
+const REGELN = Object.fromEntries(["unterschiedsschwelle_punkte", "datenblatt_abschlag", "aufpreis_regeln"].map(k => [k, SCHEMA[k]]));
 const DB = REGELN.datenblatt_abschlag;
 const beispiel = () => B.datenPruefen(JSON.parse(fs.readFileSync(path.join(HIER, "vorlagen", "finder-beispiel.json"), "utf8")));
 const nah = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) <= eps, `${a} ≠ ${b}`);
@@ -42,7 +42,7 @@ const modell = (id, tp, werte = {}, eur = null) => ({
   preis: eur === null ? null : { eur, haendler: "Beispielshop", url: "https://example.org/" + id, stand: "2026-11-20" }, tests: [],
 });
 // Eintrag wie aus auswerten() für die Hinweisregeln
-const eintrag = (id, preis, note, art = "datenblatt") => ({ modell: { id }, preis, note, art, klasse: B.klasse(note, REGELN.klassen) });
+const eintrag = (id, preis, note, art = "datenblatt") => ({ modell: { id }, preis, note, art });
 
 test("Gewichte: Faktoren multiplizieren, 0 schaltet ab, Summe 100, Filterfelder ohne Gewicht", () => {
   const g0 = B.gewichte(KAT, {});
@@ -66,9 +66,11 @@ test("Gewichte: echte Schemakategorien normieren auf 100", () => {
   }
 });
 
-test("Abschlag: Beispiele aus dem Schema (R 90 → 81, R 95 → 84 gekappt, R 70 → 64, R 80 bei 80 % → 68,5)", () => {
+test("Abschlag: Beispiele aus dem Schema (R 90 → 81, R 95 → 85,25 ohne Kappung (D12), R 70 → 64, R 80 bei 80 % → 68,5)", () => {
   nah(B.datenblattNote(90, 1, DB), 81);
-  nah(B.datenblattNote(95, 1, DB), 84);
+  nah(B.datenblattNote(95, 1, DB), 85.25);
+  nah(B.datenblattNote(100, 1, DB), 89.5);
+  assert.equal("kappung" in DB, false, "D12: Schema ohne Kappung");
   nah(B.datenblattNote(70, 1, DB), 64);
   nah(B.datenblattNote(80, 0.8, DB), 68.5);
   // genau Mindestabdeckung: Note; knapp darunter: keine Note
@@ -80,9 +82,11 @@ test("Rohwert und Abdeckung über belegte Felder; unter 70 % keine Note", () => 
   const g = B.gewichte(KAT, {});
   const r1 = B.bewerteModell(modell("m1", { a: 80 }), KAT, g, REGELN);   // b fehlt → Abdeckung 0,8
   nah(r1.R, 80); nah(r1.abdeckung, 0.8); nah(r1.note, 68.5);
-  assert.equal(r1.art, "datenblatt"); assert.equal(r1.klasse, "gut"); assert.equal(r1.spanne, 8);
+  assert.equal(r1.art, "datenblatt"); assert.equal("klasse" in r1, false); assert.equal(r1.spanne, 8);
+  assert.deepEqual(r1.fehlend.map(f => f.feld), ["b"]);
   const r2 = B.bewerteModell(modell("m2", { b: 100 }), KAT, g, REGELN);  // nur 20 % belegt
-  assert.equal(r2.note, null); assert.equal(r2.art, "zu_wenig_daten"); assert.equal(r2.klasse, null);
+  assert.equal(r2.note, null); assert.equal(r2.art, "zu_wenig_daten");
+  assert.deepEqual(r2.fehlend.map(f => f.feld), ["a"], "fehlende Felder nach Gewicht für „Noch nicht bewertbar“");
   const r3 = B.bewerteModell(modell("m3", { a: 90, b: 90 }), KAT, g, REGELN);
   nah(r3.note, 81); assert.equal(r3.beitraege[0].feld, "a");
 });
@@ -100,21 +104,19 @@ test("Nicht anwendbar: Sync-Funktion bei einem Garraum kostet keine Abdeckung", 
 test("Getestet (nur wenn Testpunkte als Zahl vorliegen): 0,6 × Test + 0,4 × R, ohne Kappung", () => {
   const m = modell("t", { a: 100, b: 100 }); m.tests = [{ url: "https://example.org/t", titel: "x", punkte: 90 }];
   const r = B.bewerteModell(m, KAT, B.gewichte(KAT, {}), REGELN);
-  assert.equal(r.art, "getestet"); nah(r.note, 94); assert.equal(r.klasse, "hervorragend");
+  assert.equal(r.art, "getestet"); nah(r.note, 94);
 });
 
-test("Klassen an den Grenzen (gerundete Anzeige-Note)", () => {
-  const k = REGELN.klassen;
-  assert.equal(B.klasse(85, k), "hervorragend");
-  assert.equal(B.klasse(84, k), "sehr gut");
-  assert.equal(B.klasse(75, k), "sehr gut");
-  assert.equal(B.klasse(74.4, k), "gut");
-  assert.equal(B.klasse(74.5, k), "sehr gut");
-  assert.equal(B.klasse(60, k), "gut");
-  assert.equal(B.klasse(45, k), "ordentlich");
-  assert.equal(B.klasse(44.4, k), "einfach");
-  assert.equal(B.klasse(0, k), "einfach");
-  assert.equal(B.klasse(null, k), null);
+test("D12: keine Klassen und keine Kappung, auch wenn ältere Daten sie noch tragen", () => {
+  assert.equal("klasse" in B, false);
+  assert.equal("klassen" in SCHEMA, false, "Schema ohne Klassen");
+  const alt = kopie(REGELN);
+  alt.klassen = [{ ab: "0;background:red", name: "<b>x</b>" }];
+  alt.datenblatt_abschlag.kappung = 84;
+  const d = { regeln: alt, kategorien: [{ id: "probe", name: "Probe", felder: kopie(KAT.felder), fragen: kopie(KAT.fragen), modelle: [modell("m", { a: 100, b: 100 }, {}, 100)] }] };
+  assert.doesNotThrow(() => B.datenPruefen(d), "Altdaten bleiben lesbar");
+  const r = B.bewerteModell(d.kategorien[0].modelle[0], d.kategorien[0], B.gewichte(d.kategorien[0], {}), d.regeln);
+  nah(r.note, 89.5, 1e-9);   // nicht auf 84 gekappt
 });
 
 test("Mindest/Höchst: verletzt schließt aus, unbelegt bleibt markiert", () => {
@@ -151,7 +153,7 @@ test("Aufpreis: Beispiel Fernseher aus dem Schema (Budget 500)", () => {
   const A = eintrag("A", 489, 68), Bm = eintrag("B", 589, 77), D = eintrag("D", 649, 82), E = eintrag("E", 539, 70);
   const h = B.aufpreisHinweis(A, [Bm, D, E], 500, REGELN);
   assert.equal(h.modell.modell.id, "B"); assert.equal(h.aufpreis, 100); assert.equal(h.punkte, 9);
-  assert.equal(h.text, "Für 100 € mehr bekommst du +9 Punkte (Klasse „sehr gut“ statt „gut“).");
+  assert.equal(h.text, "Für 100 € mehr bekommst du +9 Punkte.");
   // D allein: über 1,25 × Budget; E allein: zu wenig Punkte
   assert.equal(B.aufpreisHinweis(A, [D], 500, REGELN), null);
   assert.equal(B.aufpreisHinweis(A, [E], 500, REGELN), null);
@@ -165,9 +167,9 @@ test("R4-06: Platzhalter nur aus eigenen Einträgen, geerbte ({constructor}) ble
   assert.ok(!/function|native code|object Object/.test(h.text));
 });
 
-test("Aufpreis: Air-Fryer-Beispiel ohne Klassensprung, genau 20 € und genau 5 Punkte", () => {
+test("Aufpreis: Air-Fryer-Beispiel, genau 20 € und genau 5 Punkte", () => {
   const h = B.aufpreisHinweis(eintrag("A", 99, 62), [eintrag("B", 119, 67)], 100, REGELN);
-  assert.equal(h.text, "Für 20 € mehr bekommst du +5 Punkte."); assert.equal(h.klassensprung, false);
+  assert.equal(h.text, "Für 20 € mehr bekommst du +5 Punkte.");
   assert.equal(B.aufpreisHinweis(eintrag("A", 99, 62), [eintrag("B", 118.99, 67)], 100, REGELN), null); // 19,99 €
   assert.equal(B.aufpreisHinweis(eintrag("A", 99, 62), [eintrag("B", 119, 66.99)], 100, REGELN), null); // < 5 Punkte
   // getestet auf beiden Seiten: 3 Punkte reichen
@@ -184,16 +186,14 @@ test("Aufpreis: genau auf 1,25 × Budget gilt, darüber nicht (auch mit Cent-Pre
   assert.ok(h); assert.equal(h.aufpreis, 20);
 });
 
-test("Aufpreis: Effizienz 3 je 100 € genau, darunter nur mit Klassensprung ab 1,5", () => {
-  const A = eintrag("A", 400, 62);                                   // gut
-  assert.ok(B.aufpreisHinweis(A, [eintrag("B", 600, 68)], 500, REGELN));        // E = 3, gleiche Klasse
+test("Aufpreis: Effizienz 3 je 100 € genau, darunter kein Hinweis (D12: kein Klassensprung mehr)", () => {
+  const A = eintrag("A", 400, 62);
+  assert.ok(B.aufpreisHinweis(A, [eintrag("B", 600, 68)], 500, REGELN));        // E = 3
   assert.equal(B.aufpreisHinweis(A, [eintrag("B", 601, 68)], 500, REGELN), null); // E < 3
-  const A2 = eintrag("A", 700, 70);                                  // gut
-  const h = B.aufpreisHinweis(A2, [eintrag("B", 1100, 76)], 1000, REGELN);      // E = 1,5, Sprung auf sehr gut
-  assert.ok(h); assert.equal(h.klassensprung, true);
-  assert.match(h.text, /Klasse „sehr gut“ statt „gut“/);
-  assert.equal(B.aufpreisHinweis(A2, [eintrag("B", 1101, 76)], 1000, REGELN), null); // E < 1,5
-  assert.equal(B.aufpreisHinweis(eintrag("A", 700, 64), [eintrag("B", 1100, 70)], 1000, REGELN), null); // E 1,5 ohne Sprung
+  assert.equal(B.aufpreisHinweis(eintrag("A", 700, 70), [eintrag("B", 1100, 76)], 1000, REGELN), null); // E 1,5
+  // ältere Regeltexte mit {klasse_text} ergeben keinen Klassenrest
+  const alt = kopie(REGELN); alt.aufpreis_regeln.aufpreis.text = "Für {aufpreis} € mehr +{dN} Punkte{klasse_text}.";
+  assert.equal(B.aufpreisHinweis(A, [eintrag("B", 600, 68)], 500, alt).text, "Für 200 € mehr +6 Punkte.");
 });
 
 test("Aufpreis: höchstens ein Hinweis, größtes E, bei Gleichstand kleinerer Aufpreis", () => {
@@ -218,9 +218,10 @@ test("Spar: Beispiel aus dem Schema und Grenzfälle", () => {
   assert.equal(B.sparHinweis(eintrag("A", 500, 70), [eintrag("C", 450.01, 68)], REGELN), null);
   assert.ok(B.sparHinweis(eintrag("A", 100, 70), [eintrag("C", 70, 68)], REGELN));
   assert.equal(B.sparHinweis(eintrag("A", 100, 70), [eintrag("C", 71, 68)], REGELN), null);
-  // Verlust genau 3 bei gleicher Klasse; andere Klasse ohne 25 % Ersparnis → nichts
+  // Verlust genau 3 → fast gleich gut; D12: ohne Klassengrenze zählt nur der Verlust
   assert.ok(B.sparHinweis(eintrag("A", 500, 70), [eintrag("C", 400, 67)], REGELN));
-  assert.equal(B.sparHinweis(eintrag("A", 500, 76), [eintrag("C", 400, 74)], REGELN), null);
+  assert.equal(B.sparHinweis(eintrag("A", 500, 76), [eintrag("C", 400, 74)], REGELN).art, "gleich");
+  assert.equal(B.sparHinweis(eintrag("A", 500, 76), [eintrag("C", 400, 72.9)], REGELN), null);   // Verlust > 3, < 25 %
   // etwas schwächer: Verlust 4,5 und genau 25 % Ersparnis
   const s = B.sparHinweis(eintrag("A", 400, 70), [eintrag("C", 300, 65.5)], REGELN);
   assert.equal(s.art, "schwaecher"); assert.equal(s.text, "Für 100 € weniger etwas schwächer (66 statt 70 Punkte).");
@@ -231,7 +232,7 @@ test("Spar: Beispiel aus dem Schema und Grenzfälle", () => {
   assert.equal(w.modell.modell.id, "C2");
 });
 
-test("Fehlende Preise: nie Empfehlung mit Budget, bei „egal“ möglich, kein Hinweis ohne Preis", () => {
+test("Fehlende Preise: nie Empfehlung ohne Preis, auch bei Budget „egal“ (08 G)", () => {
   const kat = Object.assign({}, KAT, { modelle: [
     modell("teuer_ohne", { a: 95, b: 100 }, {}, null),
     modell("mit", { a: 70, b: 100 }, {}, 300),
@@ -240,7 +241,11 @@ test("Fehlende Preise: nie Empfehlung mit Budget, bei „egal“ möglich, kein 
   assert.equal(r.empfehlung.modell.id, "mit");
   assert.equal(r.rang.find(e => e.modell.id === "teuer_ohne").imBudget, null);
   const egal = B.auswerten(kat, REGELN, { budget: null });
-  assert.equal(egal.empfehlung.modell.id, "teuer_ohne"); assert.equal(egal.status, "passt");
+  assert.equal(egal.empfehlung.modell.id, "mit"); assert.equal(egal.status, "passt");
+  assert.equal(egal.rang[0].modell.id, "teuer_ohne", "bleibt in der Rangliste vorn sichtbar");
+  // nur Modelle ohne Preis: keine Empfehlung
+  const nurOhne = B.auswerten(Object.assign({}, KAT, { modelle: [modell("o1", { a: 95, b: 100 }), modell("o2", {})] }), REGELN, { budget: null });
+  assert.equal(nurOhne.empfehlung, null); assert.equal(nurOhne.status, "leer"); assert.equal(nurOhne.rang.length, 2);
   assert.equal(egal.aufpreis, null); assert.equal(egal.spar, null);
   // Rangfolge nach Preis: ohne Preis ans Ende
   assert.deepEqual(B.sortiere(egal.rang, "preis").map(e => e.modell.id), ["mit", "teuer_ohne"]);
@@ -259,6 +264,24 @@ test("Rangfolge: Note, dann Preis; Punkte je Euro", () => {
   const l = [eintrag("a", 500, 70), eintrag("b", 400, 70), eintrag("c", 300, 60), eintrag("d", null, 80), eintrag("e", 100, null)];
   assert.deepEqual(B.sortiere(l, "note").map(e => e.modell.id), ["d", "b", "a", "c", "e"]);
   assert.deepEqual(B.sortiere(l, "effizienz").map(e => e.modell.id), ["c", "b", "a", "d", "e"]);
+});
+
+test("07 B03/B15: gleiche angezeigte Note → günstigeres zuerst und als Empfehlung", () => {
+  // 84,4 und 83,6 zeigen beide 84: der günstigere gewinnt, obwohl seine ungerundete Note kleiner ist
+  const l = [eintrag("teuer", 130, 84.4), eintrag("billig", 65, 83.6), eintrag("ohne", null, 84.2), eintrag("klar", 400, 84.6)];
+  assert.deepEqual(B.sortiere(l, "note").map(e => e.modell.id), ["klar", "billig", "teuer", "ohne"]);
+  const kat = Object.assign({}, KAT, { modelle: [
+    modell("teuer", { a: 98, b: 100 }, {}, 130),   // R 98,4 → 88,14 → angezeigt 88
+    modell("billig", { a: 98, b: 99 }, {}, 65),     // R 98,2 → 87,97 → angezeigt 88
+  ] });
+  const r = B.auswerten(kat, REGELN, { budget: null });
+  nah(r.rang[1].note, 88.14); nah(r.rang[0].note, 87.97);
+  assert.equal(r.empfehlung.modell.id, "billig"); assert.equal(r.spar, null);
+  // Spar-Hinweis nie „84 statt 84“: gleiche angezeigte Zahl → eigener Text
+  const s = B.sparHinweis(eintrag("A", 130, 84.4), [eintrag("C", 65, 83.6)], REGELN);
+  assert.equal(s.art, "gleichauf"); assert.equal(s.text, "Gleichauf mit 84 Punkten und 65 € günstiger.");
+  const ohneText = kopie(REGELN); delete ohneText.aufpreis_regeln.spar.text_gleichauf;
+  assert.equal(B.sparHinweis(eintrag("A", 130, 84.4), [eintrag("C", 65, 83.6)], ohneText), null);
 });
 
 test("Beispieldaten (erfunden): Auswertung Fernseher 500 €, Air Fryer 100 €, Budget egal", () => {
@@ -339,7 +362,7 @@ test("F-01: Testlinks verlieren übernommene Punkte, die Note bleibt aus dem Dat
   const m = d.kategorien[0].modelle[0];
   assert.deepEqual(m.tests, [{ url: "https://example.org/t", titel: "Test" }]);
   const r = B.bewerteModell(m, d.kategorien[0], B.gewichte(d.kategorien[0], {}), d.regeln);
-  assert.equal(r.art, "datenblatt"); assert.ok(r.note <= DB.kappung);
+  assert.equal(r.art, "datenblatt"); nah(r.note, B.datenblattNote(r.R, r.abdeckung, DB));
 });
 
 test("F-08: beschädigte Felder, Fragen oder Regeln werfen (letzter Stand bleibt)", () => {
@@ -357,13 +380,13 @@ test("F-08: beschädigte Felder, Fragen oder Regeln werfen (letzter Stand bleibt
   assert.doesNotThrow(() => B.datenPruefen(minimal()));
 });
 
-test("F-09: Klassengrenzen und Kappung nur als Zahl 0..100", () => {
-  for (const kaputt of ["50;background:red", -1, 101, NaN, null]) {
-    const d = minimal(); d.regeln.klassen[0].ab = kaputt;
-    assert.throws(() => B.datenPruefen(d), "klassen " + kaputt);
+test("F-09: Zahlen, die in style landen (Spanne), nur als Zahl 0..100", () => {
+  for (const kaputt of ["8;background:red", -1, 101, NaN, null]) {
+    const d = minimal(); d.regeln.datenblatt_abschlag.spanne_plus_minus = kaputt;
+    assert.throws(() => B.datenPruefen(d), "spanne " + kaputt);
   }
-  const d = minimal(); d.regeln.datenblatt_abschlag.kappung = "84%;x";
-  assert.throws(() => B.datenPruefen(d));
+  const d = minimal(); d.regeln.aufpreis_regeln.spar.text_gleichauf = { x: 1 };
+  assert.throws(() => B.datenPruefen(d), "text_gleichauf nur als Text");
 });
 
 test("F-08: kaputte Teilpunkte und Modelle ohne Namen fallen still weg", () => {

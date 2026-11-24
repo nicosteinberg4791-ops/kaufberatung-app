@@ -144,7 +144,15 @@
     if (w === true) return feld.name;
     return feld.name + ": " + wertText(feld, w);
   }
-  function modellName(m) { return [m.name, m.variante].filter(Boolean).join(", "); }
+  /* Variante nur zeigen, wenn sie etwas sagt (07 B08): nicht „Standard“ und nicht schon im Modellnamen enthalten */
+  const flach = t => String(t || "").toLowerCase().replace(/[^a-z0-9äöüß]/g, "");
+  function varianteText(m) {
+    const v = typeof m.variante === "string" ? m.variante.trim() : "";
+    if (!v || /^standard$/i.test(v)) return "";
+    const fv = flach(v);
+    return fv && flach(m.name).indexOf(fv) >= 0 ? "" : v;
+  }
+  function modellName(m) { return [m.name, varianteText(m)].filter(Boolean).join(", "); }
   function note(n) { return n === null ? "–" : String(Math.round(n)); }
 
   /* ---------- Zustand <-> Adresse ---------- */
@@ -423,7 +431,10 @@
       ])]);
     } else {
       if (r.empfehlung) anhaengen(koerper, [empfehlungsKarte(kat, r)]);
-      else anhaengen(koerper, [h("div", { class: "karte leise" }, [h("p", null, ["Für keins der passenden Modelle reichen die Datenblattangaben für eine Note. Die Liste unten zeigt sie trotzdem."])])]);
+      else anhaengen(koerper, [h("div", { class: "karte leise" }, [h("p", null, [r.rang.some(e => e.note !== null)
+        // 08 G: ohne bekannten Preis keine Empfehlung
+        ? "Für die passenden Modelle kennen wir gerade keinen Preis. Deshalb empfehlen wir keins. Die Liste unten zeigt sie trotzdem."
+        : "Für keins der passenden Modelle reichen die Datenblattangaben für eine Note. Die Liste unten zeigt sie trotzdem."])])]);
       if (r.aufpreis) anhaengen(koerper, [hinweisKarte("mehr", "Lohnt sich mehr?", r.aufpreis.text, r.aufpreis.modell)]);
       if (r.spar) anhaengen(koerper, [hinweisKarte("weniger", "Geht es günstiger?", r.spar.text, r.spar.modell)]);
       anhaengen(koerper, [rangliste(kat, r), vergleich(kat, r)]);
@@ -433,42 +444,61 @@
     if (status) status.textContent = r.rang.length
       ? r.rang.length + (r.rang.length === 1 ? " Modell passt" : " Modelle passen") + (!r.empfehlung ? "." : r.empfehlung.note === null
         ? ". Modell ohne Note: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", für eine Note fehlen Datenblattwerte."   // R2-09
-        : ". Empfehlung: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", " + note(r.empfehlung.note) + " Punkte.")
+        : ". Passt am besten: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", " + note(r.empfehlung.note) + " Punkte.")
       : "Kein Modell passt.";
     if (fokusDrin) { const f = findeFokus(koerper, fokus); if (f && f.focus) f.focus(); }
   }
 
+  /* Deine Angaben mit Fragetext (08 F): „Antwort“ allein (z. B. „Ja“) sagt ohne Frage nichts */
   function auswahlZeile(kat) {
-    const teile = [];
+    const zeilen = [];
     const wirksam = antwortenWirksam(kat);
     for (const f of kat.fragen) {
       const a = f.antworten.find(x => x.id === wirksam[f.id]);
-      if (a && a.id !== "egal") teile.push(a.text);
+      if (a && a.id !== "egal") zeilen.push([f.text, a.text]);
     }
-    if (zustand.g) teile.push((GROESSEN.find(g => g.id === zustand.g) || {}).text);
-    if (zustand.ba) teile.push(stufeText(zustand.ba));
-    return h("p", { class: "auswahl" }, [teile.length ? "Deine Angaben: " + teile.join(", ") : "Ohne Angaben zu deiner Nutzung bewertet."]);
+    if (zustand.g) zeilen.push(["Größe", (GROESSEN.find(g => g.id === zustand.g) || {}).text]);
+    if (zustand.ba) zeilen.push(["Bauart", stufeText(zustand.ba)]);
+    if (!zeilen.length) return h("p", { class: "auswahl" }, ["Ohne Angaben zu deiner Nutzung bewertet."]);
+    const liste = h("dl", { class: "angaben-liste" });
+    for (const [frage, antwort] of zeilen) anhaengen(liste, [h("dt", { text: frage }), h("dd", { text: antwort })]);
+    return h("section", { class: "angaben", "aria-labelledby": "angaben-titel" }, [
+      h("h2", { id: "angaben-titel", class: "angaben-titel" }, ["Deine Angaben"]), liste]);
   }
 
   /* Prozentwert für style: nur endliche Zahlen, auf 0..100 begrenzt (F-09; datenPruefen prüft die Regeln vorher). */
   function prozent(x) { const z = typeof x === "number" && isFinite(x) ? x : 0; return Math.max(0, Math.min(100, z)); }
-  function notenSkala(e, klassen, kappungRoh) {
-    const n = prozent(e.note), kappung = prozent(kappungRoh);
-    const stufen = klassen.slice().sort((a, b) => a.ab - b.ab);
+  /* D12: eine Bahn 0–100 ohne Klassenbänder und ohne Kappung; die Spanne zeigt, wie unsicher eine Datenblatt-Note ist */
+  function notenSkala(e) {
+    const n = prozent(e.note);
     const spanne = e.spanne ? [Math.max(0, n - e.spanne), Math.min(100, n + e.spanne)] : null;
-    const beschr = "Note " + Math.round(n) + " von 100, Klasse " + e.klasse + (spanne ? ", Spanne etwa " + Math.round(spanne[0]) + " bis " + Math.round(spanne[1]) : "");
-    const bahn = h("div", { class: "skala-bahn" });
-    stufen.forEach((k, i) => {
-      const von = prozent(k.ab), bis = i + 1 < stufen.length ? prozent(stufen[i + 1].ab) : 100;
-      bahn.appendChild(h("span", { class: "skala-stufe" + (k.name === e.klasse ? " an" : ""), style: "left:" + von + "%;width:" + Math.max(0, bis - von) + "%" }));
-    });
-    if (e.art === "datenblatt" && kappung < 100) bahn.appendChild(h("span", { class: "skala-test", style: "left:" + kappung + "%;width:" + (100 - kappung) + "%" }));
+    const beschr = "Note " + Math.round(n) + " von 100" + (spanne ? ", Spanne etwa " + Math.round(spanne[0]) + " bis " + Math.round(spanne[1]) : "");
+    const bahn = h("div", { class: "skala-bahn" }, [h("span", { class: "skala-fuellung", style: "width:" + n + "%" })]);
     if (spanne) bahn.appendChild(h("span", { class: "skala-spanne", style: "left:" + spanne[0] + "%;width:" + (spanne[1] - spanne[0]) + "%" }));
     bahn.appendChild(h("span", { class: "skala-punkt", style: "left:" + n + "%" }));
     const marken = h("div", { class: "skala-marken", "aria-hidden": "true" },
-      stufen.filter(k => prozent(k.ab) > 0).map(k => h("span", { style: "left:" + prozent(k.ab) + "%", text: String(prozent(k.ab)) })));
-    return h("div", { class: "skala", role: "img", "aria-label": beschr }, [bahn, marken,
-      e.art === "datenblatt" ? h("p", { class: "skala-hinweis", "aria-hidden": "true" }, ["Ab " + kappung + " nur mit unabhängigem Test"]) : null]);
+      [0, 50, 100].map(x => h("span", { style: "left:" + x + "%", text: String(x) })));
+    return h("div", { class: "skala", role: "img", "aria-label": beschr }, [bahn, marken]);
+  }
+  /* Note mit Herkunft; die Rechnung ist eingeklappt (08 F) */
+  function notenBlock(e) {
+    if (e.note === null) return h("p", { class: "note-zeile marke" }, ["Keine Note: zu wenig Daten"]);
+    const spanne = e.spanne ? " Die Zahl ist deshalb unsicher, etwa " + Math.round(Math.max(0, e.note - e.spanne)) + " bis " + Math.round(Math.min(100, e.note + e.spanne)) + "." : "";
+    const erklaerung = e.art === "getestet"
+      ? "Die Note mischt ein unabhängiges Testergebnis (60 %) mit den Datenblattwerten (40 %), gewichtet nach deinen Antworten."
+      : "Die Punkte zählen die Ausstattung laut Hersteller (Datenblatt, EU-Label), gewichtet nach deinen Antworten. Wie gut Bild, Ton oder Saugen wirklich sind, steht in keinem Datenblatt." + spanne
+        + " Belegt sind " + Math.round(prozent(e.abdeckung * 100)) + " % der Merkmale, die für dich zählen.";
+    return h("div", { class: "note-block" }, [
+      h("div", { class: "note-zeile" }, [
+        h("p", { class: "note-zahl" }, [h("span", { class: "zahl", text: note(e.note) }), h("span", { class: "von" }, [" von 100"])]),
+        h("p", { class: "marke" }, [e.art === "getestet" ? "mit unabhängigem Test" : "aus dem Datenblatt, kein Test"]),
+      ]),
+      h("details", { class: "note-herkunft" }, [
+        h("summary", null, ["So kommt die Note zustande"]),
+        notenSkala(e),
+        h("p", { class: "hilfe" }, [erklaerung]),
+      ]),
+    ]);
   }
 
   function preisBlock(e, gross) {
@@ -483,7 +513,7 @@
   function empfehlungsKarte(kat, r) {
     const e = r.empfehlung, m = e.modell;
     const felder = Object.fromEntries(kat.felder.map(f => [f.id, f]));
-    let kopfText = zustand.b ? "Unsere Empfehlung bis " + eur(zustand.b) : "Unsere Empfehlung";
+    let kopfText = zustand.b ? "Passt am besten zu dir bis " + eur(zustand.b) : "Passt am besten zu dir";
     let warnung = null;
     if (r.status === "ueber_budget") {
       kopfText = "Im Budget passt nichts";
@@ -498,24 +528,31 @@
     const staerken = B.staerken(e, 3).map(s => h("li", { text: staerkeText(felder[s.feld] || { name: s.feld }, m.werte[s.feld]) }));
     const angebot = m.preis ? link(m.preis.url, "Zum Angebot", "knopf haupt") : null;
     if (angebot) angebot.setAttribute("aria-label", "Zum Angebot: " + modellName(m) + " bei " + m.preis.haendler + " (öffnet neues Fenster)");
+    const variante = varianteText(m);
+    // 08 F: Preis und Knopf oben, die Note darunter
     return h("article", { class: "karte empfehlung", "aria-labelledby": "empf-name" }, [
       h("p", { class: "karte-kopf" + (r.status === "ueber_budget" || r.status === "ohne_note" ? " warn" : "") }, [kopfText]),
       h("p", { class: "hersteller", text: m.hersteller }),
       h("h2", { id: "empf-name", class: "modell" }, [m.name]),
-      m.variante ? h("p", { class: "variante", text: m.variante }) : null,
-      e.note === null ? h("p", { class: "note-zeile marke" }, ["Keine Note: zu wenig Daten"]) : h("div", { class: "note-zeile" }, [
-        h("p", { class: "note-zahl" }, [h("span", { class: "zahl", text: note(e.note) }), h("span", { class: "von" }, [" von 100"])]),
-        h("div", { class: "note-text" }, [
-          h("p", { class: "klasse", text: e.klasse }),
-          h("p", { class: "marke" }, [e.art === "getestet" ? "getestet" : "aus Datenblatt"]),
-        ]),
-      ]),
-      e.note === null ? null : notenSkala(e, daten.regeln.klassen, daten.regeln.datenblatt_abschlag.kappung),
-      warnung ? h("p", { class: "warnung" }, [warnung]) : null,
-      staerken.length ? h("div", { class: "staerken" }, [h("h3", null, ["Stärken laut Datenblatt"]), h("ul", null, staerken)]) : null,
+      variante ? h("p", { class: "variante", text: variante }) : null,
       h("div", { class: "kauf" }, [preisBlock(e, true), angebot]),
+      warnung ? h("p", { class: "warnung" }, [warnung]) : null,
+      notenBlock(e),
+      staerken.length ? h("div", { class: "staerken" }, [h("h3", null, ["Stärken laut Datenblatt"]), h("ul", null, staerken)]) : null,
+      testLinks(m),
       vergleichSchalter(m, "empf"),
     ]);
+  }
+
+  /* Testberichte anderer nur als Link (D13); die Datenprüfung lässt nur https-Links mit Titel durch */
+  function testLinks(m) {
+    const links = (m.tests || []).slice(0, 3).map(t => {
+      const a = link(t.url, t.titel, "textlink");
+      if (a) a.setAttribute("aria-label", t.titel + " (Testbericht, öffnet neues Fenster)");
+      return a;
+    }).filter(Boolean);
+    if (!links.length) return null;
+    return h("div", { class: "tests" }, [h("h3", null, ["Tests anderer"]), h("ul", null, links.map(a => h("li", null, [a])))]);
   }
 
   function hinweisKarte(art, ueberschrift, text, e) {
@@ -544,43 +581,59 @@
     ]);
   }
 
+  function rangZeile(e, nr, r, felder) {
+    const m = e.modell;
+    const marken = [];
+    if (e.note === null && e.fehlend && e.fehlend.length) marken.push("fehlt: " + e.fehlend.slice(0, 3).map(f => (felder[f.feld] || { name: f.feld }).name).join(", "));
+    if (e.imBudget === false) marken.push("über Budget");
+    if (e.imBudget === null && zustand.b) marken.push("Preis unbekannt");
+    if (e.unbelegt.length) marken.push("nicht belegt: " + e.unbelegt.map(u => (felder[u.feld] || { name: u.feld }).name).join(", "));
+    const angebot = m.preis ? link(m.preis.url, "Angebot", "textlink") : null;
+    if (angebot) angebot.setAttribute("aria-label", "Angebot für " + modellName(m) + " (öffnet neues Fenster)");
+    return h("li", { class: "rang-eintrag" + (nr === null ? " ohne-nr" : "") + (e === r.empfehlung ? " erste" : "") }, [
+      nr === null ? null : h("span", { class: "rang-nr", "aria-hidden": "true", text: String(nr) }),
+      h("div", { class: "rang-haupt" }, [
+        h("p", { class: "rang-name" }, [h("span", { class: "hersteller-inline", text: m.hersteller + " " }), modellName(m)]),
+        marken.length ? h("p", { class: "rang-marken", text: marken.join("; ") }) : null,
+        h("div", { class: "rang-aktionen" }, [angebot, vergleichSchalter(m, "rang")]),
+      ]),
+      h("div", { class: "rang-werte" }, [
+        e.note === null ? null : h("p", { class: "rang-note" }, [h("span", { class: "zahl", text: note(e.note) })]),
+        h("p", { class: "rang-preis", text: e.preis !== null ? eur(e.preis) : "–" }),
+      ]),
+    ]);
+  }
+
   function rangliste(kat, r) {
     const felder = Object.fromEntries(kat.felder.map(f => [f.id, f]));
     const imBudget = r.rang.filter(e => e.imBudget === true);
     const sonst = r.rang.filter(e => e.imBudget !== true);
     const zeigen = zustand.b && !teurereZeigen ? imBudget : r.rang;
+    // 07 B10: Modelle ohne Note stehen in einer eigenen Gruppe ohne Rangnummer
+    const bewertet = zeigen.filter(e => e.note !== null), offen = zeigen.filter(e => e.note === null);
+    // 07 B15: nach Note sortiert bekommt die gleiche angezeigte Zahl den gleichen Rang
+    const nummern = [];
+    bewertet.forEach((e, i) => {
+      const gleich = zustand.o === "note" && i > 0 && Math.round(e.note) === Math.round(bewertet[i - 1].note);
+      nummern.push(gleich ? nummern[i - 1] : i + 1);
+    });
     const sortierung = h("div", { class: "segment", role: "radiogroup", "aria-label": "Sortieren nach" }, SORTEN.map(([id, text]) =>
       h("label", { class: "segment-wahl" }, [
         h("input", { type: "radio", name: "sortierung", value: id, checked: zustand.o === id, "data-fokus": "sort-" + id,
           on: { change: () => setze({ o: id }, false) } }),
         h("span", { text }),
       ])));
-    const liste = h("ol", { class: "rang" }, zeigen.map((e, i) => {
-      const m = e.modell;
-      const marken = [];
-      if (e.note === null) marken.push("zu wenig Daten für eine Note");
-      if (e.imBudget === false) marken.push("über Budget");
-      if (e.imBudget === null && zustand.b) marken.push("Preis unbekannt");
-      if (e.unbelegt.length) marken.push("nicht belegt: " + e.unbelegt.map(u => (felder[u.feld] || { name: u.feld }).name).join(", "));
-      const angebot = m.preis ? link(m.preis.url, "Angebot", "textlink") : null;
-      if (angebot) angebot.setAttribute("aria-label", "Angebot für " + modellName(m) + " (öffnet neues Fenster)");
-      return h("li", { class: "rang-eintrag" + (e === r.empfehlung ? " erste" : "") }, [
-        h("span", { class: "rang-nr", "aria-hidden": "true", text: String(i + 1) }),
-        h("div", { class: "rang-haupt" }, [
-          h("p", { class: "rang-name" }, [h("span", { class: "hersteller-inline", text: m.hersteller + " " }), modellName(m)]),
-          marken.length ? h("p", { class: "rang-marken", text: marken.join("; ") }) : null,
-          h("div", { class: "rang-aktionen" }, [angebot, vergleichSchalter(m, "rang")]),
-        ]),
-        h("div", { class: "rang-werte" }, [
-          h("p", { class: "rang-note" }, [h("span", { class: "zahl", text: note(e.note) }), e.klasse ? h("span", { class: "rang-klasse", text: e.klasse }) : null]),
-          h("p", { class: "rang-preis", text: e.preis !== null ? eur(e.preis) : "–" }),
-        ]),
-      ]);
-    }));
     const teile = [
       h("div", { class: "rang-kopf" }, [h("h2", { id: "rang-titel" }, ["Alle passenden Modelle"]), sortierung]),
-      liste,
+      bewertet.length ? h("ol", { class: "rang" }, bewertet.map((e, i) => rangZeile(e, nummern[i], r, felder))) : null,
     ];
+    if (offen.length) {
+      teile.push(h("section", { class: "offen", "aria-labelledby": "offen-titel" }, [
+        h("h3", { id: "offen-titel", class: "offen-titel" }, ["Noch nicht bewertbar (" + offen.length + ")"]),
+        h("p", { class: "hilfe" }, ["Für eine Note fehlen zu viele Datenblattwerte. Die Modelle passen zu deinen Antworten, stehen aber ohne Rang hier."]),
+        h("ul", { class: "rang" }, offen.map(e => rangZeile(e, null, r, felder))),
+      ]));
+    }
     if (zustand.b && sonst.length) {
       teile.push(h("button", { type: "button", class: "knopf neben breit", "data-fokus": "teurer", "aria-expanded": teurereZeigen ? "true" : "false",
         on: { click: () => { teurereZeigen = !teurereZeigen; zeichne(); } } },
@@ -607,7 +660,7 @@
     const spalten = "spalten-" + gewaehlt.length;
     const kopfzeile = h("div", { class: "vgl-reihe vgl-modelle " + spalten }, gewaehlt.map(e => h("div", { class: "vgl-zelle" }, [
       h("p", { class: "vgl-name" }, [e.modell.hersteller + " " + modellName(e.modell)]),
-      h("p", { class: "vgl-note" }, [h("span", { class: "zahl", text: note(e.note) }), e.klasse ? " " + e.klasse : ""]),
+      h("p", { class: "vgl-note" }, [h("span", { class: "zahl", text: note(e.note) }), e.note === null ? " keine Note" : " Punkte"]),
       h("p", { class: "vgl-preis", text: e.preis !== null ? eur(e.preis) : "Preis unbekannt" }),
     ])));
     const tabelle = h("div", { class: "vgl-tabelle" }, [kopfzeile].concat(reihen.map(f => {
@@ -633,10 +686,13 @@
     const ablage = document.getElementById("ablage");
     if (!ablage) return;
     leeren(ablage);
-    if (!kat || !zustand.v.length) { ablage.hidden = true; return; }
+    const zeigen = !!(kat && zustand.v.length);
+    // 07 B12: unten Platz in Höhe der Ablage lassen, damit sie keinen Inhalt verdeckt
+    if (document.body && document.body.classList && document.body.classList.toggle) document.body.classList.toggle("mit-ablage", zeigen);
+    if (!zeigen) { ablage.hidden = true; return; }
     ablage.hidden = false;
     anhaengen(ablage, [
-      h("p", { class: "ablage-text" }, [zustand.v.length + " von 3 zum Vergleich"]),
+      h("p", { class: "ablage-text" }, [zustand.v.length + " von 3 gewählt"]),
       h("button", { type: "button", class: "knopf neben", on: { click: () => setze({ v: [] }, false) } }, ["Leeren"]),
       h("button", { type: "button", class: "knopf haupt", disabled: zustand.v.length < 2, on: { click: () => {
         const z = document.getElementById("vgl-titel");
@@ -699,9 +755,6 @@
     if (daten.stand) teile.push("Datenblätter: Stand " + datum(daten.stand));
     if (preisStaende.length) teile.push("Preise: " + (preisStaende[0] === preisStaende[preisStaende.length - 1] ? "Stand " + datum(preisStaende[0]) : "Stand " + datum(preisStaende[0]) + " bis " + datum(preisStaende[preisStaende.length - 1])));
     fuss.textContent = teile.join(". ") + (teile.length ? "." : "");
-    const kappung = document.getElementById("m-kappung");
-    const k = daten.regeln.datenblatt_abschlag.kappung;
-    if (kappung && typeof k === "number" && isFinite(k)) kappung.textContent = String(k);
   }
 
   function zeigeFehler(text) {

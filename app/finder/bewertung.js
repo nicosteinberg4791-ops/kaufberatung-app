@@ -1,12 +1,13 @@
 /* Bewertungslogik der Startseite „Finden & Vergleichen“ (reine Rechnung, kein DOM).
    Browser: window.KBBewertung · Node: require("./bewertung.js").
-   Regeln: daten/schema/kategorien.json (regeln, klassen, datenblatt_abschlag, aufpreis_regeln), Begründung docs/punkteschema.md.
+   Regeln: daten/schema/kategorien.json (regeln, datenblatt_abschlag, aufpreis_regeln), Begründung docs/punkteschema.md.
+   D12 (24.11.2026): keine Kappung, keine Klassenwörter; ältere Daten mit „klassen“/„kappung“ werden still ignoriert.
    Eingang: App-Daten aus werkzeuge/datenbank.py bauen() (finder-daten.json), optional finder-preise.json.
    Festlegungen, die das Schema offen lässt (siehe Kopf der jeweiligen Funktion):
-   - Klasse wird aus der gerundeten, angezeigten Note bestimmt (sonst „75 Punkte – gut“ auf dem Bildschirm).
-   - Modell A (Empfehlung) muss alle Anforderungen belegt erfüllen; gibt es keins, zählt das beste im Budget mit
-     „nicht belegt“-Markierung (Status "unbelegt"); dann ein passendes Modell im Budget ohne Note ("ohne_note");
-     passt nichts ins Budget, das beste über Budget ("ueber_budget").
+   - Rangfolge nach der angezeigten (gerundeten) Note; bei gleicher angezeigter Note steht das günstigere Modell vorn.
+   - Modell A (Empfehlung) braucht immer einen Preis und muss alle Anforderungen belegt erfüllen; gibt es keins, zählt
+     das beste im Budget mit „nicht belegt“-Markierung (Status "unbelegt"); dann ein passendes Modell im Budget ohne
+     Note ("ohne_note"); passt nichts ins Budget, das beste über Budget ("ueber_budget").
    - B (Aufpreis) und C (Spar) müssen alle Anforderungen belegt erfüllen, eine Note und einen Preis haben.
    - Schwellen werden mit ungerundeten Werten und einer Toleranz von 1e-9 geprüft (Gleitkomma bei Cent-Preisen). */
 (function (wurzel, fabrik) {
@@ -101,36 +102,24 @@
     }
   }
 
-  /* Klasse zur Note (klassen: [{ab, name}]); maßgeblich ist die gerundete Note, wie sie angezeigt wird. */
-  function klasse(note, klassen) {
-    if (!istZahl(note)) return null;
-    const n = Math.round(note);
-    const sortiert = (klassen || []).slice().sort((a, b) => b.ab - a.ab);
-    for (const k of sortiert) if (n >= k.ab) return k.name;
-    return sortiert.length ? sortiert[sortiert.length - 1].name : null;
-  }
-  function klassenRang(name, klassen) {
-    const sortiert = (klassen || []).slice().sort((a, b) => a.ab - b.ab);
-    return sortiert.findIndex(k => k.name === name);
-  }
-
-  /* Datenblatt-Note mit Abschlag: min(kappung, anker + (R − anker) × faktor − abzug − (1 − abdeckung) × 20),
+  /* Datenblatt-Note mit Abschlag: anker + (R − anker) × faktor − abzug − (1 − abdeckung) × 20 (D12: ohne Kappung),
      unter abdeckung_mindest keine Note (null). Ergebnis auf 0..100 begrenzt. */
   function datenblattNote(R, abdeckung, db) {
     if (!istZahl(R) || !istZahl(abdeckung)) return null;
     if (abdeckung < db.abdeckung_mindest - EPS) return null;
-    const n = Math.min(db.kappung, db.anker + (R - db.anker) * db.faktor - db.abzug - (1 - abdeckung) * 20);
+    const n = db.anker + (R - db.anker) * db.faktor - db.abzug - (1 - abdeckung) * 20;
     return Math.max(0, Math.min(100, n));
   }
 
-  /* Ein Modell bewerten: Rohwert R über belegte Felder, Abdeckung, angezeigte Note, Klasse, Beiträge je Feld.
+  /* Ein Modell bewerten: Rohwert R über belegte Felder, Abdeckung, angezeigte Note, Beiträge je Feld und
+     fehlende bewertete Felder (fehlend, nach Gewicht absteigend).
      Getestete Modelle nur, wenn ein Testeintrag eine Zahl "punkte" (0..100) trägt (heute: Tests sind nur Links). */
   function bewerteModell(modell, kat, gew, regeln) {
     const db = regeln.datenblatt_abschlag;
     const werte = modell.werte || {};
     const tp = modell.teilpunkte || {};
     let summeG = 0, summeBel = 0, zaehler = 0;
-    const beitraege = [];
+    const beitraege = [], fehlend = [];
     for (const [fid, g] of Object.entries(gew)) {
       if (nichtAnwendbar(kat.id, fid, werte)) continue;
       summeG += g;
@@ -138,7 +127,7 @@
       if (istZahl(t)) {
         summeBel += g; zaehler += g * t;
         beitraege.push({ feld: fid, gewicht: g, teilpunkte: t, beitrag: g * t });
-      }
+      } else fehlend.push({ feld: fid, gewicht: g });
     }
     const R = summeBel > 0 ? zaehler / summeBel : null;
     const abdeckung = summeG > 0 ? summeBel / summeG : 0;
@@ -153,15 +142,23 @@
       if (note !== null) { art = "datenblatt"; spanne = db.spanne_plus_minus; }
     }
     beitraege.sort((a, b) => b.beitrag - a.beitrag);
-    return { R, abdeckung, note, art, spanne, klasse: klasse(note, regeln.klassen), beitraege };
+    fehlend.sort((a, b) => b.gewicht - a.gewicht);
+    return { R, abdeckung, note, art, spanne, beitraege, fehlend };
   }
 
   const preisVon = m => (m.preis && istZahl(m.preis.eur) && m.preis.eur > 0 ? m.preis.eur : null);
 
+  /* Angezeigte Note (ganze Zahl) bzw. -Infinity ohne Note */
+  const anzeige = e => (istZahl(e.note) ? Math.round(e.note) : -Infinity);
+  /* Note absteigend nach angezeigter Zahl; Gleichstand → günstiger zuerst (07 B03/B15), dann ungerundete Note */
   function vergleichNote(a, b) {
-    const na = a.note === null ? -Infinity : a.note, nb = b.note === null ? -Infinity : b.note;
+    const na = anzeige(a), nb = anzeige(b);
     if (nb !== na) return nb - na;
-    return vergleichPreis(a, b, true);
+    const pa = a.preis === null ? Infinity : a.preis, pb = b.preis === null ? Infinity : b.preis;
+    if (pa !== pb) return pa - pb;
+    const ra = istZahl(a.note) ? a.note : -Infinity, rb = istZahl(b.note) ? b.note : -Infinity;
+    if (rb !== ra) return rb - ra;
+    return String(a.modell.id).localeCompare(String(b.modell.id));
   }
   function vergleichPreis(a, b, ohneNote) {
     const pa = a.preis === null ? Infinity : a.preis, pb = b.preis === null ? Infinity : b.preis;
@@ -191,7 +188,7 @@
     return String(text).replace(/\{(\w+)\}/g, (m, k) => (eigen(werte, k) ? String(werte[k]) : m));
   }
 
-  /* Aufpreis-Hinweis (aufpreis_regeln.aufpreis). A, kandidaten: Einträge aus auswerten() mit note, preis, art, klasse.
+  /* Aufpreis-Hinweis (aufpreis_regeln.aufpreis). A, kandidaten: Einträge aus auswerten() mit note, preis, art.
      Kandidaten müssen schon „alle Anforderungen erfüllt“ sein. Ohne Budget (egal) kein Hinweis. */
   function aufpreisHinweis(A, kandidaten, budget, regeln) {
     const r = regeln.aufpreis_regeln.aufpreis;
@@ -207,21 +204,21 @@
       const min = A.art === "datenblatt" || B.art === "datenblatt" ? r.punkte_min_datenblatt : r.punkte_min;
       if (!ge(dN, min)) continue;
       const E = dN / dp * 100;
-      const sprung = klassenRang(B.klasse, regeln.klassen) > klassenRang(A.klasse, regeln.klassen);
-      if (!(ge(E, r.effizienz_min_je_100eur) || (sprung && ge(E, r.effizienz_min_klassensprung)))) continue;
-      if (!best || E > best.E + EPS || (Math.abs(E - best.E) <= EPS && dp < best.dp)) best = { B, dp, dN, E, sprung };
+      if (!ge(E, r.effizienz_min_je_100eur)) continue;
+      if (!best || E > best.E + EPS || (Math.abs(E - best.E) <= EPS && dp < best.dp)) best = { B, dp, dN, E };
     }
     if (!best) return null;
     const aufpreis = Math.round(best.dp);
     const dNAnzeige = Math.round(best.B.note) - Math.round(A.note);
-    const klasseText = best.sprung ? fuelle(r.klasse_text, { klasse_B: best.B.klasse, klasse_A: A.klasse }) : "";
     return {
-      modell: best.B, aufpreis, punkte: dNAnzeige, effizienz: best.E, klassensprung: best.sprung,
-      text: fuelle(r.text, { aufpreis: aufpreis.toLocaleString("de-DE"), dN: dNAnzeige, klasse_text: klasseText }),
+      modell: best.B, aufpreis, punkte: dNAnzeige, effizienz: best.E,
+      // klasse_text leer: ältere Regeltexte tragen den Platzhalter noch, D12 kennt keine Klassen
+      text: fuelle(r.text, { aufpreis: aufpreis.toLocaleString("de-DE"), dN: dNAnzeige, klasse_text: "" }),
     };
   }
 
-  /* Spar-Hinweis (aufpreis_regeln.spar): größte Ersparnis, bei Gleichstand kleinerer Punktverlust. */
+  /* Spar-Hinweis (aufpreis_regeln.spar): größte Ersparnis, bei Gleichstand kleinerer Punktverlust.
+     Gleiche angezeigte Zahl nie als „66 statt 66“ (07 B03): dann text_gleichauf, ohne diesen Text kein Hinweis. */
   function sparHinweis(A, kandidaten, regeln) {
     const r = regeln.aufpreis_regeln.spar;
     if (!A || A.preis === null || !istZahl(A.note)) return null;
@@ -233,7 +230,7 @@
       const S = A.preis - C.preis;
       if (!ge(S, minS)) continue;
       const verlust = A.note - C.note;
-      const gleich = le(verlust, r.verlust_max_gleich) && C.klasse === A.klasse;
+      const gleich = le(verlust, r.verlust_max_gleich);
       const schwaecher = le(verlust, r.verlust_max_schwaecher) && ge(S, r.ersparnis_anteil_schwaecher * A.preis);
       if (!gleich && !schwaecher) continue;
       if (!best || S > best.S + EPS || (Math.abs(S - best.S) <= EPS && verlust < best.verlust)) {
@@ -243,9 +240,11 @@
     if (!best) return null;
     const ersparnis = Math.round(best.S);
     const w = { ersparnis: ersparnis.toLocaleString("de-DE"), N_C: Math.round(best.C.note), N_A: Math.round(A.note) };
+    const gleichauf = w.N_C === w.N_A;
+    if (gleichauf && !istText(r.text_gleichauf)) return null;
     return {
-      modell: best.C, ersparnis, verlust: best.verlust, art: best.art,
-      text: fuelle(best.art === "gleich" ? r.text_gleich : r.text_schwaecher, w),
+      modell: best.C, ersparnis, verlust: best.verlust, art: gleichauf ? "gleichauf" : best.art,
+      text: fuelle(gleichauf ? r.text_gleichauf : best.art === "gleich" ? r.text_gleich : r.text_schwaecher, w),
     };
   }
 
@@ -271,12 +270,14 @@
     const nachNote = sortiere(passend, "note");
     const mitNote = nachNote.filter(x => x.note !== null);
     const voll = x => x.unbelegt.length === 0;
-    let A = mitNote.find(x => x.imBudget === true && voll(x)) || null;
+    // 08 G: empfohlen wird nur ein Modell mit Preis (ohne Budget ist imBudget auch ohne Preis true)
+    const kaufbar = x => x.imBudget === true && x.preis !== null;
+    let A = mitNote.find(x => kaufbar(x) && voll(x)) || null;
     let status = A ? "passt" : null;
-    if (!A) { A = mitNote.find(x => x.imBudget === true) || null; if (A) status = "unbelegt"; }
+    if (!A) { A = mitNote.find(kaufbar) || null; if (A) status = "unbelegt"; }
     if (!A) {
       // F-10: Passt ein Modell ins Budget, hat aber (zu wenig Daten) keine Note, wird es gezeigt statt „passt nichts“
-      const ohneNote = nachNote.filter(x => x.note === null && x.imBudget === true);
+      const ohneNote = nachNote.filter(x => x.note === null && kaufbar(x));
       A = ohneNote.find(voll) || ohneNote[0] || null;
       if (A) status = "ohne_note";
     }
@@ -377,10 +378,9 @@
   function pruefOderWirf(ok, was) { if (!ok) throw new Error(was); }
   function regelnPruefen(r) {
     pruefOderWirf(istObjekt(r), "regeln");
-    pruefOderWirf(Array.isArray(r.klassen) && r.klassen.length > 0
-      && r.klassen.every(k => istObjekt(k) && zahlIn(k.ab, 0, 100) && istName(k.name, 40)), "klassen");
+    // D12: klassen und kappung werden nicht mehr gelesen (ältere Dateien dürfen sie noch tragen)
     const db = r.datenblatt_abschlag;
-    pruefOderWirf(istObjekt(db) && ["anker", "abzug", "kappung", "spanne_plus_minus"].every(n => zahlIn(db[n], 0, 100))
+    pruefOderWirf(istObjekt(db) && ["anker", "abzug", "spanne_plus_minus"].every(n => zahlIn(db[n], 0, 100))
       && zahlIn(db.faktor, 0, 2) && zahlIn(db.abdeckung_mindest, 0, 1), "datenblatt_abschlag");
     if (db.getestet !== undefined) {
       const m = istObjekt(db.getestet) ? db.getestet.mischung : null;
@@ -388,10 +388,11 @@
     }
     const a = r.aufpreis_regeln;
     pruefOderWirf(istObjekt(a) && istObjekt(a.aufpreis) && istObjekt(a.spar), "aufpreis_regeln");
-    pruefOderWirf(["budget_faktor_max", "aufpreis_min_eur", "punkte_min", "punkte_min_datenblatt", "effizienz_min_je_100eur",
-      "effizienz_min_klassensprung"].every(n => zahlIn(a.aufpreis[n], 0, 100000)) && istText(a.aufpreis.text) && istText(a.aufpreis.klasse_text), "aufpreis");
+    pruefOderWirf(["budget_faktor_max", "aufpreis_min_eur", "punkte_min", "punkte_min_datenblatt", "effizienz_min_je_100eur"]
+      .every(n => zahlIn(a.aufpreis[n], 0, 100000)) && istText(a.aufpreis.text), "aufpreis");
     pruefOderWirf(["ersparnis_min_eur", "ersparnis_min_anteil", "verlust_max_gleich", "verlust_max_schwaecher",
-      "ersparnis_anteil_schwaecher"].every(n => zahlIn(a.spar[n], 0, 100000)) && istText(a.spar.text_gleich) && istText(a.spar.text_schwaecher), "spar");
+      "ersparnis_anteil_schwaecher"].every(n => zahlIn(a.spar[n], 0, 100000)) && istText(a.spar.text_gleich) && istText(a.spar.text_schwaecher)
+      && (a.spar.text_gleichauf === undefined || istText(a.spar.text_gleichauf)), "spar");
   }
   function feldPruefen(f) {
     pruefOderWirf(istObjekt(f) && kennungOk(f.id) && istName(f.name, 80)
@@ -438,7 +439,7 @@
   }
 
   return {
-    gewichte, anforderungen, pruefe, klasse, datenblattNote, bewerteModell, sortiere, auswerten,
+    gewichte, anforderungen, pruefe, datenblattNote, bewerteModell, sortiere, auswerten,
     aufpreisHinweis, sparHinweis, feldSieger, staerken, budgetStufen, sichereUrl, preiseUeberlagern, datenPruefen,
     nichtAnwendbar,
   };

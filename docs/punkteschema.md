@@ -37,6 +37,8 @@ Gezielt in `quelle/kaufberatung.html` nachgesehen (Fernseher-Bericht, Staubsauge
 
 ## 4. Notenklassen (alle Kategorien gleich)
 
+> **Abgelöst durch D12 (24.11.2026):** Die App zeigt nur noch ganze Punkte „aus dem Datenblatt“, ohne Klassenwort und ohne Kappung bei 84 (Abschnitt 6, Punkt 3 entfällt). Bei gleicher angezeigter Punktzahl steht das günstigere Modell vorn, empfohlen wird nur ein Modell mit Preis. Aufpreis-Hinweis ohne Klassensprung; Spar-Hinweis „fast gleich gut“ nur nach Punktverlust ≤ 3. Die Tabelle bleibt als Vorgeschichte stehen.
+
 | Punkte | Klasse |
 |---|---|
 | ab 85 | hervorragend |
@@ -151,7 +153,7 @@ Abdeckung < 0,7 → keine Note, Anzeige „zu wenig Daten“
 Begründung:
 1. **Schrumpfen zur Mitte (Faktor 0,85):** Datenblätter messen Ausstattung, nicht Leistung (Abschnitt 5). Extreme Rohwerte sind deshalb unsicherer als mittlere; ein Gerät mit voller Ausstattung kann im Test trotzdem schwach sein.
 2. **Pauschalabzug 3 Punkte:** genau eine Unterschiedsschwelle der bestehenden App. Bei gleicher Rohnote steht ein getestetes Modell damit sichtbar vorn.
-3. **Kappung bei 84:** Ohne unabhängigen Test kann kein Modell „hervorragend“ sein. Das schützt vor Datenblatt-Werbung.
+3. ~~**Kappung bei 84:** Ohne unabhängigen Test kann kein Modell „hervorragend“ sein. Das schützt vor Datenblatt-Werbung.~~ Entfällt seit D12 (24.11.2026): Die Kappung staute die Spitzenmodelle bei 84 und ließ den Preis entscheiden.
 4. **Abdeckungsabzug:** Jeder fehlende Datenblattwert kostet anteilig (bei 80 % Abdeckung 4 Punkte), damit lückenhafte Angaben sich nicht lohnen.
 5. **Spanne ± 8:** etwas mehr als eine halbe Klassenbreite; macht sichtbar, dass die Note unsicher ist.
 

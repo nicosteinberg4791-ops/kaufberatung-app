@@ -250,7 +250,13 @@
      },
      "ean": [
       "8806097781950"
-     ]
+     ],
+     "preis": {
+      "eur": 140.9,
+      "haendler": "Alternate",
+      "url": "https://www.alternate.de/Samsung/Galaxy-Tab-A11-64GB-Tablet-PC/html/product/100164728",
+      "stand": "2026-11-24"
+     }
     },
     {
      "id": "samsung-galaxy-tab-a11-128gb",
@@ -466,7 +472,13 @@
      },
      "ean": [
       "8806097638575"
-     ]
+     ],
+     "preis": {
+      "eur": 449.0,
+      "haendler": "Proshop",
+      "url": "https://www.proshop.de/iPad-Tablet/Samsung-Galaxy-Tab-S10-Lite-128GB6GB-Grey/3398125",
+      "stand": "2026-11-24"
+     }
     },
     {
      "id": "samsung-galaxy-tab-s10-lite-256gb",

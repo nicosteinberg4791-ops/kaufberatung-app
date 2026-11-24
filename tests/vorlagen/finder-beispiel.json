@@ -3,36 +3,13 @@
  "erfunden": true,
  "stand": "2026-11-20",
  "regeln": {
-  "klassen": [
-   {
-    "ab": 85,
-    "name": "hervorragend"
-   },
-   {
-    "ab": 75,
-    "name": "sehr gut"
-   },
-   {
-    "ab": 60,
-    "name": "gut"
-   },
-   {
-    "ab": 45,
-    "name": "ordentlich"
-   },
-   {
-    "ab": 0,
-    "name": "einfach"
-   }
-  ],
   "unterschiedsschwelle_punkte": 3,
   "datenblatt_abschlag": {
-   "methode": "schrumpfen_abziehen_kappen",
-   "formel": "N_db = min(kappung, anker + (R - anker) * faktor - abzug - abdeckungsabzug); abdeckungsabzug = (1 - abdeckung) * 20",
+   "methode": "schrumpfen_abziehen",
+   "formel": "N_db = anker + (R - anker) * faktor - abzug - abdeckungsabzug; abdeckungsabzug = (1 - abdeckung) * 20",
    "anker": 50,
    "faktor": 0.85,
    "abzug": 3,
-   "kappung": 84,
    "abdeckung_mindest": 0.7,
    "abdeckung_erklaerung": "Anteil der Gewichte (nach Fragen-Faktoren) mit belegtem Datenblattwert. Unter 0,7: keine Note, Anzeige 'zu wenig Daten'.",
    "spanne_plus_minus": 8,
@@ -63,7 +40,7 @@
      "Preis_B - Preis_A >= 20 EUR",
      "dN = N_B - N_A >= 3 (bei mindestens einem Modell 'aus Datenblatt': >= 5)",
      "B erfüllt alle Mindestanforderungen",
-     "E = dN / (Preis_B - Preis_A) x 100 >= 3 Punkte je 100 EUR, oder Klassensprung und E >= 1,5"
+     "E = dN / (Preis_B - Preis_A) x 100 >= 3 Punkte je 100 EUR"
     ],
     "auswahl": "Höchstens ein Hinweis: größtes E, bei Gleichstand kleinerer Aufpreis.",
     "budget_faktor_max": 1.25,
@@ -71,15 +48,13 @@
     "punkte_min": 3,
     "punkte_min_datenblatt": 5,
     "effizienz_min_je_100eur": 3,
-    "effizienz_min_klassensprung": 1.5,
-    "text": "Für {aufpreis} € mehr bekommst du +{dN} Punkte{klasse_text}.",
-    "klasse_text": " (Klasse „{klasse_B}“ statt „{klasse_A}“)"
+    "text": "Für {aufpreis} € mehr bekommst du +{dN} Punkte."
    },
    "spar": {
     "bedingungen": [
      "Preis_C < Preis_A",
      "Ersparnis S = Preis_A - Preis_C >= max(30 EUR, 10 % von Preis_A)",
-     "N_A - N_C <= 3 und gleiche Klasse  ->  'fast gleich gut'",
+     "N_A - N_C <= 3  ->  'fast gleich gut'",
      "oder N_A - N_C <= 5 und S >= 25 % von Preis_A  ->  'etwas schwächer, deutlich günstiger'",
      "C erfüllt alle Mindestanforderungen"
     ],
@@ -90,7 +65,8 @@
     "verlust_max_schwaecher": 5,
     "ersparnis_anteil_schwaecher": 0.25,
     "text_gleich": "Für {ersparnis} € weniger fast gleich gut ({N_C} statt {N_A} Punkte).",
-    "text_schwaecher": "Für {ersparnis} € weniger etwas schwächer ({N_C} statt {N_A} Punkte)."
+    "text_schwaecher": "Für {ersparnis} € weniger etwas schwächer ({N_C} statt {N_A} Punkte).",
+    "text_gleichauf": "Gleichauf mit {N_A} Punkten und {ersparnis} € günstiger."
    },
    "rundung": "Preise auf ganze Euro, Punkte auf ganze Zahlen für die Anzeige; Bedingungen mit ungerundeten Werten prüfen."
   }

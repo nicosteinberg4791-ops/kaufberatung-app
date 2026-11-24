@@ -463,7 +463,12 @@
     {
      "id": "dreame-r20-se",
      "name": "Standard",
-     "preis": null
+     "preis": {
+      "eur": 162.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_dreame-r20-se-stielsauger-akkubetrieb-3027478.html",
+      "stand": "2026-11-24"
+     }
     }
    ]
   },
@@ -679,7 +684,12 @@
     {
      "id": "dyson-v12-detect-slim-absolute",
      "name": "Standard",
-     "preis": null
+     "preis": {
+      "eur": 379.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_dyson-v12-detecttm-slim-absolute-stielsauger-akkubetrieb-545-watt-3057439.html",
+      "stand": "2026-11-24"
+     }
     }
    ]
   },
@@ -847,7 +857,12 @@
     {
      "id": "miele-triflex-hx3",
      "name": "Standard",
-     "preis": null
+     "preis": {
+      "eur": 499.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-triflex-hx3-stielsauger-akkubetrieb-192-watt-3013264.html",
+      "stand": "2026-11-24"
+     }
     }
    ]
   },
