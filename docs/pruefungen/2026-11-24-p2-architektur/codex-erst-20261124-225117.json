@@ -1,0 +1,129 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Der Entwurf braucht vor der Umsetzung Korrekturen am Kompatibilitätsnachweis, an der Berechnung der Alternativnoten und an der Absicherung der Gewichtsfassung. Rangliste, Vergleich und Aufpreis-Hinweis übernehmen in G1 bereits die mit Prioritäten berechneten Noten.",
+  "befunde": [
+    {
+      "id": "P2-01",
+      "schwere": "schwer",
+      "titel": "Test 37 lässt eine veröffentlichte Cache-Fassung aus",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 180,
+      "beleg": "„§2.5/A-6: Der Nachweisweg deckt jede `bewertung.js` ab, die beim P2a-Push im Service-Worker-Cache liegen kann.“ Test 37 nennt nur die aktuelle Live-Fassung und G1. Die zuvor veröffentlichte Pages-Fassung `b24c18f` verlangt in `bewertung.js:378–394` weiterhin `klassen`, `kappung` und ältere Aufpreisfelder. Im Node-Abgleich akzeptierte sie ihre eigenen Pages-Daten und warf bei den aktuellen Pages-Daten mit den vorgesehenen Zusatzfeldern `klassen`. `33fa490`, `7339711` und die lokal zuletzt bekannte Live-Datei haben bytegleich dieselbe `bewertung.js`.",
+      "auswirkung": "Ein noch aktiver älterer Worker verwirft die neu veröffentlichten Daten. Er liefert den letzten Cache-Stand oder ohne Cachekopie einen 503. G1 und die aktuelle Live-Fassung können zugleich grün sein. Der Workflow prüft nur Python-Schranke, Datenmenge und Commit-Herkunft vor dem Push. Eine wirksame Gewichtsänderung im selben Schema-Push würde G1 außerdem sofort mit den neuen Gewichten rechnen lassen, bevor P2b die Fassung anzeigt.",
+      "vorschlag": "Vor Veröffentlichung alle unterschiedlichen ausgelieferten Bewertungsdateien anhand der Pages-Historie erfassen und die gebaute Datei pro Fassung mit ihrem gültigen Ausgangsstand vergleichen. Für G1 auch wirksame Antworten und Prioritäten prüfen. Für die Vorgängerfassung entweder die von ihr benötigten Regelfelder kompatibel mitliefern und testen oder ihr den bisherigen Datenstand über die bisherige Adresse erhalten. Fassung 1 mit den heutigen Werten als eigenen Prüffall festhalten. Fachlich freigegebene Änderungen getrennt auf ihre sichtbare Wirkung prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-02",
+      "schwere": "schwer",
+      "titel": "Das Testorakel verliert zulässige Alternativzeilen",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 175,
+      "beleg": "§3 erlaubt Alternativen mit `passt: \"nein\"`. `auswerten` entfernt genau diese Modelle vor Rückgabe aus `rang` (`0996e86:app/finder/bewertung.js:267–279,303–306`). Mit veröffentlichten Daten ergibt `na120-00` für `volumen_l: 2` und Wechsel von `beilage=nein` zu `beilage=ja` eine angezeigte Rechnung von 58 auf 55. Das Gerät hat einen Garraum und fehlt im Rang des Orakels, weil die neue Antwort zwei Garräume verlangt.",
+      "auswirkung": "Test 22/33 kann die erwarteten 55 Punkte für diese vorgesehene Zeile nicht aus dem Orakel lesen. Eine Implementierung, die den Rang als Grundlage verwendet, unterschlägt die Zeile samt Hinweis zur verletzten Anforderung.",
+      "vorschlag": "Für den Zahlenvergleich eine Ein-Modell-Auswertung mit identischen Antwortgewichten und Prioritäten verwenden, deren Anforderungen für diesen Teil des Tests neutralisiert sind. `passt` separat gegen die unveränderten Anforderungen testen und die Rangfolge außen vor lassen. Auch den wirksamen Standard `egal`, den Fall ohne Standardantwort und `anzeige` sowie `delta` bei fehlender Note explizit testen. `passt` im Schnittstellenvertrag auf Frageanforderungen begrenzen, solange die Funktion keine Oberflächenfilter erhält.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-03",
+      "schwere": "schwer",
+      "titel": "Alle sichtbaren Regler auf „aus“ schließen eine Alternativnote nicht aus",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 183,
+      "beleg": "Auslöser ist beim Air Fryer `beilage=nein`. Damit stehen `koerbe` und `sync_funktion` auf Antwortfaktor 0 (`daten/schema/kategorien.json:216–218`) und haben in G1 keinen sichtbaren Regler (`finder.js:454–456`). Im Node-Abgleich ergaben alle sichtbaren Regler auf „aus“ zunächst `keine_merkmale`. Mit `beilage=ja` und unveränderten Prioritäten ergab ein veröffentlichtes Zweikorbmodell 89,5 Rohpunkte der Gesamtnote, angezeigt als 90. A-9 und Test 36 erwarten pauschal `[]`.",
+      "auswirkung": "Ein vorzeitiger Abbruch anhand des Hauptnotenstatus oder der sichtbaren Regler unterdrückt die einzige Antwortänderung, die in diesem Fall wieder eine Note ermöglicht.",
+      "vorschlag": "Jede Kandidatenantwort mit unveränderter Prioritätenbelegung auswerten. Test 36 sowohl mit vollständig ausgeschalteten bewertbaren Feldern als auch mit durch eine Antwort ausgeblendeten und später wieder wirksamen Feldern ausführen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-04",
+      "schwere": "schwer",
+      "titel": "Prüfsumme erzwingt keine neue Fassung und übersieht die Zuordnung von Antworten",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 44,
+      "beleg": "„Nichts versprechen, was nicht belegt ist“. §2.1 verspricht, dass keine Gewichtsänderung ohne neue Fassung durchrutscht. Der beschriebene Vergleich gegen die im selben Schema stehende Prüfsumme wird nach einem Neuberechnen mit unveränderter `nummer` wieder grün. Zudem nennt die Projektion nur `gewichte` je Antwort. Im Abgleich blieben bei einer Umbenennung der Air-Fryer-Antwort `material.egal` alle projizierten Antwortfaktoren identisch. Ihr bisheriger Standardfaktor entfiel jedoch, weil `antwortenWirksam` nach der ID `egal` sucht (`0996e86:finder.js:229–235`). Der wirksame Anteil von `beschichtung` änderte sich ohne weitere Antworten von 5,26 auf 10 Prozent.",
+      "auswirkung": "Dieselbe veröffentlichte Fassungsnummer kann unterschiedliche Berechnungen bezeichnen. Test 6 erkennt weder eine aktualisierte Prüfsumme bei gleicher Nummer noch den Verlust einer Standardantwort.",
+      "vorschlag": "Bewertungsrelevante Projektion mit Frage- und Antwort-IDs und Standardwahl definieren. Jede Änderung gegen die zuletzt freigegebene Projektion prüfen und dabei eine höhere Nummer verlangen. Alternativ genügt dieselbe Vergleichsprüfung mit einer manuell gepflegten Nummer und ohne gespeicherte Prüfsumme. Das spart Hilfsbefehl und doppelte Pflege, setzt aber eine verlässliche Freigabereferenz voraus. Manuelle Nummer plus Stichprobentests allein bietet weniger Schutz. Für F-5 Kurven und Abschlagsparameter einbeziehen, reine Filterfelder ohne Rechenabhängigkeit auslassen und numerische Gleichwerte wie `1` und `1.0` einheitlich behandeln. Relevante Reihenfolgen beibehalten oder eindeutig validieren.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-05",
+      "schwere": "schwer",
+      "titel": "Zusammenführung kann einen Modellwert mit der falschen Quelle verbinden",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 72,
+      "beleg": "„Nichts versprechen, was nicht belegt ist“. §2.4 führt Modell- und Variantenbelege wie `werte` zusammen. `werkzeuge/datenbank.py:188–204,321` lässt einen Variantenbeleg ohne eigenen Variantenwert mit Warnung passieren. Hat das Modell einen Wert samt Quelle A und die Variante nur einen Beleg auf Quelle B, bleibt der Modellwert erhalten. Bei getrenntem Zusammenführen überschreibt B den Beleg. §2.6 behält B, weil im fertigen Modell ein Wert und die Quelle vorhanden sind.",
+      "auswirkung": "Ebene 3 kann für den übernommenen Wert eine Quelle anzeigen, die der Bau nie mit diesem Wert zusammen geprüft hat. Test 15 prüft die Vorrangregel, enthält aber diesen Fall nicht.",
+      "vorschlag": "Bei der Zusammenführung je Feld Wert und Beleg gemeinsam aus derselben Ebene wählen. Einen Variantenbeleg ohne Variantenwert beim Bau ignorieren oder als Fehler behandeln und beides mit einer Gegenprobe zur legitimen Variantenüberschreibung absichern. Eine gemeinsame Datei hält Daten und Belege auch offline zusammen, vergrößert aber jeden Datenabruf. Eine Zusatzdatei spart den Abruf beim Einstieg, braucht für die spätere Ansicht jedoch eine Prüfung auf denselben Datenstand und eine festgelegte Offline-Behandlung.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-06",
+      "schwere": "mittel",
+      "titel": "Notenblatt hat keinen eindeutigen Vertrag für Gewichtsanteile und fehlende Zeilen",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 176,
+      "beleg": "§4 und A-8 normieren die Gewichte über anwendbare Felder neu. Test 34 verlangt Gleichheit mit den Gewichten der Note, ohne den Nenner zu benennen. Im Abgleich lag bei einem Einkorbmodell mit Priorität auf Volumen das zugehörige G1-Gewicht bei 37,04 Prozent und der nach §4 normierte Anteil bei 41,67 Prozent. Außerdem weist §4 `fehlend` separat aus, während A-7 die G1-Ansicht mit beiden Zeilentypen allein aus `notenblatt().merkmale` bestücken will.",
+      "auswirkung": "Eine Umsetzung kann Test 34 mit den falschen Prozentangaben erfüllen oder beim Wechsel auf `notenblatt()` die in G1 sichtbaren fehlenden Angaben verlieren. Ein fehlender Wert beeinflusst die Abdeckung, geht aber nicht in den Nenner des Rohwerts ein.",
+      "vorschlag": "Die bereits bewertete Zeile als Quelle für Note und Beiträge verwenden. `anteil` als Gewicht geteilt durch die Summe aller anwendbaren Gewichte definieren. `beitrag_r` als gewichtete Teilpunkte geteilt durch die Summe der belegten anwendbaren Gewichte definieren. In der Ansicht beide Zeilentypen nach dem normierten Anteil zusammen sortieren. Test 34 mit Priorität, fehlendem Wert und nicht anwendbarem Feld kombinieren und den Fall ohne wirksame Merkmale ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-07",
+      "schwere": "mittel",
+      "titel": "Die URL trägt Einstellungen für die aktuelle Rechnung, aber keine reproduzierbare Fassung",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 177,
+      "beleg": "A-3 sagt, die Stufen reichten zum Nachrechnen. `finder.js:189–217` speichert Stufen und löst sie erst mit der Faktorentabelle der laufenden App auf. Zudem hängt die Note von wirksamen Antworten, Datenblattwerten und den Anwendbarkeitsregeln ab (`bewertung.js:31–38,121–148`). Eine neue Schema- oder App-Fassung kann deshalb bei identischem Link eine andere Note ergeben.",
+      "auswirkung": "Die zugesagte Nachvollziehbarkeit kann als Wiederherstellung einer früheren Note verstanden werden, obwohl A-5 ausdrücklich die jeweils aktuelle Fassung verwendet und weggefallene Felder verwirft.",
+      "vorschlag": "Für P-5 und P-9 können `NICHT_ANWENDBAR` und `PRIO_FAKTOREN` im Code bleiben, wenn der Entwurf die App-Fassung als Teil der Rechengrundlage benennt und gezielte Regressionstests absichert. Das reduziert den Migrationsaufwand. In den Daten gepflegte Faktoren wären zentral prüfbar, würden aber von G1 ignoriert. Für P-10 ist die bestehende URL tragfähig, wenn sie bewusst die aktuelle Rechnung öffnet. Einen Hinweis auf verworfene Prioritäten kann der Parser aus den tatsächlich verworfenen Einträgen ableiten. Historische Reproduktion würde zusätzlich archivierte Daten- und App-Stände erfordern.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-08",
+      "schwere": "mittel",
+      "titel": "Bau und Client akzeptieren unterschiedliche Metadaten",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 83,
+      "beleg": "§2.1 lässt jede ganze Nummer ab 1 zu, §2.6 verwirft Nummern über 9999. Für URLs akzeptiert `kanon_host` im Bau andere Grenzen als `sichereUrl` im Client (`datenbank.py:105–115`, `33fa490:bewertung.js:339–342`). Der Client begrenzt die Länge, prüft aber nur das HTTPS-Protokoll. Der Bau schließt zusätzlich Userinfo und Ports aus. Die Datumsvorgabe für den Client verweist nur auf ein Regex (`bewertung.js:26`), der Bau prüft ein echtes Datum.",
+      "auswirkung": "Gültig gebaute Metadaten können in der Ansicht fehlen. Umgekehrt kann der Client fremde optionale Metadaten stehen lassen, die an der Bauprüfung scheitern würden. Die bisherigen Tests prüfen diese Vertragsgrenzen nur auf einer Seite.",
+      "vorschlag": "Die Grenzen für Fassung, Datum und URLs auf das gemeinsame Ausgabeformat abstimmen und auf beiden Seiten testen. Ungültige optionale Metadaten beim Lesen ohne Wurf verwerfen. Eine fehlende oder ungültige Pflichtfassung im neuen Bau als Fehler melden. F-3 kann bis zur Freigabe einer Primärquelle leer bleiben. Die Quelle trägt nur verlinkte Metadaten bei und aktiviert keinen Testscore.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-09",
+      "schwere": "mittel",
+      "titel": "Maßregel und Maßtests prüfen verschiedene Dinge",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 65,
+      "beleg": "Die Regel soll `breite_mm` und `hoehe` verhindern, erfasst aber nur zusätzliche IDs mit Endung `_cm`. Test 13 deckt nur ein unbekanntes `_cm`-Feld ab. §2.6 entfernt zudem einen ungültigen Rohwert aus `werte`, während das separat gelieferte `teilpunkte`-Feld laut Test 21 erhalten bleiben kann. `hoehe_cm` beim Saugroboter zählt mit Gewicht 6 in die Note (`kategorien.json:170`).",
+      "auswirkung": "Ein falsch benanntes Maß kann die Schranke passieren. Bei alten oder fehlerhaften App-Daten kann ein ausgeblendeter Maßwert weiterhin Punkte liefern und die Abdeckung erhöhen.",
+      "vorschlag": "Maßfelder anhand der vorgesehenen Merkmal-IDs validieren und die tatsächlich verbotenen Aliasfälle testen. Beim Bereinigen eines als ungültig erkannten Maßwerts auch seine Teilpunkte entfernen und die Wirkung auf die Abdeckung prüfen. F-2A vermeidet neue leere Vergleichszeilen und lässt P6 Feld und belegte Werte gemeinsam einführen. F-2B braucht zusätzliche Ausgabe- und Referenztests für ausgeblendete Felder.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-10",
+      "schwere": "mittel",
+      "titel": "Router, G1-Ansicht und P6 brauchen eine ausdrückliche Übergabe",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 127,
+      "beleg": "Konzept §4 (`00-konzept.md:161,166–171,187`) weist P0 die Router- und Ansichtsplatzhalter zu. §4 des Entwurfs weist das Router-Ziel P2b zu, A-7 nennt die Umstellung von `punkteHerkunft`, legt aber das Zielmodul nach P0 nicht fest. P6 und P2 nutzen beide `kategorien.json`. Das Konzept sieht auch eine spätere P6-Anbindung in `datenbank.py` vor. §5 hält die gemeinsame Testvorlage aus P2a heraus.",
+      "auswirkung": "P2a kann parallel zu P0 arbeiten. Für P2b bleibt offen, wer Router, G1-Ansicht und den zugehörigen DOM-Test übergibt. P6 kann bei parallelen Maßänderungen mit dem Schema- und Prüfbau von P2a kollidieren.",
+      "vorschlag": "P0 legt das Router-Ziel und den Aufrufplatz im G1-Nachfolgemodul an. P2b füllt den vereinbarten Platz und führt G1-02 am integrierten Pfad fort. Gemeinsame Vorlagen bleiben für P2a unverändert. Die P6-Maßarbeiten an Schema und Datenbankprüfung folgen auf P2a. Reine Preis- und Produktpflege kann parallel weiterlaufen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2-11",
+      "schwere": "schwer",
+      "titel": "Mehrere Ist-Aussagen beschreiben die Rechnung oder den Worker ungenau",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 10,
+      "beleg": "„Jede Ist-Aussage in §1 und §8 stimmt am Code, mit Zeilenangabe.“ §1 nennt für den Aufpreis-Hinweis nur gerundete Differenzen. Auswahl und Effizienz verwenden ungerundete Noten (`33fa490:bewertung.js:207–212`), erst die Textausgabe rundet (`:216`). Der dort als Anteil an R bezeichnete gespeicherte `beitrag` ist das Produkt `g * t` (`:128–132`). `staerken` hat drei als Vorgabe und die Karte ruft es mit drei auf (`bewertung.js:321–323`, `finder.js:552`). §1 bezeichnet den Worker-Import als Datei aus dem App-Cache, obwohl `sw.js:14` ein versioniertes `importScripts` verwendet und das Vorladen getrennt in `:16–17` erfolgt. A-2 nennt für eine Rechnung ohne `prio` das Grundgewicht, obwohl `0996e86:bewertung.js:48–65` weiterhin die Antwortfaktoren anwendet.",
+      "auswirkung": "Die Beschreibungen können zu einem Aufpreis-Test mit falschem Rundungszeitpunkt, zu falsch interpretierter Balkenrechnung und zu einem Kompatibilitätsnachweis nur für den Seitencode führen.",
+      "vorschlag": "Die Ist-Beschreibung an den genannten Zeilen präzisieren. Beim Worker auf das beim Installieren importierte Skript und beim Seitencode auf die ausgelieferte Cache-Datei eingehen. Bei den Gewichten Grundgewicht, Antwortgewicht und Prioritätsgewicht ausdrücklich benennen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Erstprüfung von `bf48f2de67bb49d15ea04d235ea06f77ee24aaeb`, mit den im Auftrag benannten Vergleichsständen. Die Node-Abgleiche liefen im Speicher mit lokal vorhandenen Pages-Artefakten. P2a ist ein Entwurf, daher gab es keinen P2a-Build, Browserlauf oder Abgleich mit der aktuell ausgelieferten Website. F-1 bis F-5 bleiben beim Besitzer. Der Wortlaut der P2b-Ansicht liegt außerhalb des Prüfumfangs."
+}
