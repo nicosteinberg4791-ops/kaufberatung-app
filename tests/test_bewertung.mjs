@@ -58,6 +58,28 @@ test("Gewichte: Faktoren multiplizieren, 0 schaltet ab, Summe 100, Filterfelder 
   assert.deepEqual(B.gewichte(KAT, { f1: "gibtsnicht" }), g0);
 });
 
+test("G1: Prioritäten als drittes Argument: Faktor 0 schaltet ab, ½ und 3 verschieben, Filterfelder bleiben draußen", () => {
+  assert.deepEqual(B.PRIO_FAKTOREN, [0, 0.5, 1, 2, 3]);
+  const g0 = B.gewichte(KAT, {}, {});
+  nah(g0.a, 80); nah(g0.b, 20);
+  const aus = B.gewichte(KAT, {}, { b: 0 });
+  assert.deepEqual(Object.keys(aus), ["a"]); nah(aus.a, 100);
+  const halb = B.gewichte(KAT, {}, { a: 0.5 });           // a 40, b 20
+  nah(halb.a, 40 / 60 * 100); nah(halb.b, 20 / 60 * 100);
+  const drei = B.gewichte(KAT, { f1: "mehr_b" }, { b: 3 }); // a 80, b 20 * 4 * 3 = 240
+  nah(drei.a, 25); nah(drei.b, 75);
+  // Filterfeld (Gewicht 0) bekommt auch mit Faktor kein Gewicht; ungültige Faktoren zählen als 1
+  assert.equal("groesse" in B.gewichte(KAT, {}, { groesse: 3 }), false);
+  assert.deepEqual(B.gewichte(KAT, {}, { a: -1, b: "3", constructor: 0 }), g0);
+  // alles aus: keine Gewichte, Modell ohne Note mit Grund „kein Merkmal zählt“
+  assert.deepEqual(B.gewichte(KAT, {}, { a: 0, b: 0 }), {});
+  const k = Object.assign({}, KAT, { modelle: [modell("m1", { a: 80, b: 100 }, { a: 5, b: true }, 100)] });
+  const r = B.auswerten(k, REGELN, { prioritaeten: { a: 0, b: 0 } });
+  assert.equal(r.rang[0].note, null); assert.equal(r.rang[0].art, "keine_merkmale");
+  // auswerten reicht die Prioritäten durch: a 80, b 20 * 3 = 60
+  nah(B.auswerten(k, REGELN, { prioritaeten: { b: 3 } }).gewichte.b, 60 / 140 * 100);
+});
+
 test("Gewichte: echte Schemakategorien normieren auf 100", () => {
   for (const k of SCHEMA.kategorien) {
     const antworten = Object.fromEntries(k.fragen.map(f => [f.id, f.antworten[0].id]));

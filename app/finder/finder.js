@@ -68,11 +68,20 @@
   let letzterSchirm = "";
   let teurereZeigen = false;
   let budgetTeile = [];      // Eingabefeld und Schnellwahl des aktuellen Schirms
+  let reglerTeile = [];      // G1: Prioritäten-Regler des aktuellen Ergebnisschirms ({fid, eingabe, ausgabe})
+  let reglerZurueck = null;  // G1: Knopf „Zurück auf deine Antworten“
+  let ergebnisTeile = null;  // G1: {unten, prio} des aktuellen Ergebnisschirms (vor dem Einhängen nicht per id auffindbar)
+  let glasBeobachter = null; // G1: Lichtstreif der Glas-Hinweise nur, solange sichtbar
   const wurzel = document.getElementById("inhalt");
   const fuss = document.getElementById("datenstand");
   const reduziert = (() => { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } })();
 
-  function leererZustand() { return { k: null, s: "budget", b: null, g: null, ba: null, a: {}, o: "note", v: [] }; }
+  /* G1: fünf Stufen je Merkmal; Faktoren in bewertung.js (PRIO_FAKTOREN), „normal“ (2) steht nie in der Adresse */
+  const PRIO_NAMEN = ["aus", "weniger", "normal", "mehr", "viel mehr"];
+  const PRIO_NORMAL = 2;
+  const PRIO_OFFEN = 5;      // so viele Regler stehen offen, der Rest ist eingeklappt
+
+  function leererZustand() { return { k: null, s: "budget", b: null, g: null, ba: null, a: {}, o: "note", v: [], p: {} }; }
 
   /* ---------- DOM-Helfer (nur textContent / setAttribute) ---------- */
   function h(tag, props, kinder) {
@@ -140,10 +149,6 @@
     }
     return stufeText(w);
   }
-  function staerkeText(feld, w) {
-    if (w === true) return feld.name;
-    return feld.name + ": " + wertText(feld, w);
-  }
   /* Variante nur zeigen, wenn sie etwas sagt (07 B08): nicht „Standard“ und nicht schon im Modellnamen enthalten */
   const flach = t => String(t || "").toLowerCase().replace(/[^a-z0-9äöüß]/g, "");
   function varianteText(m) {
@@ -180,6 +185,13 @@
     if (SORTEN.some(x => x[0] === o)) z.o = o;
     const ids = new Set(kat.modelle.map(m => m.id));
     z.v = String(p.get("v") || "").split("~").filter(x => ids.has(x)).filter((x, i, l) => l.indexOf(x) === i).slice(0, 3);
+    // G1: p=feld.stufe~… nur bewertete Felder der Kategorie (Gewicht > 0) und Stufe 0–4 außer „normal“
+    const bewertbar = new Set(kat.felder.filter(f => f.gewicht > 0).map(f => f.id));
+    z.p = {};
+    for (const teil of String(p.get("p") || "").split("~")) {
+      const m = /^([a-z0-9_-]{1,80})\.([0-4])$/.exec(teil);
+      if (m && ID.test(m[1]) && bewertbar.has(m[1]) && Number(m[2]) !== PRIO_NORMAL && !(m[1] in z.p)) z.p[m[1]] = Number(m[2]);
+    }
     return z;
   }
   function alsAdresse(z) {
@@ -192,7 +204,15 @@
     if (a) teile.push("a=" + encodeURIComponent(a).replace(/%7E/gi, "~"));
     if (z.o !== "note") teile.push("o=" + z.o);
     if (z.v.length) teile.push("v=" + z.v.join("~"));
+    const p = Object.entries(z.p || {}).filter(([, s]) => s !== PRIO_NORMAL).map(([f, s]) => f + "." + s).join("~");
+    if (p) teile.push("p=" + p);
     return "#" + teile.join("&");
+  }
+  /* G1: Stufen aus der Adresse als Faktoren für bewertung.js */
+  function prioFaktoren() {
+    const aus = {};
+    for (const [fid, s] of Object.entries(zustand.p || {})) aus[fid] = B.PRIO_FAKTOREN[s];
+    return aus;
   }
   function setze(aenderung, neuerEintrag) {
     zustand = Object.assign({}, zustand, aenderung);
@@ -401,7 +421,12 @@
 
   /* ---------- Ergebnis ---------- */
   function schirmErgebnis(kat) {
-    const koerper = h("div", { id: "ergebnis-koerper" });
+    // G1: Empfehlung oben, Regler dazwischen (bleibt beim Neurechnen stehen, damit Ziehen nicht abbricht), Liste unten
+    const koerper = h("div", { id: "ergebnis-koerper", class: "ergebnis-teil" });
+    const unten = h("div", { id: "ergebnis-unten", class: "ergebnis-teil" });
+    reglerTeile = []; reglerZurueck = null;
+    const prioPanel = reglerPanel(kat);
+    ergebnisTeile = { unten, prio: prioPanel };
     const s = h("section", { class: "schirm ergebnis" }, [
       h("div", { class: "kopf" }, [
         h("button", { type: "button", class: "zurueck", on: { click: () => setze({ s: kat.fragen.length ? "fragen" : "budget" }, true) } },
@@ -412,16 +437,112 @@
       h("div", { class: "budget-leiste" }, [budgetFeld(kat, true), budgetChips(kat, true)]),
       h("p", { id: "ergebnis-status", class: "visuell-weg", role: "status" }),
       koerper,
+      prioPanel,
+      unten,
     ]);
     fuelleErgebnis(kat, koerper);
     return s;
   }
 
-  function fuelleErgebnis(kat, koerper) {
+  /* ---------- G1: Prioritäten-Regler „Deine Prioritäten verschieben“ ---------- */
+  function anteilText(g) {
+    if (!(g > 0)) return "zählt nicht";
+    return g < 0.5 ? "zählt unter 1 %" : "zählt " + Math.round(g) + " %";
+  }
+  function reglerPanel(kat) {
+    // Reihenfolge nach dem Gewicht aus den Antworten (ohne Regler), damit die Liste beim Ziehen nicht springt
+    const basis = B.gewichte(kat, antwortenWirksam(kat));
+    const felder = kat.felder.filter(f => basis[f.id] > 0).sort((a, b) => basis[b.id] - basis[a.id]);
+    const panel = h("section", { id: "prio", class: "panel prio", "aria-labelledby": "prio-titel", hidden: !felder.length });
+    if (!felder.length) return panel;
+    const zeile = f => {
+      const id = "prio-" + f.id;
+      const s = Object.prototype.hasOwnProperty.call(zustand.p, f.id) ? zustand.p[f.id] : PRIO_NORMAL;
+      const ausgabe = h("output", { id: id + "-wert", for: id, class: "regler-wert" });
+      const eingabe = h("input", { type: "range", id, min: "0", max: "4", step: "1", value: String(s), class: "regler-spur", "data-fokus": id,
+        on: { input: e => prioSetzen(kat, f.id, Number(e.target.value)) } });
+      reglerTeile.push({ fid: f.id, eingabe, ausgabe });
+      return h("div", { class: "regler" }, [h("label", { for: id, class: "regler-name", text: f.name }), ausgabe, eingabe]);
+    };
+    const offen = felder.slice(0, PRIO_OFFEN), rest = felder.slice(PRIO_OFFEN);
+    anhaengen(panel, [
+      h("h2", { id: "prio-titel", class: "prio-titel", tabindex: "-1" }, ["Deine Prioritäten verschieben"]),
+      h("p", { class: "hilfe" }, ["Je Merkmal fünf Stufen von „aus“ bis „viel mehr“. Die Liste darunter rechnet sofort neu. Der Preis zählt nie in die Note."]),
+      h("div", { class: "regler-liste" }, offen.map(zeile)),
+      rest.length ? h("details", { class: "regler-mehr" }, [h("summary", null, ["Alle Merkmale (" + felder.length + ")"]), h("div", { class: "regler-liste" }, rest.map(zeile))]) : null,
+      reglerZurueck = h("button", { type: "button", id: "prio-zurueck", class: "knopf neben", "data-fokus": "prio-zurueck", on: { click: () => {
+        zustand = Object.assign({}, zustand, { p: {} });
+        try { history.replaceState(null, "", alsAdresse(zustand)); } catch (e) { /* ohne Verlauf */ }
+        reglerAnzeigen(kat);
+        fuelleErgebnis(kat, document.getElementById("ergebnis-koerper"), true);
+        const erster = reglerTeile[0] && reglerTeile[0].eingabe;
+        if (erster && erster.focus) erster.focus();
+      } } }, ["Zurück auf deine Antworten"]),
+    ]);
+    reglerAnzeigen(kat);
+    return panel;
+  }
+  /* Regler, Anteile und Zurück-Knopf auf den Zustand setzen (ohne Neuaufbau, Ziehen und Fokus bleiben) */
+  function reglerAnzeigen(kat) {
+    if (!reglerTeile.length) return;
+    const gew = B.gewichte(kat, antwortenWirksam(kat), prioFaktoren());
+    for (const t of reglerTeile) {
+      const s = Object.prototype.hasOwnProperty.call(zustand.p, t.fid) ? zustand.p[t.fid] : PRIO_NORMAL;
+      if (String(t.eingabe.value) !== String(s)) t.eingabe.value = String(s);
+      const text = PRIO_NAMEN[s] + ", " + anteilText(gew[t.fid]);
+      t.ausgabe.textContent = text;
+      t.eingabe.setAttribute("aria-valuetext", text);
+      t.eingabe.setAttribute("style", "--fill:" + s * 25 + "%");
+    }
+    if (reglerZurueck) reglerZurueck.hidden = !Object.keys(zustand.p).length;
+  }
+  function prioSetzen(kat, fid, s) {
+    if (!(s >= 0 && s <= 4)) return;
+    const p = Object.assign({}, zustand.p);
+    if (s === PRIO_NORMAL) delete p[fid]; else p[fid] = Math.round(s);
+    zustand = Object.assign({}, zustand, { p });
+    try { history.replaceState(null, "", alsAdresse(zustand)); } catch (e) { /* ohne Verlauf */ }
+    reglerAnzeigen(kat);
+    fuelleErgebnis(kat, document.getElementById("ergebnis-koerper"), true);
+  }
+
+  /* FLIP (240 ms, nur transform): Einträge der Rangliste gleiten an ihren neuen Platz; reduziert: sofort */
+  function rangLagen(teil) {
+    const lagen = new Map();
+    if (!teil || reduziert) return lagen;
+    for (const li of alleKnoten(teil)) {
+      const id = li.getAttribute && li.getAttribute("data-modell");
+      if (id && li.getBoundingClientRect) lagen.set(id, li.getBoundingClientRect().top - teil.getBoundingClientRect().top);
+    }
+    return lagen;
+  }
+  function rangGleiten(teil, vorher) {
+    if (!vorher.size) return;
+    for (const li of alleKnoten(teil)) {
+      const id = li.getAttribute && li.getAttribute("data-modell");
+      if (!id || !vorher.has(id) || !li.animate) continue;
+      const dy = vorher.get(id) - (li.getBoundingClientRect().top - teil.getBoundingClientRect().top);
+      if (Math.abs(dy) < 1) continue;
+      li.animate([{ transform: "translateY(" + Math.round(dy) + "px)" }, { transform: "none" }], { duration: 240, easing: "cubic-bezier(0.23, 1, 0.32, 1)" });
+    }
+  }
+  function alleKnoten(k, l) {
+    l = l || [];
+    for (const c of Array.from(k.childNodes || [])) if (c.nodeType === 1) { l.push(c); alleKnoten(c, l); }
+    return l;
+  }
+
+  function fuelleErgebnis(kat, koerper, gleiten) {
+    const unten = ergebnisTeile ? ergebnisTeile.unten : null;
     const fokus = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute("data-fokus") : null;
-    const fokusDrin = fokus && findeFokus(koerper, fokus);
+    const fokusDrin = fokus && (findeFokus(koerper, fokus) || findeFokus(unten, fokus));
+    const vorher = gleiten ? rangLagen(unten) : new Map();
     leeren(koerper);
-    const r = B.auswerten(kat, daten.regeln, { antworten: antwortenWirksam(kat), budget: zustand.b, filter: filterWirksam(kat), sortierung: zustand.o });
+    if (unten) leeren(unten);
+    const ziel = unten || koerper;
+    const r = B.auswerten(kat, daten.regeln, { antworten: antwortenWirksam(kat), budget: zustand.b, filter: filterWirksam(kat), sortierung: zustand.o, prioritaeten: prioFaktoren() });
+    const prio = ergebnisTeile ? ergebnisTeile.prio : null;
+    if (prio) prio.hidden = !r.rang.length || !reglerTeile.length;
     anhaengen(koerper, [auswahlZeile(kat)]);
     if (!r.rang.length) {
       anhaengen(koerper, [h("div", { class: "karte leise" }, [
@@ -434,16 +555,18 @@
       else anhaengen(koerper, [h("div", { class: "karte leise" }, [h("p", null, [ohneEmpfehlungText(r)])])]);
       if (r.aufpreis) anhaengen(koerper, [hinweisKarte("mehr", "Lohnt sich mehr?", r.aufpreis.text, r.aufpreis.modell)]);
       if (r.spar) anhaengen(koerper, [hinweisKarte("weniger", "Geht es günstiger?", r.spar.text, r.spar.modell)]);
-      anhaengen(koerper, [rangliste(kat, r), vergleich(kat, r)]);
+      anhaengen(ziel, [rangliste(kat, r), vergleich(kat, r, prioFaktoren())]);
     }
     zeichneAblage(kat);
+    glasBeobachten(koerper);
+    if (unten) rangGleiten(unten, vorher);
     const status = document.getElementById("ergebnis-status");
     if (status) status.textContent = r.rang.length
       ? r.rang.length + (r.rang.length === 1 ? " Modell passt" : " Modelle passen") + (!r.empfehlung ? "." : r.empfehlung.note === null
         ? ". Modell ohne Note: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + (r.empfehlung.art === "keine_merkmale" ? ", kein Merkmal zählt in die Note." : ", für eine Note fehlen Datenblattwerte.")   // R2-09, P1-04
         : ". Passt am besten: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", " + note(r.empfehlung.note) + " Punkte.")
       : "Kein Modell passt.";
-    if (fokusDrin) { const f = findeFokus(koerper, fokus); if (f && f.focus) f.focus(); }
+    if (fokusDrin) { const f = findeFokus(koerper, fokus) || findeFokus(unten, fokus); if (f && f.focus) f.focus(); }
   }
 
   /* P1-03/P1-04 (r2): Grund für die fehlende Empfehlung aus den tatsächlichen Kombinationen von Note, Preis und Budget.
@@ -492,17 +615,21 @@
 
   /* Prozentwert für style: nur endliche Zahlen, auf 0..100 begrenzt (F-09; datenPruefen prüft die Regeln vorher). */
   function prozent(x) { const z = typeof x === "number" && isFinite(x) ? x : 0; return Math.max(0, Math.min(100, z)); }
-  /* D12: eine Bahn 0–100 ohne Klassenbänder und ohne Kappung; die Spanne zeigt, wie unsicher eine Datenblatt-Note ist */
-  function notenSkala(e) {
+  /* D12/G1: Punktbahn 0–100 ohne Klassenbänder und ohne Kappung; die Spanne zeigt, wie unsicher eine Datenblatt-Note ist.
+     opt.achse: Marken 0/50/100 darunter · opt.farbe: Vergleichsfarbe 1–3 (sonst Tinte) */
+  function notenSkala(e, opt) {
+    const o = opt || {};
     const n = prozent(e.note);
     const spanne = e.spanne ? [Math.max(0, n - e.spanne), Math.min(100, n + e.spanne)] : null;
     const beschr = "Note " + Math.round(n) + " von 100" + (spanne ? ", Spanne etwa " + Math.round(spanne[0]) + " bis " + Math.round(spanne[1]) : "");
-    const bahn = h("div", { class: "skala-bahn" }, [h("span", { class: "skala-fuellung", style: "width:" + n + "%" })]);
+    const bahn = h("div", { class: "skala-bahn" });
     if (spanne) bahn.appendChild(h("span", { class: "skala-spanne", style: "left:" + spanne[0] + "%;width:" + (spanne[1] - spanne[0]) + "%" }));
     bahn.appendChild(h("span", { class: "skala-punkt", style: "left:" + n + "%" }));
-    const marken = h("div", { class: "skala-marken", "aria-hidden": "true" },
-      [0, 50, 100].map(x => h("span", { style: "left:" + x + "%", text: String(x) })));
-    return h("div", { class: "skala", role: "img", "aria-label": beschr }, [bahn, marken]);
+    return h("div", { class: "skala" + (o.farbe ? " farbe-" + o.farbe : ""), role: "img", "aria-label": (o.name ? o.name + ": " : "") + beschr },
+      [bahn, o.achse ? achse() : null]);
+  }
+  function achse(klasse) {
+    return h("div", { class: klasse || "skala-marken", "aria-hidden": "true" }, [0, 50, 100].map(x => h("span", { style: "left:" + x + "%", text: String(x) })));
   }
   /* Note mit Herkunft; die Rechnung ist eingeklappt (08 F) */
   function notenBlock(e) {
@@ -517,9 +644,9 @@
         h("p", { class: "note-zahl" }, [h("span", { class: "zahl", text: note(e.note) }), h("span", { class: "von" }, [" von 100"])]),
         h("p", { class: "marke" }, [e.art === "getestet" ? "mit unabhängigem Test" : "aus dem Datenblatt, kein Test"]),
       ]),
+      notenSkala(e, { achse: true }),
       h("details", { class: "note-herkunft" }, [
         h("summary", null, ["So kommt die Note zustande"]),
-        notenSkala(e),
         h("p", { class: "hilfe" }, [erklaerung]),
       ]),
     ]);
@@ -549,7 +676,6 @@
     } else if (r.status === "unbelegt") {
       warnung = "Nicht im Datenblatt belegt: " + e.unbelegt.map(u => (felder[u.feld] || { name: u.feld }).name).join(", ") + ". Prüfe das vor dem Kauf.";
     }
-    const staerken = B.staerken(e, 3).map(s => h("li", { text: staerkeText(felder[s.feld] || { name: s.feld }, m.werte[s.feld]) }));
     const angebot = m.preis ? link(m.preis.url, "Zum Angebot", "knopf haupt") : null;
     if (angebot) angebot.setAttribute("aria-label", "Zum Angebot: " + modellName(m) + " bei " + m.preis.haendler + " (öffnet neues Fenster)");
     const variante = varianteText(m);
@@ -562,9 +688,36 @@
       h("div", { class: "kauf" }, [preisBlock(e, true), angebot]),
       warnung ? h("p", { class: "warnung" }, [warnung]) : null,
       notenBlock(e),
-      staerken.length ? h("div", { class: "staerken" }, [h("h3", null, ["Stärken laut Datenblatt"]), h("ul", null, staerken)]) : null,
+      punkteHerkunft(e, felder),
       testLinks(m),
       vergleichSchalter(m, "empf"),
+    ]);
+  }
+
+  /* G1: „Woher die Punkte kommen“: je wirksamem Merkmal (Beiträge und fehlende, nach Gewicht) Name, Anteil, Wert und
+     Teilpunkte als Balken in Tinte; fehlende Werte gestrichelt. Die 5 schwersten offen, der Rest eingeklappt. */
+  function punkteHerkunft(e, felder) {
+    const zeilen = (e.beitraege || []).map(b => ({ feld: b.feld, gewicht: b.gewicht, tp: b.teilpunkte }))
+      .concat((e.fehlend || []).map(f => ({ feld: f.feld, gewicht: f.gewicht, tp: null })))
+      .sort((a, b) => b.gewicht - a.gewicht);
+    if (!zeilen.length) return null;
+    const zeile = z => {
+      const f = felder[z.feld] || { name: z.feld, typ: "stufe" };
+      const fehlt = z.tp === null;
+      const tp = fehlt ? 0 : prozent(z.tp);
+      return h("li", { class: "hz" + (fehlt ? " fehlt" : "") }, [
+        h("p", { class: "hz-kopf" }, [h("span", { class: "hz-name", text: f.name }), h("span", { class: "hz-anteil", text: anteilText(z.gewicht) })]),
+        h("div", { class: "hz-bahn", role: "img", "aria-label": fehlt ? "nicht angegeben, 0 Punkte" : Math.round(tp) + " von 100 Teilpunkten" },
+          fehlt ? [] : [h("span", { class: "hz-balken", style: "width:" + tp + "%" })]),
+        h("p", { class: "hz-fuss" }, [h("span", { class: "hz-wert", text: fehlt ? "nicht angegeben" : wertText(f, (e.modell.werte || {})[z.feld]) }),
+          h("span", { class: "hz-punkte", "aria-hidden": "true", text: fehlt ? "–" : String(Math.round(tp)) })]),
+      ]);
+    };
+    const offen = zeilen.slice(0, PRIO_OFFEN), rest = zeilen.slice(PRIO_OFFEN);
+    return h("section", { class: "herkunft", "aria-labelledby": "herkunft-titel" }, [
+      h("h3", { id: "herkunft-titel" }, ["Woher die Punkte kommen"]),
+      h("ul", { class: "hz-liste" }, offen.map(zeile)),
+      rest.length ? h("details", { class: "hz-mehr" }, [h("summary", null, ["Alle Merkmale (" + zeilen.length + ")"]), h("ul", { class: "hz-liste" }, rest.map(zeile))]) : null,
     ]);
   }
 
@@ -583,26 +736,42 @@
     const m = e.modell;
     const angebot = m.preis ? link(m.preis.url, "Zum Angebot", "knopf neben") : null;
     if (angebot) angebot.setAttribute("aria-label", "Zum Angebot: " + modellName(m) + " (öffnet neues Fenster)");
-    return h("aside", { class: "karte hinweis " + art, "aria-label": ueberschrift }, [
+    return h("aside", { class: "karte hinweis glas-hin " + art, "aria-label": ueberschrift }, [
       h("p", { class: "hinweis-text", text }),
       h("p", { class: "hinweis-modell" }, [m.hersteller + " " + modellName(m) + ", " + note(e.note) + " Punkte, " + (e.preis !== null ? eur(e.preis) : "Preis unbekannt")]),
       h("div", { class: "hinweis-knoepfe" }, [angebot, vergleichSchalter(m, art)]),
     ]);
   }
 
+  /* G1: Umschaltknopf statt Kontrollkästchen (aria-pressed); voll: deaktiviert mit Grund */
   function vergleichSchalter(m, ort) {
     const an = zustand.v.indexOf(m.id) >= 0;
     const voll = !an && zustand.v.length >= 3;
     const id = "vgl-" + ort + "-" + m.id;
-    return h("label", { class: "vgl" + (voll ? " aus" : ""), for: id }, [
-      h("input", { type: "checkbox", id, checked: an, disabled: voll, "data-fokus": id,
-        on: { change: ev => {
-          const v = zustand.v.filter(x => x !== m.id);
-          if (ev.target.checked) v.push(m.id);
-          setze({ v: v.slice(0, 3) }, false);
-        } } }),
-      h("span", null, [voll ? "Vergleich voll (3)" : "Vergleichen"]),
-    ]);
+    const knopf = h("button", { type: "button", id, class: "vgl-knopf", "aria-pressed": an ? "true" : "false", disabled: voll, "data-fokus": id,
+      on: { click: () => {
+        const v = zustand.v.filter(x => x !== m.id);
+        if (!an) v.push(m.id);
+        setze({ v: v.slice(0, 3) }, false);
+      } } }, [
+        voll ? null : h("span", { class: "vgl-zeichen", "aria-hidden": "true", text: an ? "✓" : "＋" }),
+        voll ? "Vergleich voll (3)" : an ? "Im Vergleich" : "Vergleichen",
+        h("span", { class: "visuell-weg", text: ": " + modellName(m) }),
+      ]);
+    return knopf;
+  }
+
+  /* Glas-Hinweise: Lichtstreif nur, solange die Karte sichtbar ist (reduziert steht er, CSS) */
+  function glasBeobachten(teil) {
+    const karten = alleKnoten(teil).filter(k => k.classList && k.classList.contains("glas-hin"));
+    if (!karten.length) return;
+    if (!glasBeobachter && typeof IntersectionObserver === "function") {
+      glasBeobachter = new IntersectionObserver(eintraege => {
+        for (const x of eintraege) x.target.classList.toggle("is-sicht", x.isIntersecting);
+      });
+    }
+    if (glasBeobachter) glasBeobachter.disconnect();   // alte Karten sind beim Neurechnen schon entfernt
+    for (const k of karten) { if (glasBeobachter) glasBeobachter.observe(k); else k.classList.add("is-sicht"); }
   }
 
   function rangZeile(e, nr, r, felder) {
@@ -615,7 +784,7 @@
     if (e.unbelegt.length) marken.push("nicht belegt: " + e.unbelegt.map(u => (felder[u.feld] || { name: u.feld }).name).join(", "));
     const angebot = m.preis ? link(m.preis.url, "Angebot", "textlink") : null;
     if (angebot) angebot.setAttribute("aria-label", "Angebot für " + modellName(m) + " (öffnet neues Fenster)");
-    return h("li", { class: "rang-eintrag" + (nr === null ? " ohne-nr" : "") + (e === r.empfehlung ? " erste" : "") }, [
+    return h("li", { class: "rang-eintrag" + (nr === null ? " ohne-nr" : "") + (e === r.empfehlung ? " erste" : ""), "data-modell": m.id }, [
       nr === null ? null : h("span", { class: "rang-nr", "aria-hidden": "true", text: String(nr) }),
       h("div", { class: "rang-haupt" }, [
         h("p", { class: "rang-name" }, [h("span", { class: "hersteller-inline", text: m.hersteller + " " }), modellName(m)]),
@@ -626,7 +795,19 @@
         e.note === null ? null : h("p", { class: "rang-note" }, [h("span", { class: "zahl", text: note(e.note) })]),
         h("p", { class: "rang-preis", text: e.preis !== null ? eur(e.preis) : "–" }),
       ]),
+      e.note === null ? null : h("div", { class: "rang-bahn" }, [notenSkala(e, { name: modellName(m) })]),
     ]);
+  }
+
+  /* G1: „Vorn: X +n vor Y“ für die zwei besten angezeigten Noten; unter 3 Punkten gleichauf (Ratgeber-Regel) */
+  function vornZeile(bewertet) {
+    if (bewertet.length < 2) return null;
+    const l = bewertet.slice().sort((a, b) => Math.round(b.note) - Math.round(a.note));
+    const d = Math.round(l[0].note) - Math.round(l[1].note);
+    const n = e => e.modell.hersteller + " " + modellName(e.modell);
+    return h("p", { class: "rang-vorn" + (d >= 3 ? "" : " gleichauf") }, [d >= 3
+      ? "Vorn: " + n(l[0]) + " mit " + d + " Punkten vor " + n(l[1]) + "."
+      : "Gleichauf: " + n(l[0]) + " und " + n(l[1]) + " liegen weniger als 3 Punkte auseinander."]);
   }
 
   /* P1-04: Grund der Gruppe „Noch nicht bewertbar“ nur nennen, wenn er für die Modelle zutrifft */
@@ -656,6 +837,8 @@
       ])));
     const teile = [
       h("div", { class: "rang-kopf" }, [h("h2", { id: "rang-titel" }, ["Alle passenden Modelle"]), sortierung]),
+      vornZeile(bewertet),
+      bewertet.length ? achse("rang-achse") : null,
       bewertet.length ? h("ol", { class: "rang" }, bewertet.map((e, i) => rangZeile(e, nummern[i], r, felder))) : null,
     ];
     if (offen.length) {
@@ -676,39 +859,73 @@
     return h("section", { class: "abschnitt", "aria-labelledby": "rang-titel" }, teile);
   }
 
-  function vergleich(kat, r) {
+  /* G1: Vergleich als Bahnen. Farbe je Platz in der Auswahl (farbe-1..3, nur Punkte und Spannen), Name immer als Text.
+     Je Merkmal „Vorn: X +n“ ab 3 Teilpunkten Vorsprung, sonst „gleichauf“ (Ratgeber-Regel). */
+  function vergleich(kat, r, prio) {
     const gewaehlt = zustand.v.map(id => r.rang.find(e => e.modell.id === id)).filter(Boolean);
     const abschnitt = h("section", { class: "abschnitt", id: "vergleich", "aria-labelledby": "vgl-titel" }, [
       h("h2", { id: "vgl-titel", tabindex: "-1" }, ["Vergleich"]),
     ]);
     if (gewaehlt.length < 2) {
-      abschnitt.appendChild(h("p", { class: "hilfe" }, ["Hake bei bis zu drei Modellen „Vergleichen“ an, dann stehen sie hier nebeneinander."]));
+      abschnitt.appendChild(h("p", { class: "hilfe" }, ["Tippe bei bis zu drei Modellen auf „Vergleichen“, dann stehen sie hier untereinander."]));
       return abschnitt;
     }
-    const sieger = B.feldSieger(gewaehlt, kat.felder);
-    const gew = B.gewichte(kat, antwortenWirksam(kat));
+    const farbe = e => zustand.v.indexOf(e.modell.id) + 1;
+    const gew = B.gewichte(kat, antwortenWirksam(kat), prio);
     const reihen = kat.felder.slice().sort((a, b) => (gew[b.id] || 0) - (gew[a.id] || 0));
     const spalten = "spalten-" + gewaehlt.length;
-    const kopfzeile = h("div", { class: "vgl-reihe vgl-modelle " + spalten }, gewaehlt.map(e => h("div", { class: "vgl-zelle" }, [
-      h("p", { class: "vgl-name" }, [e.modell.hersteller + " " + modellName(e.modell)]),
+    const kopfzeile = h("div", { class: "vgl-reihe vgl-modelle " + spalten }, gewaehlt.map(e => h("div", { class: "vgl-zelle farbe-" + farbe(e) }, [
+      h("p", { class: "vgl-name" }, [h("span", { class: "vgl-farbe", "aria-hidden": "true" }), e.modell.hersteller + " " + modellName(e.modell)]),
       h("p", { class: "vgl-note" }, [h("span", { class: "zahl", text: note(e.note) }), e.note === null ? " keine Note" : " Punkte"]),
       h("p", { class: "vgl-preis", text: e.preis !== null ? eur(e.preis) : "Preis unbekannt" }),
     ])));
-    const tabelle = h("div", { class: "vgl-tabelle" }, [kopfzeile].concat(reihen.map(f => {
-      const gewinner = sieger[f.id] || [];
+    // Gesamtnote je Modell als Punktbahn mit Spanne
+    const gesamt = h("div", { class: "vgl-block vgl-gesamt" }, [
+      h("p", { class: "vgl-feld" }, [h("span", { class: "vgl-feld-name", text: "Note" })]),
+      h("div", { class: "vgl-bahnen" }, gewaehlt.map(e => h("div", { class: "vgl-bahn farbe-" + farbe(e) }, [
+        h("span", { class: "vgl-bahn-name", text: modellName(e.modell) }),
+        e.note === null ? h("span", { class: "vgl-spur leer", "aria-hidden": "true" }) : notenSkala(e, { farbe: farbe(e), name: modellName(e.modell) }),
+        h("span", { class: "vgl-bahn-wert", text: e.note === null ? "keine Note" : note(e.note) }),
+      ]))),
+      achse("rang-achse vgl-achse"),
+    ]);
+    const bloecke = reihen.map(f => {
+      const zaehlt = gew[f.id] > 0;
+      const tpVon = e => { const t = (e.modell.teilpunkte || {})[f.id]; return typeof t === "number" && isFinite(t) ? t : null; };
+      const tps = gewaehlt.map(tpVon).filter(x => x !== null).sort((a, b) => b - a);
+      let marke = null, vorneId = null;
+      if (zaehlt && tps.length >= 2) {
+        const d = tps[0] - tps[1];
+        if (d >= 3) {
+          const v = gewaehlt.find(e => tpVon(e) === tps[0]);
+          vorneId = v.modell.id;
+          marke = h("span", { class: "vgl-marke vorn" }, ["Vorn: " + modellName(v.modell) + " +" + Math.round(d)]);
+        } else marke = h("span", { class: "vgl-marke" }, ["gleichauf"]);
+      }
       return h("div", { class: "vgl-block" }, [
-        h("p", { class: "vgl-feld" }, [f.name, f.gewicht === 0 ? h("span", { class: "leise-text", text: " (Filter, zählt nicht in die Note)" }) : null]),
-        h("div", { class: "vgl-reihe " + spalten }, gewaehlt.map(e => {
-          const vorn = gewinner.indexOf(e.modell.id) >= 0;
-          return h("p", { class: "vgl-wert" + (vorn ? " vorn" : "") + (e.modell.werte[f.id] === undefined ? " fehlt" : "") }, [
-            h("span", { class: "visuell-weg", text: modellName(e.modell) + ": " }),
-            wertText(f, e.modell.werte[f.id]), vorn ? h("span", { class: "visuell-weg", text: " (vorn)" }) : null,
+        h("p", { class: "vgl-feld" }, [
+          h("span", { class: "vgl-feld-name", text: f.name }),
+          h("span", { class: "vgl-feld-anteil", text: f.gewicht === 0 ? "Filter, zählt nicht in die Note" : anteilText(gew[f.id]) }),
+          marke,
+        ]),
+        h("div", { class: "vgl-bahnen" }, gewaehlt.map(e => {
+          const w = e.modell.werte[f.id];
+          const tp = tpVon(e);
+          const vorn = vorneId === e.modell.id;
+          const mitPunkt = zaehlt && tp !== null;
+          return h("div", { class: "vgl-bahn farbe-" + farbe(e) + (vorn ? " vorn" : "") + (w === undefined ? " fehlt" : "") }, [
+            h("span", { class: "vgl-bahn-name", text: modellName(e.modell) }),
+            h("span", { class: "vgl-spur" + (mitPunkt ? "" : " leer"), "aria-hidden": "true" },
+              mitPunkt ? [h("span", { class: "vgl-punkt", style: "left:" + prozent(tp) + "%" })] : []),
+            h("span", { class: "vgl-bahn-wert" }, [wertText(f, w),
+              mitPunkt ? h("span", { class: "visuell-weg", text: ", " + Math.round(prozent(tp)) + " von 100 Teilpunkten" }) : null,
+              vorn ? h("span", { class: "visuell-weg", text: " (vorn)" }) : null]),
           ]);
         })),
       ]);
-    })));
-    abschnitt.appendChild(tabelle);
-    abschnitt.appendChild(h("p", { class: "hilfe" }, ["Hervorgehoben: in diesem Merkmal vorn. Merkmale stehen in der Reihenfolge, wie stark sie nach deinen Antworten zählen."]));
+    });
+    abschnitt.appendChild(h("div", { class: "vgl-tabelle" }, [kopfzeile, gesamt].concat(bloecke)));
+    abschnitt.appendChild(h("p", { class: "hilfe" }, ["Punkt auf der Bahn: Teilpunkte von 0 bis 100 im Merkmal. „Vorn“ steht nur bei mindestens 3 Punkten Vorsprung. Die Merkmale stehen in der Reihenfolge, wie stark sie für dich zählen."]));
     return abschnitt;
   }
 
@@ -745,6 +962,7 @@
       // Budget kann sich über die Adresse geändert haben (Zurück, Link): Feld und Schnellwahl nachziehen,
       // ein Feld, in dem gerade getippt wird, behält seinen Text
       budgetAnzeigen(zustand.b, document.activeElement);
+      reglerAnzeigen(kat);
       fuelleErgebnis(kat, koerper);
       return;
     }

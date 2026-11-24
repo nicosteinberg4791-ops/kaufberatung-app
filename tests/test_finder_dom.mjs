@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
 const HIER = path.dirname(fileURLToPath(import.meta.url));
 const ORDNER = path.resolve(HIER, "..", "app", "finder");
@@ -154,15 +155,21 @@ test("Ergebnis aus der Adresse, Budget ändern ohne Neuaufbau, Vergleich, Sortie
   t = text(dok.body);
   assert.ok(t.includes("Passt am besten zu dir bis 1.500 €"));
   // zwei Modelle vergleichen
-  const schalter = alle(dok.body).filter(e => e.tagName === "INPUT" && e.attr.type === "checkbox" && e.id.startsWith("vgl-rang-"));
-  schalter[0].checked = true; schalter[0].ausloesen("change");
-  let s2 = alle(dok.body).filter(e => e.tagName === "INPUT" && e.attr.type === "checkbox" && e.id.startsWith("vgl-rang-"));
-  s2[1].checked = true; s2[1].ausloesen("change");
+  // G1: Umschaltknopf mit aria-pressed statt Kontrollkästchen
+  const schalter = alle(dok.body).filter(e => e.tagName === "BUTTON" && e.id.startsWith("vgl-rang-"));
+  assert.ok(schalter.length >= 2 && schalter.every(e => e.getAttribute("aria-pressed") === "false"));
+  assert.equal(alle(dok.body).some(e => e.tagName === "INPUT" && e.attr.type === "checkbox"), false, "kein Kontrollkästchen mehr");
+  schalter[0].ausloesen("click");
+  let s2 = alle(dok.body).filter(e => e.tagName === "BUTTON" && e.id.startsWith("vgl-rang-"));
+  assert.equal(s2[0].getAttribute("aria-pressed"), "true");
+  assert.ok(text(s2[0]).includes("Im Vergleich"));
+  s2[1].ausloesen("click");
   assert.match(ort.hash, /v=[a-z0-9-]+~[a-z0-9-]+/);
   t = text(dok.body);
   assert.ok(t.includes("2 von 3 gewählt"));
   assert.ok(dok.body.classList.contains("mit-ablage"), "07 B12: Platz für die Ablage");
-  assert.ok(alle(dok.body).some(e => e.className.includes("vgl-wert vorn")), "gewonnene Felder hervorgehoben");
+  assert.ok(alle(dok.body).some(e => /vgl-bahn farbe-\d vorn/.test(e.className)), "Bahn des Vorderen markiert");
+  assert.ok(/Vorn: |gleichauf/.test(text(dok.getElementById("vergleich"))), "Marke je Merkmal");
   assert.equal(dok.getElementById("ablage").hidden, false);
   // Sortierung nach Preis
   const preis = alle(dok.body).find(e => e.tagName === "INPUT" && e.attr.name === "sortierung" && e.attr.value === "preis");
@@ -284,7 +291,10 @@ test("P1/D12: keine Klassenwörter, keine Kappung, Preis vor der Note, Rechnung 
   assert.ok(reihenfolge.indexOf("kauf") >= 0 && reihenfolge.indexOf("kauf") < reihenfolge.indexOf("note-block"), "08 F: Preis vor Note: " + reihenfolge);
   const details = alle(karte).find(e => e.tagName === "DETAILS");
   assert.ok(details && text(details).includes("So kommt die Note zustande"));
-  assert.ok(alle(details).some(e => e.className === "skala"), "Skala steckt in der eingeklappten Erklärung");
+  // G1: Punktbahn mit Spanne steht sichtbar im Notenblock, nicht mehr in der eingeklappten Erklärung
+  const block = klassen(dok, "note-block")[0];
+  assert.ok(block.childNodes.some(e => e.className === "skala"), "Punktbahn sichtbar");
+  assert.equal(alle(details).some(e => e.className === "skala"), false);
 });
 
 test("P1 07 B15/B10: gleiche angezeigte Note = gleicher Rang, ohne Note eigene Gruppe ohne Rang mit „fehlt“", async () => {
@@ -437,4 +447,125 @@ test("P1-03/P1-04 r3: gemischt mit Note – Notengrund der Modelle mit Preis (ke
   assert.ok(t.includes("haben keine Note, weil für deine Angaben kein Merkmal zählt."), t);
   t = await meldung(true);
   assert.ok(t.includes("haben keine Note, weil Datenblattwerte fehlen oder für deine Angaben kein Merkmal zählt."), t);
+});
+
+// ---------- G1: Prioritäten-Regler, Woher die Punkte kommen, Punktbahnen (24.11.2026) ----------
+const regler = dok => alle(dok.body).filter(e => e.tagName === "INPUT" && e.attr.type === "range");
+const rangNamen = dok => { const [b] = alle(dok.body).filter(e => e.className === "rang");
+  return alle(b).filter(e => e.className === "rang-name").map(e => text(e)); };
+const bewertung = () => createRequire(import.meta.url)(path.join(ORDNER, "bewertung.js"));
+
+test("G1: Regler verschieben Gewichte live, Adresse p= nur abweichende Stufen, Zurück auf Antworten", async () => {
+  const { dok, ort } = await starte("#k=fernseher&s=ergebnis");
+  assert.ok(text(dok.body).includes("Deine Prioritäten verschieben"));
+  // Reihenfolge: Empfehlung oben, Regler dazwischen, Rangliste und Vergleich darunter (Browserbefund G1)
+  const schirm = dok.getElementById("ergebnis-koerper").parentNode;
+  const ids = schirm.childNodes.map(k => k.id).filter(Boolean);
+  assert.deepEqual(ids.slice(-3), ["ergebnis-koerper", "prio", "ergebnis-unten"]);
+  assert.ok(dok.getElementById("ergebnis-unten").childNodes.length >= 2, "Rangliste und Vergleich unten");
+  assert.equal(alle(dok.getElementById("ergebnis-koerper")).some(e => e.id === "rang-titel" || e.id === "vergleich"), false);
+  const r0 = regler(dok);
+  assert.ok(r0.length >= 2, "Regler je bewertetem Merkmal");
+  assert.ok(r0.every(e => e.value === "2" && e.attr.min === "0" && e.attr.max === "4"), "Start auf „normal“");
+  assert.ok(r0.every(e => /^normal, zählt \d+ %$/.test(e.getAttribute("aria-valuetext"))), r0[0].getAttribute("aria-valuetext"));
+  const zurueck = dok.getElementById("prio-zurueck");
+  assert.equal(zurueck.hidden, true, "ohne Abweichung kein Zurück-Knopf");
+  const vorher = rangNamen(dok);
+  // erstes Merkmal aus: Anteil 0, Regler bleibt dasselbe Element (Ziehen bricht nicht ab)
+  const erster = r0[0];
+  const fid = erster.id.replace("prio-", "");
+  erster.focus(); erster.value = "0"; erster.ausloesen("input");
+  assert.equal(regler(dok)[0], erster);
+  assert.equal(dok.activeElement, erster);
+  assert.equal(erster.getAttribute("aria-valuetext"), "aus, zählt nicht");
+  assert.ok(ort.hash.includes("p=" + fid + ".0"), ort.hash);
+  assert.equal(zurueck.hidden, false);
+  // „viel mehr“ auf das zweite steht in der Adresse, „normal“ nie
+  const zweiter = regler(dok)[1];
+  zweiter.value = "4"; zweiter.ausloesen("input");
+  assert.match(ort.hash, /p=[a-z0-9_-]+\.0~[a-z0-9_-]+\.4/);
+  assert.match(zweiter.getAttribute("aria-valuetext"), /^viel mehr, zählt \d+ %$/);
+  zweiter.value = "2"; zweiter.ausloesen("input");
+  assert.equal(/\.2(~|&|$)/.test(ort.hash), false, "normal steht nicht in der Adresse");
+  assert.deepEqual(rangNamen(dok).slice().sort(), vorher.slice().sort(), "dieselben Modelle");
+  // zurück auf die Antworten: alles normal, p= weg, Reihenfolge wie vorher
+  zurueck.ausloesen("click");
+  assert.equal(/p=/.test(ort.hash), false);
+  assert.ok(regler(dok).every(e => e.value === "2"));
+  assert.deepEqual(rangNamen(dok), vorher);
+  assert.equal(zurueck.hidden, true);
+});
+
+test("G1: Regler rechnen wie bewertung.js (alle Merkmale aus außer einem, Note der Empfehlung)", async () => {
+  const B = bewertung();
+  const kat = B.datenPruefen(JSON.parse(BEISPIEL)).kategorien.find(k => k.id === "fernseher");
+  const bewertet = kat.felder.filter(f => f.gewicht > 0).map(f => f.id);
+  const p = bewertet.slice(1).map(f => f + ".0").join("~");
+  const app = await starte("#k=fernseher&s=ergebnis&p=" + p);
+  const r0 = regler(app.dok).find(e => e.id === "prio-" + bewertet[0]);
+  assert.match(r0.getAttribute("aria-valuetext"), /zählt 100 %/);
+  assert.ok(regler(app.dok).filter(e => e !== r0).every(e => e.getAttribute("aria-valuetext") === "aus, zählt nicht"));
+  const faktoren = Object.fromEntries(bewertet.slice(1).map(f => [f, 0]));
+  assert.deepEqual(Object.keys(B.gewichte(kat, {}, faktoren)), [bewertet[0]]);
+  // angezeigte Note der Empfehlung = Rechnung mit denselben Faktoren
+  const daten = B.datenPruefen(JSON.parse(BEISPIEL));
+  const r = B.auswerten(daten.kategorien.find(k => k.id === "fernseher"), daten.regeln, { antworten: {}, prioritaeten: faktoren });
+  if (r.empfehlung && r.empfehlung.note !== null) {
+    const zahl = klassen(app.dok, "note-zahl")[0];
+    assert.ok(text(zahl).startsWith(String(Math.round(r.empfehlung.note))), text(zahl));
+  }
+});
+
+test("G1: Adresse p= wird geprüft (unbekanntes Feld, Filterfeld, Stufe außerhalb 0–4, normal, doppelt)", async () => {
+  const kat = JSON.parse(BEISPIEL).kategorien.find(k => k.id === "fernseher");
+  const feld = kat.felder.find(f => f.gewicht > 0).id;
+  const filter = (kat.felder.find(f => f.gewicht === 0) || { id: "gibtsnicht" }).id;
+  const app = await starte("#k=fernseher&s=ergebnis&p=" + [feld + ".3", feld + ".0", "constructor.1", "__proto__.1", filter + ".1", "x.9", feld + ".5", "zz.2"].join("~"));
+  const r = regler(app.dok).find(e => e.id === "prio-" + feld);
+  assert.equal(r.value, "3", "erste gültige Angabe gilt");
+  assert.equal(regler(app.dok).filter(e => e.value !== "2").length, 1);
+  // nach der nächsten Änderung steht nur noch die bereinigte Angabe in der Adresse
+  const anderer = regler(app.dok).find(e => e.id !== "prio-" + feld);
+  anderer.value = "1"; anderer.ausloesen("input");
+  assert.ok(app.ort.hash.endsWith("&p=" + feld + ".3~" + anderer.id.replace("prio-", "") + ".1"), app.ort.hash);
+  // eine neue Kategorie beginnt ohne Regleränderung
+  const neu = await starte("#k=fernseher&s=ergebnis&p=" + feld + ".4");
+  knopf(neu.dok, "Andere Kategorie").ausloesen("click");
+  alle(neu.dok.body).filter(e => e.className.includes("kachel") && e.tagName === "BUTTON").find(e => text(e).includes("Fernseher")).ausloesen("click");
+  assert.equal(/p=/.test(neu.ort.hash), false);
+});
+
+test("G1: Woher die Punkte kommen, Punktbahn in Rangliste, Vorn/gleichauf", async () => {
+  const { dok } = await starte("#k=fernseher&s=ergebnis&b=1500");
+  const karte = klassen(dok, "empfehlung")[0];
+  const t = text(karte);
+  assert.ok(t.includes("Woher die Punkte kommen"));
+  assert.equal(t.includes("Stärken laut Datenblatt"), false);
+  const zeilen = alle(karte).filter(e => e.className.split(/\s+/).includes("hz"));
+  assert.ok(zeilen.length >= 2);
+  for (const z of zeilen) assert.match(text(z), /zählt (\d+|unter 1) %/);
+  for (const b of klassen(dok, "hz-balken")) assert.match(b.getAttribute("style"), /^width:\d+(\.\d+)?%$/);
+  // Rangliste: Achse einmal, Bahn je bewertetem Eintrag, Vorn-Zeile
+  const [bewertet] = alle(dok.body).filter(e => e.className === "rang");
+  const eintraege = alle(bewertet).filter(e => e.className.startsWith("rang-eintrag"));
+  assert.equal(klassen(dok, "rang-achse").length, 1);
+  assert.equal(alle(bewertet).filter(e => e.className === "rang-bahn").length, eintraege.length);
+  assert.ok(eintraege.every(e => e.getAttribute("data-modell")), "FLIP-Schlüssel je Eintrag");
+  assert.match(text(klassen(dok, "rang-vorn")[0]), /^(Vorn: .+ mit \d+ Punkten vor .+\.|Gleichauf: .+ und .+ liegen weniger als 3 Punkte auseinander\.)$/);
+  // Beispieldaten bis 500 €: zwei Modelle mit 56 Punkten → gleichauf
+  const b2 = await starte("#k=fernseher&s=ergebnis&b=500");
+  assert.ok(klassen(b2.dok, "rang-vorn")[0].className.includes("gleichauf"));
+});
+
+test("G1: Vergleich mit drei Modellen: Farbe je Platz, Name in jeder Bahn, Text nie in Serienfarbe, voll deaktiviert", async () => {
+  const ids = JSON.parse(BEISPIEL).kategorien.find(k => k.id === "fernseher").modelle.slice(0, 3).map(m => m.id);
+  const { dok } = await starte("#k=fernseher&s=ergebnis&v=" + ids.join("~"));
+  const vgl = dok.getElementById("vergleich");
+  const bahnen = alle(vgl).filter(e => e.className.startsWith("vgl-bahn farbe-"));
+  assert.ok(bahnen.length >= 6, String(bahnen.length));
+  for (const b of bahnen) assert.ok(text(alle(b).find(e => e.className === "vgl-bahn-name")).length > 0, "Name als Text");
+  assert.deepEqual([...new Set(bahnen.map(b => b.className.match(/farbe-(\d)/)[1]))].sort(), ["1", "2", "3"]);
+  assert.equal(alle(vgl).some(e => /farbe-\d/.test(e.className) && e.tagName === "SPAN"), false);
+  const voll = alle(dok.body).filter(e => e.tagName === "BUTTON" && e.id.startsWith("vgl-rang-") && e.disabled);
+  assert.ok(voll.length >= 1 && voll.every(e => text(e).includes("Vergleich voll (3)")));
 });

@@ -39,8 +39,11 @@
   }
 
   /* Gewichte nach Antworten: Faktoren aller gewählten Antworten multiplizieren, Faktor 0 schaltet ab,
-     Filterfelder (Gewicht 0) bleiben draußen, Rest auf Summe 100 normieren. antworten = {frageId: antwortId}. */
-  function gewichte(kat, antworten) {
+     Filterfelder (Gewicht 0) bleiben draußen, Rest auf Summe 100 normieren. antworten = {frageId: antwortId}.
+     G1: prio = {feldId: Faktor} aus den Prioritäten-Reglern (PRIO_FAKTOREN, 0 = aus) wirkt zusätzlich, nur auf Felder
+     mit Gewicht > 0; ungültige Faktoren (keine Zahl, negativ) zählen als 1. */
+  const PRIO_FAKTOREN = [0, 0.5, 1, 2, 3];   // Stufen aus / weniger / normal / mehr / viel mehr
+  function gewichte(kat, antworten, prio) {
     const faktor = Object.create(null);   // R3-02: ohne Prototyp, Schlüssel kommen aus fremden Daten
     for (const frage of kat.fragen || []) {
       const aid = antworten && antworten[frage.id];
@@ -54,7 +57,8 @@
     let summe = 0;
     for (const feld of kat.felder || []) {
       if (!istZahl(feld.gewicht) || feld.gewicht <= 0) continue;
-      const g = feld.gewicht * (feld.id in faktor ? faktor[feld.id] : 1);
+      const p = eigen(prio, feld.id) && istZahl(prio[feld.id]) && prio[feld.id] >= 0 ? prio[feld.id] : 1;
+      const g = feld.gewicht * (feld.id in faktor ? faktor[feld.id] : 1) * p;
       if (g > 0) { roh[feld.id] = g; summe += g; }
     }
     const aus = {};
@@ -253,12 +257,13 @@
   }
 
   /* Gesamtauswertung einer Kategorie.
-     eingabe = {antworten: {frageId: antwortId}, budget: Zahl|null (null = egal), filter: {…}, sortierung: "note"|"preis"|"effizienz"}
+     eingabe = {antworten: {frageId: antwortId}, budget: Zahl|null (null = egal), filter: {…}, sortierung: "note"|"preis"|"effizienz",
+       prioritaeten: {feldId: Faktor} (G1, optional)}
      Ergebnis: {gewichte, anforderungen, rang, empfehlung, status, aufpreis, spar, ausgeschlossen, ohneNote, anzahl} */
   function auswerten(kat, regeln, eingabe) {
     const e = eingabe || {};
     const budget = istZahl(e.budget) && e.budget > 0 ? e.budget : null;
-    const gew = gewichte(kat, e.antworten);
+    const gew = gewichte(kat, e.antworten, e.prioritaeten);
     const anf = anforderungen(kat, e.antworten, e.filter);
     const alle = (kat.modelle || []).map(m => {
       const b = bewerteModell(m, kat, gew, regeln);
@@ -445,6 +450,6 @@
   return {
     gewichte, anforderungen, pruefe, datenblattNote, bewerteModell, sortiere, auswerten,
     aufpreisHinweis, sparHinweis, feldSieger, staerken, budgetStufen, sichereUrl, preiseUeberlagern, datenPruefen,
-    nichtAnwendbar,
+    nichtAnwendbar, PRIO_FAKTOREN,
   };
 });
