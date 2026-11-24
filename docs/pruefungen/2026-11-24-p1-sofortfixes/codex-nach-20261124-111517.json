@@ -1,0 +1,7 @@
+{
+  "urteil": "bestanden",
+  "zusammenfassung": "P1-03/P1-04 ist im geprüften Mischfall geschlossen. Die Meldung nennt den fehlenden Preis der benoteten Modelle, die Budgetüberschreitung der bepreisten Modelle und deren Notengrund. Alle drei Varianten sind abgedeckt, fehlende Datenblattwerte, kein wertbares Merkmal und beide Ursachen innerhalb der Gruppe. `node --test tests/test_finder_dom.mjs` ergab auf Commit `99eb41d9c11f8cd09d38e211eebb470fbb386888` 22 bestandene Tests und 0 Fehler.",
+  "befunde": [],
+  "geschlossen": ["P1-03/P1-04 (Rest aus r3)"],
+  "pruefgrenzen": "Die Prüffrage zu allen Zweigen wurde nach dem Fertigkriterium von r4 bewertet. Wenn mindestens ein Modell eine Note hat und sämtliche Preise fehlen, genügt der fehlende Preis als Grund für die ausbleibende Empfehlung. Es gibt dann keine bepreiste Gruppe, deren Notengrund zu erklären wäre. Der Zweig ohne benotete Modelle wurde anhand der Funktion und des vorhandenen DOM-Tests eingeordnet. Frühere mittlere und geringe Befunde außerhalb des Auftrags sowie frühere Entscheidungen blieben außerhalb der Nachprüfung. Der Sammellauf und die Gegenprobe auf 913490d stammen aus der Selbstprüfung des Bauers."
+}
