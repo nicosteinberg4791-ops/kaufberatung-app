@@ -49,14 +49,17 @@ _GERAETE = frozenset(["con", "prn", "aux", "nul", "conin$", "conout$"] + [f"{a}{
 
 def host_schluessel(host):
     """Gemeinsamer Dateischlüssel je Host für Sperr-, Zeit- und Sperrvermerkdatei (R6-02): unter Windows zulässig und
-    eindeutig. Ein gewöhnlicher Hostname bis 100 Zeichen (Pfad bleibt unter MAX_PATH), dessen erster Bezeichner kein Windows-Gerätename ist, bleibt
+    eindeutig. Ein gewöhnlicher Hostname bis 253 Zeichen (DNS-Grenze; wie bisher, r1 R6-02b), dessen erster Bezeichner kein Windows-Gerätename ist, bleibt
     wie er ist (vorhandene Stempel gelten weiter). Alles andere (IPv6, Zonen-ID, Nicht-ASCII, Gerätenamen, Punkt am
     Ende, zu lang) wird zu „h--<SHA-256>“: dessen erster Bezeichner ist 67 Zeichen lang und damit nie ein gewöhnlicher
-    Hostname. Groß-/Kleinschreibung wie bei urlsplit().hostname. ValueError bei leerem Host."""
+    Hostname. Groß-/Kleinschreibung wie bei urlsplit().hostname: klein bis auf eine IPv6-Zonen-ID nach „%“, die
+    unverändert in den Hash eingeht (r1 R6-02a). ValueError bei leerem Host. Ein Pfad über MAX_PATH scheitert beim
+    Öffnen der Sperrdatei, also vor jedem Abruf (fail-closed)."""
     if not host:
         raise ValueError("URL ohne Host")
-    host = host.lower()
-    if len(host) <= 100 and _HOSTNAME.fullmatch(host) and host.split(".")[0] not in _GERAETE:
+    adresse, zone, rest = host.partition("%")
+    host = adresse.lower() + zone + rest
+    if len(host) <= 253 and _HOSTNAME.fullmatch(host) and host.split(".")[0] not in _GERAETE:
         return host
     return "h--" + hashlib.sha256(host.encode("utf-8", "surrogatepass")).hexdigest()
 
@@ -197,7 +200,7 @@ def gesperrt_bis(domain):
         grund = s.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as e:
         return f"Sperrvermerk nicht lesbar ({type(e).__name__})"
-    return grund or "Sperrvermerk ohne Grund"
+    return grund if grund.strip() else "Sperrvermerk ohne Grund"   # r1: auch nur Leerraum ergibt einen sichtbaren Grund
 
 
 def holen(url):
@@ -385,6 +388,9 @@ def robots_text(scheme, host, port):
 
 
 def robots_ok(url):
+    # r1 R5-05: urlsplit entfernt Tabulator, CR und LF still (z. B. „:	“ → Standardport), der HTTP-Client nicht
+    if any(ord(c) <= 32 or ord(c) == 127 for c in url):
+        return False, "URL mit Leer- oder Steuerzeichen"
     teile = urllib.parse.urlsplit(url)
     for m in GESPERRT_PFADE:
         if re.search(m, teile.path + ("?" + teile.query if teile.query else "")):

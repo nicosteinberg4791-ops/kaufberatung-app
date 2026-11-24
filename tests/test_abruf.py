@@ -167,6 +167,13 @@ class Robots(unittest.TestCase):
                     abruf.robots_ursprung(teile(url))
         self.assertEqual(abruf.robots_ursprung(teile("https://h.invalid/a")), ("https", "h.invalid", 443))
         self.assertEqual(abruf.robots_ursprung(teile("https://h.invalid:/a")), ("https", "h.invalid", 443))
+        with unittest.mock.patch.object(abruf, "holen") as h:   # Codex r1: urlsplit entfernt Tab, CR und LF still
+            for url in ("https://h.invalid:" + chr(9) + "/a", "https://h.invalid:" + chr(13) + chr(10) + "/a",
+                        "https://h.inv" + chr(9) + "alid/a", "https://h.invalid/a b", "https://h.invalid/" + chr(127),
+                        "https://h.invalid/a" + chr(10)):
+                with self.subTest(url=url):
+                    self.assertEqual(abruf.robots_ok(url), (False, "URL mit Leer- oder Steuerzeichen"))
+            h.assert_not_called()
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
             with unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nAllow: /\n") as h:
                 self.assertTrue(abruf.robots_ok("https://h.invalid/a")[0])
@@ -457,19 +464,23 @@ class Domainsperre(unittest.TestCase):
         self.assertEqual(abruf.host_schluessel("h.invalid"), "h.invalid")
         self.assertEqual(abruf.host_schluessel("www.saturn.de"), "www.saturn.de")
         hosts = ["2001:db8::1", "2001_db8__1", "2001-db8--1", "[2001:db8::1]", "fe80::1%25eth0", "con", "con.example",
-                 "nul", "lpt1.x", "com¹", "bücher.de", "h.invalid.", ".h", "a..b", "-a", "a-", "x" * 64, "a" * 50 + "." + "b" * 50,
-                 "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 61, "h.invalid", "h_x", "h--" + "0" * 60]
+                 "nul", "lpt1.x", "com¹", "bücher.de", "h.invalid.", ".h", "a..b", "-a", "a-", "x" * 64, "fe80::1%25ethA", "fe80::1%25etha",
+                 "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 62, "h.invalid", "h_x", "h--" + "0" * 60]
         schluessel = [abruf.host_schluessel(h) for h in hosts]
         self.assertEqual(len(set(schluessel)), len(schluessel), list(zip(hosts, schluessel)))
         for h, s in zip(hosts, schluessel):
             with self.subTest(host=h):
-                self.assertRegex(s, r"\A[a-z0-9.-]{1,100}\Z")
+                self.assertRegex(s, r"\A[a-z0-9.-]{1,253}\Z")
                 self.assertNotIn(s.split(".")[0], {"con", "prn", "aux", "nul", "com1", "lpt1"})
                 if h in ("h.invalid", "2001-db8--1", "h--" + "0" * 60):   # gewöhnlicher Hostname (auch mit „--“ wie xn--) bleibt
                     self.assertEqual(s, h)
                 else:   # Hash-Name: erste Komponente länger als 63 Zeichen, also nie ein gewöhnlicher Hostname
                     self.assertRegex(s, r"\Ah--[0-9a-f]{64}\Z", h)
         self.assertEqual(abruf.host_schluessel("H.Invalid"), "h.invalid", "Groß-/Kleinschreibung wie urlsplit")
+        self.assertEqual(abruf.host_schluessel("FE80::1%25etha"), abruf.host_schluessel("fe80::1%25etha"),
+                         "Adresse klein, Zonen-ID unverändert (Codex r1 R6-02a)")
+        for lang in ("a" * 50 + "." + "b" * 50, "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 61):
+            self.assertEqual(abruf.host_schluessel(lang), lang, "gewöhnlicher Hostname bis 253 Zeichen bleibt (r1 R6-02b)")
         for leer in ("", None):
             with self.assertRaises(ValueError):
                 abruf.host_schluessel(leer)
@@ -493,7 +504,7 @@ class Domainsperre(unittest.TestCase):
             self.assertTrue(abruf.gesperrt_bis("2001:db8::1"))
 
     def test_sperrvermerk_nur_sicher_fehlend_heisst_frei(self):
-        """R2-04: nur ein sicher fehlender oder ein über 30 min alter, lesbarer Sperrvermerk heißt „nicht gesperrt“.
+        """R2-04: nur ein sicher fehlender oder ein über 30 min alter, normaler Sperrvermerk (Inhalt egal: abgelaufen) heißt „nicht gesperrt“.
         Link ohne Ziel (Windows: Junction), Ordner, Prüf- oder Lesefehler, nicht dekodierbarer und leerer Inhalt sperren."""
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
             vermerk = Path(t) / "h.invalid.gesperrt"
@@ -502,10 +513,11 @@ class Domainsperre(unittest.TestCase):
             self.assertEqual(abruf.gesperrt_bis("h.invalid"), "HTTP 403")
             os.utime(vermerk, (time.time() - 1801, time.time() - 1801))
             self.assertIsNone(abruf.gesperrt_bis("h.invalid"), "nach 30 min frei")
-            for inhalt in (b"", b"\xff\xfe\x81"):
+            for inhalt in (b"", b"\xff\xfe\x81", b" \n\t"):
                 with self.subTest(inhalt=inhalt):
                     vermerk.write_bytes(inhalt)
-                    self.assertTrue(abruf.gesperrt_bis("h.invalid"), "leer oder nicht dekodierbar sperrt")
+                    grund = abruf.gesperrt_bis("h.invalid")
+                    self.assertTrue(grund and grund.strip(), "leer, Leerraum oder nicht dekodierbar sperrt sichtbar")
             echt_lstat, echt_lesen = os.lstat, Path.read_text
             for fehler in (PermissionError("keine Rechte"), OSError(5, "Ein-/Ausgabefehler")):
                 def lstat(p, *a, **k):
