@@ -4,11 +4,11 @@
    zuerst vom Netz (frisch, sonst letzter gültiger Stand aus dem Cache),
    Google-Schrift aus dem Laufzeit-Cache (veraltet-und-erneuern). Neue Fassung wartet, bis die Seite "jetzt" sagt. */
 "use strict";
-const VERSION = "2c1dcb1d9691";
+const VERSION = "1045baedfc64";
 const APP = "kb-app-" + VERSION;
 const LAUFZEIT = "kb-laufzeit";
 const DATEN = "kb-daten";            // preise.json, finder-*.json, Wunschpreise (Spiegel aus der Seite), gemeldete Treffer
-const DATEIEN = ["./", "index.html", "ratgeber.html", "app.js?v=2c1dcb1d9691", "app.css?v=2c1dcb1d9691", "finder.css?v=2c1dcb1d9691", "bewertung.js?v=2c1dcb1d9691", "finder-app.js?v=2c1dcb1d9691", "finder.js?v=2c1dcb1d9691", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
+const DATEIEN = ["./", "index.html", "ratgeber.html", "app.js?v=1045baedfc64", "app.css?v=1045baedfc64", "finder.css?v=1045baedfc64", "bewertung.js?v=1045baedfc64", "finder-app.js?v=1045baedfc64", "finder.js?v=1045baedfc64", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-192.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
 const SCHRIFT = ["https://fonts.googleapis.com", "https://fonts.gstatic.com"];
 // Dieselbe Strukturprüfung wie die Seite (F-08): eine beschädigte finder-daten.json ersetzt die Cachekopie nicht
 importScripts("bewertung.js?v=" + VERSION);
