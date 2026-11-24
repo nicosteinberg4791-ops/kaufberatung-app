@@ -126,6 +126,16 @@
    "url": "https://www.bowerswilkins.com/en-us/product/over-ear-headphones/px8-s2/301021.html",
    "titel": "Bowers & Wilkins Produktseite Px8 S2 (Details & Specifications)",
    "gelesen": "2026-11-21"
+  },
+  "sonos-ace-hersteller": {
+   "url": "https://www.sonos.com/de-de/shop/sonos-ace-black",
+   "titel": "Sonos Ace Produktseite",
+   "gelesen": "2026-11-23"
+  },
+  "sat-sonos-ace": {
+   "url": "https://www.saturn.de/de/product/_sonos-sonos-ace-over-ear-sonos-ace-bluetooth-schwarz-2935155.html",
+   "titel": "Saturn Datenblatt Sonos Ace",
+   "gelesen": "2026-11-23"
   }
  },
  "modelle": [
@@ -694,6 +704,44 @@
       "haendler": "Saturn",
       "url": "https://www.saturn.de/de/product/_bowers-and-wilkins-px8-s2-over-ear-kopfhorer-bluetooth-warm-stone-3019366.html",
       "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sonos-ace",
+   "hersteller": "Sonos",
+   "name": "Ace",
+   "werte": {
+    "anc": true,
+    "akku_h": 30,
+    "gewicht_g": 312,
+    "multipoint": true,
+    "app_eq": true,
+    "kabelbetrieb": true,
+    "faltbar": false,
+    "transparenzmodus": true
+   },
+   "belege": {
+    "anc": "sonos-ace-hersteller",
+    "akku_h": "sonos-ace-hersteller",
+    "gewicht_g": "sat-sonos-ace",
+    "multipoint": "sonos-ace-hersteller",
+    "app_eq": "sonos-ace-hersteller",
+    "kabelbetrieb": "sonos-ace-hersteller",
+    "faltbar": "sat-sonos-ace",
+    "transparenzmodus": "sonos-ace-hersteller"
+   },
+   "varianten": [
+    {
+     "id": "sonos-ace-schwarz",
+     "name": "Schwarz",
+     "mpn": "ACEG1R21BLK",
+     "preis": {
+      "eur": 179.99,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_sonos-sonos-ace-over-ear-sonos-ace-bluetooth-schwarz-2935155.html",
+      "stand": "2026-11-23"
      }
     }
    ]

@@ -352,8 +352,9 @@ def main(argv=None):
     neu = git("commit-tree", baum, "-p", eltern, "-m", f"App {v} (Stand {head[:12]})", cwd=SEITEN).stdout.strip()
     git("update-ref", "--no-deref", "HEAD", neu, eltern, cwd=SEITEN)   # Seitenbaum steht danach sauber auf dem Commit
     # R5-03: nur wenn gh-pages auf GitHub noch genau der geprüfte Elterncommit ist (nicht zurückgesetzt, nicht gelöscht)
-    r = git("push", "-q", f"--force-with-lease=refs/heads/gh-pages:{eltern}", "origin", f"{neu}:refs/heads/gh-pages",
-            cwd=SEITEN, check=False)
+    # A3: --no-follow-tags, damit push.followTags=true keine lokalen Tags am gh-pages-Verlauf mit veröffentlicht
+    r = git("push", "-q", "--no-follow-tags", f"--force-with-lease=refs/heads/gh-pages:{eltern}", "origin",
+            f"{neu}:refs/heads/gh-pages", cwd=SEITEN, check=False)
     if r.returncode != 0:
         print("Push abgelehnt (gh-pages ist nicht mehr der geprüfte Elterncommit), erneut starten:", r.stderr.strip())
         return 1

@@ -1,0 +1,7 @@
+{
+  "urteil": "bestanden",
+  "zusammenfassung": "A2-01 ist in Commit 6a0a396 geschlossen. Bei jedem OSError außer FileNotFoundError wartet sperre_holen genau einmal ABSTAND und liest den Stempel dabei nicht. Nur nach erfolgreichem lstat entscheidet der Stempelinhalt. Die Zweigproben bestätigten auch die Sperrfreigabe bei einem Abbruch während des Wartens. Im geprüften Ablauf gibt es keine weitere Instanz dieser Fehlerklasse. Die Datenbankprüfung ergab „Fehler 0“.",
+  "befunde": [],
+  "geschlossen": ["A2-01"],
+  "pruefgrenzen": "Nachprüfung gemäß O21 auf A2-01 begrenzt. R2-02, R2-03, A1-01 und R2-01 sind akzeptierte Restrisiken. R2-04 (gesperrt_bis) liegt außerhalb des Prüfumfangs. Der Sammellauf schreibt ein lokales Protokoll und wurde wegen des rein lesenden Auftrags nicht wiederholt. „Fehler: 0“ stammt dafür aus der Selbstprüfung des Bauers."
+}

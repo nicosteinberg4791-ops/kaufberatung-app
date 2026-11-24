@@ -131,6 +131,21 @@
    "url": "https://www.karcher.com/de/de/home-and-garden/produkte/vc-6-cordless-ourfamily-p11986700",
    "titel": "Kärcher VC 6 Cordless ourFamily Produktseite",
    "gelesen": "2026-11-21"
+  },
+  "sat-dreame-z20": {
+   "url": "https://www.saturn.de/de/product/_dreame-z20-stielsauger-akkubetrieb-296-volt-2941590.html",
+   "titel": "Saturn Datenblatt Dreame Z20",
+   "gelesen": "2026-11-23"
+  },
+  "bosch-bcu52bba-hersteller": {
+   "url": "https://www.bosch-home.com/se/sv/product/dammsugare/sladdlosa-dammsugare/unlimited/unlimited5/BCU52BBA",
+   "titel": "Bosch Unlimited 5 BCU52BBA Herstellerseite (Schweden)",
+   "gelesen": "2026-11-23"
+  },
+  "miele-duoflex-hx1-hersteller": {
+   "url": "https://www.miele.de/product/12831360/akku-staubsauger-duoflex-hx1-red-pulse-rubinrot",
+   "titel": "Miele Duoflex HX1 Red Pulse Produktdatenblatt",
+   "gelesen": "2026-11-23"
   }
  },
  "modelle": [
@@ -952,6 +967,119 @@
       "5025155114858"
      ],
      "preis": null
+    }
+   ]
+  },
+  {
+   "id": "dreame-z20",
+   "hersteller": "Dreame",
+   "name": "Z20",
+   "werte": {
+    "laufzeit_min": 90,
+    "saugleistung_aw": 250,
+    "wechselakku": true,
+    "behaelter_l": 0.6,
+    "geraeusch_db": 84,
+    "ladezeit_h": 4,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "sat-dreame-z20",
+    "saugleistung_aw": "sat-dreame-z20",
+    "wechselakku": "sat-dreame-z20",
+    "behaelter_l": "sat-dreame-z20",
+    "geraeusch_db": "sat-dreame-z20",
+    "ladezeit_h": "sat-dreame-z20",
+    "polsterduese": "sat-dreame-z20"
+   },
+   "varianten": [
+    {
+     "id": "dreame-z20",
+     "name": "Standard",
+     "mpn": "VZV16A",
+     "ean": [
+      "6976233677248"
+     ],
+     "preis": {
+      "eur": 229.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_dreame-z20-stielsauger-akkubetrieb-296-volt-2941590.html",
+      "stand": "2026-11-23"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bosch-unlimited-5-bcu52bba",
+   "hersteller": "Bosch",
+   "name": "Unlimited 5 BCU52BBA",
+   "werte": {
+    "laufzeit_min": 50,
+    "gewicht_kg": 2.6,
+    "wechselakku": true,
+    "behaelter_l": 0.3,
+    "geraeusch_db": 85,
+    "ladezeit_h": 4
+   },
+   "belege": {
+    "laufzeit_min": "bosch-bcu52bba-hersteller",
+    "gewicht_kg": "bosch-bcu52bba-hersteller",
+    "wechselakku": "bosch-bcu52bba-hersteller",
+    "behaelter_l": "bosch-bcu52bba-hersteller",
+    "geraeusch_db": "bosch-bcu52bba-hersteller",
+    "ladezeit_h": "bosch-bcu52bba-hersteller"
+   },
+   "varianten": [
+    {
+     "id": "bosch-unlimited-5-bcu52bba",
+     "name": "Schwarz",
+     "mpn": "BCU52BBA",
+     "ean": [
+      "4242005605842"
+     ],
+     "preis": {
+      "eur": 169.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_bosch-bcu52bba-akku-staubsauger-akkubetrieb-3072389.html",
+      "stand": "2026-11-23"
+     }
+    }
+   ]
+  },
+  {
+   "id": "miele-duoflex-hx1-red-pulse",
+   "hersteller": "Miele",
+   "name": "Duoflex HX1 Red Pulse",
+   "werte": {
+    "laufzeit_min": 55,
+    "gewicht_kg": 3.1,
+    "behaelter_l": 0.3,
+    "geraeusch_db": 79,
+    "ladezeit_h": 3.5,
+    "polsterduese": true
+   },
+   "belege": {
+    "laufzeit_min": "miele-duoflex-hx1-hersteller",
+    "gewicht_kg": "miele-duoflex-hx1-hersteller",
+    "behaelter_l": "miele-duoflex-hx1-hersteller",
+    "geraeusch_db": "miele-duoflex-hx1-hersteller",
+    "ladezeit_h": "miele-duoflex-hx1-hersteller",
+    "polsterduese": "miele-duoflex-hx1-hersteller"
+   },
+   "varianten": [
+    {
+     "id": "miele-duoflex-hx1-red-pulse",
+     "name": "Rubinrot",
+     "mpn": "12831360",
+     "ean": [
+      "4002516897033"
+     ],
+     "preis": {
+      "eur": 249.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_miele-duoflex-hx1-red-pulse-stielsauger-akkubetrieb-3005296.html",
+      "stand": "2026-11-23"
+     }
     }
    ]
   }

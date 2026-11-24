@@ -111,6 +111,11 @@
    "url": "https://www.alternate.de/Xiaomi/5-EU-Saugroboter/html/product/100164016",
    "titel": "Alternate Produktseite Xiaomi 5 EU",
    "gelesen": "2026-11-21"
+  },
+  "sat-dreame-x50-ultra-complete": {
+   "url": "https://www.saturn.de/de/product/_dreame-x50-ultra-complete-black-saugroboter-2968428.html",
+   "titel": "Saturn Datenblatt Dreame X50 Ultra Complete",
+   "gelesen": "2026-11-23"
   }
  },
  "modelle": [
@@ -884,6 +889,41 @@
       "haendler": "Alternate",
       "url": "https://www.alternate.de/Xiaomi/5-EU-Saugroboter/html/product/100164016",
       "stand": "2026-11-21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "dreame-x50-ultra-complete",
+   "hersteller": "Dreame",
+   "name": "X50 Ultra Complete",
+   "werte": {
+    "navigation": "lidar",
+    "saugleistung_pa": 20000,
+    "hinderniserkennung": "kamera_ki",
+    "absaugstation": true,
+    "laufzeit_min": 200
+   },
+   "belege": {
+    "navigation": "sat-dreame-x50-ultra-complete",
+    "saugleistung_pa": "sat-dreame-x50-ultra-complete",
+    "hinderniserkennung": "sat-dreame-x50-ultra-complete",
+    "absaugstation": "sat-dreame-x50-ultra-complete",
+    "laufzeit_min": "sat-dreame-x50-ultra-complete"
+   },
+   "varianten": [
+    {
+     "id": "dreame-x50-ultra-complete-schwarz",
+     "name": "Schwarz",
+     "mpn": "RLX85CE-1",
+     "ean": [
+      "6977328065568"
+     ],
+     "preis": {
+      "eur": 569.0,
+      "haendler": "Saturn",
+      "url": "https://www.saturn.de/de/product/_dreame-x50-ultra-complete-black-saugroboter-2968428.html",
+      "stand": "2026-11-23"
      }
     }
    ]

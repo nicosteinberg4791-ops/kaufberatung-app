@@ -161,6 +161,103 @@ class Bau(unittest.TestCase):
             self.assertEqual((self.dist / d).read_text(encoding="utf-8"), '{"test": 1}')
             (self.dist / d).unlink()
 
+    def test_ziel_muss_neu_oder_leer_sein(self):
+        """A1: `--ziel` auf ein vorhandenes, nicht leeres Verzeichnis (z. B. `--ziel .` im Projektordner) bricht vor
+        dem ersten Löschen ab; ein leeres oder neues Verzeichnis ist erlaubt."""
+        with tempfile.TemporaryDirectory() as t:
+            ordner = Path(t) / "projekt"
+            (ordner / "app").mkdir(parents=True)
+            (ordner / "wichtig.txt").write_text("x", encoding="utf-8")
+            r = subprocess.run([sys.executable, "-I", "-X", "utf8", str(self.kopie / "werkzeuge" / "app_bauen.py"),
+                                "--ziel", "."], cwd=ordner, capture_output=True, text=True, encoding="utf-8")
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn("nicht leer", r.stderr)
+            self.assertEqual(sorted(p.name for p in ordner.iterdir()), ["app", "wichtig.txt"], "nichts gelöscht")
+            datei = Path(t) / "datei.txt"
+            datei.write_text("x", encoding="utf-8")
+            r = subprocess.run([sys.executable, "-I", "-X", "utf8", str(self.kopie / "werkzeuge" / "app_bauen.py"),
+                                "--ziel", str(datei)], capture_output=True, text=True, encoding="utf-8")
+            self.assertNotEqual(r.returncode, 0, "eine Datei ist kein Ziel")
+            self.assertIn("nicht leer", r.stderr, "Abbruch durch die Prüfung, nicht erst beim Schreiben")
+            self.assertEqual(datei.read_text(encoding="utf-8"), "x")
+            for name in ("leer", "neu"):
+                z = Path(t) / name
+                if name == "leer":
+                    z.mkdir()
+                r = subprocess.run([sys.executable, "-I", "-X", "utf8", str(self.kopie / "werkzeuge" / "app_bauen.py"),
+                                    "--ziel", str(z)], capture_output=True, text=True, encoding="utf-8")
+                self.assertEqual(r.returncode, 0, r.stderr)
+                self.assertTrue((z / "version.json").exists(), name)
+
+
+class BauZiel(unittest.TestCase):
+    def test_eigenes_ziel_wird_nie_aufgeraeumt_oder_ueberschrieben(self):
+        """A1/Codex A1-01: Das Ziel ist bei der Leerprüfung leer, danach legt ein anderer Vorgang `wichtig.txt` und
+        `version.json` (gleicher Name wie eine Bauausgabe) an. Der Bau löscht und überschreibt im eigenen Ziel nichts,
+        bricht ab und lässt kein Bauverzeichnis liegen (aufgeräumt wird nur dist/)."""
+        with tempfile.TemporaryDirectory() as t:
+            z = Path(t) / "ziel"
+            z.mkdir()
+            echt, erster = Path.iterdir, []
+
+            def iterdir(p):
+                if p == z and not erster:
+                    erster.append(1)
+                    (z / "wichtig.txt").write_text("x", encoding="utf-8")   # nach der Leerprüfung sichtbar
+                    (z / "version.json").write_text("fremd", encoding="utf-8")
+                    return iter(())
+                return echt(p)
+            with mock.patch.object(Path, "iterdir", iterdir), self.assertRaises(SystemExit) as e:
+                app_bauen.baue(daten_herkunft="a" * 40, ziel=z)
+            self.assertIn("nicht mehr leer", str(e.exception))
+            self.assertEqual(erster, [1])
+            self.assertEqual((z / "wichtig.txt").read_text(encoding="utf-8"), "x")
+            self.assertEqual((z / "version.json").read_text(encoding="utf-8"), "fremd", "nicht überschrieben")
+            self.assertEqual(sorted(p.name for p in Path(t).iterdir()), ["ziel"], "kein Bauverzeichnis liegen geblieben")
+
+    def test_gescheitertes_umbenennen_laesst_das_leere_ziel(self):
+        """Codex R2-03: scheitert os.rename nach dem Entfernen des leeren Ziels, ist das Ziel danach wieder da (leer)
+        und kein Bauverzeichnis bleibt liegen."""
+        with tempfile.TemporaryDirectory() as t:
+            z = Path(t) / "ziel"
+            z.mkdir()
+            with mock.patch.object(app_bauen.os, "rename", side_effect=PermissionError("gesperrt")), \
+                    self.assertRaises(PermissionError):
+                app_bauen.baue(daten_herkunft="a" * 40, ziel=z)
+            self.assertTrue(z.is_dir())
+            self.assertEqual(list(z.iterdir()), [])
+            self.assertEqual(sorted(p.name for p in Path(t).iterdir()), ["ziel"])
+
+    def test_rest_des_bauverzeichnisses_wird_gemeldet(self):
+        """Codex R2-02: lässt sich das eigene Bauverzeichnis nach einem Abbruch nicht entfernen, meldet der Bau das."""
+        import contextlib
+        import io
+        with tempfile.TemporaryDirectory() as t:
+            z, fehler = Path(t) / "neu", io.StringIO()
+            with mock.patch.object(app_bauen, "_baue", side_effect=RuntimeError("Bau kaputt")), \
+                    mock.patch.object(app_bauen.shutil, "rmtree"), contextlib.redirect_stderr(fehler), \
+                    self.assertRaises(RuntimeError):
+                app_bauen.baue(daten_herkunft="a" * 40, ziel=z)
+            self.assertIn("nicht vollständig entfernt", fehler.getvalue())
+            self.assertFalse(z.exists())
+
+    def test_bau_schreibt_nur_ins_eigene_bauverzeichnis(self):
+        """Codex A1-01: Bis zum Ersetzen am Ende entsteht im Ziel nichts; ein neues Ziel enthält danach den Bau."""
+        with tempfile.TemporaryDirectory() as t:
+            z = Path(t) / "neu"
+            gesehen = []
+            echt = app_bauen._baue
+
+            def baue_und_pruefe(daten_herkunft, dist, anzeige, aufraeumen=False):
+                ergebnis = echt(daten_herkunft, dist, anzeige, aufraeumen)
+                gesehen.append((z.exists(), Path(dist).parent == Path(t), aufraeumen))
+                return ergebnis
+            with mock.patch.object(app_bauen, "_baue", baue_und_pruefe):
+                app_bauen.baue(daten_herkunft="a" * 40, ziel=z)
+            self.assertEqual(gesehen, [(False, True, False)])
+            self.assertTrue((z / "version.json").exists())
+            self.assertEqual(sorted(p.name for p in Path(t).iterdir()), ["neu"])
+
 
 class Version(unittest.TestCase):
     def test_vorlagen_aendern_die_version(self):
@@ -401,6 +498,17 @@ class Veroeffentlichen(unittest.TestCase):
                 else:
                     self.assertEqual(r.stdout.strip(), e["g"](e["ursprung"], "rev-parse", e["eltern"] + "^"),
                                      "gh-pages bleibt auf dem Vorgänger")
+
+    def test_follow_tags_veroeffentlicht_keine_tags(self):
+        """A3: push.followTags=true und ein annotiertes Tag am gh-pages-Elterncommit: gepusht wird nur gh-pages."""
+        def vorher(quelle, head):
+            for a in (("config", "push.followTags", "true"), ("fetch", "-q", "origin", "gh-pages"),
+                      ("tag", "-a", "-m", "lokal", "lokal-ungeprueft", "FETCH_HEAD")):
+                subprocess.run(["git", "-C", str(quelle), *a], check=True, capture_output=True, text=True)
+        e = self._lauf(self._gut, vorher=vorher)
+        self.assertEqual(e["code"], 0)
+        self.assertNotEqual(e["oben"], e["eltern"], "gh-pages gepusht")
+        self.assertEqual(e["g"](e["ursprung"], "tag", "-l"), "", "kein Tag auf dem Server")
 
     def test_bau_liest_genau_den_geprueften_commit(self):
         """R5-04: eine vorübergehende Änderung im Arbeitsbaum während des Baus gelangt nicht auf gh-pages."""
