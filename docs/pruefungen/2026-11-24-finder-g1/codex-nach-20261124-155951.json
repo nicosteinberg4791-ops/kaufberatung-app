@@ -1,0 +1,35 @@
+{
+  "urteil": "bestanden_mit_hinweisen",
+  "zusammenfassung": "Die vier ursprünglichen Befunde sind im jeweils beschriebenen Fall behoben. Zwei Lücken bleiben bei der Klassenprüfung: Der Fokus auf einer Bereichsüberschrift geht beim Neuaufbau verloren, und beim Verlassen des Ergebnisses werden laufende FLIP-Animationen nicht ausdrücklich abgebrochen. Keine kritischen oder schweren Befunde.",
+  "befunde": [
+    {
+      "id": "G1-R3-01",
+      "schwere": "mittel",
+      "titel": "Neuaufbau erhält den offenen Bereich, aber nicht den Fokus auf seiner Überschrift",
+      "datei": "app/finder/finder.js",
+      "zeile": 567,
+      "beleg": "Lesende DOM-Probe: Fernseher-Ergebnis bei 500 € öffnen, „So kommt die Note zustande“ aufklappen, dessen `summary` fokussieren und per `popstate` auf 900 € wechseln. Der neue Bereich bleibt offen, aber sein neues `summary` erhält den Fokus nicht. Das `summary` hat in Zeile 681 kein `data-fokus`; ohne diesen Schlüssel greift die Wiederherstellung in Zeile 601 nicht. Auch die beiden anderen `summary`-Elemente haben keinen Fokusschlüssel.",
+      "auswirkung": "Bei einer Neuberechnung per Browserverlauf geht die Tastaturposition verloren, obwohl dieselbe Bereichsüberschrift weiterhin verfügbar ist.",
+      "vorschlag": "Den Bereichsüberschriften stabile Fokusschlüssel geben und prüfen, dass der Neuaufbau den Fokus auf das neue `summary` setzt. Ein fokussierbares `summary` muss dafür nicht seinen eigenen Bereich öffnen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "G1-R3-02",
+      "schwere": "mittel",
+      "titel": "Beim Verlassen des Ergebnisses fehlt der FLIP-Abbruch",
+      "datei": "app/finder/finder.js",
+      "zeile": 1005,
+      "beleg": "Lesende DOM-Probe mit instrumentierten Animationsobjekten: Eine Rangumordnung per Regler starten und bei laufender Animation von `s=ergebnis` nach `s=budget` wechseln. Die Rangliste wird entfernt, aber die Animationsobjekte erhalten keinen `cancel()`-Aufruf. Der Schirmwechsel trennt den Glas-Beobachter, ruft aber weder `gleitenStoppen()` noch auf dem Zielschirm `rangGleiten()` auf.",
+      "auswirkung": "Die App hält die Animationsobjekte der entfernten Rangliste weiter fest, bis ein späterer Ergebnisaufbau oder die Bewegungsreduktion sie aufräumt. Eine sichtbare Bewegung auf dem Budgetschirm ist damit nicht nachgewiesen.",
+      "vorschlag": "Die laufenden FLIP-Animationen beim vollständigen Schirmwechsel abbrechen. Den Wechsel mit nachweislich laufender Animation als eigenen Testfall ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "G1-R2-01: Der konkrete Adresswechsel erhält den offenen Reglerbereich, Stufe 4 und den Fokus auf dem Tuner-Regler. Der Restbefund zur Bereichsüberschrift ist separat erfasst.",
+    "G1-R2-02: Bewegungsreduktion bricht laufende FLIP-Animationen ab und verhindert neue. Der ältere `addListener`-Pfad bricht ebenfalls ab; ohne `matchMedia` bleiben Start und Navigation funktionsfähig. Der Restbefund zum Schirmwechsel ist separat erfasst.",
+    "G1-R2-03: Auf demselben Ergebnisschirm werden bei 900 € und 300 € jeweils null Karten und null Beobachtungsziele geprüft. Der getrennte Schirmwechsel startet mit beobachteter Karte. Die `disconnect()`-Mutante lässt G1-04 fehlschlagen.",
+    "G1-R2-04: Die Probe prüft vorhandene Bildtechnik mit echten 0 Teilpunkten, sichtbarer 0 und dem zugänglichen Namen „0 von 100 Teilpunkten“. Die Mutante `const fehlt = !z.tp` lässt G1-02 fehlschlagen."
+  ],
+  "pruefgrenzen": "Nachprüfung des bezeichneten Diffs, keine Voll- oder Browserprüfung. Alle vier beauftragten Hinweise haben eine Klassenangabe. Node-Tests auf dem geprüften Stand: 70/70 grün. Mit `finder.js` aus b7f5b24 im Speicher: 32 grün, nur G1-R2-01 und G1-R2-02 rot. Beide Mutanten wurden ausschließlich im Speicher geprüft. Den schreibenden PowerShell-Sammellauf nicht ausgeführt; „Fehler: 0 · Warnungen: 0“ ist die Angabe des Leads. Der laufende weiche Vergleichssprung und die Übernahme offener Bereiche nach Inhalt blieben wie vereinbart außerhalb des Prüfumfangs."
+}
