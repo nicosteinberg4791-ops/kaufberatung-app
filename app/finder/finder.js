@@ -74,7 +74,8 @@
   let glasBeobachter = null; // G1: Lichtstreif der Glas-Hinweise nur, solange sichtbar
   const wurzel = document.getElementById("inhalt");
   const fuss = document.getElementById("datenstand");
-  const reduziert = (() => { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } })();
+  // G1-05: bei jeder Bewegung neu fragen, damit eine geänderte Einstellung ohne Neuladen gilt
+  const reduziert = () => { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } };
 
   /* G1: fünf Stufen je Merkmal; Faktoren in bewertung.js (PRIO_FAKTOREN), „normal“ (2) steht nie in der Adresse */
   const PRIO_NAMEN = ["aus", "weniger", "normal", "mehr", "viel mehr"];
@@ -449,10 +450,17 @@
     if (!(g > 0)) return "zählt nicht";
     return g < 0.5 ? "zählt unter 1 %" : "zählt " + Math.round(g) + " %";
   }
-  function reglerPanel(kat) {
-    // Reihenfolge nach dem Gewicht aus den Antworten (ohne Regler), damit die Liste beim Ziehen nicht springt
+  // Reihenfolge nach dem Gewicht aus den Antworten (ohne Regler), damit die Liste beim Ziehen nicht springt
+  function reglerFelder(kat) {
     const basis = B.gewichte(kat, antwortenWirksam(kat));
-    const felder = kat.felder.filter(f => basis[f.id] > 0).sort((a, b) => basis[b.id] - basis[a.id]);
+    return kat.felder.filter(f => basis[f.id] > 0).sort((a, b) => basis[b.id] - basis[a.id]);
+  }
+  // G1-01: welche Regler stehen gerade; ändert sich die Feldauswahl (Adresse, Zurück), wird das Panel neu gebaut
+  const reglerSchluessel = felder => felder.map(f => f.id).join("~");
+  let reglerStand = null;
+  function reglerPanel(kat) {
+    const felder = reglerFelder(kat);
+    reglerStand = reglerSchluessel(felder);
     const panel = h("section", { id: "prio", class: "panel prio", "aria-labelledby": "prio-titel", hidden: !felder.length });
     if (!felder.length) return panel;
     const zeile = f => {
@@ -509,7 +517,7 @@
   /* FLIP (240 ms, nur transform): Einträge der Rangliste gleiten an ihren neuen Platz; reduziert: sofort */
   function rangLagen(teil) {
     const lagen = new Map();
-    if (!teil || reduziert) return lagen;
+    if (!teil || reduziert()) return lagen;
     for (const li of alleKnoten(teil)) {
       const id = li.getAttribute && li.getAttribute("data-modell");
       if (id && li.getBoundingClientRect) lagen.set(id, li.getBoundingClientRect().top - teil.getBoundingClientRect().top);
@@ -707,7 +715,8 @@
       const tp = fehlt ? 0 : prozent(z.tp);
       return h("li", { class: "hz" + (fehlt ? " fehlt" : "") }, [
         h("p", { class: "hz-kopf" }, [h("span", { class: "hz-name", text: f.name }), h("span", { class: "hz-anteil", text: anteilText(z.gewicht) })]),
-        h("div", { class: "hz-bahn", role: "img", "aria-label": fehlt ? "nicht angegeben, 0 Punkte" : Math.round(tp) + " von 100 Teilpunkten" },
+        // G1-02: fehlende Werte zählen nicht als 0 Teilpunkte (bewertung.js nimmt sie aus dem Mittel)
+        h("div", { class: "hz-bahn", role: "img", "aria-label": fehlt ? "nicht angegeben" : Math.round(tp) + " von 100 Teilpunkten" },
           fehlt ? [] : [h("span", { class: "hz-balken", style: "width:" + tp + "%" })]),
         h("p", { class: "hz-fuss" }, [h("span", { class: "hz-wert", text: fehlt ? "nicht angegeben" : wertText(f, (e.modell.werte || {})[z.feld]) }),
           h("span", { class: "hz-punkte", "aria-hidden": "true", text: fehlt ? "–" : String(Math.round(tp)) })]),
@@ -763,6 +772,8 @@
 
   /* Glas-Hinweise: Lichtstreif nur, solange die Karte sichtbar ist (reduziert steht er, CSS) */
   function glasBeobachten(teil) {
+    // G1-04: alte Karten immer abmelden, auch wenn keine neuen kommen
+    if (glasBeobachter) glasBeobachter.disconnect();
     const karten = alleKnoten(teil).filter(k => k.classList && k.classList.contains("glas-hin"));
     if (!karten.length) return;
     if (!glasBeobachter && typeof IntersectionObserver === "function") {
@@ -770,7 +781,6 @@
         for (const x of eintraege) x.target.classList.toggle("is-sicht", x.isIntersecting);
       });
     }
-    if (glasBeobachter) glasBeobachter.disconnect();   // alte Karten sind beim Neurechnen schon entfernt
     for (const k of karten) { if (glasBeobachter) glasBeobachter.observe(k); else k.classList.add("is-sicht"); }
   }
 
@@ -891,7 +901,8 @@
     ]);
     const bloecke = reihen.map(f => {
       const zaehlt = gew[f.id] > 0;
-      const tpVon = e => { const t = (e.modell.teilpunkte || {})[f.id]; return typeof t === "number" && isFinite(t) ? t : null; };
+      // G1-03: „Vorn/gleichauf“ aus den angezeigten (gerundeten) Teilpunkten, wie in der Rangliste
+      const tpVon = e => { const t = (e.modell.teilpunkte || {})[f.id]; return typeof t === "number" && isFinite(t) ? Math.round(prozent(t)) : null; };
       const tps = gewaehlt.map(tpVon).filter(x => x !== null).sort((a, b) => b - a);
       let marke = null, vorneId = null;
       if (zaehlt && tps.length >= 2) {
@@ -944,7 +955,7 @@
       h("button", { type: "button", class: "knopf neben", on: { click: () => setze({ v: [] }, false) } }, ["Leeren"]),
       h("button", { type: "button", class: "knopf haupt", disabled: zustand.v.length < 2, on: { click: () => {
         const z = document.getElementById("vgl-titel");
-        if (z) { if (z.scrollIntoView) z.scrollIntoView({ behavior: reduziert ? "auto" : "smooth", block: "start" }); z.focus({ preventScroll: true }); }
+        if (z) { if (z.scrollIntoView) z.scrollIntoView({ behavior: reduziert() ? "auto" : "smooth", block: "start" }); z.focus({ preventScroll: true }); }
       } } }, ["Vergleichen"]),
     ]);
   }
@@ -958,7 +969,7 @@
     else if (kat) schluessel = (zustand.s === "fragen" && !kat.fragen.length ? "ergebnis" : zustand.s) + ":" + kat.id;
     // Im Ergebnis nur den Körper neu füllen, damit Budgetfeld, Schreibmarke und Fokus bleiben
     const koerper = document.getElementById("ergebnis-koerper");
-    if (schluessel === letzterSchirm && schluessel.indexOf("ergebnis:") === 0 && koerper) {
+    if (schluessel === letzterSchirm && schluessel.indexOf("ergebnis:") === 0 && koerper && reglerSchluessel(reglerFelder(kat)) === reglerStand) {
       // Budget kann sich über die Adresse geändert haben (Zurück, Link): Feld und Schnellwahl nachziehen,
       // ein Feld, in dem gerade getippt wird, behält seinen Text
       budgetAnzeigen(zustand.b, document.activeElement);
@@ -967,6 +978,7 @@
       return;
     }
     const fokus = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute("data-fokus") : null;
+    if (glasBeobachter) glasBeobachter.disconnect();   // G1-04: der alte Schirm verschwindet ganz
     budgetTeile = [];
     let schirm;
     if (!kat) schirm = schirmKategorien();

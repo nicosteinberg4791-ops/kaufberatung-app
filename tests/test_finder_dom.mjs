@@ -56,7 +56,7 @@ const text = k => k.textContent.replace(/\s+/g, " ");
 const knopf = (dok, t) => alle(dok.body).find(e => e.tagName === "BUTTON" && text(e).includes(t));
 const warte = () => new Promise(r => setTimeout(r, 10));
 
-async function starte(hash = "", daten = BEISPIEL, preise = null) {
+async function starte(hash = "", daten = BEISPIEL, preise = null, extra = {}) {
   const dok = neuesDokument();
   const ort = { hash, pathname: "/", search: "", reload() {} };
   const geschichte = { eintraege: 0, pushState(s, t, u) { this.eintraege++; ort.hash = String(u).startsWith("#") ? u : ""; }, replaceState(s, t, u) { ort.hash = String(u).startsWith("#") ? u : ""; } };
@@ -73,6 +73,9 @@ async function starte(hash = "", daten = BEISPIEL, preise = null) {
       return { ok: false, status: 404 };
     },
   };
+  // G1-04/G1-05: Proben können Fenster (matchMedia) und Kontext (IntersectionObserver) ersetzen
+  Object.assign(fenster, extra.fenster || {});
+  Object.assign(kontext, extra.kontext || {});
   fenster.KBBewertung = undefined;
   vm.createContext(kontext);
   kontext.self = kontext.window;
@@ -568,4 +571,84 @@ test("G1: Vergleich mit drei Modellen: Farbe je Platz, Name in jeder Bahn, Text 
   assert.equal(alle(vgl).some(e => /farbe-\d/.test(e.className) && e.tagName === "SPAN"), false);
   const voll = alle(dok.body).filter(e => e.tagName === "BUTTON" && e.id.startsWith("vgl-rang-") && e.disabled);
   assert.ok(voll.length >= 1 && voll.every(e => text(e).includes("Vergleich voll (3)")));
+});
+
+// ---------- G1 Codex r1 (G1-01 … G1-05) ----------
+test("G1-01: Wechsel der Ergebnisadresse baut fehlende Regler nach (Antwort, die ein Merkmal abschaltet)", async () => {
+  const app = await starte("#k=fernseher&s=ergebnis&a=ton.ja");
+  assert.equal(app.dok.getElementById("prio-lautsprecher_w"), null, "mit ton.ja zählt die Lautsprecherleistung nicht");
+  await app.zurueck("#k=fernseher&s=ergebnis");
+  assert.ok(app.dok.getElementById("prio-lautsprecher_w"), "nach dem Wechsel zählt sie wieder, also braucht sie einen Regler");
+  const direkt = await starte("#k=fernseher&s=ergebnis");
+  assert.deepEqual(regler(app.dok).map(e => e.id), regler(direkt.dok).map(e => e.id), "wie beim direkten Öffnen");
+  // umgekehrt: abgeschaltetes Merkmal verliert seinen Regler; ohne Feldwechsel bleibt der Regler dasselbe Element
+  await app.zurueck("#k=fernseher&s=ergebnis&a=ton.ja");
+  assert.equal(app.dok.getElementById("prio-lautsprecher_w"), null);
+  const r = regler(app.dok)[0];
+  await app.zurueck("#k=fernseher&s=ergebnis&a=ton.ja&b=900");
+  assert.equal(regler(app.dok)[0], r);
+});
+
+test("G1-02: fehlender Wert heißt in der Punkteherkunft „nicht angegeben“, nicht „0 Punkte“", async () => {
+  const d = JSON.parse(BEISPIEL);
+  for (const m of d.kategorien.find(k => k.id === "fernseher").modelle) { delete m.werte.tuner_triple; delete m.teilpunkte.tuner_triple; }
+  const { dok } = await starte("#k=fernseher&s=ergebnis", JSON.stringify(d));
+  const fehlt = alle(klassen(dok, "empfehlung")[0]).filter(e => e.className === "hz fehlt");
+  assert.ok(fehlt.length >= 1, "Zeile für den fehlenden Wert");
+  for (const z of fehlt) {
+    const bahn = alle(z).find(e => e.className === "hz-bahn");
+    assert.equal(bahn.getAttribute("aria-label"), "nicht angegeben");
+    assert.ok(text(z).includes("nicht angegeben"));
+  }
+});
+
+test("G1-03: Vergleich – Vorn/gleichauf aus den angezeigten Teilpunkten (82,6 vs 80,4 → 83 vs 80 = Vorn +3)", async () => {
+  const d = JSON.parse(BEISPIEL);
+  const [m1, m2] = d.kategorien.find(k => k.id === "fernseher").modelle;
+  m1.teilpunkte.bildtechnik = 82.6; m2.teilpunkte.bildtechnik = 80.4;
+  m1.teilpunkte.hdr_formate = 80.4; m2.teilpunkte.hdr_formate = 82.4;   // 80 vs 82 → gleichauf
+  const { dok } = await starte("#k=fernseher&s=ergebnis&v=" + m1.id + "~" + m2.id, JSON.stringify(d));
+  const block = name => alle(dok.getElementById("vergleich")).find(e => e.className === "vgl-block" && text(alle(e).find(x => x.className === "vgl-feld-name")) === name);
+  const bild = block("Bildtechnik");
+  assert.ok(bild, "Block Bildtechnik");
+  const marke = text(alle(bild).find(e => e.className.startsWith("vgl-marke")));
+  assert.match(marke, /^Vorn: .+ \+3$/);
+  assert.ok(text(bild).includes("83 von 100 Teilpunkten") && text(bild).includes("80 von 100 Teilpunkten"));
+  const hdr = alle(dok.getElementById("vergleich")).filter(e => e.className === "vgl-block").find(e => /HDR/.test(text(e)));
+  assert.equal(text(alle(hdr).find(e => e.className.startsWith("vgl-marke"))), "gleichauf");
+});
+
+test("G1-04: Glas-Beobachter meldet entfernte Hinweiskarten ab (Schirmwechsel, Neurechnen ohne Karten)", async () => {
+  const beobachtet = new Set();
+  class IO { constructor() { this.eigene = new Set(); }
+    observe(k) { this.eigene.add(k); beobachtet.add(k); }
+    disconnect() { for (const k of this.eigene) beobachtet.delete(k); this.eigene.clear(); } }
+  const app = await starte("#k=fernseher&s=ergebnis&b=500", BEISPIEL, null, { kontext: { IntersectionObserver: IO } });
+  assert.ok(beobachtet.size >= 1, "bei 500 € gibt es den Aufpreis-Hinweis");
+  await app.zurueck("#k=fernseher&s=ergebnis");   // Budget egal: Neurechnen ohne Hinweiskarten
+  assert.equal([...beobachtet].every(k => alle(app.dok.body).includes(k)), true, "nur Karten, die noch im Dokument stehen");
+  await app.zurueck("#k=fernseher&s=budget");
+  assert.equal(beobachtet.size, 0, "Budgetschirm: keine Karte mehr beobachtet");
+});
+
+test("G1-05: FLIP fragt die Bewegungseinstellung bei jedem Umordnen neu", async () => {
+  const stand = { reduziert: false };
+  let animiert = 0;
+  Element.prototype.getBoundingClientRect = function () { const p = this.parentNode; return { top: p ? p.childNodes.indexOf(this) * 100 : 0 }; };
+  Element.prototype.animate = function () { animiert++; };
+  try {
+    const { dok } = await starte("#k=fernseher&s=ergebnis", BEISPIEL, null,
+      { fenster: { matchMedia: () => ({ get matches() { return stand.reduziert; } }) } });
+    const vorher = rangNamen(dok);
+    const erster = regler(dok)[0];
+    erster.value = "0"; erster.ausloesen("input");
+    assert.notDeepEqual(rangNamen(dok), vorher, "Probe braucht eine Umordnung");
+    assert.ok(animiert > 0, "ohne Reduktion gleitet die Liste");
+    // Reduktion bei offener Seite einschalten: nächste Umordnung ohne Animation
+    stand.reduziert = true;
+    const n = animiert;
+    erster.value = "2"; erster.ausloesen("input");
+    assert.deepEqual(rangNamen(dok), vorher);
+    assert.equal(animiert, n, "reduziert: sofort, ohne Animation");
+  } finally { delete Element.prototype.getBoundingClientRect; delete Element.prototype.animate; }
 });

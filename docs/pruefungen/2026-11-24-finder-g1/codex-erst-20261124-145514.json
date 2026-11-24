@@ -1,0 +1,63 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Die Abnahme scheitert daran, dass beim Wechsel zwischen Ergebnisadressen ein wirksamer Prioritäten-Regler fehlen kann und fehlende Daten für Screenreader als null Punkte ausgegeben werden.",
+  "befunde": [
+    {
+      "id": "G1-01",
+      "schwere": "schwer",
+      "titel": "Beim Wechsel der Ergebnisadresse kann ein wirksamer Regler fehlen",
+      "datei": "app/finder/finder.js",
+      "zeile": 965,
+      "beleg": "Im DOM-Testadapter reproduziert. Fernseher-Ergebnis mit `a=ton.ja` öffnen und per `popstate` zur Ergebnisadresse derselben Kategorie ohne diese Antwort wechseln. Die Lautsprecherleistung zählt nach dem Wechsel wieder zur Note, der Regler `prio-lautsprecher_w` fehlt aber. Beim direkten Öffnen derselben Zieladresse ist er vorhanden. Die Feldauswahl entsteht einmal in Z. 454–456. Der Pfad in Z. 961–967 aktualisiert nur vorhandene Regler.",
+      "auswirkung": "Dieselbe Ergebnisadresse bietet je nach Navigationsweg unterschiedliche Einstellmöglichkeiten. Ein Merkmal kann die Note beeinflussen, ohne dass es sich über die Oberfläche anpassen lässt.",
+      "vorschlag": "Bei geänderten wirksamen Antworten die Reglerliste mit den neuen Grundgewichten abgleichen. Bei reinen Regleränderungen die Eingabeelemente beibehalten. Den Adresswechsel in beide Richtungen testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "G1-02",
+      "schwere": "schwer",
+      "titel": "Die Punkteherkunft meldet einen fehlenden Wert als null Punkte",
+      "datei": "app/finder/finder.js",
+      "zeile": 710,
+      "beleg": "Der G1-Bauplan verlangt „fehlend gestrichelt ‚nicht angegeben‘“. Bei fehlenden Teilpunkten steht sichtbar „nicht angegeben“ mit einem Strich. Der im ergänzenden DOM-Test bestätigte zugängliche Name der Bahn lautet dagegen `nicht angegeben, 0 Punkte`. Die Bewertung führt das Feld in `fehlend` und nimmt es aus dem Mittel der belegten Teilpunkte heraus, siehe `bewertung.js` Z. 130–136.",
+      "auswirkung": "Screenreader-Nutzende erhalten einen numerischen Wert für ein unbelegtes Merkmal. Damit verschwimmt der Unterschied zwischen fehlenden Daten und tatsächlich erreichten null Teilpunkten.",
+      "vorschlag": "Bei fehlenden Teilpunkten nur „nicht angegeben“ zugänglich ausgeben. Den zugänglichen Namen einer fehlenden und einer tatsächlich mit null Punkten bewerteten Bahn getrennt testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "G1-03",
+      "schwere": "mittel",
+      "titel": "Vergleichsmarke widerspricht gerundeten Teilpunkten",
+      "datei": "app/finder/finder.js",
+      "zeile": 898,
+      "beleg": "Im ergänzenden DOM-Test mit gültigen Teilpunkten von 82,6 und 80,4 erscheinen die zugänglichen Werte „83 von 100 Teilpunkten“ und „80 von 100 Teilpunkten“, während das Merkmal „gleichauf“ meldet. Z. 898 prüft den ungerundeten Abstand von 2,2. Z. 921 rundet beide Werte einzeln. Die Rangliste berechnet den Abstand bereits aus den angezeigten Zahlen.",
+      "auswirkung": "Bei Werten mit Nachkommastellen können Vergleichsmarke und zugängliche Zahlen zu unterschiedlichen Aussagen über den Vorsprung führen.",
+      "vorschlag": "Vergleichsmarke und Vorsprung aus denselben gerundeten Teilpunkten ableiten, die für die Bahnen ausgegeben werden. Grenzfälle um drei Punkte testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "G1-04",
+      "schwere": "mittel",
+      "titel": "Der Beobachter behält entfernte Hinweiskarten",
+      "datei": "app/finder/finder.js",
+      "zeile": 767,
+      "beleg": "Ein instrumentierter DOM-Test mit dem Fernseher-Ergebnis bei 600 € zählt vor und nach dem Wechsel zum Budgetbildschirm ein registriertes Beobachtungsziel. `zeichne()` entfernt den Ergebnisschirm ohne `disconnect()`. Auch beim Neurechnen ohne neue Hinweiskarten überspringt Z. 767 das `disconnect()` in Z. 773.",
+      "auswirkung": "Entfernte Karten bleiben bis zur nächsten Berechnung mit Hinweiskarten als Beobachtungsziele registriert. Die Anwendung verwendet weiterhin nur einen Beobachter.",
+      "vorschlag": "Vor dem frühen Rücksprung und beim Verlassen des Ergebnisschirms die bisherigen Beobachtungsziele abmelden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "G1-05",
+      "schwere": "mittel",
+      "titel": "FLIP übernimmt eine geänderte Bewegungseinstellung erst nach Neuladen",
+      "datei": "app/finder/finder.js",
+      "zeile": 77,
+      "beleg": "Die Bewegungseinstellung wird beim Laden einmal als Boolean gespeichert. `rangLagen()` nutzt in Z. 512 diesen Startwert. Wird Bewegungsreduktion bei geöffneter Seite aktiviert, kann die nächste Regleränderung bei neu sortierter Liste weiterhin die 240-ms-Animation aus Z. 526 starten. Der Bauplan sieht „reduziert: sofort“ vor.",
+      "auswirkung": "Die Rangliste kann sich weiter animiert umsortieren, obwohl das Gerät inzwischen reduzierte Bewegung verlangt.",
+      "vorschlag": "Die aktuelle Media-Query beim Start der Animation abfragen und den Wechsel zu reduzierter Bewegung in einem Test abdecken.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Geprüft wurde Commit 54052c3db85672116cfb109ff7645fbeb2392243 auf main. Alle 63 gezielten Node-Tests bestanden. Ergänzende Prüfungen liefen im DOM-Testadapter. Der PowerShell-Sammellauf schreibt ein Laufprotokoll und kann eine Kennzahlendatei löschen. Das Ergebnis „Fehler: 0 · Warnungen: 0“ stammt daher aus der Lead-Selbstprüfung. Echtes Ziehen, Screenreader-Ausgabe und Animationen im Browser wurden in dieser Erstprüfung nicht separat nachvollzogen."
+}
