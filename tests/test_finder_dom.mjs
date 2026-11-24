@@ -600,6 +600,17 @@ test("G1-02: fehlender Wert heißt in der Punkteherkunft „nicht angegeben“, 
     assert.equal(bahn.getAttribute("aria-label"), "nicht angegeben");
     assert.ok(text(z).includes("nicht angegeben"));
   }
+  // G1-R2-04: vorhandener Wert mit echten 0 Teilpunkten bleibt eine Punkteangabe, nicht „nicht angegeben“
+  const d0 = JSON.parse(BEISPIEL);
+  for (const m of d0.kategorien.find(k => k.id === "fernseher").modelle) m.teilpunkte.bildtechnik = 0;
+  const null0 = await starte("#k=fernseher&s=ergebnis", JSON.stringify(d0));
+  const zeilen0 = alle(klassen(null0.dok, "empfehlung")[0]).filter(e => e.className.split(/\s+/).includes("hz"));
+  const bild0 = zeilen0.find(z => text(alle(z).find(e => e.className === "hz-name")) === "Bildtechnik");
+  assert.ok(bild0, "Zeile Bildtechnik mit 0 Teilpunkten");
+  assert.equal(bild0.className, "hz", "0 Teilpunkte sind kein fehlender Wert");
+  assert.equal(alle(bild0).find(e => e.className === "hz-bahn").getAttribute("aria-label"), "0 von 100 Teilpunkten");
+  assert.equal(text(alle(bild0).find(e => e.className === "hz-punkte")), "0");
+  assert.equal(text(bild0).includes("nicht angegeben"), false);
 });
 
 test("G1-03: Vergleich – Vorn/gleichauf aus den angezeigten Teilpunkten (82,6 vs 80,4 → 83 vs 80 = Vorn +3)", async () => {
@@ -625,8 +636,18 @@ test("G1-04: Glas-Beobachter meldet entfernte Hinweiskarten ab (Schirmwechsel, N
     disconnect() { for (const k of this.eigene) beobachtet.delete(k); this.eigene.clear(); } }
   const app = await starte("#k=fernseher&s=ergebnis&b=500", BEISPIEL, null, { kontext: { IntersectionObserver: IO } });
   assert.ok(beobachtet.size >= 1, "bei 500 € gibt es den Aufpreis-Hinweis");
-  await app.zurueck("#k=fernseher&s=ergebnis");   // Budget egal: Neurechnen ohne Hinweiskarten
-  assert.equal([...beobachtet].every(k => alle(app.dok.body).includes(k)), true, "nur Karten, die noch im Dokument stehen");
+  // G1-R2-03: Neurechnen auf demselben Schirm zu einem Ergebnis ganz ohne Hinweiskarten (900 € und 300 €)
+  for (const ziel of ["#k=fernseher&s=ergebnis&b=900", "#k=fernseher&s=ergebnis&b=300"]) {
+    await app.zurueck("#k=fernseher&s=ergebnis&b=500");
+    assert.ok(beobachtet.size >= 1, "vorher wieder eine beobachtete Karte");
+    await app.zurueck(ziel);
+    assert.ok(app.dok.getElementById("ergebnis-koerper"), "noch der Ergebnisschirm: " + ziel);
+    assert.equal(klassen(app.dok, "glas-hin").length, 0, "Probe braucht ein Ergebnis ohne Karten: " + ziel);
+    assert.equal(beobachtet.size, 0, "keine Karte mehr beobachtet: " + ziel);
+  }
+  // Schirmwechsel mit einer noch beobachteten Karte
+  await app.zurueck("#k=fernseher&s=ergebnis&b=500");
+  assert.ok(beobachtet.size >= 1);
   await app.zurueck("#k=fernseher&s=budget");
   assert.equal(beobachtet.size, 0, "Budgetschirm: keine Karte mehr beobachtet");
 });
@@ -650,5 +671,75 @@ test("G1-05: FLIP fragt die Bewegungseinstellung bei jedem Umordnen neu", async 
     erster.value = "2"; erster.ausloesen("input");
     assert.deepEqual(rangNamen(dok), vorher);
     assert.equal(animiert, n, "reduziert: sofort, ohne Animation");
+  } finally { delete Element.prototype.getBoundingClientRect; delete Element.prototype.animate; }
+});
+
+
+// ---------- G1 Codex r2 (G1-R2-01, G1-R2-02) ----------
+test("G1-R2-01: Neuaufbau der Regler behält aufgeklappte Bereiche und den Fokus im Bereich „Alle Merkmale“", async () => {
+  // wie im Browser: ein Element in einem zugeklappten <details> nimmt den Fokus nicht an
+  const fokusEcht = Element.prototype.focus;
+  Element.prototype.focus = function () {
+    for (let k = this.parentNode; k; k = k.parentNode) if (k.tagName === "DETAILS" && !k.open) return;
+    this.dok.activeElement = this;
+  };
+  try {
+    const app = await starte("#k=fernseher&s=ergebnis&a=ton.ja&p=tuner_triple.4");
+    const mehr = () => klassen(app.dok, "regler-mehr")[0];
+    const tuner = () => app.dok.getElementById("prio-tuner_triple");
+    assert.ok(mehr() && alle(mehr()).includes(tuner()), "Tuner-Regler steht unter „Alle Merkmale“");
+    mehr().open = true;
+    tuner().focus();
+    assert.equal(app.dok.activeElement, tuner());
+    const altesPanel = app.dok.getElementById("prio");
+    await app.zurueck("#k=fernseher&s=ergebnis&p=tuner_triple.4");   // andere Feldauswahl: Panel wird neu gebaut
+    assert.notEqual(app.dok.getElementById("prio"), altesPanel, "Probe braucht den Neuaufbau");
+    assert.equal(tuner().value, "4");
+    assert.equal(mehr().open, true, "„Alle Merkmale“ bleibt aufgeklappt");
+    assert.equal(app.dok.activeElement, tuner(), "Fokus bleibt auf dem Tuner-Regler");
+    // Fokusziel in einem zugeklappten Bereich wird freigelegt
+    mehr().open = false;
+    app.dok.activeElement = tuner();
+    await app.zurueck("#k=fernseher&s=ergebnis&a=ton.ja&p=tuner_triple.4");
+    assert.equal(app.dok.activeElement, tuner(), "Fokus erreicht den Regler");
+    assert.equal(mehr().open, true);
+    // Punkteherkunft: aufgeklappt bleibt aufgeklappt, wenn ein Regler neu rechnen lässt
+    const hz = () => klassen(app.dok, "hz-mehr")[0];
+    assert.ok(hz(), "Punkteherkunft hat „Alle Merkmale“");
+    hz().open = true;
+    const r = regler(app.dok)[0];
+    r.value = "3"; r.ausloesen("input");
+    assert.equal(hz().open, true, "nach dem Neurechnen noch aufgeklappt");
+  } finally { Element.prototype.focus = fokusEcht; }
+});
+
+test("G1-R2-02: eingeschaltete Bewegungsreduktion bricht laufende Gleitbewegungen ab", async () => {
+  const stand = { reduziert: false, hoerer: [] };
+  const laufend = new Set();
+  let gestartet = 0;
+  Element.prototype.getBoundingClientRect = function () { const p = this.parentNode; return { top: p ? p.childNodes.indexOf(this) * 100 : 0 }; };
+  Element.prototype.animate = function () { gestartet++; const a = { cancel() { laufend.delete(a); } }; laufend.add(a); return a; };
+  try {
+    const mq = { get matches() { return stand.reduziert; }, addEventListener: (t, f) => { if (t === "change") stand.hoerer.push(f); } };
+    const { dok } = await starte("#k=fernseher&s=ergebnis", BEISPIEL, null, { fenster: { matchMedia: () => mq } });
+    assert.ok(stand.hoerer.length >= 1, "Seite hört auf Änderungen der Bewegungseinstellung");
+    const vorher = rangNamen(dok);
+    const erster = regler(dok)[0];
+    erster.value = "0"; erster.ausloesen("input");
+    assert.notDeepEqual(rangNamen(dok), vorher, "Probe braucht eine Umordnung");
+    assert.ok(laufend.size > 0, "Gleitbewegung läuft");
+    // nächstes Neurechnen beendet die alte Bewegung, bevor neue starten
+    const alt = new Set(laufend);
+    erster.value = "2"; erster.ausloesen("input");
+    assert.equal([...alt].some(a => laufend.has(a)), false, "alte Bewegungen beendet");
+    erster.value = "0"; erster.ausloesen("input");
+    assert.ok(laufend.size > 0);
+    // Reduktion während der Bewegung einschalten
+    stand.reduziert = true;
+    for (const f of stand.hoerer) f({ matches: true });
+    assert.equal(laufend.size, 0, "keine Bewegung läuft mehr");
+    const n = gestartet;
+    erster.value = "2"; erster.ausloesen("input");
+    assert.equal(gestartet, n, "reduziert: keine neue Bewegung");
   } finally { delete Element.prototype.getBoundingClientRect; delete Element.prototype.animate; }
 });

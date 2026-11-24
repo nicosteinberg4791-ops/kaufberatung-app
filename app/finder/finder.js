@@ -524,15 +524,37 @@
     }
     return lagen;
   }
+  // G1-R2-02: laufende Gleitbewegungen, damit sie bei eingeschalteter Bewegungsreduktion sofort enden
+  let gleitend = [];
+  function gleitenStoppen() {
+    for (const a of gleitend) { try { a.cancel(); } catch (e) { /* schon beendet */ } }
+    gleitend = [];
+  }
   function rangGleiten(teil, vorher) {
-    if (!vorher.size) return;
+    gleitenStoppen();   // alte Einträge sind ersetzt; ihre Bewegung endet jetzt
+    if (!vorher.size || reduziert()) return;
     for (const li of alleKnoten(teil)) {
       const id = li.getAttribute && li.getAttribute("data-modell");
       if (!id || !vorher.has(id) || !li.animate) continue;
       const dy = vorher.get(id) - (li.getBoundingClientRect().top - teil.getBoundingClientRect().top);
       if (Math.abs(dy) < 1) continue;
-      li.animate([{ transform: "translateY(" + Math.round(dy) + "px)" }, { transform: "none" }], { duration: 240, easing: "cubic-bezier(0.23, 1, 0.32, 1)" });
+      const a = li.animate([{ transform: "translateY(" + Math.round(dy) + "px)" }, { transform: "none" }], { duration: 240, easing: "cubic-bezier(0.23, 1, 0.32, 1)" });
+      if (a && a.cancel) gleitend.push(a);
     }
+  }
+  /* G1-R2-01: aufgeklappte Bereiche (<details>, nach Klasse) überstehen einen Neuaufbau; ein Fokusziel in einem
+     zugeklappten Bereich wird freigelegt, sonst nimmt der Browser den Fokus nicht an */
+  function offeneBereiche(teile) {
+    const offen = new Set();
+    for (const t of teile) if (t) for (const k of alleKnoten(t)) if (k.tagName === "DETAILS" && k.open && k.className) offen.add(k.className);
+    return offen;
+  }
+  function bereicheOeffnen(teile, offen) {
+    if (!offen.size) return;
+    for (const t of teile) if (t) for (const k of alleKnoten(t)) if (k.tagName === "DETAILS" && offen.has(k.className)) k.open = true;
+  }
+  function fokusFreilegen(f) {
+    for (let k = f && f.parentNode; k; k = k.parentNode) if (k.tagName === "DETAILS" && !k.open) k.open = true;
   }
   function alleKnoten(k, l) {
     l = l || [];
@@ -545,6 +567,7 @@
     const fokus = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute("data-fokus") : null;
     const fokusDrin = fokus && (findeFokus(koerper, fokus) || findeFokus(unten, fokus));
     const vorher = gleiten ? rangLagen(unten) : new Map();
+    const offen = offeneBereiche([koerper, unten]);
     leeren(koerper);
     if (unten) leeren(unten);
     const ziel = unten || koerper;
@@ -567,6 +590,7 @@
     }
     zeichneAblage(kat);
     glasBeobachten(koerper);
+    bereicheOeffnen([koerper, unten], offen);
     if (unten) rangGleiten(unten, vorher);
     const status = document.getElementById("ergebnis-status");
     if (status) status.textContent = r.rang.length
@@ -574,7 +598,7 @@
         ? ". Modell ohne Note: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + (r.empfehlung.art === "keine_merkmale" ? ", kein Merkmal zählt in die Note." : ", für eine Note fehlen Datenblattwerte.")   // R2-09, P1-04
         : ". Passt am besten: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", " + note(r.empfehlung.note) + " Punkte.")
       : "Kein Modell passt.";
-    if (fokusDrin) { const f = findeFokus(koerper, fokus) || findeFokus(unten, fokus); if (f && f.focus) f.focus(); }
+    if (fokusDrin) { const f = findeFokus(koerper, fokus) || findeFokus(unten, fokus); if (f && f.focus) { fokusFreilegen(f); f.focus(); } }
   }
 
   /* P1-03/P1-04 (r2): Grund für die fehlende Empfehlung aus den tatsächlichen Kombinationen von Note, Preis und Budget.
@@ -980,6 +1004,7 @@
     const fokus = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute("data-fokus") : null;
     if (glasBeobachter) glasBeobachter.disconnect();   // G1-04: der alte Schirm verschwindet ganz
     budgetTeile = [];
+    const offen = schluessel === letzterSchirm ? offeneBereiche([wurzel]) : new Set();
     let schirm;
     if (!kat) schirm = schirmKategorien();
     else if (!kat.modelle.length) schirm = schirmLeer(kat);
@@ -987,6 +1012,7 @@
     else if (zustand.s === "fragen") schirm = schirmFragen(kat);
     else schirm = schirmBudget(kat);
     leeren(wurzel);
+    bereicheOeffnen([schirm], offen);
     wurzel.appendChild(schirm);
     if (schluessel.indexOf("ergebnis:") !== 0) zeichneAblage(null);
     document.title = kat ? kat.name + " finden – Kaufberatung" : "Finden & Vergleichen – Kaufberatung";
@@ -997,7 +1023,7 @@
       letzterSchirm = schluessel;
     } else if (fokus) {
       const f = findeFokus(schirm, fokus);
-      if (f && f.focus) f.focus();
+      if (f && f.focus) { fokusFreilegen(f); f.focus(); }
     }
   }
   function findeTitel(k) {
@@ -1053,6 +1079,13 @@
     fusszeile();
     zustand = ausAdresse();
     zeichne();
+    // G1-R2-02: Bewegungsreduktion bei offener Seite eingeschaltet → laufende Gleitbewegung sofort beenden
+    try {
+      const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const wechsel = e => { if (e && e.matches) gleitenStoppen(); };
+      if (mq && mq.addEventListener) mq.addEventListener("change", wechsel);
+      else if (mq && mq.addListener) mq.addListener(wechsel);
+    } catch (e) { /* ohne matchMedia */ }
     window.addEventListener("popstate", () => { zustand = ausAdresse(); zeichne(); });
     window.addEventListener("hashchange", () => { const z = ausAdresse(); if (alsAdresse(z) !== alsAdresse(zustand)) { zustand = z; zeichne(); } });
   }
