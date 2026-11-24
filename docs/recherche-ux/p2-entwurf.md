@@ -1,7 +1,7 @@
 # P2 Notenmodell – Architekturentwurf (P2a Daten und Rechnung, Schnittstelle für P2b)
 
 Stand: 24.11.2026 · Lead: Claude · Grundlage: `p2-plan.md`, D12, D13, D25 (`docs/entscheidungen.md`).
-Status: **Entwurf zur Architekturprüfung (Codex high).** Nichts davon ist gebaut. Zeilenangaben beziehen sich auf den Stand von Commit `33fa490`.
+Status: **Entwurf zur Architekturprüfung (Codex high).** Nichts davon ist gebaut. Zeilenangaben beziehen sich auf den Stand von Commit `33fa490`. Seit Finder G1 (bis `0996e86`, D26) liegen die Stellen in `bewertung.js` ab `gewichte` um 4–5 Zeilen tiefer (z. B. `gewichte` 46, `bewerteModell` 121, `auswerten` 263, `datenPruefen` 423); geändert hat G1 dort nur `gewichte` (dritter Parameter `prio`) und `auswerten` (`prioritaeten`). Abstimmung mit G1: §8.
 
 ## 1. Ist-Stand (belegt)
 
@@ -160,3 +160,31 @@ methodik(daten) -> {abschlag: {anker, faktor, abzug, abdeckung_mindest, spanne_p
 - P-6 Reicht stilles Verwerfen im Client für `gewichte_version`/`testquelle`, oder muss eine kaputte Fassung die Datei ungültig machen?
 - P-7 Überschneidet sich §5 mit P0 oder P6, etwa über `tests/vorlagen/` oder den Router?
 - P-8 Ist `anteil`/`beitrag_r` in §4 eine ehrliche Grundlage für Balken, oder legt sie eine Aufteilung der Note nahe, die es nicht gibt?
+
+## 8. Abstimmung mit G1 (Lead, 24.11.2026, Stand `0996e86`)
+
+G1 (D26) hat Teile von P2b vorweggenommen. Belegt am Code:
+- **Prioritäten-Regler.** `gewichte(kat, antworten, prio)` multipliziert jedes bewertete Feld (Gewicht > 0) zusätzlich mit `prio[feld]`. Gültig sind Zahl und Wert ≥ 0, sonst gilt 1 (`bewertung.js:41–67`). Die Faktoren `PRIO_FAKTOREN = [0, 0.5, 1, 2, 3]` stehen im Code (`:45`). `auswerten` reicht `eingabe.prioritaeten` durch (`:261–266`).
+- **Adresse.** `p=feld.stufe~…` speichert die **Stufe** 0–4, nicht den Faktor. Übernommen wird nur ein Feld der Kategorie mit Gewicht > 0 und einer Stufe ungleich „normal“ (`finder.js:189–197`, `prioFaktoren` `:213–217`).
+- **„Woher die Punkte kommen“.** `punkteHerkunft` (`finder.js:733–757`) zeigt `beitraege` und `fehlend` nach `gewicht` absteigend, also im Kern `notenblatt().merkmale` aus §4. Ein fehlender Wert gilt dort nicht als 0 Teilpunkte (G1-02).
+
+Daraus folgen die Brüche und ihre Auflösung. Wo „Vorschlag“ steht, entscheidet die Architekturprüfung:
+
+| Nr. | Bruch im Entwurf | Auflösung (Vorschlag) |
+|---|---|---|
+| A-1 | §3 rechnet `gewichte(kat, {...antworten, [frage]: aid})` **ohne** `prio`. Mit verstellten Reglern passt die Alternativzeile dann nicht zur angezeigten Hauptnote. Ein „66 statt 66“ wäre möglich, ebenso ein falsches Vorzeichen bei `delta`. | `alternativen(kat, regeln, modell, antworten, prio, max = 3)` rechnet mit derselben `prio` wie die Hauptnote. Testorakel 22 lautet dann `auswerten(kat, regeln, {antworten: antworten', prioritaeten: prio})`. Neuer Test: Mit gesetzten Reglern stimmt jede Zeile mit dem Orakel überein; ohne `prio` im Aufruf würde der Test rot. |
+| A-2 | §4 `notenblatt(kat, regeln, eintrag, antworten)` kennt keine Prioritäten. `anteil` wäre dann das Grundgewicht, während die Karte nach G1 die verschobenen Gewichte zeigt. | `notenblatt(kat, regeln, eintrag, antworten, prio)`. `anteil` stammt aus denselben Gewichten wie die Note. Neu ist `persoenlich: true`, sobald ein Faktor ≠ 1 wirkt. Die Ansicht schreibt dann „nach deinen Prioritäten“ zur Note. `methodik().grundgewichte` bleibt ohne `prio`. |
+| A-3 | Die Fassung (§2.1) legt nur die Grundgewichte fest. Mit Reglern ist die angezeigte Note „Fassung N plus deine Stufen“, keine reine Fassungsnote. | `fassung` beschreibt weiter nur das Schema. Die Stufen stehen in der Adresse und reichen zum Nachrechnen. Die Prüfsumme bekommt keine Regler (Nutzereingabe, keine Redaktionsgewichtung). |
+| A-4 | Die `PRIO_FAKTOREN` stehen im Code, wie `NICHT_ANWENDBAR` (P-5), und gehen nicht in die Prüfsumme ein. Ändert man sie, ändert sich die Bedeutung jeder geteilten Adresse mit `p=`. | Die Faktoren bleiben im Code und gehören zur App-Fassung, nicht zur Gewichtsfassung. In `docs/punkteschema.md` wird das festgehalten: Eine Änderung braucht eine Entscheidung in `entscheidungen.md` und einen Test, der die fünf Werte festschreibt (heute nicht vorhanden, gehört zu P2a). Prüffrage P-9. |
+| A-5 | Eine neue Fassung kann ein Feld streichen, umbenennen oder auf Gewicht 0 setzen. Alte Adressen verlieren den Eintrag `p=` dafür still (`finder.js:191–196`). Ein neues Feld steht auf „normal“. | Das ist annehmbar: Die Adresse bleibt gültig und die Note rechnet mit der neuen Fassung. Feld-IDs werden aber nicht umbenannt (Regel in `FORMAT.md`/`punkteschema.md`); bei einem neuen Merkmal kommt eine neue ID. Kein Fassungsbezug in der Adresse (keine neue Zustandsquelle). Prüffrage P-10. |
+| A-6 | §2.5 belegt die Abwärtsverträglichkeit mit `bewertung.js` aus `33fa490`. Wenn P2a live geht, kann aber G1 (`0996e86`) oder die heutige Live-Fassung (`7339711`) im Cache des Service Workers liegen. | Belegt wird mit **jeder** `bewertung.js`, die beim P2a-Push im Umlauf sein kann. Das sind mindestens die Live-Fassung zum Pushzeitpunkt und `0996e86` (bzw. die dann neueste App-Fassung). Je Fassung: kein Wurf, gleiche Noten ohne und mit `prioritaeten`. |
+| A-7 | §5: „P2a ändert `finder.js` nicht“. Das passt weiter: G1 hat `finder.js` vor P0 geändert (D26). P2b soll aber `punkteHerkunft` auf `notenblatt()` umstellen, statt eine zweite Merkmalsansicht zu bauen. | §5 gilt unverändert. Ergänzung zur P2b-Zeile: `punkteHerkunft` nutzt dann `notenblatt().merkmale` (gleiche Sortierung, „nicht angegeben“ wie G1-02). Gemeinsame Tests: `test_finder_dom.mjs` „G1-02“. |
+| A-8 | `anteil` in §4 wird über `beitraege + fehlend` neu normiert. G1 zeigt `gewicht` **ohne** Neunormierung. Bei `nicht_anwendbar` (Air Fryer mit einem Korb) ergibt die Summe in G1 also weniger als 100 %. | Mit P2b wird das einheitlich: `punkteHerkunft` zeigt `anteil`. Bis dahin ist es eine bekannte Grenze von G1. Sie ist sichtbar nur beim Air Fryer mit `koerbe = 1`. |
+| A-9 | Stellt ein Nutzer alle Regler auf „aus“, ergibt sich `keine_merkmale` für die Hauptnote. Eine Alternative kann dann nie eine Note haben. | `alternativen` gibt dann `[]` zurück (keine Zeile ohne Aussage). Test zusammen mit 25. |
+
+**Neue Prüffragen.**
+- P-9 Reicht eine Entscheidung plus Test als Schutz für `PRIO_FAKTOREN` (A-4)? Oder sollen die Faktoren ins Schema und damit in die Prüfsumme?
+- P-10 Ist A-5 tragfähig, also kein Fassungsbezug in der Adresse und ein stiller Verlust des `p=`-Eintrags? Oder braucht die Seite einen Hinweis „Prioritäten aus älterer Fassung teilweise verworfen“?
+- P-11 Decken A-1/A-2 alle Stellen ab, an denen eine Note ohne `prio` entstehen kann (Aufpreis-Hinweis, Vergleich, Rangliste)? Lead-Suche `grep -n "gewichte(\|auswerten(" app/finder/*.js` auf `0996e86`: Alle Aufrufe geben `prio` mit (`finder.js:496`, `:576`, `:910`, `bewertung.js:266`). Die einzige Ausnahme ist `reglerFelder` (`finder.js:455`). Sie ist gewollt, weil die Reglerreihenfolge beim Ziehen nicht springen soll.
+
+**Tests dazu (ergänzen §6).** 33 `alternativen` mit `prio` gleich Orakel mit `prioritaeten` · 34 `notenblatt` mit `prio`: `anteil` gleich den Gewichten der Note, `persoenlich` gesetzt · 35 `PRIO_FAKTOREN` festgeschrieben `[0, 0.5, 1, 2, 3]` · 36 alle Regler aus: `alternativen` liefert `[]` · 37 Abwärtsverträglichkeit gegen die Live-`bewertung.js` und gegen `0996e86` (A-6).
