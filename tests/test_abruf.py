@@ -279,6 +279,21 @@ class Domainsperre(unittest.TestCase):
                 abruf.sperre_freigeben(lock)
             schlaf.assert_called_once_with(abruf.ABSTAND)
 
+    def test_fehler_beim_pruefen_liest_auch_einen_gueltigen_stempel_nicht(self):
+        """Codex A2-01 (r3): scheitert os.lstat mit einem anderen OSError, gilt genau der volle Abstand, auch wenn der
+        Stempel selbst lesbar, gültig und alt genug wäre (sonst entschiede ein zweiter Zugriff über die Wartezeit)."""
+        echt = os.lstat
+        for fehler in (PermissionError("keine Rechte"), OSError(5, "Ein-/Ausgabefehler"), NotADirectoryError("x")):
+            def lstat(p, *a, **k):
+                if Path(p).name == "h.invalid.zeit":
+                    raise fehler
+                return echt(p, *a, **k)
+            with self.subTest(fehler=type(fehler).__name__), \
+                    unittest.mock.patch.object(abruf.os, "lstat", side_effect=lstat):
+                # ohne lstat-Fehler wäre der Abstand hier vorbei (vgl. test_gueltiger_stempel_…: [])
+                self.assertEqual(self._wartezeiten("1700000000.0 1000.0", 1700000100.0, 1100.0), [abruf.ABSTAND])
+        self.assertEqual(self._wartezeiten("1700000000.0 1000.0", 1700000100.0, 1100.0), [], "Gegenprobe ohne Fehler")
+
     def test_link_ohne_ziel_heisst_voller_abstand(self):
         """Codex A2-01: ein vorhandener Stempel-Eintrag, dessen Ziel fehlt (Link bzw. Junction), ist unlesbar und
         ergibt den vollen Abstand, statt als „kein Stempel“ zu gelten."""

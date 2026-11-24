@@ -11,3 +11,13 @@ Bericht: `codex-nach-20261124-063305.json` · Urteil nicht bestanden · geschlos
 **Einschätzung Lead:** A2-01 ist eine echte Logiklücke mit kleiner, eindeutiger Korrektur (bei `OSError` den Stempel nicht lesen, `vergangen = None`). R2-02 und R2-03 betreffen nur Unterbrechungsfenster von wenigen Python-Anweisungen (Strg+C) oder Doppelfehler und berühren nur eigene bzw. leere Verzeichnisse; eine vollständige Absicherung gegen `KeyboardInterrupt` ist unter Windows nicht sauber möglich (keine Signalmaske), höchstens durch Umbau (Ziel nur „neu“, kein `rmdir`).
 
 Vorlage für den Besitzer: STATUS.md, O21.
+
+**Besitzer hat O21 entschieden (24.11.2026): A2-01 beheben, schmale Runde 4; R2-02 und R2-03 als Restrisiko angenommen.**
+
+## Behebung
+
+| Nr. | Korrektur | Probe |
+|---|---|---|
+| A2-01 | `sperre_holen`: `lstat` mit `try/except/else`; `FileNotFoundError` → keine Wartezeit, jeder andere `OSError` → `warte = ABSTAND` ohne Lesen, nur im `else`-Zweig entscheidet der Stempel | `test_fehler_beim_pruefen_liest_auch_einen_gueltigen_stempel_nicht`: gültiger, alter Stempel + `PermissionError`/`OSError(5)`/`NotADirectoryError` bei `lstat` → [ABSTAND]; ohne Korrektur rot (3 Unterfälle: []), mit Korrektur grün; Gegenprobe ohne Fehler [] |
+
+Selbst geprüft: `tests/test_abruf.py` 26 OK, Sammellauf „Fehler: 0“, `datenbank.py pruefen` „Fehler 0“, `core.bare` false. Nachprüfung: `auftrag-r4.md`.
