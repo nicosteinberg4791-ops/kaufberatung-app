@@ -145,7 +145,7 @@ Fragen: Personen, Breite (45/60 cm), Einbauart, offene Küche, nasses Plastik.
 ```
 R          = Rohwert aus Datenblattfeldern (0–100)
 Abdeckung  = Anteil der (nach Fragen gewichteten) Gewichte mit belegtem Wert
-N_db       = min(84, 50 + (R − 50) × 0,85 − 3 − (1 − Abdeckung) × 20)
+N_db       = 50 + (R − 50) × 0,85 − 3 − (1 − Abdeckung) × 20   (begrenzt auf 0–100; seit D12 ohne min(84, …))
 Spanne     = N_db ± 8
 Abdeckung < 0,7 → keine Note, Anzeige „zu wenig Daten“
 ```
@@ -157,7 +157,7 @@ Begründung:
 4. **Abdeckungsabzug:** Jeder fehlende Datenblattwert kostet anteilig (bei 80 % Abdeckung 4 Punkte), damit lückenhafte Angaben sich nicht lohnen.
 5. **Spanne ± 8:** etwas mehr als eine halbe Klassenbreite; macht sichtbar, dass die Note unsicher ist.
 
-Beispiele: R 90, voll belegt → 81 („sehr gut“). R 95 → 85,25 → gekappt auf 84. R 70 → 64 („gut“). R 80 bei 80 % Abdeckung → 68,5.
+Beispiele (seit D12 ohne Klassenwort und ohne Kappung): R 90, voll belegt → 81. R 95 → 85,25 (angezeigt 85). R 70 → 64. R 80 bei 80 % Abdeckung → 68,5.
 
 **Getestete Modelle:** Note = 0,6 × Testpunkte + 0,4 × Rohwert R (mit Nutzergewichten), kein Abschlag, keine Kappung. So wirken die Fragen auch bei getesteten Modellen, der Test bleibt aber bestimmend. Umrechnung Warentest-Note (Skala 0,5 bis 5,5): `T = 100 − (Note − 0,5) × 20` (Note 1,5 → 80, 2,5 → 60). Für 0–10-Skalen (z. B. RTINGS): `T = Wert × 10`. Beides ist ein Vorschlag.
 
@@ -165,27 +165,28 @@ Beispiele: R 90, voll belegt → 81 („sehr gut“). R 95 → 85,25 → gekappt
 
 ## 7. Aufpreis- und Spar-Hinweis
 
-Bezug **A** = bestes Modell (höchste angezeigte Note) mit Preis ≤ Budget, das alle Mindestanforderungen erfüllt. Verglichen wird immer mit der angezeigten Note (also nach Abschlag).
+Bezug **A** = bestes Modell (höchste angezeigte Note, bei gleicher angezeigter Note das günstigere) mit bekanntem Preis ≤ Budget, das alle Mindestanforderungen erfüllt (D12: nie ein Modell ohne Preis). Verglichen wird mit der Note nach Abschlag.
 
 **Aufpreis-Hinweis für Modell B**, wenn alle Bedingungen gelten:
 - Preis_B ≤ Budget × 1,25 (höchstens 25 % über Budget)
 - Aufpreis Δp = Preis_B − Preis_A ≥ 20 €
 - Punktgewinn ΔN = N_B − N_A ≥ 3 (ist A oder B „aus Datenblatt“: ≥ 5)
 - B erfüllt alle Mindestanforderungen
-- **Effizienz E = ΔN ÷ Δp × 100 ≥ 3 Punkte je 100 €**, oder Klassensprung und E ≥ 1,5
+- **Effizienz E = ΔN ÷ Δp × 100 ≥ 3 Punkte je 100 €** (seit D12 ohne Ausnahme für einen Klassensprung)
 
 Höchstens ein Hinweis: das B mit dem größten E, bei Gleichstand der kleinere Aufpreis.
-Text: „Für {Δp} € mehr bekommst du +{ΔN} Punkte (Klasse „{B}“ statt „{A}“).“ Der Klammerteil nur bei Klassensprung.
+Text: „Für {Δp} € mehr bekommst du +{ΔN} Punkte.“ (seit D12 ohne Klammerteil mit Klassen)
 
 **Spar-Hinweis für Modell C**:
 - Ersparnis S = Preis_A − Preis_C ≥ max(30 €, 10 % von Preis_A)
-- N_A − N_C ≤ 3 und gleiche Klasse → „Für {S} € weniger fast gleich gut ({N_C} statt {N_A} Punkte).“
+- N_A − N_C ≤ 3 → „Für {S} € weniger fast gleich gut ({N_C} statt {N_A} Punkte).“ (seit D12 ohne Bedingung „gleiche Klasse“)
+- zeigen beide dieselbe ganze Zahl, nie „{N} statt {N}“, sondern „Gleichauf mit {N_A} Punkten und {S} € günstiger.“ (`text_gleichauf`)
 - oder N_A − N_C ≤ 5 und S ≥ 25 % von Preis_A → „Für {S} € weniger etwas schwächer ({N_C} statt {N_A} Punkte).“
 - C erfüllt alle Mindestanforderungen. Höchstens ein Hinweis, größte Ersparnis zuerst.
 
 Begründung: Die Schwelle 3 Punkte ist die Unterschiedsschwelle der App; bei Datenblatt-Modellen 5, weil die Spanne größer ist. 3 Punkte je 100 € bedeutet: 100 € mehr müssen mindestens einen spürbaren Unterschied bringen. Die 25-%-Grenze hält den Hinweis im Rahmen dessen, was ein Budget-Käufer noch ernsthaft erwägt. Der Prozentanteil in den Spar- und Aufpreisregeln sorgt dafür, dass die Regeln für 100-€-Geräte (Air Fryer) und 1.500-€-Geräte (Fernseher) gleichermaßen funktionieren.
 
-**Beispiele** (Fernseher, Budget 500 €):
+**Beispiele** (Fernseher, Budget 500 €; Vorgeschichte vor D12, Klassenwörter und Klammertext zeigt die App nicht mehr):
 - A: 489 €, 68 Punkte („gut“). B: 589 €, 77 („sehr gut“). Δp 100, ΔN 9, E 9, 589 ≤ 625 → „Für 100 € mehr bekommst du +9 Punkte (Klasse „sehr gut“ statt „gut“).“
 - D: 649 €, 82 → über 625 €, kein Hinweis.
 - E: 539 €, 70 → ΔN 2 < 3, kein Hinweis.

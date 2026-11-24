@@ -1,0 +1,63 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Bei alternativer Sortierung verletzt der Finder das Fertigkriterium für Rang und Preisreihenfolge bei gleicher angezeigter Note.",
+  "befunde": [
+    {
+      "id": "P1-01",
+      "schwere": "schwer",
+      "titel": "Gleiche Punktzahlen erhalten bei alternativer Sortierung verschiedene Ränge",
+      "datei": "app/finder/finder.js",
+      "zeile": 617,
+      "beleg": "Fertigkriterium: „Gleiche angezeigte Note → gleicher Rang, günstigeres Modell zuerst“. Im DOM-Gegenlauf mit den TV-Beispieldaten bis 500 € erhalten die beiden Modelle mit 56 Punkten unter „Beste Note“ Rang 1 und 1, unter „Günstigste“ Rang 3 und 4 und unter „Punkte je Euro“ Rang 2 und 3. Mit Noten 84,6 und 85,4 sowie Preisen 100 € und 100,50 € zeigt „Punkte je Euro“ beide mit 85 Punkten, setzt aber das teurere Modell zuerst. `bewertung.js:169` berechnet die Effizienz mit der ungerundeten Note.",
+      "auswirkung": "Dieselbe angezeigte Punktzahl führt je nach Sortierung zu verschiedenen Rängen. Verborgene Nachkommastellen können zudem das teurere Modell vor das günstigere setzen.",
+      "vorschlag": "Den Notenrang aus den angezeigten Punkten unabhängig von der Sortierung ermitteln. „Punkte je Euro“ mit der angezeigten Note berechnen. Den DOM-Test um alle Sortierarten und den Gegenlauf mit nahen Preisen ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P1-02",
+      "schwere": "mittel",
+      "titel": "Die Layoutklasse erzwingt einen Zeilenumbruch beim Angebotslink",
+      "datei": "app/finder/finder.css",
+      "zeile": 52,
+      "beleg": "Die Rahmenregel setzt `width: 100%` und `margin: 0 auto` auch für den Link „Zum Angebot“ mit `knopf haupt` in `finder.js:529`. `.kauf` erlaubt ab Zeile 212 den Zeilenumbruch, und `.kauf .knopf` setzt in Zeile 218 nur `flex`. Die Außenbreite des Links beträgt beim Verteilen der Flex-Zeilen daher 100 %. Die Ablage setzt diese Werte in Zeile 291 eigens zurück. Die Schaltflächen unter `.weiter` haben dagegen ausdrücklich eine eigene Regel für volle Breite.",
+      "auswirkung": "Preis und Angebotslink stehen selbst bei ausreichender Breite in getrennten Zeilen. Auf dem Fehlerbildschirm übernimmt „Neu laden“ ebenfalls die Rahmenbreite.",
+      "vorschlag": "Die Rahmenregeln auf `main.haupt` oder eine eigene Layoutklasse begrenzen. Den CSS-Test auf diese Trennung ausrichten, statt die breite `.haupt`-Regel vorauszusetzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P1-03",
+      "schwere": "mittel",
+      "titel": "Bei gemischten Daten meldet die Ergebnisansicht fälschlich fehlende Preise",
+      "datei": "app/finder/finder.js",
+      "zeile": 434,
+      "beleg": "DOM-Gegenlauf mit 95 € Budget, einem bewerteten Modell ohne Preis und einem Modell für 100,50 € ohne Note. Die Seite meldet „Für die passenden Modelle kennen wir gerade keinen Preis.“ Nach „Auch teurere und ohne Preis zeigen“ erscheint der bekannte Preis von 100,50 €. Die Meldung prüft lediglich, ob irgendein Modell eine Note hat.",
+      "auswirkung": "Die Meldung führt die fehlende Empfehlung pauschal auf fehlende Preise zurück, obwohl beim Modell mit Preis die fehlende Note und das Budget ausschlaggebend sind.",
+      "vorschlag": "Die Meldung aus den tatsächlich vorhandenen Kombinationen von Preis, Note und Budget ableiten und den gemischten Fall im DOM-Test abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P1-04",
+      "schwere": "mittel",
+      "titel": "Bei fehlenden wirksamen Gewichten nennt die Gruppe keinen Grund pro Modell",
+      "datei": "app/finder/finder.js",
+      "zeile": 587,
+      "beleg": "DOM-Gegenlauf mit den TV-Beispieldaten und Gewicht 0 für alle Felder. `bewertung.js:398–399` akzeptiert die Gewichte. Die App zeigt „Noch nicht bewertbar (12)“, aber keine Zeile enthält „fehlt: …“, weil `fehlend` leer bleibt. Der Gruppentext führt den Ausfall trotzdem auf fehlende Datenblattwerte zurück.",
+      "auswirkung": "Bei einer akzeptierten Datei können alle Noten ausfallen, obwohl die Produktdaten vorhanden sind. Die Anzeige nennt dann eine falsche Ursache.",
+      "vorschlag": "Kategorien ohne wirksame Bewertungsmerkmale bei der Datenprüfung abweisen oder diesen Fall ausdrücklich in der Ergebnisansicht erklären. Einen Test für den gewählten Umgang ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P1-05",
+      "schwere": "gering",
+      "titel": "Das Punkteschema enthält weiterhin die alte Formel und Klassenregeln",
+      "datei": "docs/punkteschema.md",
+      "zeile": 148,
+      "beleg": "Der D12-Hinweis in Zeile 40 erklärt Kappung und Klassenregeln für abgelöst. Die Formel in Zeile 148 enthält weiterhin `min(84, …)`. Die Regeln für Aufpreis und Sparen in Zeilen 175, 178 und 182 verlangen weiterhin einen Klassensprung oder dieselbe Klasse.",
+      "auswirkung": "Wer die Rechenregeln direkt in Abschnitt 6 oder 7 nachschlägt, erhält eine andere Formel oder andere Bedingungen als der Finder anwendet.",
+      "vorschlag": "Die Formel und Regeln an den jeweiligen Stellen auf D12 aktualisieren und historische Beispiele ausdrücklich kennzeichnen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Geprüft wurde Commit 0fd3e8bc622a541b2aa8d0f1a6a02e25dbc8bee6. Die drei geforderten Node-Suiten meldeten 52 bestandene Tests und 0 Fehler. Alle Node-Suiten des Sammellaufs meldeten zusammen 55 bestandene Tests und 0 Fehler. Die Datenbankprüfung mit lokalem Python und `-I -B` meldete Fehler 0 und 60 Abdeckungswarnungen. Der PowerShell-Sammellauf blieb wegen seiner Schreibzugriffe ungeprüft. Der Layoutbefund beruht auf der CSS-Kaskade und wurde ohne echten Browser geprüft."
+}

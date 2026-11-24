@@ -49,14 +49,15 @@ button { cursor: pointer; }
 .sprung:focus { top: 12px; }
 
 /* ---------- Rahmen ---------- */
-.leiste, .haupt, .fuss { width: 100%; max-width: 42rem; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+/* P1-02: Layoutklasse .hauptspalte, „haupt“ allein ist nur der Knopfstil (knopf haupt) */
+.leiste, .hauptspalte, .fuss { width: 100%; max-width: 42rem; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
 .leiste {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding-top: calc(8px + env(safe-area-inset-top, 0px)); padding-bottom: 4px;
 }
 .leiste-marke { font-weight: 700; letter-spacing: -.01em; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
 .leiste-link { color: var(--muted); font-size: .9rem; display: inline-flex; align-items: center; min-height: 44px; text-align: right; }
-.haupt { padding-bottom: 8rem; outline: none; }
+.hauptspalte { padding-bottom: 8rem; outline: none; }
 .laden { padding: 3rem 0; color: var(--muted); }
 
 /* ---------- Schirme ---------- */
@@ -287,8 +288,7 @@ button { cursor: pointer; }
   box-shadow: inset 0 1px 0 var(--edge), 0 0 0 1px var(--line), 0 24px 48px -24px rgba(16, 24, 40, .45);
 }
 .ablage-text { flex: 1 1 auto; min-width: 0; font-weight: 600; font-size: .92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* width/margin/max-width zurücksetzen: die Layoutklasse .haupt (Hauptspalte) trifft sonst auch „knopf haupt“ */
-.ablage .knopf { min-height: 44px; padding: 0 14px; font-size: .92rem; flex: none; width: auto; max-width: none; margin: 0; }
+.ablage .knopf { min-height: 44px; padding: 0 14px; font-size: .92rem; flex: none; }
 /* 07 B12: unten Platz in Höhe der Ablage (eine Zeile, notfalls zwei) */
 .mit-ablage .fuss { padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px)); }
 @starting-style { .ablage { opacity: 0; transform: translate(-50%, 10px); } }

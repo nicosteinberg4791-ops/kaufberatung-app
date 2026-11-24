@@ -140,6 +140,8 @@
     } else {
       note = datenblattNote(R, abdeckung, db);
       if (note !== null) { art = "datenblatt"; spanne = db.spanne_plus_minus; }
+      // P1-04: kein Merkmal zählt (alle wirksamen Gewichte 0) – keine Note, aber nicht wegen fehlender Datenblattwerte
+      else if (summeG <= 0) art = "keine_merkmale";
     }
     beitraege.sort((a, b) => b.beitrag - a.beitrag);
     fehlend.sort((a, b) => b.gewicht - a.gewicht);
@@ -166,7 +168,9 @@
     if (!ohneNote) { const n = vergleichNote(a, b); if (n) return n; }
     return String(a.modell.id).localeCompare(String(b.modell.id));
   }
-  function effizienz(e) { return e.note !== null && e.preis !== null ? e.note / e.preis : null; }
+  /* P1-01: Punkte je Euro aus der angezeigten (gerundeten) Note, sonst setzen verborgene Nachkommastellen
+     bei gleicher angezeigter Zahl das teurere Modell vor das günstigere */
+  function effizienz(e) { return istZahl(e.note) && e.preis !== null && e.preis > 0 ? anzeige(e) / e.preis : null; }
 
   /* Rangfolge: "note" (Note absteigend, dann Preis), "preis" (aufsteigend, dann Note), "effizienz" (Punkte je Euro). */
   function sortiere(liste, art) {

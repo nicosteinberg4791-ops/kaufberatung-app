@@ -454,3 +454,29 @@ test("R3-02: Kennungen aus dem Objekt-Prototyp machen die Datei ungültig, solch
   assert.equal(B.pruefe({}, { feld: "constructor", art: "ja", wert: true }), "unbelegt");
   assert.doesNotThrow(() => B.auswerten(Object.assign(kat, { modelle: [modell("m", { a: 90, b: 100 }, {}, 100)] }), REGELN, {}));
 });
+
+test("P1-01: Punkte je Euro mit der angezeigten Note – gleiche Zahl, günstigeres zuerst", () => {
+  // 84,6 und 85,4 zeigen beide 85; ungerundet läge das teurere vorn (0,8497 > 0,846)
+  const l = [eintrag("teuer", 100.5, 85.4), eintrag("billig", 100, 84.6), eintrag("klar", 100, 86.6), eintrag("ohne", null, 90)];
+  assert.deepEqual(B.sortiere(l, "effizienz").map(e => e.modell.id), ["klar", "billig", "teuer", "ohne"]);
+  // gleiche Effizienz der angezeigten Zahl → Note-Reihenfolge: höhere Zahl, dann günstiger, dann ungerundete Note
+  const g = [eintrag("x", 200, 80.4), eintrag("y", 100, 39.6), eintrag("z", 100, 40.4)];
+  assert.deepEqual(B.sortiere(g, "effizienz").map(e => e.modell.id), ["x", "z", "y"]);
+});
+
+test("P1-04: ohne wirksame Gewichte art „keine_merkmale“, fehlende Werte bleiben „zu_wenig_daten“", () => {
+  const null_kat = Object.assign({}, KAT, { felder: KAT.felder.map(f => Object.assign({}, f, { gewicht: 0 })),
+    modelle: [modell("m1", { a: 90, b: 100 }, {}, 100)] });
+  const r = B.auswerten(null_kat, REGELN, { budget: null });
+  assert.equal(r.rang[0].note, null);
+  assert.equal(r.rang[0].art, "keine_merkmale");
+  assert.deepEqual(r.rang[0].fehlend, []);
+  // Antwort setzt die Gewichte auf 0 (ohne_b bei nur b gewichtet)
+  const nurB = Object.assign({}, KAT, { felder: KAT.felder.map(f => Object.assign({}, f, { gewicht: f.id === "b" ? 20 : 0 })),
+    modelle: [modell("m2", { b: 100 }, {}, 100)] });
+  assert.equal(B.auswerten(nurB, REGELN, { antworten: { f1: "ohne_b" }, budget: null }).rang[0].art, "keine_merkmale");
+  assert.notEqual(B.auswerten(nurB, REGELN, { budget: null }).rang[0].note, null);
+  const luecke = Object.assign({}, KAT, { modelle: [modell("m3", { b: 100 }, {}, 100)] });
+  const e = B.auswerten(luecke, REGELN, { budget: null }).rang[0];
+  assert.equal(e.note, null); assert.equal(e.art, "zu_wenig_daten"); assert.equal(e.fehlend[0].feld, "a");
+});

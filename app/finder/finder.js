@@ -431,10 +431,7 @@
       ])]);
     } else {
       if (r.empfehlung) anhaengen(koerper, [empfehlungsKarte(kat, r)]);
-      else anhaengen(koerper, [h("div", { class: "karte leise" }, [h("p", null, [r.rang.some(e => e.note !== null)
-        // 08 G: ohne bekannten Preis keine Empfehlung
-        ? "Für die passenden Modelle kennen wir gerade keinen Preis. Deshalb empfehlen wir keins. Die Liste unten zeigt sie trotzdem."
-        : "Für keins der passenden Modelle reichen die Datenblattangaben für eine Note. Die Liste unten zeigt sie trotzdem."])])]);
+      else anhaengen(koerper, [h("div", { class: "karte leise" }, [h("p", null, [ohneEmpfehlungText(r)])])]);
       if (r.aufpreis) anhaengen(koerper, [hinweisKarte("mehr", "Lohnt sich mehr?", r.aufpreis.text, r.aufpreis.modell)]);
       if (r.spar) anhaengen(koerper, [hinweisKarte("weniger", "Geht es günstiger?", r.spar.text, r.spar.modell)]);
       anhaengen(koerper, [rangliste(kat, r), vergleich(kat, r)]);
@@ -443,10 +440,22 @@
     const status = document.getElementById("ergebnis-status");
     if (status) status.textContent = r.rang.length
       ? r.rang.length + (r.rang.length === 1 ? " Modell passt" : " Modelle passen") + (!r.empfehlung ? "." : r.empfehlung.note === null
-        ? ". Modell ohne Note: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", für eine Note fehlen Datenblattwerte."   // R2-09
+        ? ". Modell ohne Note: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + (r.empfehlung.art === "keine_merkmale" ? ", kein Merkmal zählt in die Note." : ", für eine Note fehlen Datenblattwerte.")   // R2-09, P1-04
         : ". Passt am besten: " + r.empfehlung.modell.hersteller + " " + modellName(r.empfehlung.modell) + ", " + note(r.empfehlung.note) + " Punkte.")
       : "Kein Modell passt.";
     if (fokusDrin) { const f = findeFokus(koerper, fokus); if (f && f.focus) f.focus(); }
+  }
+
+  /* P1-03: Grund für die fehlende Empfehlung aus den tatsächlichen Kombinationen von Note, Preis und Budget.
+     Ohne Empfehlung gilt (bewertung.js auswerten): kein Modell mit Preis im Budget, und kein Modell mit Note hat einen Preis. */
+  function ohneEmpfehlungText(r) {
+    const mitNote = r.rang.some(e => e.note !== null), mitPreis = r.rang.some(e => e.preis !== null);
+    if (!mitNote) return r.rang.every(e => e.art === "keine_merkmale")
+      ? "Für deine Angaben zählt gerade kein Merkmal in die Note. Deshalb empfehlen wir keins. Die Liste unten zeigt die Modelle trotzdem."
+      : "Für keins der passenden Modelle reichen die Datenblattangaben für eine Note. Die Liste unten zeigt sie trotzdem.";
+    // 08 G: ohne bekannten Preis keine Empfehlung
+    if (!mitPreis) return "Für die passenden Modelle kennen wir gerade keinen Preis. Deshalb empfehlen wir keins. Die Liste unten zeigt sie trotzdem.";
+    return "Für die Modelle mit Note kennen wir gerade keinen Preis, und die Modelle mit Preis liegen über deinem Budget und haben keine Note. Deshalb empfehlen wir keins. Die Liste unten zeigt sie trotzdem.";
   }
 
   /* Deine Angaben mit Fragetext (08 F): „Antwort“ allein (z. B. „Ja“) sagt ohne Frage nichts */
@@ -482,7 +491,7 @@
   }
   /* Note mit Herkunft; die Rechnung ist eingeklappt (08 F) */
   function notenBlock(e) {
-    if (e.note === null) return h("p", { class: "note-zeile marke" }, ["Keine Note: zu wenig Daten"]);
+    if (e.note === null) return h("p", { class: "note-zeile marke" }, [e.art === "keine_merkmale" ? "Keine Note: kein Merkmal zählt" : "Keine Note: zu wenig Daten"]);
     const spanne = e.spanne ? " Die Zahl ist deshalb unsicher, etwa " + Math.round(Math.max(0, e.note - e.spanne)) + " bis " + Math.round(Math.min(100, e.note + e.spanne)) + "." : "";
     const erklaerung = e.art === "getestet"
       ? "Die Note mischt ein unabhängiges Testergebnis (60 %) mit den Datenblattwerten (40 %), gewichtet nach deinen Antworten."
@@ -520,7 +529,7 @@
       warnung = "Das beste passende Modell kostet " + eur(e.preis) + ", also " + eur(Math.round(e.preis - zustand.b)) + " mehr als geplant.";
     } else if (r.status === "ohne_note") {
       kopfText = zustand.b ? "Im Budget bis " + eur(zustand.b) + ": Modell ohne Note" : "Passendes Modell ohne Note";
-      warnung = "Für eine Note fehlen Datenblattwerte. Das Modell erfüllt deine Angaben" + (e.unbelegt.length ? " soweit belegt" : "")
+      warnung = (e.art === "keine_merkmale" ? "Für deine Angaben zählt gerade kein Merkmal in die Note." : "Für eine Note fehlen Datenblattwerte.") + " Das Modell erfüllt deine Angaben" + (e.unbelegt.length ? " soweit belegt" : "")
         + ", ist aber nicht mit anderen vergleichbar bewertet. Prüfe es vor dem Kauf.";
     } else if (r.status === "unbelegt") {
       warnung = "Nicht im Datenblatt belegt: " + e.unbelegt.map(u => (felder[u.feld] || { name: u.feld }).name).join(", ") + ". Prüfe das vor dem Kauf.";
@@ -584,7 +593,8 @@
   function rangZeile(e, nr, r, felder) {
     const m = e.modell;
     const marken = [];
-    if (e.note === null && e.fehlend && e.fehlend.length) marken.push("fehlt: " + e.fehlend.slice(0, 3).map(f => (felder[f.feld] || { name: f.feld }).name).join(", "));
+    if (e.note === null && e.art === "keine_merkmale") marken.push("kein Merkmal zählt in die Note");
+    else if (e.note === null && e.fehlend && e.fehlend.length) marken.push("fehlt: " + e.fehlend.slice(0, 3).map(f => (felder[f.feld] || { name: f.feld }).name).join(", "));
     if (e.imBudget === false) marken.push("über Budget");
     if (e.imBudget === null && zustand.b) marken.push("Preis unbekannt");
     if (e.unbelegt.length) marken.push("nicht belegt: " + e.unbelegt.map(u => (felder[u.feld] || { name: u.feld }).name).join(", "));
@@ -604,6 +614,15 @@
     ]);
   }
 
+  /* P1-04: Grund der Gruppe „Noch nicht bewertbar“ nur nennen, wenn er für die Modelle zutrifft */
+  function offenText(offen) {
+    const keine = offen.filter(e => e.art === "keine_merkmale").length;
+    const ende = " Die Modelle passen zu deinen Antworten, stehen aber ohne Rang hier.";
+    if (keine === offen.length) return "Für deine Angaben zählt gerade kein Merkmal in die Note." + ende;
+    if (keine === 0) return "Für eine Note fehlen zu viele Datenblattwerte." + ende;
+    return "Für eine Note fehlen zu viele Datenblattwerte, oder es zählt kein Merkmal in die Note." + ende;
+  }
+
   function rangliste(kat, r) {
     const felder = Object.fromEntries(kat.felder.map(f => [f.id, f]));
     const imBudget = r.rang.filter(e => e.imBudget === true);
@@ -611,12 +630,9 @@
     const zeigen = zustand.b && !teurereZeigen ? imBudget : r.rang;
     // 07 B10: Modelle ohne Note stehen in einer eigenen Gruppe ohne Rangnummer
     const bewertet = zeigen.filter(e => e.note !== null), offen = zeigen.filter(e => e.note === null);
-    // 07 B15: nach Note sortiert bekommt die gleiche angezeigte Zahl den gleichen Rang
-    const nummern = [];
-    bewertet.forEach((e, i) => {
-      const gleich = zustand.o === "note" && i > 0 && Math.round(e.note) === Math.round(bewertet[i - 1].note);
-      nummern.push(gleich ? nummern[i - 1] : i + 1);
-    });
+    // 07 B15 / P1-01: Rang = Notenrang aus der angezeigten Zahl, unabhängig von der Sortierung
+    // (gleiche angezeigte Note → gleicher Rang; Rang = 1 + Anzahl der Modelle mit höherer angezeigter Note)
+    const nummern = bewertet.map(e => 1 + bewertet.filter(x => Math.round(x.note) > Math.round(e.note)).length);
     const sortierung = h("div", { class: "segment", role: "radiogroup", "aria-label": "Sortieren nach" }, SORTEN.map(([id, text]) =>
       h("label", { class: "segment-wahl" }, [
         h("input", { type: "radio", name: "sortierung", value: id, checked: zustand.o === id, "data-fokus": "sort-" + id,
@@ -630,7 +646,7 @@
     if (offen.length) {
       teile.push(h("section", { class: "offen", "aria-labelledby": "offen-titel" }, [
         h("h3", { id: "offen-titel", class: "offen-titel" }, ["Noch nicht bewertbar (" + offen.length + ")"]),
-        h("p", { class: "hilfe" }, ["Für eine Note fehlen zu viele Datenblattwerte. Die Modelle passen zu deinen Antworten, stehen aber ohne Rang hier."]),
+        h("p", { class: "hilfe" }, [offenText(offen)]),
         h("ul", { class: "rang" }, offen.map(e => rangZeile(e, null, r, felder))),
       ]));
     }

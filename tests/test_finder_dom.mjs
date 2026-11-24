@@ -89,14 +89,22 @@ test("Quelltext: kein innerHTML, Links nur mit noopener noreferrer", () => {
   assert.equal(/<script[^>]+src="https?:/i.test(fs.readFileSync(path.join(ORDNER, "index.html"), "utf8")), false);
 });
 
-test("CSS: Ablage-Knopf nicht von der Layoutklasse .haupt auf volle Breite gezogen (Browserbefund 24.11.)", () => {
+test("P1-02: „haupt“ ist nur noch Knopfstil, das Layout heißt .hauptspalte (Browserbefund 24.11., Codex P1-02)", () => {
   const css = fs.readFileSync(path.join(ORDNER, "finder.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-  // Die Layoutklasse .haupt setzt width: 100% und trifft auch Knöpfe mit class="knopf haupt"
-  assert.match(css, /(^|\})\s*\.leiste, \.haupt, \.fuss \{[^}]*width: 100%/);
-  const regel = (css.match(/\.ablage \.knopf \{([^}]*)\}/) || [])[1] || "";
-  assert.match(regel, /width: auto/);
-  assert.match(regel, /margin: 0/);
-  assert.match(regel, /max-width: none/);
+  // jeder Selektorteil mit der Klasse .haupt (Wortgrenze, nicht .rang-haupt/.hauptspalte) ist genau .knopf.haupt
+  const selektoren = [...css.matchAll(/(^|\})([^{}]+)\{/g)].flatMap(m => m[2].split(",").map(x => x.trim()));
+  const mitHaupt = selektoren.filter(x => /\.haupt(?![\w-])/.test(x));
+  assert.ok(mitHaupt.length >= 1);
+  for (const x of mitHaupt) assert.match(x, /^\.knopf\.haupt$/, "Selektor trifft mehr als den Knopf: " + x);
+  assert.match(css, /(^|\})\s*\.leiste, \.hauptspalte, \.fuss \{[^}]*width: 100%/);
+  assert.match(fs.readFileSync(path.join(ORDNER, "index.html"), "utf8"), /<main id="inhalt" class="hauptspalte"/);
+  // in den Skripten steht „haupt“ als Klasse nur zusammen mit „knopf“ (Ablage, Angebotslink, Neu laden, Weiter)
+  for (const datei of ["finder.js", "finder-app.js"]) {
+    const js = fs.readFileSync(path.join(ORDNER, datei), "utf8");
+    for (const m of js.matchAll(/(?:class(?:Name)?\s*[:=]\s*)"([^"]*)"/g)) {
+      if (m[1].split(/\s+/).includes("haupt")) assert.ok(m[1].split(/\s+/).includes("knopf"), datei + ": " + m[1]);
+    }
+  }
   const text = (css.match(/\.ablage-text \{([^}]*)\}/) || [])[1] || "";
   assert.match(text, /white-space: nowrap/);
 });
@@ -330,4 +338,54 @@ test("P1 07 B08 / Testlinks: Variante „Standard“ und doppelte Typnummer weg,
   const testlink = alle(dok.body).find(e => e.tagName === "A" && text(e) === "Test bei Beispiel-Labor");
   assert.equal(testlink.getAttribute("rel"), "noopener noreferrer");
   assert.ok(testlink.getAttribute("href").startsWith("https://example.org/test/"));
+});
+
+test("P1-01: gleiche angezeigte Note → gleicher Rang in jeder Sortierung", async () => {
+  const raenge = async o => {
+    const { dok } = await starte("#k=fernseher&s=ergebnis&b=500&o=" + o);
+    const [bewertet] = alle(dok.body).filter(e => e.className === "rang");
+    return Object.fromEntries(alle(bewertet).filter(e => e.className.startsWith("rang-eintrag")).map(li => [
+      text(alle(li).find(e => e.className === "rang-name")), text(alle(li).find(e => e.className === "rang-nr"))]));
+  };
+  const note = await raenge("note");
+  assert.deepEqual(Object.values(note).sort(), ["1", "1", "3", "4"]);
+  assert.deepEqual(await raenge("preis"), note, "Günstigste");
+  assert.deepEqual(await raenge("effizienz"), note, "Punkte je Euro");
+});
+
+test("P1-03: gemischte Daten – Meldung nennt Note, Preis und Budget statt pauschal „kein Preis“", async () => {
+  const d = JSON.parse(BEISPIEL);
+  const tv = d.kategorien.find(k => k.id === "fernseher");
+  for (const m of tv.modelle) m.preis = null;
+  const ohneNote = tv.modelle.find(m => m.id === "tv-c6-32");
+  ohneNote.teilpunkte = {};
+  ohneNote.preis = { eur: 100.5, haendler: "Beispielshop", url: "https://example.org/c6", stand: "2026-11-20" };
+  const { dok } = await starte("#k=fernseher&s=ergebnis&b=95", JSON.stringify(d));
+  const t = text(dok.body);
+  assert.equal(klassen(dok, "empfehlung").length, 0);
+  assert.equal(t.includes("Für die passenden Modelle kennen wir gerade keinen Preis"), false, t.slice(0, 500));
+  assert.ok(t.includes("Für die Modelle mit Note kennen wir gerade keinen Preis, und die Modelle mit Preis liegen über deinem Budget und haben keine Note."), t.slice(0, 500));
+  // ohne jeden Preis bleibt die bisherige Meldung
+  ohneNote.preis = null;
+  const leer = await starte("#k=fernseher&s=ergebnis&b=95", JSON.stringify(d));
+  assert.ok(text(leer.dok.body).includes("Für die passenden Modelle kennen wir gerade keinen Preis"));
+});
+
+test("P1-04: zählt kein Merkmal (alle Gewichte 0), nennt die Ansicht das statt fehlender Datenblattwerte", async () => {
+  const d = JSON.parse(BEISPIEL);
+  const tv = d.kategorien.find(k => k.id === "fernseher");
+  for (const f of tv.felder) f.gewicht = 0;
+  const { dok } = await starte("#k=fernseher&s=ergebnis&b=500", JSON.stringify(d));
+  const t = text(dok.body);
+  const offen = alle(dok.body).find(e => e.className === "offen");
+  assert.ok(offen, t.slice(0, 300));
+  const zeilen = alle(offen).filter(e => e.className.startsWith("rang-eintrag"));
+  assert.ok(zeilen.length >= 1);
+  for (const z of zeilen) assert.ok(text(z).includes("kein Merkmal zählt in die Note"), text(z));
+  assert.ok(text(offen).includes("Für deine Angaben zählt gerade kein Merkmal in die Note."));
+  assert.equal(t.includes("Datenblattwerte"), false, "keine falsche Ursache: " + t.slice(0, 600));
+  assert.equal(t.includes("zu wenig Daten"), false);
+  // Gegenfall: fehlende Werte nennen weiter „fehlt: …“
+  const normal = await starte("#k=fernseher&s=ergebnis&b=500");
+  assert.ok(text(normal.dok.body).includes("Für eine Note fehlen zu viele Datenblattwerte."));
 });
