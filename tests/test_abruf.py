@@ -182,6 +182,11 @@ class Robots(unittest.TestCase):
             for url in ("https://u:p@h.invalid/a", "https://u@h.invalid/a", "https://@h.invalid/a"):
                 with self.subTest(url=url):
                     self.assertEqual(abruf.robots_ok(url), (False, "URL mit Nutzerteil (@) in der Authority"))
+            # Codex r4 R4-01: Klammern ohne IPv6 (IPvFuture u. Ä.); hostname verliert die Klammern, urllib nicht
+            for url in ("https://[v1.invalid]/a", "https://[h.invalid]/a", "https://[v1.fe80::1]/a",
+                        "https://[127.0.0.1]/a", "https://[]/a", "https://[2001:db8::1]x/a"):
+                with self.subTest(url=url):
+                    self.assertEqual(abruf.robots_ok(url), (False, "URL mit Klammern ohne gültige IPv6-Adresse"))
             h.assert_not_called()
         with unittest.mock.patch.object(abruf, "holen") as h, unittest.mock.patch("builtins.print"):
             self.assertEqual(abruf.main.__module__, "abruf")
@@ -532,7 +537,8 @@ class Domainsperre(unittest.TestCase):
             self.assertIsNone(abruf.gesperrt_bis("h.invalid"), "nach 30 min frei")
             for inhalt in (b"", b"\xff\xfe\x81", b" \n\t", "﻿".encode(), "​".encode(),
                            "﻿ ​⁠".encode(), "️".encode(), "⃣".encode(),
-                           "ㅤᅟ".encode(), "͏\U000e0100".encode()):   # Codex r3: ohne Zeichenbild
+                           "ㅤᅟ".encode(), "͏\U000e0100".encode(),   # Codex r3: ohne Zeichenbild
+                           "⠀".encode(), "𝅙".encode(), "⠀ ⠀️".encode()):   # Codex r4: So ohne Zeichenbild
                 with self.subTest(inhalt=inhalt):
                     vermerk.write_bytes(inhalt)
                     grund = abruf.gesperrt_bis("h.invalid")

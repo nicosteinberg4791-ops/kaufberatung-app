@@ -14,6 +14,7 @@ Aufruf:  python -I abruf.py <https-URL> [--text N]
 """
 import hashlib
 import html
+import ipaddress
 import json
 import math
 import os
@@ -181,13 +182,14 @@ def stempel_setzen(stempel, laeuft=False):
     os.replace(neu, stempel)
 
 
-# Buchstaben ohne Zeichenbild (Default_Ignorable_Code_Point der Kategorie Lo: Hangul-Füller)
-_FUELLER = frozenset((0x115F, 0x1160, 0x3164, 0xFFA0))
+# Zeichen der Kategorien L/S ohne Zeichenbild: Hangul-Füller (Default_Ignorable_Code_Point, Lo), r4 R2-04a:
+# leeres Braille-Muster U+2800 und MUSICAL SYMBOL NULL NOTEHEAD U+1D159 (So)
+_FUELLER = frozenset((0x115F, 0x1160, 0x3164, 0xFFA0, 0x2800, 0x1D159))
 
 
 def _sichtbar(c):
     """Zeichen mit eigenem Zeichenbild (r1–r3): nur Buchstaben, Ziffern, Satz- und Sonderzeichen (Kategorien L, N, P,
-    S) ohne die Hangul-Füller. Leerraum, Steuer- und Formatzeichen (BOM, U+200B), kombinierende Zeichen und
+    S) ohne die Zeichen in _FUELLER. Leerraum, Steuer- und Formatzeichen (BOM, U+200B), kombinierende Zeichen und
     Variantenwähler (Mn, Me, z. B. U+FE0F, U+20E3, U+E0100) zählen nicht."""
     return unicodedata.category(c)[0] in "LNPS" and ord(c) not in _FUELLER
 
@@ -403,11 +405,22 @@ def robots_ok(url):
     # r1 R5-05: urlsplit entfernt Tabulator, CR und LF still (z. B. „:	“ → Standardport), der HTTP-Client nicht
     if any(ord(c) <= 32 or ord(c) == 127 for c in url):
         return False, "URL mit Leer- oder Steuerzeichen"
-    teile = urllib.parse.urlsplit(url)
+    try:
+        teile = urllib.parse.urlsplit(url)
+    except ValueError:   # r4 R4-01: urlsplit lehnt manche Klammer-Hosts selbst ab (z. B. „[h.invalid]“), auch NFKC-Fälle
+        if "[" in url or "]" in url:
+            return False, "URL mit Klammern ohne gültige IPv6-Adresse"
+        return False, "URL nicht lesbar"
     if "%" in teile.netloc:   # r2 R2-02/R2-03: urllib dekodiert die Authority anders als urlsplit (Host, Port)
         return False, "URL mit Prozentkodierung in Host oder Port"
     if "@" in teile.netloc:   # r3 R3-01: urllib liest einen Nutzerteil anders (z. B. „p@h.invalid“ als Port)
         return False, "URL mit Nutzerteil (@) in der Authority"
+    if "[" in teile.netloc or "]" in teile.netloc:   # r4 R4-01: hostname verliert die Klammern (IPvFuture), urllib nicht
+        klammer = re.fullmatch(r"\[([0-9A-Fa-f:.]+)\](?::[0-9]*)?", teile.netloc)
+        try:
+            ipaddress.IPv6Address(klammer[1] if klammer else "")
+        except ValueError:
+            return False, "URL mit Klammern ohne gültige IPv6-Adresse"
     for m in GESPERRT_PFADE:
         if re.search(m, teile.path + ("?" + teile.query if teile.query else "")):
             return False, "Pfad laut robots-Regel gesperrt: " + m

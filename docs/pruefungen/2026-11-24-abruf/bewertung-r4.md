@@ -17,3 +17,12 @@ Muster: R2-04a ist die dritte Runde derselben Klasse (Leerraum → Format-/kombi
 - **(C)** beide als Restrisiko annehmen, nichts ändern.
 
 Empfehlung: B. Beide Korrekturen sind klein und mit Test belegbar, keine berührt die Sperrwirkung, und eine weitere Runde würde nach dem Muster oben wahrscheinlich nur das nächste exotische Zeichen finden.
+
+## Behebung (O23 = B, Besitzer 24.11.2026: beheben ohne weitere Runde, selbst geprüft)
+
+| ID | Behebung | Probe |
+|---|---|---|
+| R2-04a | `_FUELLER` um U+2800 und U+1D159 ergänzt; ein Vermerk nur aus diesen Zeichen (auch gemischt mit Leerraum und U+FE0F) ergibt „Sperrvermerk ohne Grund“ | `test_sperrvermerk_…`: U+2800, U+1D159, „U+2800 U+2800 U+FE0F“ (vorher rot) |
+| R4-01 | `robots_ok` lässt Klammern in der Authority nur mit gültiger IPv6-Adresse (`ipaddress.IPv6Address`, optional mit Port) zu; lehnt `urlsplit` die URL selbst ab, endet `robots_ok` ohne Abruf (mit Klammern: eigener Text, sonst „URL nicht lesbar“) | `test_port_null_…`: `[v1.invalid]`, `[h.invalid]`, `[v1.fe80::1]`, `[127.0.0.1]`, `[]`, `[2001:db8::1]x`; `holen` bleibt unaufgerufen (vorher rot: 7 Fehlschläge, 3 Fehler, `holen` 3-mal aufgerufen); `[2001:db8::1]` bleibt erlaubt |
+
+Rot vor der Korrektur: 7 Fehlschläge und 3 Fehler in 2 Tests, grün danach (33 Tests). Prüfstufe: selbst geprüft · unabhängig: Codex r1–r4 nicht bestanden, keine Runde 5 (O23 = B).
