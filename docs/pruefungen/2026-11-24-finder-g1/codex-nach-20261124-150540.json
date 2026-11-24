@@ -1,0 +1,58 @@
+{
+  "urteil": "bestanden_mit_hinweisen",
+  "zusammenfassung": "Die fünf ursprünglichen Reproduktionen sind behoben. Am Commit b7f5b2457988a7af86626a3aead4a448d64ab9b1 waren 68 von 68 Node-Tests grün. Mit `finder.js` aus 54052c3 im Speicher schlugen genau G1-01 bis G1-05 fehl. Die Nachprüfung ergab zwei Randfälle und zwei Testlücken, aber keinen Blocker.",
+  "befunde": [
+    {
+      "id": "G1-R2-01",
+      "schwere": "mittel",
+      "titel": "Der Neuaufbau verliert den Fokus eines weiterhin vorhandenen Reglers",
+      "datei": "app/finder/finder.js",
+      "zeile": 480,
+      "beleg": "Im DOM-Adapter mit simuliertem Fokusverhalten für geschlossene `<details>` geprüft: Fernseher-Ergebnis mit `a=ton.ja&p=tuner_triple.4` öffnen, „Alle Merkmale“ aufklappen, den Tuner-Regler fokussieren und per `popstate` zur Adresse ohne `a=ton.ja` wechseln. Der neue Regler behält Stufe 4. Sein `<details>` ist wieder geschlossen, sodass der Fokusaufruf in Z. 999–1000 ihn nicht erreicht.",
+      "auswirkung": "Tastaturnutzende müssen den Bereich erneut öffnen und zum Regler navigieren, um dort weiterzuarbeiten.",
+      "vorschlag": "Den geöffneten Zustand von „Alle Merkmale“ beim Neuaufbau übernehmen und den Fokus auf den weiterhin vorhandenen Regler zurücksetzen. Den Adresswechsel mit einem fokussierten Regler im aufgeklappten Bereich testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "G1-R2-02",
+      "schwere": "mittel",
+      "titel": "Laufende FLIP-Animationen reagieren nicht auf aktivierte Bewegungsreduktion",
+      "datei": "app/finder/finder.js",
+      "zeile": 534,
+      "beleg": "`rangLagen()` fragt in Z. 520 die aktuelle Einstellung für eine neue Umordnung ab. `rangGleiten()` startet in Z. 534 Animationen für 240 ms und verwirft die Rückgabewerte von `animate()`. Der Code lauscht nicht auf Änderungen der Media-Query. Wird die Bewegungsreduktion während einer laufenden Animation aktiviert, läuft diese bis zum regulären Ende weiter.",
+      "auswirkung": "Die bereits gestartete Bewegung bleibt nach dem Einstellungswechsel noch bis zu 240 ms sichtbar.",
+      "vorschlag": "Laufende FLIP-Animationen beim Wechsel zu reduzierter Bewegung abbrechen und den Abbruch in einer Probe auslösen, solange eine Animation läuft.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "G1-R2-03",
+      "schwere": "mittel",
+      "titel": "Die Beobachterprobe erreicht den Pfad ohne neue Hinweiskarten nicht",
+      "datei": "tests/test_finder_dom.mjs",
+      "zeile": 628,
+      "beleg": "Beim Wechsel von `b=500` zu „Budget egal“ bleibt im DOM-Adapter ein Beobachtungsziel registriert. Der Test bleibt grün, wenn `disconnect()` in `glasBeobachten()` im Speicher wieder hinter den Rücksprung bei leerer Kartenliste verschoben wird.",
+      "auswirkung": "Eine Regression beim Neurechnen ohne neue Karten kann die Probe passieren.",
+      "vorschlag": "Von einem Ergebnis mit beobachteter Karte zu einem Ergebnis ohne Hinweiskarten wechseln und unmittelbar danach null Beobachtungsziele prüfen. Den Schirmwechsel separat mit einer noch beobachteten Karte testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "G1-R2-04",
+      "schwere": "mittel",
+      "titel": "Die Probe zum zugänglichen Namen prüft keine echten null Teilpunkte",
+      "datei": "tests/test_finder_dom.mjs",
+      "zeile": 592,
+      "beleg": "Die Probe löscht Tunerwert und Tuner-Teilpunkte und prüft ausschließlich Zeilen mit `className === \"hz fehlt\"`. Eine zusätzliche Probe im Speicher mit tatsächlich 0 Teilpunkten für Bildtechnik bestätigte, dass der aktuelle Code beide Namen ausgibt: „0 von 100 Teilpunkten“ und „nicht angegeben“.",
+      "auswirkung": "Die versionierte Probe erkennt keine Regression, die einen vorhandenen Nullwert als fehlend ausgibt.",
+      "vorschlag": "Im selben Test ein vorhandenes Merkmal mit 0 Teilpunkten belegen und seinen zugänglichen Namen zusätzlich prüfen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "G1-01 – Die Reglerliste folgt der wirksamen Feldauswahl bei Adresswechseln in beide Richtungen. Bei gleicher Liste bleiben die Eingabeelemente erhalten.",
+    "G1-02 – Fehlende Teilpunkte werden als „nicht angegeben“ ausgegeben. Ein vorhandener Nullwert behält seine Punkteangabe.",
+    "G1-03 – Die Vorsprungsmarken in Rangliste und Merkmalsvergleich verwenden die gerundeten Werte.",
+    "G1-04 – Die Beobachtungsziele werden auch beim Neurechnen ohne Karten und beim Verlassen des Ergebnisschirms abgemeldet.",
+    "G1-05 – Neue FLIP-Animationen und der Vergleichssprung fragen die aktuelle Bewegungseinstellung ab."
+  ],
+  "pruefgrenzen": "Die Nachprüfung war auf den Diff und gezielte Aufrufstellen der fünf benannten Fehlerklassen beschränkt. Alle fünf Altbefunde waren zur Prüfung vorgesehen. Der PowerShell-Sammellauf wurde wegen seiner Datei- und Protokollschreibvorgänge im rein lesenden Auftrag nicht gestartet. „Fehler: 0“ für den Sammellauf ist daher nur durch die Lead-Angabe belegt. Fokus und Bewegung wurden anhand des Codes und des DOM-Adapters geprüft. Ein Browserlauf fand nicht statt."
+}
