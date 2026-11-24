@@ -39,9 +39,15 @@ Schritt 1 (Einbau, 8ce6e78) und 2 (Daten, c0f9204: 301 Modelle, 389 Varianten, `
 - Nicht auf echtem Android-Handy geprüft: neue Icons, Push-Zustellung, Besitzer-Merker.
 - **O14:** entschieden (Besitzer 22.11.2026): C – nach bestandener Codex-Prüfung nur gh-pages (`veroeffentlichen.py` aus dem Finder-Zweig). **O15–O20:** entschieden (Runden r5–r10 der Finder-Veröffentlichung, siehe Finder-Abschnitt).
 
+## UX-Neuausrichtung (Recherche 24.11.2026, `main`, nicht committet)
+
+Auftrag Besitzer 24.11.: Führung/UX deutlich verbessern, Angebotsliste aller Shops statt eines Bestpreises, nachvollziehbare Punkte, je Kategorie ein erlebbarer „Test“ wie der TV-Bildvergleich, deutlich mehr Modelle je Preisstufe, verschiedene Nutzertypen abholen; parallel mit Subagenten, aber erst Recherche. **Recherche fertig** (8 Subagenten + Verdichtung, selbst geprüft auf Vollständigkeit und Geheimnisse, inhaltlich nicht unabhängig geprüft): [docs/recherche-ux/00-konzept.md](docs/recherche-ux/00-konzept.md) mit Zielbild, Paketen P0–P7, 13 Besitzerentscheidungen; Einzelberichte 01–08 (Skills, UX-Muster, Testdaten Unterhaltung/Haushalt, Preisvergleich, Katalog, UX-Audit, Personas). Kernbefund: Note zählt nur Datenblatt-Häkchen (Soundcore 65 € = 84 vor Sony XM6 = 81), Empfehlungen ohne Preis, nur ein Preis je Modell, keine Produktseite/Suche, Kappung 84 macht „hervorragend“ unerreichbar. Impeccable: Ordner im Worktree leer (Neuinstallation = Entscheidung 10). Nichts gebaut, nichts installiert.
+
 ## Nächster Schritt
 
-**Pilot messen, Tag 2–5** (23.–26.11., Bauplan Schritt 8) nach dem Messplan in `messung.md`. Besitzer 22.11.: O12 vorläufig „beide messen, Entscheidung Tag 5“, damit Actions-Läufe Tag 2–5 freigegeben (je Tag ein `workflow_dispatch`). Saturn-URLs AF500EU/Z30 am 22.11. umgestellt (9dadd61). Mit dem Push vom 23.11. gelten die neuen URLs auch in Actions. Klären, ob die geplante lokale Messung (`messung/pilot/`, andere Sitzung) den lokalen Lauf übernimmt.
+**UX-Neuausrichtung:** Besitzer entscheidet die 13 Punkte in `docs/recherche-ux/00-konzept.md` §5; danach P1 Sofortfixes (Konzept §4) bauen, parallel P6 Stufe 1 (Preise nachtragen). Fertig, wenn die Entscheidungen in `docs/entscheidungen.md` stehen und P1 mit Tests grün und Browserprüfung (`preview_start` „kb-app“) selbst geprüft ist. Lesen: `docs/recherche-ux/00-konzept.md`, bei Bedarf `07-ux-audit.md`, `08-personas.md`.
+
+Weitere Stränge (eigene Sitzungen): **Pilot messen, Tag 2–5** (23.–26.11., Bauplan Schritt 8) nach dem Messplan in `messung.md`. Besitzer 22.11.: O12 vorläufig „beide messen, Entscheidung Tag 5“, damit Actions-Läufe Tag 2–5 freigegeben (je Tag ein `workflow_dispatch`). Saturn-URLs AF500EU/Z30 am 22.11. umgestellt (9dadd61). Mit dem Push vom 23.11. gelten die neuen URLs auch in Actions. Klären, ob die geplante lokale Messung (`messung/pilot/`, andere Sitzung) den lokalen Lauf übernimmt.
 **Fertig, wenn:** `messung.md` enthält Tag 2–5 je Umgebung, die Kennzahlen am Ende und eine Entscheidungsvorlage für O12 und Schritt 9.
 **Lesen:** `docs/pruefungen/2026-11-21-pilot-bestpreis/messung.md` (Messplan) · `daten/pilot_modelle.json`.
 
