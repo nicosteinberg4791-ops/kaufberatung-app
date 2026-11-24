@@ -43,9 +43,9 @@ Schritt 1 (Einbau, 8ce6e78) und 2 (Daten, c0f9204: 301 Modelle, 389 Varianten, `
 
 ## Nächster Schritt
 
-**Paket `abruf.py`** (Arbeitszweig neu ab origin/main e78c869): R5-01 (Abstand bei Abbruch am Endstempel), R5-05 (robots: Port 0/mehrdeutiger Ablagename), R6-02 (IPv6-Sperrdatei unter Windows), R2-04 (`gesperrt_bis` wertet Link ohne Ziel als „nicht gesperrt“), Hinweis R10-01 und encoding der Test-Helfer `zeige`/`g`. Vorher Umfang mit dem Besitzer schneiden.
-**Fertig, wenn:** Befunde behoben, Tests rot→grün, Sammellauf und Datenbank 0 Fehler, Codex-Prüfung bestanden.
-**Lesen:** `docs/pruefungen/2026-11-22-finder-veroeffentlichung/bewertung-r6.md` · `docs/pruefungen/2026-11-23-finder-abgleich/bewertung-r2.md` (R2-04) · `bewertung-r10.md`.
+**Paket `abruf.py`** (Zweig `claude/paket-abruf-dead7c`, nicht gepusht): Umfang vom Besitzer geschnitten (24.11.): R5-05, R6-02, R2-04, UTF-8 der Git-Test-Helfer; R5-01 durch A2 geschlossen (Codex bestätigt); R10-01 nicht im Paket. Codex high r1 (88e026e) und r2 (158fde1) nicht bestanden, alle Befunde behoben (`bewertung-r1.md`, `bewertung-r2.md`). **Codex r3 (8bb2ec2, letzte Runde nach KERN §3) nicht bestanden:** offen R2-04a (U+FE0F als unsichtbarer Sperrgrund, Sperre wirkt) und R3-01 (mittel, Nutzerteil `u:p@` in der Authority, Abbruch vor dem Senden), beide bestätigt, nichts behoben. **O22 (Besitzer):** A beheben + schmale Runde 4 · B beheben ohne Runde · C Restrisiko (`docs/pruefungen/2026-11-24-abruf/bewertung-r3.md`).
+**Fertig, wenn:** O22 entschieden und umgesetzt, Sammellauf „Fehler: 0“, Datenbank „Fehler 0“, Bewertung committet; Push nur mit Freigabe.
+**Lesen:** `docs/pruefungen/2026-11-24-abruf/bewertung-r3.md` · `werkzeuge/datenpflege/abruf.py` (`gesperrt_bis`, `robots_ok`).
 
 **Pilot messen, Tag 2–5** (23.–26.11., Bauplan Schritt 8) nach dem Messplan in `messung.md`. Besitzer 22.11.: O12 vorläufig „beide messen, Entscheidung Tag 5“, damit Actions-Läufe Tag 2–5 freigegeben (je Tag ein `workflow_dispatch`). Saturn-URLs AF500EU/Z30 am 22.11. umgestellt (9dadd61). Mit dem Push vom 23.11. gelten die neuen URLs auch in Actions. Klären, ob die geplante lokale Messung (`messung/pilot/`, andere Sitzung) den lokalen Lauf übernimmt.
 **Fertig, wenn:** `messung.md` enthält Tag 2–5 je Umgebung, die Kennzahlen am Ende und eine Entscheidungsvorlage für O12 und Schritt 9.
