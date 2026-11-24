@@ -1,0 +1,30 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "57 Node-Tests bestanden, 0 fehlgeschlagen. Die Meldung ohne Empfehlung nennt bei gemischten Ursachen einen falschen Grund. Bei identischer angezeigter Note und identischem Preis bestimmen ungerundete Punkte weiterhin die Reihenfolge.",
+  "befunde": [
+    {
+      "id": "P1-03/P1-04",
+      "schwere": "schwer",
+      "titel": "Die Meldung ohne Empfehlung unterschlägt gemischte Ursachen",
+      "datei": "app/finder/finder.js",
+      "zeile": 453,
+      "beleg": "Fertigkriterium: „Meldung ohne Empfehlung und Gruppe ‚Noch nicht bewertbar‘ nennen den tatsächlichen Grund (keine Note / kein Preis / gemischt / kein Merkmal zählt).“ Die Gegenprobe verwendet zwei Air Fryer für 100 € und 110 € bei 95 € Budget. Nur die Sync-Funktion ist gewichtet. Beim Einkorbmodell greift sie nicht (`keine_merkmale`), beim Zweikorbmodell fehlt ihr Datenblattwert (`zu_wenig_daten`). `ohneEmpfehlungText` meldet dennoch „Für keins der passenden Modelle reichen die Datenblattangaben für eine Note.“ Auch wenn beide Preise fehlen, erscheint dieselbe Meldung.",
+      "auswirkung": "Die Meldung schreibt dem Einkorbmodell eine Datenlücke zu. Wenn außerdem alle Preise fehlen, bleibt die fehlende Kaufvoraussetzung unerwähnt. Die Gruppe kann die gemischten Notenursachen bereits benennen.",
+      "vorschlag": "Die Ursachen für fehlende Noten in beiden Meldungen über dieselbe Fallunterscheidung bestimmen. Fehlende Preise auch dann berücksichtigen, wenn alle Modelle ohne Note sind. Beide Kombinationen im DOM-Test abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P1-01",
+      "schwere": "mittel",
+      "titel": "Ungerundete Punkte entscheiden weiterhin bei gleichem Preis",
+      "datei": "app/finder/bewertung.js",
+      "zeile": 161,
+      "beleg": "Die Gegenprobe mit Modell `a` (84,6 Punkte) und Modell `z` (85,4 Punkte), beide für 100 €, ergibt in allen drei Sortierungen `z` vor `a`. Beide zeigen 85 Punkte und erhalten denselben Rang. `vergleichNote` entscheidet bei gleichem Preis anhand der ungerundeten Note. Der neue Test in `tests/test_bewertung.mjs:463` schreibt diesen Rückgriff für „Punkte je Euro“ ausdrücklich fest.",
+      "auswirkung": "Die Korrektur schließt die Fehlerklasse beim Rang und bei der Effizienzberechnung. Die Reihenfolge kann bei vollständigem sichtbarem Gleichstand weiterhin allein durch verborgene Nachkommastellen wechseln.",
+      "vorschlag": "Bei gleicher angezeigter Note und gleichem Preis direkt die Modell-ID als stabilen Gleichstandsentscheid verwenden und den Test entsprechend anpassen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": ["P1-02", "P1-05"],
+  "pruefgrenzen": "Nachprüfung am Commit 268fb0611770889736d493c384ed30c3a222a012 mit den benannten Stellen, gezielten Gegenproben und den drei vorgegebenen Node-Testsuiten. Für alle fünf früheren Befunde war die Fehlerklasse angegeben. Der Browserbefund bei 768 px wurde anhand der CSS-Regeln und des P1-02-Tests geprüft. Ein eigener Browserlauf gehörte nicht zur Prüfung."
+}

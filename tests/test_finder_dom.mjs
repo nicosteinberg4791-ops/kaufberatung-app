@@ -389,3 +389,29 @@ test("P1-04: zählt kein Merkmal (alle Gewichte 0), nennt die Ansicht das statt 
   const normal = await starte("#k=fernseher&s=ergebnis&b=500");
   assert.ok(text(normal.dok.body).includes("Für eine Note fehlen zu viele Datenblattwerte."));
 });
+
+test("P1-03/P1-04 r2: ohne Note nennt die Meldung Notengrund und Preisgrund, auch gemischt (Codex r2)", async () => {
+  const preis = eur => ({ eur, haendler: "Beispielshop", url: "https://example.org/p" + eur, stand: "2026-11-20" });
+  // Air Fryer, nur die Sync-Funktion gewichtet: beim Einkorbmodell nicht anwendbar (kein Merkmal zählt),
+  // beim Zweikorbmodell fehlt ihr Wert (zu wenig Daten)
+  const meldung = async (p1, p2, b) => {
+    const d = JSON.parse(BEISPIEL);
+    const af = d.kategorien.find(k => k.id === "airfryer");
+    for (const f of af.felder) f.gewicht = f.id === "sync_funktion" ? 10 : 0;
+    for (const fr of af.fragen) for (const a of fr.antworten) a.gewichte = {};
+    const ein = af.modelle.find(m => m.werte.koerbe === 1), zwei = af.modelle.find(m => m.werte.koerbe === 2);
+    delete zwei.teilpunkte.sync_funktion;
+    ein.preis = p1; zwei.preis = p2; af.modelle = [ein, zwei];
+    const { dok } = await starte("#k=airfryer&s=ergebnis" + (b ? "&b=" + b : ""), JSON.stringify(d));
+    assert.equal(klassen(dok, "empfehlung").length, 0);
+    return text(klassen(dok, "karte").find(k => k.className.includes("leise")));
+  };
+  const gemischt = "Keins der passenden Modelle hat eine Note: Bei einigen fehlen Datenblattwerte, bei den anderen zählt für deine Angaben kein Merkmal.";
+  let t = await meldung(preis(100), preis(110), 95);
+  assert.ok(t.includes(gemischt) && t.includes("Alle liegen über deinem Budget."), t);
+  t = await meldung(null, null, null);
+  assert.ok(t.includes(gemischt) && t.includes("Einen Preis kennen wir für keins."), t);
+  t = await meldung(preis(100), null, 95);
+  assert.ok(t.includes("Die Modelle mit Preis liegen über deinem Budget, für die übrigen kennen wir keinen Preis."), t);
+  assert.equal(t.includes("reichen die Datenblattangaben"), false, t);
+});

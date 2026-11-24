@@ -446,16 +446,26 @@
     if (fokusDrin) { const f = findeFokus(koerper, fokus); if (f && f.focus) f.focus(); }
   }
 
-  /* P1-03: Grund für die fehlende Empfehlung aus den tatsächlichen Kombinationen von Note, Preis und Budget.
-     Ohne Empfehlung gilt (bewertung.js auswerten): kein Modell mit Preis im Budget, und kein Modell mit Note hat einen Preis. */
+  /* P1-03/P1-04 (r2): Grund für die fehlende Empfehlung aus den tatsächlichen Kombinationen von Note, Preis und Budget.
+     Ohne Empfehlung gilt (bewertung.js auswerten): kein Modell mit Preis im Budget, und kein Modell mit Note hat einen Preis.
+     Satz 1 nennt den Notengrund, Satz 2 den Preisgrund; gemischte Ursachen werden beide genannt. */
   function ohneEmpfehlungText(r) {
-    const mitNote = r.rang.some(e => e.note !== null), mitPreis = r.rang.some(e => e.preis !== null);
-    if (!mitNote) return r.rang.every(e => e.art === "keine_merkmale")
-      ? "Für deine Angaben zählt gerade kein Merkmal in die Note. Deshalb empfehlen wir keins. Die Liste unten zeigt die Modelle trotzdem."
-      : "Für keins der passenden Modelle reichen die Datenblattangaben für eine Note. Die Liste unten zeigt sie trotzdem.";
-    // 08 G: ohne bekannten Preis keine Empfehlung
-    if (!mitPreis) return "Für die passenden Modelle kennen wir gerade keinen Preis. Deshalb empfehlen wir keins. Die Liste unten zeigt sie trotzdem.";
-    return "Für die Modelle mit Note kennen wir gerade keinen Preis, und die Modelle mit Preis liegen über deinem Budget und haben keine Note. Deshalb empfehlen wir keins. Die Liste unten zeigt sie trotzdem.";
+    const ende = " Deshalb empfehlen wir keins. Die Liste unten zeigt sie trotzdem.";
+    const ohneNote = r.rang.filter(e => e.note === null);
+    const mitPreis = r.rang.filter(e => e.preis !== null).length;
+    if (ohneNote.length < r.rang.length) {
+      // 08 G: ohne bekannten Preis keine Empfehlung
+      if (!mitPreis) return "Für die passenden Modelle kennen wir gerade keinen Preis." + ende;
+      return "Für die Modelle mit Note kennen wir gerade keinen Preis, und die Modelle mit Preis liegen über deinem Budget und haben keine Note." + ende;
+    }
+    const km = ohneNote.filter(e => e.art === "keine_merkmale").length;
+    const note = km === 0 ? "Für keins der passenden Modelle reichen die Datenblattangaben für eine Note."
+      : km === ohneNote.length ? "Für deine Angaben zählt gerade kein Merkmal in die Note."
+      : "Keins der passenden Modelle hat eine Note: Bei einigen fehlen Datenblattwerte, bei den anderen zählt für deine Angaben kein Merkmal.";
+    const preis = !mitPreis ? " Einen Preis kennen wir für keins."
+      : mitPreis === r.rang.length ? " Alle liegen über deinem Budget."
+      : " Die Modelle mit Preis liegen über deinem Budget, für die übrigen kennen wir keinen Preis.";
+    return note + preis + ende;
   }
 
   /* Deine Angaben mit Fragetext (08 F): „Antwort“ allein (z. B. „Ja“) sagt ohne Frage nichts */
