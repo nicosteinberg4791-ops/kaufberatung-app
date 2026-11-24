@@ -173,7 +173,15 @@ class Robots(unittest.TestCase):
                         "https://h.invalid/a" + chr(10)):
                 with self.subTest(url=url):
                     self.assertEqual(abruf.robots_ok(url), (False, "URL mit Leer- oder Steuerzeichen"))
+            # Codex r2: urllib dekodiert die Authority, urlsplit nicht (Porttrenner %3A, Host %2d, Zonen-ID %25)
+            for url in ("https://h.invalid%3A8443/a", "https://h%2dNAME.invalid/a", "https://h%2dname.invalid/a",
+                        "https://[fe80::1%25eth0]/a", "https://u%40x@h.invalid/a", "https://h.invalid:8%34/a"):
+                with self.subTest(url=url):
+                    self.assertEqual(abruf.robots_ok(url), (False, "URL mit Prozentkodierung in Host oder Port"))
             h.assert_not_called()
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)), \
+                unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nAllow: /\n"):
+            self.assertTrue(abruf.robots_ok("https://h.invalid/a%2Fb")[0], "Prozent im Pfad bleibt erlaubt")
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
             with unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nAllow: /\n") as h:
                 self.assertTrue(abruf.robots_ok("https://h.invalid/a")[0])
@@ -464,23 +472,23 @@ class Domainsperre(unittest.TestCase):
         self.assertEqual(abruf.host_schluessel("h.invalid"), "h.invalid")
         self.assertEqual(abruf.host_schluessel("www.saturn.de"), "www.saturn.de")
         hosts = ["2001:db8::1", "2001_db8__1", "2001-db8--1", "[2001:db8::1]", "fe80::1%25eth0", "con", "con.example",
-                 "nul", "lpt1.x", "com¹", "bücher.de", "h.invalid.", ".h", "a..b", "-a", "a-", "x" * 64, "fe80::1%25ethA", "fe80::1%25etha",
+                 "nul", "lpt1.x", "com¹", "bücher.de", "h.invalid.", ".h", "a..b", "-a", "a-", "x" * 64, "fe80::1%25etha", "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 55,
                  "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 62, "h.invalid", "h_x", "h--" + "0" * 60]
         schluessel = [abruf.host_schluessel(h) for h in hosts]
         self.assertEqual(len(set(schluessel)), len(schluessel), list(zip(hosts, schluessel)))
         for h, s in zip(hosts, schluessel):
             with self.subTest(host=h):
-                self.assertRegex(s, r"\A[a-z0-9.-]{1,253}\Z")
+                self.assertRegex(s, r"\A[a-z0-9.-]{1,246}\Z")
                 self.assertNotIn(s.split(".")[0], {"con", "prn", "aux", "nul", "com1", "lpt1"})
                 if h in ("h.invalid", "2001-db8--1", "h--" + "0" * 60):   # gewöhnlicher Hostname (auch mit „--“ wie xn--) bleibt
                     self.assertEqual(s, h)
                 else:   # Hash-Name: erste Komponente länger als 63 Zeichen, also nie ein gewöhnlicher Hostname
                     self.assertRegex(s, r"\Ah--[0-9a-f]{64}\Z", h)
         self.assertEqual(abruf.host_schluessel("H.Invalid"), "h.invalid", "Groß-/Kleinschreibung wie urlsplit")
-        self.assertEqual(abruf.host_schluessel("FE80::1%25etha"), abruf.host_schluessel("fe80::1%25etha"),
-                         "Adresse klein, Zonen-ID unverändert (Codex r1 R6-02a)")
-        for lang in ("a" * 50 + "." + "b" * 50, "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 61):
-            self.assertEqual(abruf.host_schluessel(lang), lang, "gewöhnlicher Hostname bis 253 Zeichen bleibt (r1 R6-02b)")
+        for lang in ("a" * 50 + "." + "b" * 50, "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 54):
+            self.assertEqual(abruf.host_schluessel(lang), lang, "gewöhnlicher Hostname bis 246 Zeichen bleibt (r1/r2)")
+            self.assertLessEqual(len(lang + ".gesperrt"), 255)
+            self.assertLessEqual(len(lang + ".zeit.neu"), 255)
         for leer in ("", None):
             with self.assertRaises(ValueError):
                 abruf.host_schluessel(leer)
@@ -513,10 +521,13 @@ class Domainsperre(unittest.TestCase):
             self.assertEqual(abruf.gesperrt_bis("h.invalid"), "HTTP 403")
             os.utime(vermerk, (time.time() - 1801, time.time() - 1801))
             self.assertIsNone(abruf.gesperrt_bis("h.invalid"), "nach 30 min frei")
-            for inhalt in (b"", b"\xff\xfe\x81", b" \n\t"):
+            for inhalt in (b"", b"\xff\xfe\x81", b" \n\t", "﻿".encode(), "​".encode(),
+                           "﻿ ​⁠".encode()):
                 with self.subTest(inhalt=inhalt):
                     vermerk.write_bytes(inhalt)
                     grund = abruf.gesperrt_bis("h.invalid")
+                    if inhalt != b"\xff\xfe\x81":   # Codex r2 R2-04a: auch unsichtbare Formatzeichen
+                        self.assertEqual(grund, "Sperrvermerk ohne Grund")
                     self.assertTrue(grund and grund.strip(), "leer, Leerraum oder nicht dekodierbar sperrt sichtbar")
             echt_lstat, echt_lesen = os.lstat, Path.read_text
             for fehler in (PermissionError("keine Rechte"), OSError(5, "Ein-/Ausgabefehler")):

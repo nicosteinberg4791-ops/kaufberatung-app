@@ -49,17 +49,17 @@ _GERAETE = frozenset(["con", "prn", "aux", "nul", "conin$", "conout$"] + [f"{a}{
 
 def host_schluessel(host):
     """Gemeinsamer Dateischlüssel je Host für Sperr-, Zeit- und Sperrvermerkdatei (R6-02): unter Windows zulässig und
-    eindeutig. Ein gewöhnlicher Hostname bis 253 Zeichen (DNS-Grenze; wie bisher, r1 R6-02b), dessen erster Bezeichner kein Windows-Gerätename ist, bleibt
+    eindeutig. Ein gewöhnlicher Hostname bis 246 Zeichen (r2 R2-01: mit der längsten Endung „.gesperrt“ bzw.
+    „.zeit.neu“ höchstens 255 Zeichen je Namenskomponente; längere scheiterten schon vorher an .zeit.neu), dessen erster Bezeichner kein Windows-Gerätename ist, bleibt
     wie er ist (vorhandene Stempel gelten weiter). Alles andere (IPv6, Zonen-ID, Nicht-ASCII, Gerätenamen, Punkt am
     Ende, zu lang) wird zu „h--<SHA-256>“: dessen erster Bezeichner ist 67 Zeichen lang und damit nie ein gewöhnlicher
-    Hostname. Groß-/Kleinschreibung wie bei urlsplit().hostname: klein bis auf eine IPv6-Zonen-ID nach „%“, die
-    unverändert in den Hash eingeht (r1 R6-02a). ValueError bei leerem Host. Ein Pfad über MAX_PATH scheitert beim
-    Öffnen der Sperrdatei, also vor jedem Abruf (fail-closed)."""
+    Hostname. Klein wie bei urlsplit().hostname; Prozentkodierung in der Authority lehnt robots_ok vorher ab (r2
+    R2-02/R2-03). ValueError bei leerem Host. Ein Pfad über MAX_PATH scheitert beim Öffnen der Sperrdatei, also vor
+    jedem Abruf (fail-closed)."""
     if not host:
         raise ValueError("URL ohne Host")
-    adresse, zone, rest = host.partition("%")
-    host = adresse.lower() + zone + rest
-    if len(host) <= 253 and _HOSTNAME.fullmatch(host) and host.split(".")[0] not in _GERAETE:
+    host = host.lower()
+    if len(host) <= 246 and _HOSTNAME.fullmatch(host) and host.split(".")[0] not in _GERAETE:
         return host
     return "h--" + hashlib.sha256(host.encode("utf-8", "surrogatepass")).hexdigest()
 
@@ -200,7 +200,8 @@ def gesperrt_bis(domain):
         grund = s.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as e:
         return f"Sperrvermerk nicht lesbar ({type(e).__name__})"
-    return grund if grund.strip() else "Sperrvermerk ohne Grund"   # r1: auch nur Leerraum ergibt einen sichtbaren Grund
+    # r1/r2: nur Leerraum oder unsichtbare Formatzeichen (BOM, U+200B) ergeben einen sichtbaren Ersatzgrund
+    return grund if any(c.isprintable() and not c.isspace() for c in grund) else "Sperrvermerk ohne Grund"
 
 
 def holen(url):
@@ -392,6 +393,8 @@ def robots_ok(url):
     if any(ord(c) <= 32 or ord(c) == 127 for c in url):
         return False, "URL mit Leer- oder Steuerzeichen"
     teile = urllib.parse.urlsplit(url)
+    if "%" in teile.netloc:   # r2 R2-02/R2-03: urllib dekodiert die Authority anders als urlsplit (Host, Port)
+        return False, "URL mit Prozentkodierung in Host oder Port"
     for m in GESPERRT_PFADE:
         if re.search(m, teile.path + ("?" + teile.query if teile.query else "")):
             return False, "Pfad laut robots-Regel gesperrt: " + m

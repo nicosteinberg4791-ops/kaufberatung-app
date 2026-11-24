@@ -1,0 +1,57 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Die vier konkreten r1-Fälle sind korrigiert. Die Nachprüfung an Commit 158fde13470726822bc172e595e531dedbc2d540 zeigt drei blockierende Lücken bei Windows-Dateinamen, Host-Schlüsseln und der Bestimmung des robots-Ursprungs.",
+  "befunde": [
+    {
+      "id": "R2-01",
+      "schwere": "schwer",
+      "titel": "Lange Hostnamen erzeugen unter Windows unzulässige Takt-Dateinamen",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 62,
+      "beleg": "Das Fertigkriterium lautet „Sperr-, Zeit- und Sperrvermerkdatei teilen einen Windows-tauglichen, eindeutigen Schlüssel je Host“. Bei einem gültigen Host mit 247 Zeichen werden `.gesperrt` und `.zeit.neu` je 256 Zeichen lang. Bei 253 Zeichen wird bereits `.lock` 258 Zeichen lang. Das lokale NTFS meldet maximal 255 Zeichen je Pfadkomponente. `GetFileAttributesW` lieferte für die überlangen Namen auch mit Windows-Langpfadpräfix Fehler 123.",
+      "auswirkung": "Der Abruf bricht bei solchen Hosts vor dem HTTP-Versuch ab. Ein kürzerer Takt-Ordner oder die Freigabe langer Windows-Pfade behebt die Grenze je Dateiname nicht.",
+      "vorschlag": "Die längste Endung bei der Wahl des gemeinsamen Dateischlüssels berücksichtigen. Bei einer Umstellung bereits nutzbare `.zeit`-Dateien weiter berücksichtigen und die vollständigen Dateinamen an den Längengrenzen testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-02",
+      "schwere": "schwer",
+      "titel": "Prozentkodierte DNS-Hosts erhalten je nach Großschreibung getrennte Takte",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 60,
+      "beleg": "Das Fertigkriterium verlangt „einen Windows-tauglichen, eindeutigen Schlüssel je Host“. Die lesende Probe für `h%2dNAME.invalid` und `h%2dname.invalid` ergab zwei verschiedene Hashes. `urllib.request` dekodiert beide zu demselben DNS-Host bis auf Großschreibung. Windows vergleicht die früheren `.zeit`-Dateinamen bei gewöhnlicher Groß-/Kleinschreibungstoleranz als gleich. Die neue Ausnahme für Text nach `%` greift auch bei DNS-Namen.",
+      "auswirkung": "Ein zweiter Abruf desselben Hosts kann den Zeitstempel oder Sperrvermerk der ersten Schreibweise übergehen.",
+      "vorschlag": "Die Großschreibung nach `%` ausschließlich bei erkannten IPv6-Zonen-IDs erhalten und einen Regressionstest für den DNS-Fall ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-03",
+      "schwere": "schwer",
+      "titel": "robots-Prüfung und HTTP-Client bestimmen den Port unterschiedlich",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 357,
+      "beleg": "Das Fertigkriterium lautet „nur ein fehlender Port heißt Standardport“. Bei einer HTTPS-URL mit prozentkodiertem Porttrenner ergab die Offline-Probe für `urlsplit().port` den Wert `None`. `robots_ursprung` ordnet damit Port 443 zu. `urllib.request.Request` dekodiert die Authority und `HTTPSConnection` ermittelt daraus den effektiven Port 8443. Die gewöhnliche Schreibweise desselben Ursprungs wird dagegen mit Port 8443 eingeordnet.",
+      "auswirkung": "Für denselben effektiven Ursprung entstehen unterschiedliche robots-Ablageeinträge. Die Prüfung bestätigt bei solchen Eingaben den Ursprung, den der HTTP-Client verwendet, nicht zuverlässig.",
+      "vorschlag": "Mehrdeutige Prozentkodierungen in der Authority vor dem robots-Abruf ablehnen oder den Ursprung aus derselben validierten Authority ableiten, die der HTTP-Client verwendet.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-04a",
+      "schwere": "gering",
+      "titel": "Ein frischer Sperrvermerk kann weiterhin unsichtbar sein",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 203,
+      "beleg": "Bei einem frischen Vermerk, der ausschließlich aus einem UTF-8-BOM (`U+FEFF`) oder einem Nullbreitenleerzeichen (`U+200B`) besteht, liefert `gesperrt_bis` in der lesenden Probe das jeweilige unsichtbare Zeichen. `strip()` entfernt beide Zeichen nicht.",
+      "auswirkung": "Der Abruf bleibt gesperrt. Die Ausgabe enthält keinen sichtbaren Sperrgrund.",
+      "vorschlag": "Den Ersatztext auch verwenden, wenn der Inhalt ausschließlich aus Leerraum und unsichtbaren Formatzeichen besteht.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "R5-05 – Alle 34 geforderten ASCII-Zeichen werden vor `urlsplit` abgelehnt.",
+    "R6-02a – Groß- und Kleinschreibung der IPv6-Zonen-ID ergeben verschiedene Schlüssel. Die Großschreibung der IPv6-Adresse ändert den Schlüssel nicht.",
+    "R6-02b – Der bisherige `.zeit`-Pfad des 101-Zeichen-Hosts wird wieder ausgewertet. Der vorhandene Stempel löste in der Probe die erwartete Wartezeit aus.",
+    "R2-04 – Der Leerraum-Teil ist geschlossen. Ein frischer Vermerk aus Leerzeichen, LF und Tab liefert „Sperrvermerk ohne Grund“."
+  ],
+  "pruefgrenzen": "Lesende Nachprüfung der vier r1-Fälle und ihrer Fehlerklassen. Die Altersfreigabe für reguläre Sperrvermerke war eine vorgegebene Entscheidung. Der vollständige 33-Tests-Lauf legt temporäre Dateien an und wurde unter der Lesevorgabe nicht ausgeführt. Der Sammellauf mit „Fehler: 0“ stammt aus dem Auftrag. Die gezielten Proben liefen ohne Dateischreibzugriff und ohne Netzwerk."
+}
