@@ -1,0 +1,41 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "A2-01, R2-02 und R2-03 bleiben offen. Nach einem Metadatenfehler kann die Wartezeit entfallen. Beim Bau kann ein Abbruch das eigene Bauverzeichnis ohne Warnung zurücklassen oder das zuvor leere Ziel verschwinden lassen. Die geprüfte Wiederherstellung und Bereinigung löschen oder überschreiben außerhalb des akzeptierten Restrisikos keine fremden Daten.",
+  "befunde": [
+    {
+      "id": "A2-01",
+      "schwere": "schwer",
+      "titel": "Nach einem lstat-Fehler kann die Wartezeit entfallen",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 95,
+      "beleg": "Das Fertigkriterium lautet „jeder andere `OSError` ergibt genau `ABSTAND`“. Nach einem `PermissionError` setzt Zeile 96 nur `vorhanden = True`. Zeile 102 liest den Stempel trotzdem. Liefert dieser separate Lesezugriff einen gültigen Abschlussstempel, der nach beiden Uhren mindestens `ABSTAND` zurückliegt, ist `warte` in Zeile 105 höchstens null und Zeile 107 wird übersprungen. Der Test in `tests/test_abruf.py:265` verwendet einen Pfad ohne lesbaren Stempel und erfasst diese Kombination nicht.",
+      "auswirkung": "Ein Fehler bei der Metadatenabfrage kann zu einem Abruf ohne den vorgeschriebenen vollen Domainabstand führen.",
+      "vorschlag": "Bei jedem `OSError` außer `FileNotFoundError` genau einmal `ABSTAND` warten und den Stempel in diesem Zweig nicht lesen. Den Fall mit einem gültigen, ausreichend alten Stempel testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-02",
+      "schwere": "schwer",
+      "titel": "Ein angelegtes Bauverzeichnis kann ohne Warnung liegen bleiben",
+      "datei": "werkzeuge/app_bauen.py",
+      "zeile": 144,
+      "beleg": "Das Fertigkriterium lautet „bleibt das eigene Bauverzeichnis nach einem Abbruch stehen, wird es auf stderr gemeldet“. In Zeile 144 kann `mkdtemp` das Verzeichnis bereits angelegt haben, bevor ein `KeyboardInterrupt` die Zuweisung an `bau` unterbricht. Dann bleibt `bau` auf `None` und Zeile 159 überspringt Bereinigung und Meldung. Auch bei bereits zugewiesenem Pfad gibt es eine Lücke. Zeile 160 ignoriert Löschfehler und Zeile 162 warnt nur, wenn `bau.exists()` in Zeile 161 erfolgreich `True` liefert. Ein Zugriffsfehler bei dieser Prüfung verhindert die Warnung.",
+      "auswirkung": "Ein eigenes `.kb-bau-*`-Verzeichnis kann ohne Pfadangabe auf stderr zurückbleiben. Ein Fehler bei der Nachprüfung kann außerdem als primärer Fehler erscheinen und den ursprünglichen Bauabbruch in den Ausnahme­kontext verdrängen.",
+      "vorschlag": "Die Anlage bis zur Übernahme des eigenen Pfads gegen Unterbrechung absichern. Den Pfad auch dann auf stderr melden, wenn sich die vollständige Entfernung nicht feststellen lässt. Beide Fehlerpfade testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-03",
+      "schwere": "mittel",
+      "titel": "Die Wiederherstellung greift erst nach dem Entfernen des Ziels",
+      "datei": "werkzeuge/app_bauen.py",
+      "zeile": 149,
+      "beleg": "`os.rmdir(z)` entfernt das leere Ziel in Zeile 149. Wird der Bau danach durch `KeyboardInterrupt` abgebrochen, bevor der innere `try`-Block in Zeile 152 greift, räumt die äußere Ausnahmebehandlung nur das Bauverzeichnis auf. Das Ziel bleibt verschwunden. Schlägt `os.rename` innerhalb des inneren Blocks fehl, hängt die Wiederherstellung außerdem davon ab, dass `z.mkdir` in Zeile 156 gelingt. Der Test in `tests/test_app.py:218` deckt den fehlgeschlagenen Rename mit erfolgreichem `mkdir` ab.",
+      "auswirkung": "Nach einem Abbruch kann das zuvor vorhandene leere Ziel fehlen. Bei einem zusätzlichen Fehler während der Wiederherstellung erscheint dieser als primärer Fehler.",
+      "vorschlag": "Das Entfernen des Ziels und das Einsetzen des Baus gemeinsam gegen Unterbrechungen absichern. Einen fehlgeschlagenen Wiederherstellungsversuch mit Zielpfad melden, den ursprünglichen Fehler erhalten und den Abbruch unmittelbar nach `rmdir` testen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Nachprüfung des Diffs 17599c1..baf723f7465ff38d76da59960cf2afc1cad6793d. A1-01 und R2-01 sind vom Besitzer als Restrisiko angenommen. R2-04 (`gesperrt_bis`) liegt außerhalb des Auftrags. Die drei Fehlerklassen wurden in den betroffenen Korrekturpfaden geprüft. Der Sammellauf schreibt ein Protokoll und blieb wegen des Nur-Lese-Auftrags unausgeführt. Der Start von Python wurde im Prüfkontext mit „Zugriff verweigert“ abgewiesen. Die Datenbankprüfung und die gemeldeten Testergebnisse sind daher nur durch die Selbstprüfung des Bauers belegt. Die Befunde beruhen auf der statischen Prüfung."
+}
