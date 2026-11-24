@@ -54,7 +54,7 @@ Recherche: [docs/recherche-ux/00-konzept.md](docs/recherche-ux/00-konzept.md) (P
 
 ## Nächster Schritt
 
-**Stand P1 (24.11.):** Codex r1 (medium, 0fd3e8b) nicht bestanden (P1-01 schwer, P1-02…04 mittel, P1-05 gering); alle bestätigt und behoben (`docs/pruefungen/2026-11-24-p1-sofortfixes/bewertung-r1.md`, Proben rot→grün, Sammellauf Fehler 0). Layoutklasse heißt jetzt `.hauptspalte`. Nachprüfung r2 `-Art nach -Basis 0fd3e8b`.
+**Stand P1 (24.11.):** Codex r1 (medium, 0fd3e8b) nicht bestanden (P1-01 schwer, P1-02…04 mittel, P1-05 gering); alle bestätigt und behoben (`docs/pruefungen/2026-11-24-p1-sofortfixes/bewertung-r1.md`, Proben rot→grün, Sammellauf Fehler 0). Layoutklasse heißt jetzt `.hauptspalte`. r2 (268fb06): P1-02, P1-05 geschlossen, P1-03/04 nachgebessert (913490d), P1-01-Rest bewusste Entscheidung. **r3 (913490d) nicht bestanden: Rest P1-03/04 (Notengrund fehlt im gemischten Fall, `bewertung-r3.md`), Rundenlimit erreicht; Besitzer 24.11.: beheben + schmale r4 (Rest behoben, Probe rot→grün, Sammellauf Fehler 0). Danach Push-Freigabe.**
 
 **UX-Neuausrichtung: Codex-Prüfung P1 auswerten.** Auftrag `docs/pruefungen/2026-11-24-p1-sofortfixes/auftrag.md`, Codex medium, Basis 280ab3d (origin/main vor dem Merge). Befunde nach Skill `pruefschleife` einordnen (`bewertung-r1.md`), korrigieren, bei kritisch/schwer Nachprüfung. Danach Push nach Freigabe durch Nico und P2 planen (00-konzept §5).
 **Fertig, wenn:** Codex-Prüfung P1 bestanden, Bewertung abgelegt, Nico hat Push freigegeben.

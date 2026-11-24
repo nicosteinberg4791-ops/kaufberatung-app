@@ -453,10 +453,15 @@
     const ende = " Deshalb empfehlen wir keins. Die Liste unten zeigt sie trotzdem.";
     const ohneNote = r.rang.filter(e => e.note === null);
     const mitPreis = r.rang.filter(e => e.preis !== null).length;
+    // Notengrund einer Gruppe ohne Note: Datenblatt, kein Merkmal oder beides
+    const grund = l => { const k = l.filter(e => e.art === "keine_merkmale").length;
+      return k === 0 ? "Datenblattwerte fehlen" : k === l.length ? "für deine Angaben kein Merkmal zählt" : "Datenblattwerte fehlen oder für deine Angaben kein Merkmal zählt"; };
     if (ohneNote.length < r.rang.length) {
       // 08 G: ohne bekannten Preis keine Empfehlung
       if (!mitPreis) return "Für die passenden Modelle kennen wir gerade keinen Preis." + ende;
-      return "Für die Modelle mit Note kennen wir gerade keinen Preis, und die Modelle mit Preis liegen über deinem Budget und haben keine Note." + ende;
+      // P1-03/P1-04 r3: Modelle mit Preis haben hier nie eine Note (sonst gäbe es eine Empfehlung); Grund nennen
+      return "Für die Modelle mit Note kennen wir gerade keinen Preis, und die Modelle mit Preis liegen über deinem Budget und haben keine Note, weil "
+        + grund(r.rang.filter(e => e.preis !== null)) + "." + ende;
     }
     const km = ohneNote.filter(e => e.art === "keine_merkmale").length;
     const note = km === 0 ? "Für keins der passenden Modelle reichen die Datenblattangaben für eine Note."

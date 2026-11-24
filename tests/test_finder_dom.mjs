@@ -364,7 +364,7 @@ test("P1-03: gemischte Daten – Meldung nennt Note, Preis und Budget statt paus
   const t = text(dok.body);
   assert.equal(klassen(dok, "empfehlung").length, 0);
   assert.equal(t.includes("Für die passenden Modelle kennen wir gerade keinen Preis"), false, t.slice(0, 500));
-  assert.ok(t.includes("Für die Modelle mit Note kennen wir gerade keinen Preis, und die Modelle mit Preis liegen über deinem Budget und haben keine Note."), t.slice(0, 500));
+  assert.ok(t.includes("Für die Modelle mit Note kennen wir gerade keinen Preis, und die Modelle mit Preis liegen über deinem Budget und haben keine Note, weil Datenblattwerte fehlen."), t.slice(0, 500));
   // ohne jeden Preis bleibt die bisherige Meldung
   ohneNote.preis = null;
   const leer = await starte("#k=fernseher&s=ergebnis&b=95", JSON.stringify(d));
@@ -414,4 +414,27 @@ test("P1-03/P1-04 r2: ohne Note nennt die Meldung Notengrund und Preisgrund, auc
   t = await meldung(preis(100), null, 95);
   assert.ok(t.includes("Die Modelle mit Preis liegen über deinem Budget, für die übrigen kennen wir keinen Preis."), t);
   assert.equal(t.includes("reichen die Datenblattangaben"), false, t);
+});
+
+test("P1-03/P1-04 r3: gemischt mit Note – Notengrund der Modelle mit Preis (kein Merkmal / beides)", async () => {
+  const preis = eur => ({ eur, haendler: "Beispielshop", url: "https://example.org/q" + eur, stand: "2026-11-20" });
+  // Air Fryer, nur Sync gewichtet: Zweikorb mit Sync-Wert hat eine Note (ohne Preis); Einkorb: Sync nicht anwendbar
+  // (kein Merkmal), zweites Zweikorbmodell ohne Sync-Wert (Datenblatt fehlt)
+  const meldung = async mitLuecke => {
+    const d = JSON.parse(BEISPIEL);
+    const af = d.kategorien.find(k => k.id === "airfryer");
+    for (const f of af.felder) f.gewicht = f.id === "sync_funktion" ? 10 : 0;
+    for (const fr of af.fragen) for (const a of fr.antworten) a.gewichte = {};
+    const ein = af.modelle.find(m => m.werte.koerbe === 1), zwei = af.modelle.find(m => m.werte.koerbe === 2);
+    const luecke = JSON.parse(JSON.stringify(zwei)); luecke.id = "af-luecke"; luecke.modell = "Luecke"; delete luecke.teilpunkte.sync_funktion;
+    zwei.preis = null; ein.preis = preis(100); luecke.preis = preis(120);
+    af.modelle = mitLuecke ? [zwei, ein, luecke] : [zwei, ein];
+    const { dok } = await starte("#k=airfryer&s=ergebnis&b=95", JSON.stringify(d));
+    assert.equal(klassen(dok, "empfehlung").length, 0);
+    return text(klassen(dok, "karte").find(k => k.className.includes("leise")));
+  };
+  let t = await meldung(false);
+  assert.ok(t.includes("haben keine Note, weil für deine Angaben kein Merkmal zählt."), t);
+  t = await meldung(true);
+  assert.ok(t.includes("haben keine Note, weil Datenblattwerte fehlen oder für deine Angaben kein Merkmal zählt."), t);
 });

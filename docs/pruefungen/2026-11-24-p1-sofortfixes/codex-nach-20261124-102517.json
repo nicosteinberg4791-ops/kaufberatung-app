@@ -1,0 +1,19 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Am Commit 913490d8fc64753baddc14cb8c885ed5f0b88881 bestanden alle 21 DOM-Tests. Die ursprünglichen Gegenproben sind abgedeckt. P1-03/P1-04 bleibt offen, weil die Meldung bei einer Mischung aus Modellen mit und ohne Note den tatsächlichen Notengrund auslässt.",
+  "befunde": [
+    {
+      "id": "P1-03/P1-04",
+      "schwere": "schwer",
+      "titel": "Bei einzelnen Modellen mit Note fehlt der tatsächliche Notengrund",
+      "datei": "app/finder/finder.js",
+      "zeile": 459,
+      "beleg": "Fertigkriterium: „Ohne Empfehlung nennt die Meldung den tatsächlichen Notengrund (Datenblatt / kein Merkmal / gemischt) und, wenn kein Modell eine Note hat, den Preisgrund (kein Preis / alle über Budget / gemischt).“ Der vorhandene DOM-Test ab tests/test_finder_dom.mjs:356 setzt das Budget auf 95 €. Die Modelle mit Note haben keinen Preis. Das einzige Modell mit Preis (100,50 €) hat leere Teilpunkte und deshalb keine Note. Die Meldung sagt, dass dieses Modell über dem Budget liegt und keine Note hat. Sie nennt den Grund dafür, die fehlenden Datenblattwerte, erst in der separaten Modellgruppe. In auswerten (app/finder/bewertung.js:288–290) wäre ein Modell mit Note und bekanntem Preis auch über Budget als Empfehlung erschienen.",
+      "auswirkung": "Die Meldung erklärt in diesem Fall nur den Preis- und Budgetstatus sowie das Fehlen der Note. Der Leser erfährt dort nicht, weshalb das Modell mit Preis für die Empfehlung über Budget ausfällt.",
+      "vorschlag": "In der Meldung für Modelle mit Note ohne Preis und Modelle mit Preis über Budget die fehlenden Noten der bepreisten Modelle nach `art` erklären. Den vorhandenen DOM-Test um eine Prüfung des Datenblattgrunds in der Meldung ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Schmale Nachprüfung der Meldung ohne Empfehlung, ihres DOM-Tests und der dafür relevanten Bewertungsbedingungen. P1-01 (mittel) blieb als dokumentierte bewusste Entscheidung außerhalb der Nachprüfung. Die vollständige Testsuite und der Build waren nicht Teil der unabhängigen Prüfung."
+}
