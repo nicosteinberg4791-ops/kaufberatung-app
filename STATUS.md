@@ -11,7 +11,7 @@ Stand: 25.11.2026 · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [d
 
 ## Nächster Schritt
 
-**Reihenfolge (Besitzer):** P2a-1 und P2a-2 bauen oder zuerst den Preis-Push als eigenes Paket am Code (O27, Muster `veroeffentlichen.py`, Tests 47(i)–(k)). Lesen: `docs/recherche-ux/p2-entwurf.md` §9.
+**Preis-Push (Besitzer 25.11.: zuerst):** gebaut (`werkzeuge/preise_aktualisieren.py` `push()`, Tests `PreisPush` in `tests/test_app.py`), Codex r1 nicht bestanden → 5 korrigiert (dc8a741), r2 nicht bestanden → bewertet, **nicht korrigiert** ([bewertung-r2.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r2.md)). **O29 (Besitzer):** Neuansatz laut Tabelle + schmale r3 (Vorschlag) oder R2-01…04 als Grenze des lokalen Laufs, nur R2-05 korrigieren. Danach P2a-1/P2a-2 bauen. Nichts gepusht.
 
 ## Offen für Nico
 

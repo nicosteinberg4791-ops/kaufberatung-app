@@ -1,0 +1,65 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Das lokale Nachziehen kann weiterhin gestagte Preisfassungen verwerfen. Im kombinierten Lauf mit `--push` kann ein Symlink eine fremde Datei überschreiben. Die Baumprüfung kann Pfadänderungen übersehen, und geerbte Git-Konfiguration kann das Pushziel umleiten.",
+  "befunde": [
+    {
+      "id": "P2A2-05-R2-01",
+      "schwere": "kritisch",
+      "titel": "Nachziehen kann weiterhin Indexfassungen verwerfen",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 325,
+      "beleg": "Die Zeilen 325–327 vergleichen nur Modus und Blob der ersten Ausgabezeile von `ls-files -s`. Steht `HEAD` auf `eltern` und entspricht Stufe 1 eines Konflikteintrags dem Elternblob samt Modus, akzeptiert die Prüfung den Eintrag trotz weiterer Konfliktstufen. Außerdem kann ein paralleles `git add` den Eintrag zwischen Prüfung und `reset` in Zeile 332 ändern. Der alte Wert in `update-ref` prüft nur den Zweig.",
+      "auswirkung": "`reset -- preise.json` kann Konfliktfassungen oder eine inzwischen separat gestagte Preisfassung durch den veröffentlichten Stand ersetzen.",
+      "vorschlag": "Nur genau einen passenden Eintrag der Stufe 0 akzeptieren. Vergleich und Indexänderung unter derselben Sperre ausführen und den ausgecheckten Zweig absichern. Wenn das nicht möglich ist, das automatische Nachziehen überspringen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-R2-02",
+      "schwere": "kritisch",
+      "titel": "`--push` kann eine Symlink-Zieldatei vor dem Abbruch überschreiben",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 194,
+      "beleg": "Zeilen 369–372 prüfen beim Start nur Zielordner, Dateiname und Git-Arbeitsbaum. Zeile 397 ruft `aktualisiere` auf. Dessen `ziel.write_text` in Zeile 194 folgt einem bestehenden Symlink auf eine beschreibbare Datei. Erst danach erreicht der Lauf über Zeile 405 die Symlink-Prüfung in Zeile 253.",
+      "auswirkung": "Bei einem erfolgreich durchlaufenen Preisabruf kann der Inhalt der Symlink-Zieldatei verloren gehen, obwohl der anschließende Push abbricht.",
+      "vorschlag": "Symlinks und vorhandene nicht reguläre Einträge vor dem ersten Lesen oder Schreiben ablehnen. Die Ausgabe so schreiben, dass sie einem zwischenzeitlich eingesetzten Symlink nicht folgt. Den kombinierten Aufruf mit einer unveränderten Zieldatei als Prüfbedingung abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-R2-03",
+      "schwere": "schwer",
+      "titel": "Die Baumprüfung kann unterschiedliche Git-Pfade gleichsetzen",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 287,
+      "beleg": "Fertigkriterium 3 lautet „Genau `preise.json` ändert sich, und zwar als Blob 100644/100755.“ `git_lauf` dekodiert die Ausgabe mit `text=True` und normalisiert dabei CRLF und CR zu LF. Ändert ein Kandidat neben `preise.json` einen Wurzelpfad von `a\\r\\nb` zu `a\\nb` bei gleichem Modus und gleicher Objekt-ID, landen beide Pfade unter demselben Schlüssel. Ein Pfad mit ungültigem UTF-8 löst zudem einen Dekodierfehler aus.",
+      "auswirkung": "Die Prüfung kann einen Kandidaten mit einer zusätzlichen Pfadänderung akzeptieren. Andere von Git unterstützte Pfadbytes können einen gültigen Preis-Push abbrechen lassen.",
+      "vorschlag": "`ls-tree -z` binär erfassen, Pfade als Bytes vergleichen und nur für die Fehlermeldung mit sichtbaren Escape-Sequenzen darstellen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-R2-04",
+      "schwere": "schwer",
+      "titel": "Geerbte Git-Konfiguration kann das Pushziel umleiten",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 207,
+      "beleg": "`git_umgebung()` lässt `GIT_CONFIG_COUNT` und die zugehörigen Schlüssel und Werte durch. Ein lesender Aufruf von `git remote get-url --push --all origin` bestätigte, dass darüber gesetztes `remote.origin.pushurl` das Pushziel ändert. `eltern_holen` liest den Stand über die Fetch-URL, während Zeile 315 an die wirksame Push-URL sendet. Soll ist der Push an das vorgesehene `origin`.",
+      "auswirkung": "Steht der andere Empfänger auf derselben Commit-ID und erlaubt den Schreibzugriff, kann die Lease dort greifen. Andernfalls kann der Preis-Push wegen der Umleitung fehlschlagen.",
+      "vorschlag": "Geerbte Konfigurationsquellen für die Zielauswahl ausschließen oder die wirksame Push-URL gegen das vorgesehene Ziel prüfen. Benötigte Authentifizierung erhalten und die Zielprüfung mit einem Umleitungstest absichern.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-R2-05",
+      "schwere": "mittel",
+      "titel": "Ein Kandidat ohne `preise.json` löst einen `KeyError` aus",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 296,
+      "beleg": "Entfernt ein Kandidat ausschließlich `preise.json`, ergibt der Vergleich in Zeile 293 `[name]`. Danach greift Zeile 296 auf `b[name]` zu, obwohl der Eintrag im Kandidaten fehlt.",
+      "auswirkung": "Der Push unterbleibt. Der Schutz bricht mit einem Traceback ab und meldet den konkreten Ablehnungsgrund nicht.",
+      "vorschlag": "Den fehlenden Eintrag vor dem Zugriff abfangen und den Fall als gezielten Ablehnungstest ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "P2A2-05-01"
+  ],
+  "pruefgrenzen": "Geprüfter Commit `dc8a741fa5adc97c44939e595b81146fd61bf148`. Alle fünf früheren Befunde hatten eine Klassenzuordnung und waren Teil der Nachprüfung. Die ursprünglichen Fälle mit leerem Unterbaum, separat gestagtem Stufe-0-Eintrag, Clean-Filter und den ausdrücklich genannten Repository- und Indexvariablen sind im Code adressiert. Die zugehörigen Klassen bleiben wegen der aufgeführten Befunde offen. 25 Testmethoden wurden gezählt. Der Testlauf war wegen fehlender Python-Installation und schreibender Test-Fixtures in der lesenden Umgebung nicht unabhängig ausführbar. GitHub Actions und echte Fetch- oder Push-Vorgänge wurden nicht ausgeführt."
+}
