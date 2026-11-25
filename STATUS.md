@@ -11,7 +11,7 @@ Stand: 25.11.2026 · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [d
 
 ## Nächster Schritt
 
-**Preis-Push (Besitzer 25.11.: zuerst):** gebaut (`werkzeuge/preise_aktualisieren.py` `push()`, Tests `PreisPush` in `tests/test_app.py`), Codex r1 nicht bestanden → 5 korrigiert (dc8a741), r2 nicht bestanden → bewertet ([bewertung-r2.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r2.md)), **O29 = Neuansatz** (Besitzer 25.11.2026): R2-01–05 korrigiert (kein Nachziehen mehr, Ziel vor jedem Lesen geprüft, Pfade bytegenau, eine URL für Lesen und Schreiben), Mutanten 9/9 rot. Schmale r3 (Codex high, nach, Basis dc8a741). Danach P2a-1/P2a-2 bauen. Nichts gepusht.
+**Preis-Push (Besitzer 25.11.: zuerst):** gebaut (`werkzeuge/preise_aktualisieren.py` `push()`, Tests `PreisPush` in `tests/test_app.py`), Codex r1 nicht bestanden → 5 korrigiert (dc8a741), r2 nicht bestanden → bewertet ([bewertung-r2.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r2.md)), **O29 = Neuansatz** (Besitzer 25.11.2026): R2-01–05 korrigiert (40ed171, Mutanten 9/9 rot). r3 (Codex high) nicht bestanden: R2-02/-03/-05 geschlossen, neu R3-01 kritisch (URL als Remote-Name aufgelöst), R3-02 schwer (`GIT_CONFIG` täuscht die pushInsteadOf-Prüfung), R3-03 mittel außerhalb, alle nur bei manipulierter lokaler Konfiguration, in Actions nicht wirksam ([bewertung-r3.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r3.md)), nicht korrigiert. **O30 (Nico, Rundenlimit erreicht):** Vorschlag: R3-01 bis R3-03 mechanisch korrigieren, selbst geprüft, ohne r4, Rest als lokale Grenze annehmen. Alternative: nichts korrigieren und `--push` lokal sperren. Danach P2a-1/P2a-2 bauen. Nichts gepusht.
 
 ## Offen für Nico
 

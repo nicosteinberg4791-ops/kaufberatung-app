@@ -1,0 +1,45 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Am Commit e559f698 sind R2-02, R2-03 und R2-05 geschlossen. Zwei Git-Konfigurationspfade lassen weiterhin unterschiedliche Lese- und Pushziele zu. Einer davon kann auch den lokalen Zweig verschieben.",
+  "befunde": [
+    {
+      "id": "P2A2-05-R3-01",
+      "schwere": "kritisch",
+      "titel": "Git kann die Ziel-URL als Remote-Namen auflösen und den lokalen Zweig verschieben",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 358,
+      "beleg": "Der Wert aus `ziel_url()` wird in Zeilen 273, 279 und 358 erneut von Git aufgelöst. Eine lesende Probe mit Git 2.55 bestätigte, dass selbst eine vollständige HTTPS-URL als konfigurierter Remote-Name erkannt wird. Für denselben Wert zeigte `ls-remote --get-url` die Lese-URL und `remote -v` eine abweichende Push-URL. Die `pushInsteadOf`-Prüfung erfasst diesen Fall nicht. Git verwendet außerdem den `fetch`-Refspec dieses Remotes für das lokale Update nach erfolgreichem Push. Zeigt der Refspec auf `refs/heads/gh-pages`, schreibt Git direkt auf den lokalen Zweig. Damit ist „Nach `push()` schreibt nichts mehr auf Index, HEAD oder lokalen Zweig“ nicht erfüllt. [Git-Remoteauflösung](https://github.com/git/git/blob/v2.55.0/remote.c#L750-L778), [Lokales Ref-Update nach dem Push](https://github.com/git/git/blob/v2.55.0/transport.c#L541-L580)",
+      "auswirkung": "Der Push kann ein anderes Repository aktualisieren, wenn dessen gh-pages denselben erwarteten Commit hat. Eine lokale Ref-Zuordnung kann zugleich unveröffentlichte Commits aus dem ausgecheckten Zweig verdrängen, während der Index auf dem bisherigen Stand bleibt.",
+      "vorschlag": "Die Transportaufrufe so isolieren, dass das Zielargument weder als konfigurierter Remote noch als Remote-Gruppe aufgelöst werden kann und keine lokalen Ref-Zuordnungen greifen. Die HTTP-Authentifizierung beibehalten und einen Regressionstest mit einer gleichnamigen URL und einem lokalen Fetch-Refspec ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-R3-02",
+      "schwere": "schwer",
+      "titel": "Geerbtes GIT_CONFIG kann die pushInsteadOf-Prüfung umgehen",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 264,
+      "beleg": "`git_umgebung()` lässt `GIT_CONFIG` durch. Die Variable ändert die Konfigurationsquelle von `git config`, während die Transportbefehle ihre reguläre Konfiguration lesen. In einer lesenden Probe lieferte die Abfrage mit `GIT_CONFIG=NUL` Status 1, während Git mit derselben `pushInsteadOf`-Regel die Push-URL umschrieb. Der Code setzt bei Status 1 fort. Das Fertigkriterium lautet „gesetztes `url.*.pushInsteadOf` → Abbruch“. [Git-Dokumentation zu GIT_CONFIG](https://git-scm.com/docs/git-config#Documentation/git-config.txt-GITCONFIG)",
+      "auswirkung": "Lesen und Push können verschiedene Repositorys treffen. Die Lease verhindert den Push ins falsche Repository nur, wenn dessen Zweig einen anderen Commit hat.",
+      "vorschlag": "`GIT_CONFIG` aus der Umgebung der Git-Aufrufe entfernen. Bei der Abfrage genau zwischen einem fehlenden Eintrag und einem Prüffehler unterscheiden. Die Kombination aus geerbtem `GIT_CONFIG` und einer wirksamen `pushInsteadOf`-Regel als Regressionstest aufnehmen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-R3-03",
+      "schwere": "mittel",
+      "titel": "Die Meldungsdatei kann die Preisdatei überschreiben",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 432,
+      "beleg": "Wenn `--meldung` denselben Pfad wie `--ziel` bezeichnet, akzeptiert die frühe Zielprüfung eine reguläre Datei. Nach `aktualisiere()` in Zeile 429 überschreibt Zeile 432 die erzeugten Preisdaten mit dem Meldungstext. `preis_commit()` versucht anschließend in Zeile 294, diesen Text als Preis-JSON zu lesen. Der Schreibpfad bestand bereits in r2.",
+      "auswirkung": "Der kombinierte Lauf verliert sein frisch erzeugtes Ergebnis und bricht vor dem Push ab. Der Workflow verwendet einen eigenen Pfad für die Meldungsdatei.",
+      "vorschlag": "Vor dem Abruf prüfen, dass Meldungsdatei und Preisdatei verschiedene Dateien sind.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": [
+    "P2A2-05-R2-02",
+    "P2A2-05-R2-03",
+    "P2A2-05-R2-05"
+  ],
+  "pruefgrenzen": "Lesende Nachprüfung am angegebenen Commit. Die 33 ausgewählten Testmethoden sind im Quelltext vorhanden. Einen unabhängigen Testlauf gab es nicht, da die Tests temporäre Repositorys beschreiben, committen und pushen. Der bekannte Symlink-Wechsel zwischen Prüfung und Zugriff, die Mutanten und ein echter Actions-Lauf wurden nicht geprüft. Alle fünf früheren Befunde hatten eine Klassenangabe. Für Actions passt der von checkout v5 gespeicherte HTTP-Header zur direkten HTTPS-URL und ist über die gemeinsame Worktree-Konfiguration verfügbar. Der reguläre Fallback-Fetch schreibt `refs/remotes/origin/gh-pages`, bevor die abgerufene SHA verglichen wird. [Checkout-Authentifizierung](https://github.com/actions/checkout/blob/v5/src/git-auth-helper.ts#L48-L57), [Checkout-URL](https://github.com/actions/checkout/blob/v5/src/url-helper.ts#L3-L18), [Git-Worktree-Konfiguration](https://git-scm.com/docs/git-worktree#_configuration_file)"
+}
