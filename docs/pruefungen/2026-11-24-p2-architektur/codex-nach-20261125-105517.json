@@ -1,0 +1,43 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Die Prüfung des vollständigen Schemas schließt P2A2-04. Die Gleichlaufanforderung für Kurvenwerte und der Nachweis der Operandennormalisierung in Test 40 bleiben offen.",
+  "befunde": [
+    {
+      "id": "P2A2-R3-01",
+      "schwere": "schwer",
+      "titel": "Der Bau soll Kurvenwerte ablehnen, die der Client akzeptiert",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 218,
+      "beleg": "Das Fertigkriterium verlangt „und umgekehrt keines, das der Client annimmt und der Bau ablehnt, außer mit genannter Begründung.“ Im Schema genügt es, bei `bildwiederholrate_hz` den ersten Stützpunkt von `[50, 40]` auf `[50, 101]` zu ändern (`daten/schema/kategorien.json:82`). Die Client-Schemaprüfungen akzeptierten diese Änderung in Node. `feldPruefen` prüft Typ, Gewicht und Einheit (`app/finder/bewertung.js:406–409`). Der Entwurf verlangt für y dagegen 0..100 und bezeichnet dies als Client-Grenze. Auch x = 10000000 wurde vom Client akzeptiert. Das als Begründung angeführte `feld_ok` begrenzt Produktwerte (`werkzeuge/datenbank.py:53–61`).",
+      "auswirkung": "Der Bau lehnt bereits für den konkreten y-Wert ein vom Client akzeptiertes Schema ab, ohne dass der Entwurf diese Abweichung begründet.",
+      "vorschlag": "Die Grenzen für Kurvenstützpunkte als zusätzliche Bauprüfungen ausweisen und getrennt begründen. Die Gegenbeispiele als erwartete Abweichungen festhalten.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-R2-02",
+      "schwere": "schwer",
+      "titel": "Test 40 bleibt ohne Float-Konvertierung in `teilpunkte` grün",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 284,
+      "beleg": "Das Fertigkriterium lautet „Jeder Fall in Test 40 wäre ohne die zugehörige Regel rot.“ Die direkte Typprüfung erfasst die Projektion. §9.3 fordert zusätzlich, dass `teilpunkte` alle Operanden selbst als `float` verarbeitet. Bleibt die Projektion normiert und `teilpunkte` unverändert (`werkzeuge/datenbank.py:65–81`), ergibt die angegebene Kurve für beide Zahlenschreibweisen exakt `20 + 59 / 4 = 34,75`, gerundet 34,8. Damit bestehen beide Assertions auch ohne die Konvertierung in `teilpunkte`.",
+      "auswirkung": "Die Korrektur macht die Projektionsnormalform überprüfbar. Eine fehlende Operandenkonvertierung in der Interpolation fällt weiterhin durch Test 40.",
+      "vorschlag": "Die Typen der tatsächlich an die Interpolation übergebenen Operanden im Test prüfen, sofern die separate Konvertierung in `teilpunkte` als Anforderung bestehen bleibt.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-R3-02",
+      "schwere": "mittel",
+      "titel": "Der Test für die reservierte Feld-ID kann am Fassungsvergleich scheitern",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 284,
+      "beleg": "Test 40 legt für `Feld-ID constructor → rot` weder das Feld noch den erwarteten Fehler fest. Bei einem Feld mit positivem Gewicht ändert die Umbenennung die Projektion (§9.3, Z. 214). Bleibt die Fassungsnummer gleich, lehnt der Fassungsvergleich das Schema auch bei fehlender Sperrlistenprüfung ab (§9.3, Z. 219–221).",
+      "auswirkung": "Ein grüner Testlauf kann eine fehlende Prüfung reservierter Feld-IDs verdecken.",
+      "vorschlag": "Für diesen Fall die ID des Nullgewichtsfelds `diagonale_zoll` ändern und den Fehler der Kennungsprüfung erwarten.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "P2A2-04"
+  ],
+  "pruefgrenzen": "Nachprüfung des Entwurfs am Commit 75176bcf1b6186a5becd02e420b38b5c517e289f. Die Node-Gegenproben nutzten die genannten Client-Prüfungen mit aus dem Schema zusammengesetzten Client-Daten. UTF-16-Längen, abschließende Zeilentrenner in IDs und reservierte Antwortschlüssel wurden dabei geprüft. Die Interpolation wurde anhand der vorhandenen Python-Formel nachgerechnet. Eine Python-Laufprobe war mangels installiertem Interpreter nicht möglich. Ausgeklammert waren der Preis-Push mit P2A2-05 und P2A2-R2-01, P2a-1 und F-1 bis F-5."
+}
