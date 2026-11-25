@@ -11,7 +11,7 @@ Stand: 25.11.2026 · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [d
 
 ## Nächster Schritt
 
-**Preis-Push (Besitzer 25.11.: zuerst):** gebaut (`werkzeuge/preise_aktualisieren.py` `push()`, Tests `PreisPush` in `tests/test_app.py`), Codex r1 nicht bestanden → 5 korrigiert (dc8a741), r2 nicht bestanden → bewertet, **nicht korrigiert** ([bewertung-r2.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r2.md)). **O29 (Besitzer):** Neuansatz laut Tabelle + schmale r3 (Vorschlag) oder R2-01…04 als Grenze des lokalen Laufs, nur R2-05 korrigieren. Danach P2a-1/P2a-2 bauen. Nichts gepusht.
+**Preis-Push (Besitzer 25.11.: zuerst):** gebaut (`werkzeuge/preise_aktualisieren.py` `push()`, Tests `PreisPush` in `tests/test_app.py`), Codex r1 nicht bestanden → 5 korrigiert (dc8a741), r2 nicht bestanden → bewertet, **nicht korrigiert** ([bewertung-r2.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r2.md)). **O29 = Neuansatz + schmale r3** (Besitzer 25.11.2026): Korrekturen laut Tabelle in `bewertung-r2.md`, dann r3 (Codex high, nach, Basis dc8a741). Danach P2a-1/P2a-2 bauen. Nichts gepusht.
 
 ## Offen für Nico
 
