@@ -17,7 +17,7 @@ Aufrufe:
   python -X utf8 -I werkzeuge/preise_aktualisieren.py                       neu abrufen, .veroeffentlichung/preise.json schreiben
   python -X utf8 -I werkzeuge/preise_aktualisieren.py --abruf abruf.json    vorhandenes Abrufergebnis (stdout von preiswecker.py)
   ... --ziel dist/preise.json                                               anderes Ziel (lokaler Test)
-  ... --push                                                                im gh-pages-Arbeitsbaum committen und pushen
+  ... --push                                                                auf gh-pages pushen (Commit nur aus dem Remote-Stand, siehe push())
   ... --nur-push                                                            vorhandene preise.json im Arbeitsbaum pushen
   ... --meldung datei.txt                                                   Benachrichtigungstext, ein Treffer je Zeile (leer = keine Meldung)
 Workflow-Reihenfolge (Codex R1 B2): schreiben -> ntfy senden -> erst dann --nur-push. Scheitert der Versand, bleibt der
@@ -210,20 +210,88 @@ def arbeitsbaum_pruefen(ordner, zweig="gh-pages"):
         raise SystemExit(f"--push: im Arbeitsbaum ist {kopf!r} ausgecheckt, erwartet {zweig!r}")
 
 
+def git_lauf(ordner, *a, env=None, pruefen=True):
+    """git im Ordner; bei Fehler (pruefen=True) SystemExit mit der Meldung von git, sonst CompletedProcess."""
+    r = subprocess.run(["git", "-C", str(ordner), *a], capture_output=True, text=True, encoding="utf-8", env=env)
+    if pruefen and r.returncode != 0:
+        raise SystemExit(f"--push: git {a[0]} fehlgeschlagen, nichts gepusht: {r.stderr.strip()}")
+    return r
+
+
+def eltern_holen(ordner):
+    """SHA von gh-pages auf origin (ls-remote, nicht der lokale Zweig; P2A2-03/-05). Fehlt der Commit lokal (z. B.
+    flacher Abruf in Actions und inzwischen ein fremder Push), wird der Zweig nachgeholt; er muss dann noch derselbe sein."""
+    zeilen = git_lauf(ordner, "ls-remote", "--exit-code", "origin", "refs/heads/gh-pages", pruefen=False)
+    treffer = [z.split("\t")[0] for z in zeilen.stdout.splitlines() if z.endswith("\trefs/heads/gh-pages")]
+    sha = treffer[0] if zeilen.returncode == 0 and len(treffer) == 1 else ""   # genau der Zweig, nicht x/refs/heads/…
+    if len(sha) not in (40, 64):
+        raise SystemExit("--push: gh-pages fehlt auf origin oder ist nicht lesbar, nichts gepusht")
+    if git_lauf(ordner, "cat-file", "-e", f"{sha}^{{commit}}", pruefen=False).returncode != 0:
+        git_lauf(ordner, "fetch", "-q", "--no-tags", "origin", "+refs/heads/gh-pages:refs/remotes/origin/gh-pages")
+        if git_lauf(ordner, "rev-parse", "refs/remotes/origin/gh-pages^{commit}").stdout.strip() != sha:
+            raise SystemExit("--push: gh-pages hat sich während des Abrufs geändert, nichts gepusht (erneut starten)")
+    return sha
+
+
+def preis_commit(ordner, eltern, ziel):
+    """Commit aus genau `eltern`, darin allein preise.json durch die Datei `ziel` ersetzt (eigener Index; HEAD, Index
+    und lokaler Zweig gehen nicht ein). None, wenn preise.json in `eltern` schon genau so steht."""
+    blob = git_lauf(ordner, "hash-object", "-w", "--", ziel.name).stdout.strip()
+    alt = git_lauf(ordner, "ls-tree", eltern, "--", ziel.name).stdout.split()
+    modus = alt[0] if alt and alt[1] == "blob" else "100644"
+    with tempfile.TemporaryDirectory(prefix="kb-preis-index-") as tmp:
+        env = os.environ | {"GIT_INDEX_FILE": str(Path(tmp) / "index")}
+        git_lauf(ordner, "read-tree", eltern, env=env)
+        git_lauf(ordner, "update-index", "--add", "--cacheinfo", f"{modus},{blob},{ziel.name}", env=env)
+        baum = git_lauf(ordner, "write-tree", env=env).stdout.strip()
+    if baum == git_lauf(ordner, "rev-parse", f"{eltern}^{{tree}}").stdout.strip():
+        return None
+    datum = json.loads(ziel.read_text(encoding="utf-8"))["zeit"][:10]
+    return git_lauf(ordner, "commit-tree", baum, "-p", eltern, "-m", "Preise " + datum).stdout.strip()
+
+
+def commit_fehler(ordner, eltern, neu, name="preise.json"):
+    """Grund gegen den Push oder None: `neu` hat genau `eltern` als Elternteil und ändert genau `name`."""
+    kopf = git_lauf(ordner, "rev-list", "--parents", "-n", "1", neu).stdout.split()
+    if kopf[1:] != [eltern]:
+        return f"Commit {neu[:12]} hat nicht genau gh-pages {eltern[:12]} als Elternteil"
+    geaendert = git_lauf(ordner, "diff-tree", "--no-renames", "--no-commit-id", "-r", "--name-only", eltern, neu).stdout.split("\n")
+    geaendert = [d for d in geaendert if d]
+    if geaendert != [name]:
+        return f"Commit {neu[:12]} ändert gegenüber gh-pages nicht genau {name}: " + ", ".join(geaendert[:10])
+    return None
+
+
 def push(ziel):
-    arbeitsbaum_pruefen(ziel.parent)
-    git = ["git", "-C", str(ziel.parent)]
-    fremd = [d for d in (git_aus(ziel.parent, "diff", "--cached", "--name-only") or "").splitlines() if d and d != ziel.name]
-    if fremd:
-        raise SystemExit("--push: im Index liegen fremde Änderungen, nichts committet: " + ", ".join(fremd))
-    subprocess.run(git + ["add", "--", ziel.name], check=True)
-    if subprocess.run(git + ["diff", "--cached", "--quiet", "--", ziel.name]).returncode == 0:
+    """Preis-Push (P2a-2, P2A2-05; Muster veroeffentlichen.py): Commit nur aus dem Remote-Stand `eltern`, Baumprüfung,
+    Push genau dieses Commits mit Lease auf `eltern`. Ein unveröffentlichter lokaler Commit (etwa mit finder-daten.json)
+    kommt so nicht mit; ist gh-pages auf origin inzwischen versetzt oder gelöscht, scheitert die Lease."""
+    ordner = ziel.parent
+    arbeitsbaum_pruefen(ordner)
+    eltern = eltern_holen(ordner)
+    neu = preis_commit(ordner, eltern, ziel)
+    if neu is None:
         print("preise.json unverändert, kein Commit")
         return
-    subprocess.run(git + ["commit", "-q", "-m", "Preise " + json.loads(ziel.read_text(encoding="utf-8"))["zeit"][:10],
-                          "--", ziel.name], check=True)
-    subprocess.run(git + ["push", "-q", "origin", "gh-pages"], check=True)
+    grund = commit_fehler(ordner, eltern, neu, ziel.name)
+    if grund:
+        raise SystemExit("--push: Abbruch, nichts gepusht: " + grund)
+    r = git_lauf(ordner, "push", "-q", "--no-follow-tags", f"--force-with-lease=refs/heads/gh-pages:{eltern}", "origin",
+                 f"{neu}:refs/heads/gh-pages", pruefen=False)
+    if r.returncode != 0:
+        raise SystemExit("--push: Push abgelehnt (gh-pages ist nicht mehr der abgerufene Stand), erneut starten: "
+                         + r.stderr.strip())
     print("gepusht: gh-pages/preise.json")
+    # Lokalen Zweig nur nachziehen, wenn er genau auf `eltern` stand; dann ist der Arbeitsbaum wieder sauber. Sonst
+    # bleibt er, wie er ist (lokale Commits gehen nicht verloren), und preise.json bleibt dort als Änderung stehen.
+    # Der Push ist hier schon erfolgt: Fehler beim Nachziehen sind nur Hinweise, kein Abbruch.
+    if git_lauf(ordner, "rev-parse", "HEAD", pruefen=False).stdout.strip() == eltern:
+        if (git_lauf(ordner, "update-ref", "refs/heads/gh-pages", neu, eltern, pruefen=False).returncode
+                or git_lauf(ordner, "reset", "-q", "--", ziel.name, pruefen=False).returncode):
+            print("Hinweis: gepusht, aber lokaler gh-pages nicht nachgezogen", file=sys.stderr)
+    else:
+        print(f"Hinweis: lokaler gh-pages steht nicht auf {eltern[:12]} und bleibt unverändert; preise.json bleibt "
+              "im Arbeitsbaum als Änderung", file=sys.stderr)
 
 
 def meldetext(treffer):

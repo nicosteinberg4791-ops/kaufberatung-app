@@ -1015,26 +1015,207 @@ class PushSchutz(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.pa.arbeitsbaum_pruefen(self.repo)
 
-    def test_fremder_index_wird_abgelehnt(self):
+
+class PreisPush(unittest.TestCase):
+    """Preis-Push (P2a-2, P2A2-05, Entwurf §9.3 und Test 47(i)–(k)) mit einem lokalen Bare-Repository als origin:
+    Commit nur aus dem Remote-Stand `eltern`, genau preise.json geändert, Push mit Lease auf `eltern`."""
+
+    FINDER = '{"herkunft": "abc", "kategorien": []}\n'
+
+    def setUp(self):
+        umgebung = mock.patch.dict(os.environ)   # wie PushSchutz: GIT_* des Commit-Hooks nicht erben
+        umgebung.start()
+        self.addCleanup(umgebung.stop)
+        for k in [k for k in os.environ if k.startswith("GIT_")]:
+            del os.environ[k]
+        import preise_aktualisieren
+        self.pa = preise_aktualisieren
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        t = Path(self.tmp.name)
+        self.origin = t / "origin.git"
+        subprocess.run(["git", "init", "-q", "--bare", "-b", "gh-pages", str(self.origin)], check=True)
+        self.repo = self.klon("seiten")
+        (self.repo / "preise.json").write_text('{"zeit": "2026-11-06T10:00:00+01:00"}\n', encoding="utf-8")
+        (self.repo / "finder-daten.json").write_text(self.FINDER, encoding="utf-8")
+        self.git(self.repo, "add", "preise.json", "finder-daten.json")
+        self.git(self.repo, "commit", "-q", "-m", "vorher")
+        (self.repo / "preise.json").write_text('{"zeit": "2026-11-07T10:00:00+01:00"}\n', encoding="utf-8")
+        self.git(self.repo, "commit", "-q", "-am", "start")
+        self.git(self.repo, "push", "-q", "origin", "gh-pages")
+        self.start = self.remote()
+        self.ziel = self.repo / "preise.json"
+
+    def klon(self, name):
+        ordner = Path(self.tmp.name) / name
+        if self.origin.joinpath("refs", "heads", "gh-pages").exists():
+            subprocess.run(["git", "clone", "-q", "-b", "gh-pages", str(self.origin), str(ordner)], check=True)
+        else:
+            ordner.mkdir()
+            self.git(ordner, "init", "-q", "-b", "gh-pages")
+            self.git(ordner, "remote", "add", "origin", str(self.origin))
+        self.git(ordner, "config", "user.name", "Test")
+        self.git(ordner, "config", "user.email", "test@example.invalid")
+        return ordner
+
+    def git(self, ordner, *a):
+        return subprocess.run(["git", "-C", str(ordner), *a], check=True, capture_output=True, text=True,
+                              encoding="utf-8").stdout
+
+    def remote(self):
+        return self.git(self.origin, "rev-parse", "refs/heads/gh-pages").strip()
+
+    def neue_preise(self):
+        self.ziel.write_text('{"zeit": "2026-11-08T10:00:00+01:00"}\n', encoding="utf-8")
+
+    def lokaler_finder_commit(self):
+        """Unveröffentlichter lokaler Commit mit geänderter finder-daten.json (der Fall aus P2A2-05)."""
+        (self.repo / "finder-daten.json").write_text('{"herkunft": "ungeprueft"}\n', encoding="utf-8")
+        self.git(self.repo, "commit", "-q", "-m", "lokal, nicht veröffentlicht", "--", "finder-daten.json")
+
+    def pruefe_gepusht(self):
+        """Remote = genau ein neuer Commit auf `start`, der nur preise.json ändert; finder-daten.json bytegleich."""
+        neu = self.remote()
+        self.assertNotEqual(neu, self.start)
+        self.assertEqual(self.git(self.origin, "rev-list", "--parents", "-n", "1", neu).split()[1:], [self.start])
+        self.assertEqual(self.git(self.origin, "diff-tree", "--no-renames", "-r", "--name-only", self.start, neu).split(),
+                         ["preise.json"])
+        self.assertEqual(self.git(self.origin, "show", f"{neu}:finder-daten.json"), self.FINDER)
+        self.assertIn("2026-11-08", self.git(self.origin, "show", f"{neu}:preise.json"))
+        return neu
+
+    def test_47i_lokaler_commit_vor_dem_abruf_kommt_nicht_mit(self):
+        self.lokaler_finder_commit()
+        self.neue_preise()
+        self.pa.push(self.ziel)
+        self.pruefe_gepusht()
+
+    def test_47i_lokaler_commit_nach_dem_abruf_kommt_nicht_mit(self):
+        echt = self.pa.eltern_holen
+
+        def dann_lokal_committen(ordner):   # Haken zwischen Abruf von `eltern` und Commit
+            sha = echt(ordner)
+            self.lokaler_finder_commit()
+            return sha
+        self.neue_preise()
+        with mock.patch.object(self.pa, "eltern_holen", side_effect=dann_lokal_committen):
+            self.pa.push(self.ziel)
+        self.pruefe_gepusht()
+
+    def test_47i_gestagte_fremde_datei_kommt_nicht_mit(self):
         (self.repo / "privat.txt").write_text("x", encoding="utf-8")
-        self.git("add", "privat.txt")
-        (self.repo / "preise.json").write_text('{"zeit": "2026-11-08T10:00:00+01:00"}\n', encoding="utf-8")
-        with self.assertRaises(SystemExit):
-            self.pa.push(self.repo / "preise.json")
-        self.assertEqual(self.git("rev-list", "--count", "HEAD").strip(), "1", "es darf kein Commit entstehen")
+        self.git(self.repo, "add", "privat.txt")
+        self.neue_preise()
+        self.pa.push(self.ziel)
+        self.pruefe_gepusht()
 
-    def test_commit_nur_preise(self):
-        (self.repo / "preise.json").write_text('{"zeit": "2026-11-08T10:00:00+01:00"}\n', encoding="utf-8")
-        (self.repo / "sonst.txt").write_text("nicht gestaged", encoding="utf-8")
-        echt = subprocess.run
+    def test_lokaler_zweig_wird_nachgezogen_und_ist_sauber(self):
+        self.neue_preise()
+        self.pa.push(self.ziel)
+        neu = self.pruefe_gepusht()
+        self.assertEqual(self.git(self.repo, "rev-parse", "HEAD").strip(), neu)
+        self.assertEqual(self.git(self.repo, "status", "--porcelain").strip(), "")
 
-        def ohne_push(befehl, *a, **k):   # kein Remote: nur den git push überspringen
-            if "push" in befehl:
-                return subprocess.CompletedProcess(befehl, 0)
-            return echt(befehl, *a, **k)
-        with mock.patch.object(self.pa.subprocess, "run", side_effect=ohne_push):
-            self.pa.push(self.repo / "preise.json")
-        self.assertEqual(self.git("show", "--name-only", "--format=", "HEAD").split(), ["preise.json"])
+    def test_unveraendert_kein_commit(self):
+        self.pa.push(self.ziel)
+        self.assertEqual(self.remote(), self.start)
+
+    def test_flacher_klon_holt_fremden_stand_nach(self):
+        """Actions: flacher Abruf, danach ein fremder Push; der Preiscommit baut auf dem neuen Remote-Stand auf."""
+        flach = Path(self.tmp.name) / "flach"
+        subprocess.run(["git", "clone", "-q", "--depth=1", "-b", "gh-pages", self.origin.as_uri(), str(flach)], check=True)
+        self.git(flach, "config", "user.name", "Test")
+        self.git(flach, "config", "user.email", "test@example.invalid")
+        fremd = self.klon("fremd")
+        (fremd / "app.js").write_text("// neu\n", encoding="utf-8")
+        self.git(fremd, "add", "app.js")
+        self.git(fremd, "commit", "-q", "-m", "App")
+        self.git(fremd, "push", "-q", "origin", "gh-pages")
+        mitte = self.remote()
+        (flach / "preise.json").write_text('{"zeit": "2026-11-08T10:00:00+01:00"}\n', encoding="utf-8")
+        self.pa.push(flach / "preise.json")
+        neu = self.remote()
+        self.assertEqual(self.git(self.origin, "rev-list", "--parents", "-n", "1", neu).split()[1:], [mitte])
+        self.assertEqual(self.git(self.origin, "diff-tree", "--no-renames", "-r", "--name-only", mitte, neu).split(),
+                         ["preise.json"])
+        # lokaler Zweig stand nicht auf `eltern`: bleibt unverändert, preise.json bleibt als Änderung stehen
+        self.assertEqual(self.git(flach, "rev-parse", "HEAD").strip(), self.start)
+        self.assertEqual(self.git(flach, "status", "--porcelain").strip(), "M preise.json")
+
+    def test_47j_eingeschleuste_zweite_datei_bricht_ab(self):
+        echt = self.pa.preis_commit
+
+        def mit_zweiter_datei(ordner, eltern, ziel):
+            neu = echt(ordner, eltern, ziel)
+            baum = self.git(ordner, "rev-parse", f"{neu}^{{tree}}").strip()
+            blob = subprocess.run(["git", "-C", str(ordner), "hash-object", "-w", "--stdin"], input="fremd\n",
+                                  capture_output=True, text=True, check=True).stdout.strip()
+            eintraege = self.git(ordner, "ls-tree", baum) + f"100644 blob {blob}\tfremd.js\n"
+            baum2 = subprocess.run(["git", "-C", str(ordner), "mktree"], input=eintraege, capture_output=True,
+                                   text=True, check=True).stdout.strip()
+            return self.git(ordner, "commit-tree", baum2, "-p", eltern, "-m", "eingeschleust").strip()
+        self.neue_preise()
+        with mock.patch.object(self.pa, "preis_commit", side_effect=mit_zweiter_datei):
+            with self.assertRaises(SystemExit) as fehler:
+                self.pa.push(self.ziel)
+        self.assertIn("fremd.js", str(fehler.exception))
+        self.assertEqual(self.remote(), self.start, "es darf nichts gepusht werden")
+
+    def test_47j_falscher_elternteil_bricht_ab(self):
+        echt = self.pa.preis_commit
+        vorher = self.git(self.repo, "rev-parse", f"{self.start}^").strip()
+
+        def auf_vorfahr(ordner, eltern, ziel):   # gleicher Baum, aber zusätzlich ein zweiter Elternteil
+            neu = echt(ordner, eltern, ziel)
+            baum = self.git(ordner, "rev-parse", f"{neu}^{{tree}}").strip()
+            return self.git(ordner, "commit-tree", baum, "-p", eltern, "-p", vorher, "-m", "zwei Eltern").strip()
+        self.neue_preise()
+        with mock.patch.object(self.pa, "preis_commit", side_effect=auf_vorfahr):
+            with self.assertRaises(SystemExit) as fehler:
+                self.pa.push(self.ziel)
+        self.assertIn("Elternteil", str(fehler.exception))
+        self.assertEqual(self.remote(), self.start)
+
+    def versetzt(self, wie):
+        echt = self.pa.commit_fehler
+
+        def dann_versetzen(ordner, eltern, neu, name="preise.json"):   # Haken zwischen Abruf und Push
+            wie()
+            return echt(ordner, eltern, neu, name)
+        self.neue_preise()
+        with mock.patch.object(self.pa, "commit_fehler", side_effect=dann_versetzen):
+            with self.assertRaises(SystemExit) as fehler:
+                self.pa.push(self.ziel)
+        self.assertIn("Push abgelehnt", str(fehler.exception))
+
+    def test_47k_remote_weitergeschoben_lease_scheitert(self):
+        fremd = self.klon("fremd")
+
+        def weiter():
+            (fremd / "app.js").write_text("// neu\n", encoding="utf-8")
+            self.git(fremd, "add", "app.js")
+            self.git(fremd, "commit", "-q", "-m", "App")
+            self.git(fremd, "push", "-q", "origin", "gh-pages")
+        self.versetzt(weiter)
+        self.assertEqual(self.git(self.origin, "log", "-1", "--format=%s", "gh-pages").strip(), "App")
+
+    def test_47k_remote_auf_vorfahr_zurueckgesetzt_lease_scheitert(self):
+        """Ohne Lease wäre der Push hier ein Fast-forward und ginge durch."""
+        vorher = self.git(self.repo, "rev-parse", f"{self.start}^").strip()
+        self.versetzt(lambda: self.git(self.origin, "update-ref", "refs/heads/gh-pages", vorher))
+        self.assertEqual(self.remote(), vorher)
+
+    def test_47k_remote_geloescht_kein_zweig_angelegt(self):
+        self.versetzt(lambda: self.git(self.origin, "update-ref", "-d", "refs/heads/gh-pages"))
+        self.assertFalse(self.git(self.origin, "for-each-ref", "refs/heads/gh-pages").strip())
+
+    def test_remote_zweig_fehlt_vor_dem_abruf(self):
+        self.git(self.origin, "update-ref", "-d", "refs/heads/gh-pages")
+        self.neue_preise()
+        with self.assertRaises(SystemExit) as fehler:
+            self.pa.push(self.ziel)
+        self.assertIn("gh-pages fehlt auf origin", str(fehler.exception))
+        self.assertFalse(self.git(self.origin, "for-each-ref", "refs/heads/gh-pages").strip())
 
 
 class Workflow(unittest.TestCase):
