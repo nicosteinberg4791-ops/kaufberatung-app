@@ -1,0 +1,85 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Eine doppelte Feld-ID kann bei gleicher Projektion die angezeigte Note ändern. Der Datenworkflow bindet den Push zudem nicht an den geprüften Elterncommit. Beim App-Publish verwenden Referenzabfrage, Commit und Lease denselben Elterncommit. `datenpflege` und reguläre Merges auf `main` führen über den Datenworkflow. Ein reiner Preis-Push lässt die Finder-Herkunft gleich und kann nach erneutem Vergleich weiterlaufen.",
+  "befunde": [
+    {
+      "id": "P2A2-01",
+      "schwere": "kritisch",
+      "titel": "Eine doppelte Feld-ID verändert die Note bei gleicher Projektion",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 214,
+      "beleg": "Auslöser ist eine Kopie des Felds `vrr` am Ende der Fernseher-Feldliste, mit identischem Typ und Gewicht 0. Die Projektion lässt die Kopie weg. Beim Bau überschreibt sie jedoch den Eintrag in der ID-Tabelle (`werkzeuge/datenbank.py:315`), sodass der Teilpunkt entfällt (`:322–323`). Der Client akzeptiert beide Feldobjekte und gewichtet das erste weiterhin (`app/finder/bewertung.js:406–410`, `:429–435`, `:58–62`). Mit den Daten aus `origin/gh-pages` ergibt die Gegenprobe für `hisense-e7s-43` ohne Antworten 55 mit dem belegten VRR-Teilpunkt und 52 nach dessen Wegfall. Die geplante Prüfung auf doppelte JSON-Objektschlüssel erfasst zwei Objekte mit gleicher ID in einer Liste nicht.",
+      "auswirkung": "Ein vorhandener und belegter Produktwert fällt aus der Rechnung. Der Referenzvergleich erlaubt dabei dieselbe Fassungsnummer.",
+      "vorschlag": "Feld-IDs je Kategorie vor Projektion und Bau auf Eindeutigkeit prüfen. Den Fall mit einem zweiten Feld gleicher ID und Gewicht 0 als Negativtest aufnehmen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-02",
+      "schwere": "schwer",
+      "titel": "Der Datenworkflow pusht ohne Bindung an den geprüften Elterncommit",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 221,
+      "beleg": "Das Fertigkriterium verlangt „Kein Weg, die Projektion (§9.3) zu ändern, ohne dass die Nummer steigen muss: Datenworkflow, App-Publish (`veroeffentlichen.py`) und lokale Prüfung, jeweils auch nach einem Wechsel des gh-pages-Elternstands.“ Der Entwurf prüft nach einem fehlgeschlagenen Push erneut. Der bestehende `git push -q origin gh-pages` in `.github/workflows/finder-daten.yml:71` kann jedoch erfolgreich sein, wenn der Zweig zwischen Prüfung und Push gelöscht oder auf einen Vorfahren des geprüften Elterncommits zurückgesetzt wurde. Im ersten Fall legt Git den Zweig neu an, im zweiten ist der Push weiterhin ein Fast-forward. Der vorgesehene Wiederholungszweig läuft in beiden Fällen nicht.",
+      "auswirkung": "Der Workflow kann veröffentlichen, obwohl die Referenz inzwischen fehlt oder ein anderer Seitenstand aktuell ist.",
+      "vorschlag": "Je Versuch den Eltern-SHA für Referenzabfrage und Commit festhalten und mit ausdrücklicher Lease auf genau diesen SHA pushen. Test 47 um gelöschten Zweig, Rücksetzung und einen normalen Preis-Push mit unveränderter Finder-Herkunft ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-03",
+      "schwere": "schwer",
+      "titel": "Die lokale Prüfung kann eine gelöschte Referenz weiterverwenden",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 223,
+      "beleg": "Das Fertigkriterium lautet „Fehlt die Referenz, ist sie unlesbar oder nicht erreichbar, bricht jeder Weg ab.“ Vorgesehen ist das Lesen von `origin/gh-pages` nach `git fetch`. Wird `gh-pages` auf dem Server gelöscht, lässt ein gewöhnliches `git fetch` ohne Pruning den vorhandenen Remote-Tracking-Ref stehen. Die lokale Prüfung kann dann die alte Datei und deren Herkunft lesen und grün melden.",
+      "auswirkung": "Ein lokal grünes Ergebnis kann auf einer Referenz beruhen, die auf dem Server nicht mehr existiert.",
+      "vorschlag": "Den konkreten Remote-Zweig explizit abrufen, einen fehlgeschlagenen Abruf als Fehler behandeln und ausschließlich den frisch abgerufenen SHA verwenden. Test 47 um einen vorhandenen lokalen Ref bei fehlendem Remote-Zweig ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-04",
+      "schwere": "mittel",
+      "titel": "Gleichwertige JSON-Zahlen können unterschiedliche Teilpunkte erzeugen",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 215,
+      "beleg": "Die Python-Gleichheit setzt einen exakt darstellbaren Integer und seinen Float gleich. Die Interpolation in `werkzeuge/datenbank.py:79–81` rechnet jedoch abhängig vom Typ mit exakten Ganzzahl-Zwischenergebnissen oder mit Gleitkomma. Bei der linearen Kurve `[[-10000000000000000,20],[30000000000000011,79]]` und Produktwert `0` ergibt das mit dem ersten Stützpunkt als Integer gerundet 34,8 Teilpunkte. Mit `-10000000000000000.0` ergibt es 34,7. Der Entwurf legt für Kurvenstützpunkte keine Grenze fest, die diesen Fall ausschließt. Die Gegenprobe mit `bewertung.js` ergibt bei einem voll abgedeckten Feld, Faktor 1 und Abzug 0,25 die Anzeigen 35 und 34.",
+      "auswirkung": "Eine Änderung der Zahlendarstellung kann bei gleicher Projektion die Anzeige kippen.",
+      "vorschlag": "Kurvenzahlen vor Vergleich und Berechnung in dieselbe Rechenrepräsentation überführen. Endliche Werte, zulässige Bereiche und die Unterscheidung von Zahlen und Wahrheitswerten für numerische Felder festlegen. Test 40 um einen Interpolationsfall an einer Rundungsgrenze ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05",
+      "schwere": "mittel",
+      "titel": "Ein lokaler Preis-Push kann weitere Seitencommits mitnehmen",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 225,
+      "beleg": "`--push` und `--nur-push` prüfen den ausgecheckten Zweig und beschränken den neu erzeugten Commit auf `preise.json` (`:203–225`, `:259–264`). Anschließend wird der gesamte lokale Zweig `gh-pages` gepusht. Enthält dieser bereits einen unveröffentlichten Commit mit geänderter `finder-daten.json`, umfasst der Push auch diesen Commit. Ein direkter manueller Push oder Merge auf `gh-pages` führt die beiden geplanten Schranken ebenfalls nicht aus. Ob GitHub solche Updates für die jeweiligen Akteure zulässt, war aus dem Prüfstand nicht feststellbar.",
+      "auswirkung": "Bei entsprechenden Push-Rechten gibt es einen weiteren Weg für Finder-Daten ohne Referenzvergleich. Der reguläre Preisworkflow startet aus einem frisch geholten Seitenstand.",
+      "vorschlag": "Beim lokalen Preis-Publish vom festgehaltenen Remote-Elterncommit ausgehen und nur den daraus erzeugten Preiscommit mit Lease veröffentlichen. Die für direkte Pushes und Merges vorausgesetzte GitHub-Regel im Entwurf festhalten und bei der Freigabe prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-06",
+      "schwere": "schwer",
+      "titel": "Die Tests belegen weder eine bestehbare Erstfassung noch die Pflicht zu Nummer 1",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 275,
+      "beleg": "Das Fertigkriterium lautet „Der erste Lauf (Referenz ohne `gewichte_version`) ist bestehbar und erzwingt Nummer 1 mit gleicher Projektion.“ Test 41 prüft für die alte Referenz nur die Ablehnung einer geänderten Projektion. Test 42 vergleicht Noten vor und nach dem Bau. Damit bleiben beide Tests mit einem Referenzvergleich grün, der alle Schema-1-Referenzen ablehnt. Ebenso fehlt ein Fall mit gleicher Projektion und Nummer 2, der eine fehlende Prüfung der Startnummer aufdeckt.",
+      "auswirkung": "Die Tests können grün sein, obwohl die erste Veröffentlichung blockiert ist oder mit einer falschen Fassungsnummer beginnt.",
+      "vorschlag": "Mit derselben Schema-1-Referenz drei Fälle im Freigabevergleich prüfen. Gleiche Projektion mit Nummer 1 muss grün sein, gleiche Projektion mit Nummer 2 und geänderte Projektion mit Nummer 1 müssen rot sein.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-07",
+      "schwere": "mittel",
+      "titel": "Test 47 deckt den Abbruch bei unbrauchbarer Referenz nicht für alle Wege ab",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 281,
+      "beleg": "Test 47(c) nennt nur „in beiden Wegen“ für eine unlesbare Datei oder fehlende Herkunft. Der Workflow-Fall 47(d) prüft den Wechsel auf eine andere Herkunft. Ein nicht auflösbarer Herkunftscommit und ein fehlender oder unlesbarer Schema-Blob am Herkunftscommit kommen in keinem der Fälle vor.",
+      "auswirkung": "Ein veröffentlichender Aufrufer kann Referenzfehler still übergehen, ohne dass die vorgesehenen Tests anschlagen.",
+      "vorschlag": "Dieselben negativen Referenzfälle über lokale Prüfung, App-Publish und Workflow-Schritt ausführen. Bei den Veröffentlichungswegen zusätzlich prüfen, dass kein Kopieren oder Push folgt.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Lesende Erstprüfung des Architekturentwurfs am Commit 57560260a914bd53ce1503b57977c0d414dfd4d9. Die Freigabeschranke ist dort noch nicht implementiert. GitHub-Regeln und reale Pushes wurden nicht geprüft. Die Herkunft aus dem lokalen `origin/gh-pages` war erreichbar und enthielt dasselbe Schema wie der Prüfcommit. Die Notengegenproben liefen mit Node. Python war in der Prüfumgebung nicht verfügbar, daher wurde die Interpolation anhand des Codes und der Zwischenwerte geprüft. P2a-1 und die fachliche Entscheidung F-5 blieben außerhalb dieses Auftrags."
+}

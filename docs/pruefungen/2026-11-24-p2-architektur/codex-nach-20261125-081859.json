@@ -1,0 +1,76 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "R2-05 ist geschlossen. Bei R2-03, R2-04, R2-06 und R2-07 bleiben Abweichungen von den Fertigkriterien.",
+  "befunde": [
+    {
+      "id": "R2-03",
+      "schwere": "schwer",
+      "titel": "Das Testorakel verwendet weiterhin eine Ein-Modell-Kopie",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 207,
+      "beleg": "Das aktuelle Fertigkriterium verlangt „Orakel ohne Ein-Modell-Kopie“. §9.2 definiert `kat1` als „eine Kopie der Kategorie mit nur diesem Modell“. §3 Z. 103 und §8 A-1 Z. 178 verweisen konsistent auf diese Regel. Die frühere Einordnung hatte die Ein-Modell-Kopie vorgesehen.",
+      "auswirkung": "Test 22 erfüllt in der beschriebenen Form das aktuelle Fertigkriterium nicht. Die Verweise allein lösen den Widerspruch zwischen Auftrag und Entwurf nicht auf.",
+      "vorschlag": "Für das Zahlenorakel die vollständige Kategorie mit neutralisierten Frageanforderungen auswerten und die Zielzeile anhand der Modell-ID aus `rang` holen. `passt` weiterhin gegen die unveränderten Anforderungen prüfen und §3, §8 A-1 und §9.2 entsprechend abgleichen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-04",
+      "schwere": "schwer",
+      "titel": "Der Client verwirft weiterhin URLs und Titel, die der Bau annimmt",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 246,
+      "beleg": "Das Fertigkriterium lautet „Für jeden Wert der Tabelle nimmt der Client alles an, was der Bau annimmt.“ Die gemeinsame Vorprüfung lässt `https://999.999.999.999/` durch. `kanon_host` verlangt danach nur unter anderem einen nichtleeren Host und akzeptiert den Host nach `datenbank.py:105–115`. Node wirft bei `new URL` einen `TypeError`. In Z. 247 hat der Bau für Titel nur die Grenze 1–200 Zeichen. `istName` verlangt zusätzlich nichtleeren Text nach `trim()` und misst UTF-16-Codeeinheiten (`bewertung.js:385–386`). Ein Leerzeichen erfüllt die Bauvorgabe. 101 Emoji sind 101 Unicode-Codepunkte, aber 202 UTF-16-Codeeinheiten.",
+      "auswirkung": "Der Client kann eine erfolgreich gebaute Testquelle oder Quelle verwerfen. Mit der Quelle gehen auch ihre Belegverweise verloren. Test 44 erfasst diese Unterschiede nicht.",
+      "vorschlag": "Eine gemeinsame Hostsyntax sowie dieselbe Längeneinheit und Leerraumregel für beide Seiten festlegen. Test 44 um einen Parser-Grenzfall, einen Titel nur aus Leerraum und einen Unicode-Titel an der Längengrenze ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R3-01",
+      "schwere": "mittel",
+      "titel": "Für Quellen-IDs und Testquellennamen gelten weitere einseitige Regeln",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 85,
+      "beleg": "§2.2 Z. 56 definiert `testquelle.name` nur als 1–80 Zeichen. §2.6 verlangt `istName(name, 80)` und damit zusätzlich nichtleeren Text nach `trim()` sowie eine Länge in UTF-16-Codeeinheiten. Für Quellen-IDs übernimmt §2.6 `kennungOk` (`bewertung.js:379–382`). Die bestehende Bauprüfung verwendet das Muster `ID` (`datenbank.py:20, 176–179`). Beispielsweise akzeptiert der Bau `prototype`, der Client verwirft es ausdrücklich. §2.4 und §9.6 legen keine gemeinsame Regel für diese Schlüssel fest.",
+      "auswirkung": "Auch bei gültiger URL, gültigem Datum und gültigem Titel können eine Testquelle oder eine Quelle mitsamt ihren Belegen im Client entfallen.",
+      "vorschlag": "Name und Quellen-ID in den gemeinsamen Vertrag aufnehmen. Die Bauprüfung an dieselben Regeln binden und einen Beleg auf eine Quelle mit abgelehnter ID als Gegenprobe aufnehmen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-06",
+      "schwere": "schwer",
+      "titel": "Teilpunkte bleiben bei typfalschen Werten außerhalb der Maßfelder erhalten",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 256,
+      "beleg": "Das Fertigkriterium lautet „Teilpunkte bleiben nur bei gültigem Wert“. Für Nicht-Maßfelder verlangt §9.7 lediglich, dass der Wert nach `wertOk` noch in `werte` steht. `wertOk` akzeptiert kurzen Text (`bewertung.js:421–422, 440–441`). `leistung_w` ist ein Zahlenfeld (`kategorien.json:203`), und der Bau verwirft dafür Text (`datenbank.py:58–59`). In der Node-Gegenprobe mit `leistung_w: \"1700\"` und 75 Teilpunkten bleiben nach der beschriebenen Kopplung beide erhalten. Die angezeigte Note ist 82 bei 100 % Abdeckung. Entfallen die Teilpunkte für den ungültigen Wert, ergibt dieselbe Gegenprobe 81 bei 87,5 %. §2.6 und §9.4 koppeln Belege bereits an Quelle und Wert. Test 20 prüft einen von Anfang an fehlenden Wert, Test 21 keinen Beleg zu einem bei der Bereinigung entfernten Wert.",
+      "auswirkung": "Ein typfalscher Rohwert kann weiterhin in Note und Abdeckung zählen. Die Korrektur schließt den ursprünglich gemeldeten Objektwert ab, erfasst aber nicht alle typfalschen Werte.",
+      "vorschlag": "Rohwerte vor der Kopplung anhand des veröffentlichten Feldtyps validieren. Teilpunkte und Belege danach an einen eigenen Eintrag in der bereinigten `werte`-Map binden. Test 21 um ein typfalsches Nicht-Maßfeld mit Teilpunkten und Beleg ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-07",
+      "schwere": "mittel",
+      "titel": "Die Gewichtssumme von 100 setzt wirksame anwendbare Felder voraus",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 12,
+      "beleg": "§1 behauptet, nach Abschalten eines Feldes durch einen Antwortfaktor 0 bleibe die Summe 100. Beim Air Fryer mit `beilage=nein` und allen übrigen Reglern auf „aus“ liefert `gewichte` in der Node-Gegenprobe `{}`. `bewerteModell` liefert `keine_merkmale` und zwei leere Listen mit Summe 0 (`bewertung.js:58–66, 127–151`). §4 Z. 126 und §9.5 Z. 235 nennen die Anteilssumme ebenfalls ohne diese Bedingung, während §9.5 Z. 238 für `keine_merkmale` ausdrücklich eine leere Merkmalliste vorsieht. Der Netzfallback ist in §1 korrigiert.",
+      "auswirkung": "Die Beschreibung lässt einen vorgesehenen Reglerzustand aus. Für denselben Fall verspricht der Schnittstellenvertrag sowohl eine Anteilssumme von 100 als auch eine leere Liste.",
+      "vorschlag": "Die 100-%-Aussagen in §1, §4 und §9.5 auf Fälle mit wirksamem anwendbarem Gewicht begrenzen. Den Leerfall ausdrücklich als solchen belassen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R3-02",
+      "schwere": "schwer",
+      "titel": "Test 33 ist an zwei Stellen als Test formuliert",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 178,
+      "beleg": "Das Fertigkriterium lautet „Jeder Test steht genau einmal (§6 bzw. §8/§9.9).“ A-1 fordert als „Neuer Test“ den Zeilenvergleich mit dem Orakel bei gesetzten Reglern. Z. 193 spezifiziert denselben Vergleich erneut als Test 33. A-1 nennt dabei Test 22 und weist dem anschließend beschriebenen Test keine Nummer zu.",
+      "auswirkung": "Die Zuordnung des Prioritätentests zu Test 22 oder Test 33 bleibt offen. Bei der Umsetzung kann derselbe Fall doppelt angelegt werden.",
+      "vorschlag": "Den Prioritätentest nur unter Nummer 33 spezifizieren. A-1 kann direkt auf Test 33 und auf das Orakel in §9.2 verweisen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "R2-05"
+  ],
+  "pruefgrenzen": "Geprüft wurde der Entwurf am Commit 57560260a914bd53ce1503b57977c0d414dfd4d9 anhand des Diffs ab 417f8b5 und der benannten Codepfade. Die Gegenproben liefen lesend in Node. Der Python-Launcher fand keine Installation, daher wurde die Bauseite am Quelltext geprüft. Für R2-03 bis R2-07 lagen Klassenangaben vor. R2-01, R2-02, Gewichtsfassung, Freigabeschranke und die dafür ausgeschlossenen Tests gehören zu P2a-2. F-1 bis F-5 und der Wortlaut der Ansicht bleiben außerhalb dieser Nachprüfung."
+}
