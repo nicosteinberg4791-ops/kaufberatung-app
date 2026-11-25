@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 25.11.2026 · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [docs/status-verlauf.md](docs/status-verlauf.md) · Letzte Commits: `git log`.
+Stand: 25.11.2026 · Branch main, Preis-Push selbst geprüft bis 40ed171, Codex r3 nicht bestanden (b47a70b) · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [docs/status-verlauf.md](docs/status-verlauf.md) · Letzte Commits: `git log`.
 
 ## Lage
 
