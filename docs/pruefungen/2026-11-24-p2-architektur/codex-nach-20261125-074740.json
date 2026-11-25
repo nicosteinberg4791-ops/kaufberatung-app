@@ -1,0 +1,91 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Die Gewichtsfassung hat zwei blockierende Lücken. Eine Umordnung der Felder kann die angezeigte Note bei gleicher Nummer ändern. Der eigenständige App-Veröffentlichungsweg kann die Versionsschranke umgehen. Außerdem enthalten ältere Abschnitte weiterhin Anweisungen, die §9 ohne direkten Verweis widersprechen.",
+  "befunde": [
+    {
+      "id": "R2-01",
+      "schwere": "schwer",
+      "titel": "Die Feldreihenfolge kann die angezeigte Note bei gleicher Fassung ändern",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 214,
+      "beleg": "Das Fertigkriterium lautet „Kein Weg, die Gewichte zu ändern, ohne dass die Nummer steigen muss. Das gilt in CI und lokal sowie für Antwort-ID und Reihenfolge.“ §9.3 vergleicht Felder als ungeordnete Abbildung. Test 40 erwartet für eine Umordnung ausdrücklich Gleichheit. Im Node-Abgleich mit den Pages-Daten ergab `auswerten` für `samsung-s90h-83` bei `zweck=filme`, `abstand=a_ueber32`, `ton=nein`, `empfang=streaming` und unveränderten Prioritäten 72,49999999999999. Mit umgekehrter Feldliste ergab derselbe Aufruf 72,50000000000001. Die Anzeige wechselte von 72 auf 73. `gewichte` und `bewerteModell` summieren in Feldreihenfolge (`bewertung.js:58–65`, `:127–136`).",
+      "auswirkung": "Der Referenzvergleich lässt die Umordnung bei gleicher Nummer durch, obwohl sich die sichtbare Note und damit gegebenenfalls der Rang ändern.",
+      "vorschlag": "Die Reihenfolge der bewerteten Felder in der Projektion erhalten und Test 40 mit dem reproduzierten Grenzfall absichern.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-02",
+      "schwere": "schwer",
+      "titel": "App-Veröffentlichung und lokale Prüfung nutzen keine gemeinsame Freigabeschranke",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 220,
+      "beleg": "Das Fertigkriterium verlangt „Kein Weg, die Gewichte zu ändern, ohne dass die Nummer steigen muss.“ §9.3 setzt die Schranke in `pruefen --gegen`, die lokale Referenz ist `origin/main`. Sobald dort ein Kandidat mit geändertem Gewicht und unveränderter Nummer steht, vergleicht seine lokale Prüfung die Projektion mit sich selbst. Der eigenständige App-Publish baut über `app_bauen.py:184` direkt mit `datenbank.bauen()` und prüft vor dem Ersetzen nur die Commit-Abstammung (`veroeffentlichen.py:272–273`, `:315–318`). §5 und §9 sehen für diesen Pfad keinen Referenzvergleich vor.",
+      "auswirkung": "Ein Kandidat kann den lokalen Referenzvergleich bestehen und über den App-Publish mit unveränderter Nummer auf Pages gelangen, auch wenn der Datenworkflow ihn gegen die zuletzt veröffentlichte Fassung ablehnen würde.",
+      "vorschlag": "Lokal dieselbe veröffentlichte Referenz wie in CI verwenden. Die Prüfung für beide Veröffentlichungswege an die Herkunft der jeweils zu ersetzenden Datei binden und nach einem Wechsel des Pages-Elternstands erneut ausführen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-03",
+      "schwere": "schwer",
+      "titel": "Ältere Anweisungen widersprechen §9 ohne direkten Verweis",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 84,
+      "beleg": "Das Fertigkriterium lautet „§9 widerspricht §2–§8 nirgends still; wo er vorgeht, steht das dort als Verweis.“ §2.6 Z. 84–86 nennt weiter `DATUM` und `sichereUrl`, während §9.6 andere Prüfungen verlangt. §5 Z. 134 verlangt für jedes neue P6-Feld auch bei Gewicht 0 eine neue Fassung, während §9.3 Filterfelder auslässt. Test 30 in §6 Z. 142 sortiert `fehlend` nach Anteil, obwohl §9.5 daraus eine Liste von IDs macht. A-1 in §8 Z. 178 nennt weiterhin das ungefilterte `auswerten` als Testorakel 22. Beim veröffentlichten `na120-00` und `beilage=ja` ist dessen `rang` leer, während das Orakel nach §9.2 die Note 54,7725 liefert.",
+      "auswirkung": "Je nach gelesener Stelle kann die Umsetzung den alten Metadatenvertrag, eine gegenteilige Fassungsregel, ein anderes Rückgabeformat oder das fehlerhafte Testorakel übernehmen.",
+      "vorschlag": "Die widersprechenden Anweisungen und Tests an ihren Fundstellen aktualisieren oder dort unmittelbar auf den jeweils geltenden Absatz in §9 verweisen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-04",
+      "schwere": "mittel",
+      "titel": "Bau und Client verwerfen weiterhin unterschiedliche Metadaten",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 241,
+      "beleg": "Der Bau akzeptiert mit `ist_datum` Kalenderdaten von 2020 bis heute (`datenbank.py:44–50`). Der Client soll gegen `d.stand` prüfen. Dieser Wert ist das jüngste Produktdateidatum (`datenbank.py:308`) und im geprüften Pages-Stand `2026-11-22`. Der im Entwurf gezeigte Freigabetag `2026-11-24` wäre damit im Bau gültig und würde im Client verworfen. Auch der URL-Vertrag weicht ab. `kanon_host` lehnt einen expliziten Port 443 ab (`datenbank.py:105–112`), während Node für `new URL('https://example.org:443/').port` eine leere Zeichenfolge liefert. Die Längengrenze 2000 steht nur auf der Clientseite.",
+      "auswirkung": "Eine gültig gebaute Gewichtsfassung oder Quelle kann in der App fehlen. Der Client kann zugleich eine URL akzeptieren, die der Bau ablehnt.",
+      "vorschlag": "Für beide Seiten dieselbe Datumsgrenze, Längengrenze und Prüfung der ursprünglichen URL festlegen. Test 44 um Freigabe nach Produktdatenstand, expliziten Port 443 und eine URL über 2000 Zeichen ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-05",
+      "schwere": "mittel",
+      "titel": "Die Formel für `anteil` liefert einen Bruchteil statt Prozentpunkten",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 231,
+      "beleg": "`g / Σ g` ergibt über die anwendbaren Felder in Summe 1. §9.5 und Test 34 erwarten 100. Der Nenner stimmt mit den anwendbaren Gewichten aus `bewerteModell` überein (`bewertung.js:127–137`). Für `beitrag_r` stimmt auch die Formel, sofern mindestens ein anwendbares Feld belegt ist. Ohne belegtes Feld liefert die Rechnung `R: null`.",
+      "auswirkung": "Eine Umsetzung nach der wörtlichen Formel gibt beispielsweise 0,4167 aus, obwohl die Schnittstelle 41,67 Prozent erwartet.",
+      "vorschlag": "`anteil = 100 · g / Σ g` festlegen. In Test 34 einen konkreten Prozentwert und bei ausschließlich fehlenden Merkmalen `R: null` prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-06",
+      "schwere": "mittel",
+      "titel": "Die Maßbereinigung koppelt Wert und Teilpunkte nur für Werte ≤ 0",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 249,
+      "beleg": "§9.7 und Test 21 koppeln Rohwert und Teilpunkte nur beim Entfernen eines Maßwerts ≤ 0. `datenPruefen` entfernt aber auch Objektwerte aus `werte` und filtert `teilpunkte` separat (`bewertung.js:421–422`, `:440–441`). Bei `hoehe_cm: {wert: 9}` und vorhandenen numerischen Teilpunkten greift die neue Regel ≤ 0 nicht. Der Rohwert entfällt trotzdem, während die Teilpunkte für das mit 6 gewichtete Feld weiter in Note und Abdeckung eingehen können (`kategorien.json:170`, `bewertung.js:127–137`). Die Namensregel selbst klassifiziert alle vier vorhandenen B/H/T-Felddefinitionen korrekt.",
+      "auswirkung": "Beschädigte Fremddaten können einem Saugroboter weiterhin Punkte für eine Höhe geben, die der Client aus dem Datenblatt entfernt hat.",
+      "vorschlag": "Wert und Teilpunkte für jedes kanonische Maßfeld gemeinsam validieren. Falschen Typ und einen Wert oberhalb der festgelegten Maßgrenze zusammen mit dem Negativfall testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-07",
+      "schwere": "mittel",
+      "titel": "Zwei Ist-Aussagen gelten nur unter zusätzlichen Bedingungen",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 12,
+      "beleg": "§1 sagt, bei nicht anwendbaren Feldern addierten sich `beitraege` und `fehlend` auf weniger als 100. Für das veröffentlichte Einkorbmodell `na120-00` und `beilage=nein` ergab der Node-Abgleich genau 100. `sync_funktion` ist nicht anwendbar und wurde bereits durch den Antwortfaktor 0 aus `gewichte` entfernt (`kategorien.json:217`, `bewertung.js:58–65`, `:127–134`). Außerdem behauptet §1 Z. 29, die Seite nutze die Kopie aus der Fassung des aktiven Workers. `sw.js:80–83` fällt bei fehlendem Cachetreffer auf das Netz zurück.",
+      "auswirkung": "Die Ist-Beschreibung kann zu falschen Erwartungen für Tests mit gleichzeitig abgeschalteten und nicht anwendbaren Feldern sowie für Tests ohne App-Cachetreffer führen.",
+      "vorschlag": "Die erste Aussage auf nicht anwendbare Felder mit wirksamem positivem Gewicht begrenzen. Für die Seite den App-Cache als bevorzugten Pfad mit Netzfallback beschreiben.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "P2-01",
+    "P2-03",
+    "P2-05",
+    "P2-07",
+    "P2-10"
+  ],
+  "pruefgrenzen": "Lesende Nachprüfung von `77939489ed4eb44c95c6ee809d52c1da65400795`. Alle elf Vorbefunde hatten eine Klassenangabe und eine ausgewiesene Korrektur. Der angegebene Git-Befehl reproduzierte auf dem lokalen `origin/gh-pages` die Fassungen `420722b` und `b24c18f`. Der Ersteintrag mit Nummer 1 ist für den vorliegenden Stand möglich. Die Pages-Herkunft `7339711` ist erreichbar, liegt in der Abstammung und hat dieselbe Schemadatei ohne `gewichte_version`. Der neue Schritt muss die Referenz vor dem Bau selbst verbindlich lesen. Die bestehende CLI von `herkunft.py` gibt die SHA nicht aus und erlaubt das Ersetzen einer fehlenden oder unlesbaren Datei. Antwort-IDs, Frage- und Antwortreihenfolge, Antwortfaktoren, Kurven und die notenwirksamen Abschlagsparameter sind in der Projektion enthalten. `mindest` und `hoechst` beeinflussen die Auswahl, und die aktuelle Regel für Nichtanwendbarkeit liegt im App-Code. Der Node-Abgleich prüfte die gezielten Gegenfälle im Speicher. P2a ist ein Entwurf, daher wurden kein neuer Bau, kein CI-Lauf und kein Deploy ausgeführt. F-1 bis F-5, der bekannte Zustand des alten Workers und der Ansichtswortlaut bleiben außerhalb der Nachprüfung."
+}
