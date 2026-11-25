@@ -1,0 +1,65 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "R2-04, R3-01, R2-06 und R2-07 bleiben offen. Die Begründung zu `trim()` stimmt. Alle 25 in Node entfernten Codepunkte gehören zu den in §9.6 genannten Klassen.",
+  "befunde": [
+    {
+      "id": "R2-04",
+      "schwere": "schwer",
+      "titel": "Die Hostregel lässt ungültige Punycode-Labels durch",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 250,
+      "beleg": "Das Fertigkriterium lautet „Für Host, Namen, Titel und Quellen-ID nimmt der Client alles an, was der Bau annimmt“. `https://xn--a.de/` erfüllt die ASCII- und Hostregeln aus Z. 250. `kanon_host` gibt in der Python-Gegenprobe `xn--a.de` zurück. `new URL` wirft in Node `ERR_INVALID_URL`.",
+      "auswirkung": "Der Bau kann eine Quelle veröffentlichen, die der Client samt ihren Belegen entfernt. Bei einer Testquellen-URL entfällt das gesamte `testquelle`-Objekt.",
+      "vorschlag": "Für `xn--`-Labels eine gemeinsame Regel festlegen. Test 44 um ein ungültiges Punycode-Label und, falls zulässig, ein gültiges ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R3-01",
+      "schwere": "schwer",
+      "titel": "Die Bauprüfung für Quellen-IDs lässt ein abschließendes LF zu",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 252,
+      "beleg": "Das Fertigkriterium lautet „Für Host, Namen, Titel und Quellen-ID nimmt der Client alles an, was der Bau annimmt“. §9.6 übernimmt `ID` und ergänzt eine Sperrliste. Die bestehende Bauprüfung in `werkzeuge/datenbank.py:176–179` nutzt `ID.match`. In der Python-Gegenprobe akzeptiert dieser Aufruf `quelle\\n`. Die Sperrliste greift für diesen Schlüssel nicht. Die Regex aus `kennungOk` (`app/finder/bewertung.js:379–382`) verwirft ihn in Node.",
+      "auswirkung": "Bleibt der bestehende Aufruf erhalten, kann der Client eine veröffentlichte Quelle und ihre Belege wegen der Quellen-ID entfernen.",
+      "vorschlag": "Für den Bau ausdrücklich `ID.fullmatch` festlegen und die Quellen-ID mit abschließendem LF in Test 44 auf beiden Seiten prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-06",
+      "schwere": "schwer",
+      "titel": "Die Längengrenze für Stufen kann bei gültigen Daten die Note ändern",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 263,
+      "beleg": "Das Fertigkriterium lautet „Bei gültigen Daten ändert die Typprüfung keine Note“. `feld_ok` prüft für `stufe` die Zugehörigkeit zur Kurve (`werkzeuge/datenbank.py:60–61`). In der Python-Gegenprobe akzeptiert es einen ASCII-Stufenwert mit 201 Zeichen, der in der Kurve steht. §2.6 und §9.7 verwerfen diesen Wert im Client samt Teilpunkten und Beleg. In der Node-Gegenprobe mit einem gewichteten Feld und 100 Teilpunkten sinkt die Abdeckung durch die beschriebene Kopplung von 100 auf 0 Prozent und die Note wechselt von 89,5 auf `null`.",
+      "auswirkung": "Eine zulässige künftige Stufe kann im Client die Abdeckung senken und eine Note entfallen lassen. Die Stufen im geprüften Schema haben höchstens 20 Zeichen. Der Vergleich mit Live-Daten in Test 21 deckt die Grenzabweichung daher nicht ab.",
+      "vorschlag": "Die Stufenlänge im Schema und im Client nach derselben Zähleinheit begrenzen. Test 21 um einen gültigen Stufenwert an der Grenze und einen Wert darüber ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R4-01",
+      "schwere": "mittel",
+      "titel": "Die Beleganzeige bei verworfenen Teilpunkten bleibt offen",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 86,
+      "beleg": "Für `leistung_w: 1400` mit gültiger Quelle und `teilpunkte.leistung_w: 101` bleibt der Wert nach §2.6 gültig und der Beleg erfüllt die dortige Regel. `datenPruefen` entfernt die Teilpunkte (`app/finder/bewertung.js:440–441`). In der Node-Gegenprobe führt `bewerteModell` das Feld unter `fehlend` und zählt es nicht zur Abdeckung. §9.5 Z. 241 setzt für diese Zeile Wert, Teilpunkte und `beitrag_r` auf `null`, legt aber `beleg` nicht fest.",
+      "auswirkung": "Die Merkmalsansicht kann eine Zeile als fehlend ausweisen und zugleich einen Beleg zu einem ausgeblendeten Wert anzeigen.",
+      "vorschlag": "Für `belegt: false` den Beleg der Merkmalszeile ausdrücklich festlegen. Den Rohwert und seine Quelle bei Bedarf getrennt von der Bewertung erhalten. Test 21 um einen gültigen Wert mit ungültigen Teilpunkten ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R2-07",
+      "schwere": "mittel",
+      "titel": "§1 behauptet im Leerfall weiterhin eine Gewichtssumme von 100",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 12,
+      "beleg": "Z. 12 sagt weiterhin, dass „die Summe bleibt 100“, wenn eine Antwort das nicht anwendbare Feld auf Faktor 0 setzt. Beim Air Fryer mit einem Korb, `beilage=nein` und allen Reglern auf 0 ergibt `gewichte` in der Node-Gegenprobe `{}`. `bewerteModell` liefert leere Listen, `abdeckung: 0` und `art: \"keine_merkmale\"`. Die Summenaussage widerspricht dem direkt folgenden Satz zum Leerfall. Z. 10 nennt zudem die Quotienten für R und Abdeckung ohne ihre Nullfälle, die `app/finder/bewertung.js:136–137` ausdrücklich behandelt.",
+      "auswirkung": "§1 beschreibt denselben Zustand zugleich mit einer Gewichtssumme von 100 und mit leeren Listen. §4 und §9.5 setzen die Grenze für `anteil` bereits korrekt.",
+      "vorschlag": "Die Summe der G1-Listen nur bei positivem Gesamtgewicht und ohne wirksames nicht anwendbares Feld mit 100 angeben. In Z. 10 `R: null` ohne belegtes Gewicht und `abdeckung: 0` ohne anwendbares Gewicht ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "R3-02"
+  ],
+  "pruefgrenzen": "Lesende Nachprüfung des Entwurfs in Commit 546ded4c8fb33d8eea0ab8e8826a918cd053b0b1 mit Python- und Node-Gegenproben. Die Tests des geplanten Pakets sind noch nicht implementiert. R2-03 war als Fehlalarm nur Kontext. P2a-2, F-1 bis F-5 und bereits geschlossene Befunde wurden nicht erneut geprüft. Für alle fünf zur Nachprüfung vorgelegten Korrekturen war eine Fehlerklasse angegeben."
+}

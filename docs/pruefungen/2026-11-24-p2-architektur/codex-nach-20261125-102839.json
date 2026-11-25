@@ -1,0 +1,58 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "P2A2-04 und P2A2-05 bleiben offen. Die Typregel erfasst ein als `false` geschriebenes Nullgewicht nicht eindeutig. Beim Preis-Push fehlen die Prüfung der Herkunft und die Bindung des veröffentlichten Commits an den geprüften Eltern-SHA.",
+  "befunde": [
+    {
+      "id": "P2A2-05",
+      "schwere": "schwer",
+      "titel": "Der Preis-Push kann nach dem HEAD-Vergleich einen fremden Seitencommit mitnehmen",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 227,
+      "beleg": "Das Fertigkriterium lautet „Jeder Push auf gh-pages durch ein Werkzeug (Datenworkflow, App-Publish, Preis-Push) läuft mit Lease auf genau den Eltern-SHA, gegen dessen Herkunft geprüft wurde.“ Der Entwurf prüft `HEAD` einmal vor dem Commit und pusht später den veränderlichen `HEAD`. Stehen lokal und remote zunächst auf A und entsteht lokal nach dem Vergleich ein Commit B mit geänderter `finder-daten.json`, kann der Preiscommit auf B entstehen. Die Lease auf A akzeptiert den Push, solange der Remote-Zweig weiter auf A steht. Test 47(i) setzt B bereits vor dem Vergleich und erfasst diesen Ablauf daher nicht.",
+      "auswirkung": "Der Preis-Push kann ungeprüfte Finder-Daten veröffentlichen, obwohl der Remote-Zweig während des Laufs unverändert blieb.",
+      "vorschlag": "Den Preiscommit unmittelbar aus dem festgehaltenen Eltern-SHA erzeugen, seinen Baum gegen diesen Elternstand prüfen und den resultierenden Commit-SHA mit der Lease pushen. Test 47(i) um eine lokale Ref-Änderung nach dem Elternvergleich ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-R2-01",
+      "schwere": "schwer",
+      "titel": "Der Preis-Push prüft die Finder-Herkunft des Elterncommits nicht",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 227,
+      "beleg": "Das Fertigkriterium verlangt „Lease auf genau den Eltern-SHA, gegen dessen Herkunft geprüft wurde“. Für den Preis-Push beschreibt §9.3 nur `ls-remote`, HEAD-Vergleich, Preiscommit und Lease. Bei lokalem HEAD gleich Remote-SHA, geänderter Preisdatei und fehlender `herkunft` im Finder-Blob dieses Elterncommits erlaubt dieser Ablauf den Push. §9.3 verlangt unter „Strikt“ dafür einen Abbruch. Test 47(c) erfasst die drei verlangten Wege und lässt den Preis-Push aus.",
+      "auswirkung": "Das Werkzeug kann einen Seitenstand mit unbrauchbarer Finder-Referenz fortschreiben, obwohl die Freigabeschranke einen Abbruch vorsieht.",
+      "vorschlag": "Vor dem Preiscommit die Finder-Referenz und ihr Herkunftsschema ausgehend vom festgehaltenen Eltern-SHA strikt prüfen. Die negativen Referenzfälle auch für den Preis-Push ausführen und jeweils auf keinen Commit und keinen Push prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-04",
+      "schwere": "schwer",
+      "titel": "Die Typregel erfasst ein als false geschriebenes Nullgewicht nicht eindeutig",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 217,
+      "beleg": "§9.3 verlangt den Zahlentyp ausdrücklich für „Jede Zahl der Projektion“. Nach Zeile 214 entfallen Felder ohne positives Gewicht. Beim Fernseherfeld `diagonale_zoll` (`daten/schema/kategorien.json:91`) sind deshalb `gewicht: 0` und `gewicht: false` beide außerhalb der Projektion. Der Bau reicht das Gewicht unverändert weiter (`werkzeuge/datenbank.py:315–317`). Die Node-Gegenprobe mit dem geprüften Client und einem Modell mit belegtem VRR ergab bei gleicher Projektion mit `0` die Anzeige 90 und mit `false` den Abbruch `feld` (`app/finder/bewertung.js:406–409`, `:429–432`). Bei unveränderter Fassungsnummer muss der Kandidat bereits in der Schemaprüfung scheitern.",
+      "auswirkung": "Eine Freigabeprüfung, die nur projizierte Gewichte auf ihren Typ prüft, kann einen Datenstand freigeben, den der Client vollständig verwirft. Ohne gültige Cachekopie erscheint keine Finder-Note.",
+      "vorschlag": "Endlichkeit, Zahlentyp und Bereich aller Feldgewichte in Kandidat und Referenz vor der Auswahl der Projektionsfelder prüfen. Test 40 um `false` statt `0` in einem vorhandenen Filterfeld ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-R2-02",
+      "schwere": "mittel",
+      "titel": "Test 40 legt keinen zulässigen Interpolationsfall an der Rundungsgrenze fest",
+      "datei": "docs/recherche-ux/p2-entwurf.md",
+      "zeile": 281,
+      "beleg": "Der frühere Rundungsfall mit dem großen Stützpunkt wird jetzt vor der Interpolation abgelehnt. Der zulässige Vergleich `1200` gegen `1200.0` nennt weder eine Kurve noch einen Produktwert oder erwartete gerundete Teilpunkte. Bei unveränderter Typ- und Bereichsprüfung kann dieser Vergleich auch mit roher Python-Gleichheit und ohne die vorgeschriebene Float-Normalform grün bleiben.",
+      "auswirkung": "Der Test belegt weder das Verhalten an der geforderten Rundungsgrenze noch die Normalform selbst.",
+      "vorschlag": "Beispielsweise für `[[1200,20],[1204,79]]` bei Produktwert `1201` in beiden Zahlenschreibweisen 34,8 Teilpunkte festschreiben und die Float-Typen der numerischen Projektionswerte direkt prüfen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "P2A2-01",
+    "P2A2-02",
+    "P2A2-03",
+    "P2A2-06",
+    "P2A2-07"
+  ],
+  "pruefgrenzen": "Lesende Nachprüfung des Entwurfsdiffs 5756026..546ded4c8fb33d8eea0ab8e8826a918cd053b0b1 mit gezielter Node-Gegenprobe. Die neuen Regeln und Tests liegen als Entwurf vor. Die Push-Abläufe wurden am Entwurf und den angegebenen Codezeilen geprüft. P2A2-02 ist für den Datenworkflow geschlossen. Der Rest der gemeinsamen Push-Klasse steht bei P2A2-05 und P2A2-R2-01. P2A2-07 ist für die drei im Fertigkriterium benannten Wege geschlossen. Für alle sieben Befunde war eine Klassenangabe vorhanden. P2a-1, F-1 bis F-5 und manuelle Pushes oder Merges auf gh-pages lagen außerhalb des Prüfauftrags."
+}
