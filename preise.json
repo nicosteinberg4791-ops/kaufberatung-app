@@ -1,6 +1,6 @@
 {
  "format": 1,
- "zeit": "2026-11-25T16:44:16+01:00",
+ "zeit": "2026-11-25T18:26:59+01:00",
  "quelle": "heise-Preisvergleich, günstigster Gesamtpreis mit belegtem Versand",
  "preise": {
   "lg_c6elb": {
@@ -238,9 +238,15 @@
     "artikel": 2699.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,4 (3.089)",
+    "sterne": "2,5 (3.090)",
     "lieferung": "Auf Lager",
-    "zeit": "2026-11-24T18:58:16+01:00"
+    "zeit": "2026-11-25T18:26:59+01:00"
+   },
+   "roh": {
+    "artikel": 2489.0,
+    "haendler": "Mediamarkt.de",
+    "sterne": "2,4 (1.015)",
+    "zeit": "2026-11-25T18:26:59+01:00"
    },
    "tief": {
     "gesamt": 2699.0,
@@ -327,6 +333,11 @@
      "d": "2026-11-24",
      "g": 2699.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-25",
+     "g": 2699.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -338,9 +349,9 @@
     "artikel": 1999.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,4 (3.089)",
+    "sterne": "2,5 (3.090)",
     "lieferung": "siehe Shop",
-    "zeit": "2026-11-24T18:58:16+01:00"
+    "zeit": "2026-11-25T18:26:59+01:00"
    },
    "tief": {
     "gesamt": 1999.0,
@@ -427,6 +438,11 @@
      "d": "2026-11-24",
      "g": 1999.0,
      "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-25",
+     "g": 1999.0,
+     "h": "Amazon.de"
     }
    ]
   },
@@ -440,7 +456,7 @@
     "haendler": "Gamingoase",
     "sterne": "keine Bewertung",
     "lieferung": "1-4 Werktage",
-    "zeit": "2026-11-24T18:58:16+01:00"
+    "zeit": "2026-11-25T18:26:59+01:00"
    },
    "tief": {
     "gesamt": 2999.0,
@@ -527,6 +543,11 @@
      "d": "2026-11-24",
      "g": 4499.0,
      "h": "Gamingoase"
+    },
+    {
+     "d": "2026-11-25",
+     "g": 4499.0,
+     "h": "Gamingoase"
     }
    ]
   },
@@ -540,7 +561,7 @@
     "haendler": "galaxus",
     "sterne": "4,1 (849)",
     "lieferung": "Auf Lager, 4 Werktage",
-    "zeit": "2026-11-24T18:58:16+01:00"
+    "zeit": "2026-11-25T18:26:59+01:00"
    },
    "tief": {
     "gesamt": 1079.0,
@@ -597,6 +618,11 @@
      "d": "2026-11-24",
      "g": 1099.0,
      "h": "galaxus"
+    },
+    {
+     "d": "2026-11-25",
+     "g": 1099.0,
+     "h": "galaxus"
     }
    ]
   },
@@ -609,8 +635,8 @@
     "versand": 0.0,
     "haendler": "electronic4you.de",
     "sterne": "4,9 (4.044)",
-    "lieferung": "lagernd: 5+Stand: 24.11.2026, 18:35",
-    "zeit": "2026-11-24T18:58:16+01:00"
+    "lieferung": "lagernd: 5+Stand: 25.11.2026, 18:16",
+    "zeit": "2026-11-25T18:26:59+01:00"
    },
    "tief": {
     "gesamt": 1349.0,
@@ -667,6 +693,11 @@
      "d": "2026-11-24",
      "g": 1449.0,
      "h": "electronic4you.de"
+    },
+    {
+     "d": "2026-11-25",
+     "g": 1449.0,
+     "h": "electronic4you.de"
     }
    ]
   },
@@ -678,9 +709,15 @@
     "artikel": 2699.0,
     "versand": 0.0,
     "haendler": "computeruniverse.net",
-    "sterne": "2,3 (5.077)",
+    "sterne": "2,3 (5.078)",
     "lieferung": "voraussichtlich verfügbar ab 15.12.2026",
-    "zeit": "2026-11-24T18:58:16+01:00"
+    "zeit": "2026-11-25T18:26:59+01:00"
+   },
+   "roh": {
+    "artikel": 2199.0,
+    "haendler": "electronic4you.de",
+    "sterne": "4,9 (4.044)",
+    "zeit": "2026-11-25T18:26:59+01:00"
    },
    "tief": {
     "gesamt": 1899.0,
@@ -737,6 +774,11 @@
      "d": "2026-11-24",
      "g": 2699.0,
      "h": "computeruniverse.net"
+    },
+    {
+     "d": "2026-11-25",
+     "g": 2699.0,
+     "h": "computeruniverse.net"
     }
    ]
   },
@@ -748,9 +790,9 @@
     "artikel": 1099.0,
     "versand": 0.0,
     "haendler": "Amazon.de",
-    "sterne": "2,4 (3.089)",
-    "lieferung": "Auf Lager",
-    "zeit": "2026-11-24T18:58:16+01:00"
+    "sterne": "2,5 (3.090)",
+    "lieferung": "siehe Shop",
+    "zeit": "2026-11-25T18:26:59+01:00"
    },
    "tief": {
     "gesamt": 999.0,
@@ -805,6 +847,11 @@
     },
     {
      "d": "2026-11-24",
+     "g": 1099.0,
+     "h": "Amazon.de"
+    },
+    {
+     "d": "2026-11-25",
      "g": 1099.0,
      "h": "Amazon.de"
     }
@@ -1204,10 +1251,10 @@
     "gesamt": 199.0,
     "artikel": 199.0,
     "versand": 0.0,
-    "haendler": "saturn",
-    "sterne": "3,5 (7)",
+    "haendler": "mediamarkt-darmstadt-city",
+    "sterne": "keine Bewertung",
     "lieferung": "Lieferzeit 3-7 Werktage",
-    "zeit": "2026-11-24T18:58:16+01:00"
+    "zeit": "2026-11-25T18:26:59+01:00"
    },
    "tief": {
     "gesamt": 199.0,
@@ -1289,6 +1336,11 @@
      "d": "2026-11-24",
      "g": 199.0,
      "h": "saturn"
+    },
+    {
+     "d": "2026-11-25",
+     "g": 199.0,
+     "h": "mediamarkt-darmstadt-city"
     }
    ]
   },
@@ -2189,9 +2241,9 @@
   }
  },
  "lauf": {
-  "letzter": "2026-11-25T16:44:16+01:00",
-  "status": "teilweise",
-  "meldung": "Folgt im nächsten Lauf: Samsung S90H, TCL C8L, Samsung QN90F, LG C6 55″, LG C6 65″, LG C6 77″, Samsung S90H 55″, Cosori Turbo Tower. Treffer: Medion P20 XXL 71,39 € neuer Tiefstpreis.",
+  "letzter": "2026-11-25T18:26:59+01:00",
+  "status": "ok",
+  "meldung": "Alle 24 Preise gelesen.",
   "bis": "2026-12-01",
   "versuche": {
    "af_aeg_aafd11b": "2026-11-25T16:44:16+01:00",
@@ -2202,19 +2254,19 @@
    "af_ninja_af500": "2026-11-25T16:44:16+01:00",
    "lg_c6elb": "2026-11-25T16:44:16+01:00",
    "lg_c69lb": "2026-11-25T16:44:16+01:00",
-   "sam_s90h": "2026-11-24T18:58:16+01:00",
-   "tcl_c8l": "2026-11-24T18:58:16+01:00",
-   "sam_qn90f": "2026-11-24T18:58:16+01:00",
-   "lg_c6elb_55": "2026-11-24T18:58:16+01:00",
-   "lg_c6elb_65": "2026-11-24T18:58:16+01:00",
-   "lg_c6elb_77": "2026-11-24T18:58:16+01:00",
-   "sam_s90h_55": "2026-11-24T18:58:16+01:00",
+   "sam_s90h": "2026-11-25T18:26:59+01:00",
+   "tcl_c8l": "2026-11-25T18:26:59+01:00",
+   "sam_qn90f": "2026-11-25T18:26:59+01:00",
+   "lg_c6elb_55": "2026-11-25T18:26:59+01:00",
+   "lg_c6elb_65": "2026-11-25T18:26:59+01:00",
+   "lg_c6elb_77": "2026-11-25T18:26:59+01:00",
+   "sam_s90h_55": "2026-11-25T18:26:59+01:00",
    "sam_s90h_65": "2026-11-25T16:44:16+01:00",
    "sam_s90h_77": "2026-11-25T16:44:16+01:00",
    "tcl_c8l_55": "2026-11-25T16:44:16+01:00",
    "tcl_c8l_65": "2026-11-25T16:44:16+01:00",
    "tcl_c8l_77": "2026-11-25T16:44:16+01:00",
-   "af_cosori_tt": "2026-11-24T18:58:16+01:00",
+   "af_cosori_tt": "2026-11-25T18:26:59+01:00",
    "af_medion_p20": "2026-11-25T16:44:16+01:00",
    "af_cosori_r901": "2026-11-25T16:44:16+01:00",
    "af_caso_3186": "2026-11-25T16:44:16+01:00"
