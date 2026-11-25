@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "deny": [
+      "Workflow",
+      "ScheduleWakeup",
+      "SearchPlugins",
+      "SuggestPluginInstall",
+      "SuggestSkills",
+      "ReportFindings"
+    ]
+  }
+}
