@@ -1,7 +1,7 @@
 # Bewertung r2 – Preis-Push (Codex gpt-6.2-sol high, nach)
 
 Bericht: `codex-nach-20261125-141919.json` · geprüfter Stand `dc8a741` (Basis `26485e7`, Vorbericht `codex-erst-20261125-135411.json`, Bewertung `bewertung-r1.md`, Auftrag `auftrag-r2.md`) · Urteil **nicht bestanden** (kritisch 2, schwer 2, mittel 1) · 205 s, Eingabe ungecacht 51 111, Ausgabe 7 968. Geschlossen: P2A2-05-01.
-Bewertet vom Lead am 25.11.2026, am Code gelesen, **noch nicht korrigiert** (Kontext-Haltepunkt, Übergabe). Alle Befunde betreffen den lokalen Lauf oder eine manipulierte Umgebung, keiner betrifft den Actions-Weg (`--nur-push` in einem frisch ausgecheckten Baum).
+Bewertet vom Lead am 25.11.2026, am Code gelesen, zunächst nicht korrigiert (Kontext-Haltepunkt, Übergabe), Korrektur unten. Alle Befunde betreffen den lokalen Lauf oder eine manipulierte Umgebung, keiner betrifft den Actions-Weg (`--nur-push` in einem frisch ausgecheckten Baum).
 
 | Nr. | Schwere | Einordnung | Klasse | Suche | Geplante Korrektur | Probe (geplant) |
 |---|---|---|---|---|---|---|
@@ -12,5 +12,10 @@ Bewertet vom Lead am 25.11.2026, am Code gelesen, **noch nicht korrigiert** (Kon
 | R2-05 | mittel | bestätigt: Ein Kandidat ohne `preise.json` führt zu `KeyError` in `commit_fehler` (`b[name]`). | Fehlerpfad ohne gezielte Meldung | – | `b.get(name)`, sonst Grund „fehlt“. | Kandidat ohne `preise.json` → SystemExit mit Grund. |
 
 **Fehlalarme:** keine. **Ungeklärt:** keine.
+
+**Korrigiert am 25.11.2026 (O29 = Neuansatz, Besitzer):** alle fünf laut Tabelle, Abweichungen:
+- R2-01: Die Annahme oben, `veroeffentlichen.py` werde nicht blockiert, stimmt nur halb: Es bricht bei geändertem Seitenbaum ab (`arbeitsbaum()`, „erst prüfen, nicht verwerfen“). Das ist ein sicherer Abbruch ohne Datenverlust; der Hinweis nach dem Push nennt ihn. Lokal setzt `--push` ohnehin einen ausgecheckten Zweig gh-pages voraus, den `veroeffentlichen.py` nicht anlegt (detached).
+- R2-04: zusätzlich Abbruch bei `url.*.pushInsteadOf` (schriebe nur den Push um). `insteadOf` aus Konfigurationsdateien bleibt, gilt aber für `ls-remote`, `fetch` und `push` gleich.
+- Probe: Tests `PreisPush` (neu: Index/HEAD unverändert, Konfliktstufen, paralleles add, pushurl, Umgebungskonfiguration ×4, pushInsteadOf, Wurzelpfade bytegenau ×4, Kandidat ohne preise.json ×2, main vor jedem Lesen ×6). Mutanten je Korrektur (Nachziehen an, `ziel_pruefen` in `main` weg, ls-tree als Text, GIT_CONFIG_* bleiben, Push an „origin“, pushInsteadOf ungeprüft, `b[n]`): alle 9 rot. Symlink-Fall in `main` auf Windows übersprungen (kein Recht), Verzeichnisfall läuft.
 
 **Rundenlimit (KERN §3):** Das ist Runde 2 von 3. R2-01 bis R2-04 sind Reste der r1-Korrekturen. Für diesen Fall verlangt §3 einen Schnitt oder einen Neuansatz. **Vorschlag des Leads (O29):** Der Neuansatz steht oben, die Klassen werden durch Weglassen bzw. ein festes Ziel beseitigt statt weiter geflickt. Danach folgt eine schmale r3 über die Korrekturstellen. Alternative: R2-01 bis R2-04 als bekannte Grenze des lokalen Laufs akzeptieren, denn in Actions ist kein Befund wirksam. Dann wird nur R2-05 korrigiert, ohne r3.

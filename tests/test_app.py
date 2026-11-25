@@ -1093,8 +1093,8 @@ class PreisPush(unittest.TestCase):
     def test_47i_lokaler_commit_nach_dem_abruf_kommt_nicht_mit(self):
         echt = self.pa.eltern_holen
 
-        def dann_lokal_committen(ordner):   # Haken zwischen Abruf von `eltern` und Commit
-            sha = echt(ordner)
+        def dann_lokal_committen(ordner, url):   # Haken zwischen Abruf von `eltern` und Commit
+            sha = echt(ordner, url)
             self.lokaler_finder_commit()
             return sha
         self.neue_preise()
@@ -1178,12 +1178,194 @@ class PreisPush(unittest.TestCase):
         self.assertEqual(self.git(anders_origin, "rev-parse", "gh-pages").strip(), anders_vorher)
         self.assertIn("privat.txt", self.git(self.repo, "ls-files", "--", "privat.txt"))
 
-    def test_lokaler_zweig_wird_nachgezogen_und_ist_sauber(self):
+    def lokaler_stand(self):
+        return (self.git(self.repo, "rev-parse", "HEAD", "refs/heads/gh-pages"),
+                self.git(self.repo, "ls-files", "-s"))
+
+    def test_index_und_head_bleiben_nach_jedem_push_unveraendert(self):
+        """Codex R2-01: kein Nachziehen; HEAD, lokaler Zweig und Index sind nach dem Push bytegleich wie davor."""
+        self.neue_preise()
+        vorher = self.lokaler_stand()
+        self.pa.push(self.ziel)
+        self.pruefe_gepusht()
+        self.assertEqual(self.lokaler_stand(), vorher)
+        self.assertEqual(self.git(self.repo, "status", "--porcelain").strip(), "M preise.json")
+
+    def test_konfliktstufen_im_index_bleiben(self):
+        """R2-01: preise.json mit Konfliktstufen 1–3 (Stufe 1 = Fassung in `eltern`) bleibt im Index, wie sie ist."""
+        alt = self.git(self.repo, "rev-parse", f"{self.start}:preise.json").strip()
+        uns, ihr = (subprocess.run(["git", "-C", str(self.repo), "hash-object", "-w", "--stdin"], input=t,
+                                   capture_output=True, text=True, check=True).stdout.strip()
+                    for t in ('{"zeit": "a"}\n', '{"zeit": "b"}\n'))
+        stufen = (f"0 {'0' * 40}\tpreise.json\n100644 {alt} 1\tpreise.json\n"
+                  f"100644 {uns} 2\tpreise.json\n100644 {ihr} 3\tpreise.json\n")
+        subprocess.run(["git", "-C", str(self.repo), "update-index", "--index-info"], input=stufen.encode(), check=True)
+        self.neue_preise()
+        vorher = self.lokaler_stand()
+        self.assertEqual(len(vorher[1].splitlines()), 4, "drei Konfliktstufen plus finder-daten.json")
+        self.pa.push(self.ziel)
+        self.pruefe_gepusht()
+        self.assertEqual(self.lokaler_stand(), vorher)
+
+    def test_paralleles_add_nach_dem_push_bleibt(self):
+        """R2-01: ein paralleles `git add` nach dem Push bleibt stehen, auch wenn es direkt nach einer Indexabfrage
+        (`ls-files`) kommt, also im Fenster vor einem früheren `reset`."""
+        echt = self.pa.git_lauf
+        gestagt = []
+
+        def stagen():
+            self.ziel.write_text('{"zeit": "2026-11-08T11:00:00+01:00"}\n', encoding="utf-8")
+            self.git(self.repo, "add", "preise.json")
+            gestagt.append(self.git(self.repo, "ls-files", "-s", "--", "preise.json"))
+
+        def nach_indexabfrage_stagen(ordner, *a, **k):
+            r = echt(ordner, *a, **k)
+            if a[0] == "ls-files" and not gestagt:
+                stagen()
+            return r
+        self.neue_preise()
+        with mock.patch.object(self.pa, "git_lauf", side_effect=nach_indexabfrage_stagen):
+            self.pa.push(self.ziel)
+        if not gestagt:   # push() fragt den Index nicht ab: das add kommt nach dem Ende
+            stagen()
+        self.assertEqual(self.git(self.repo, "ls-files", "-s", "--", "preise.json"), gestagt[0])
+        self.assertEqual(self.git(self.repo, "rev-parse", "HEAD").strip(), self.start)
+
+    def zweites_origin(self):
+        """Bare-Repo mit demselben Stand wie origin (Ziel einer Umlenkung)."""
+        zweit = Path(self.tmp.name) / "zweit.git"
+        subprocess.run(["git", "init", "-q", "--bare", "-b", "gh-pages", str(zweit)], check=True)
+        self.git(self.repo, "push", "-q", str(zweit), f"{self.start}:refs/heads/gh-pages")
+        return zweit
+
+    def test_pushurl_lenkt_nicht_um(self):
+        """Codex R2-04: remote.origin.pushurl (lokale Konfiguration) bringt den Push nicht an ein anderes Ziel."""
+        zweit = self.zweites_origin()
+        self.git(self.repo, "config", "remote.origin.pushurl", str(zweit))
         self.neue_preise()
         self.pa.push(self.ziel)
-        neu = self.pruefe_gepusht()
-        self.assertEqual(self.git(self.repo, "rev-parse", "HEAD").strip(), neu)
-        self.assertEqual(self.git(self.repo, "status", "--porcelain").strip(), "")
+        self.pruefe_gepusht()
+        self.assertEqual(self.git(zweit, "rev-parse", "gh-pages").strip(), self.start)
+
+    def test_konfiguration_aus_der_umgebung_wirkt_nicht(self):
+        """R2-04: GIT_CONFIG_COUNT/KEY/VALUE und GIT_CONFIG_PARAMETERS lenken weder URL (insteadOf, pushInsteadOf)
+        noch pushurl um; ohne Entfernen ginge der Push an `zweit` oder bräche ab."""
+        for art in ("insteadOf", "pushInsteadOf", "parameter", "pushurl"):
+            with self.subTest(art=art):
+                self.setUp()
+                zweit = self.zweites_origin()
+                z, o = zweit.as_posix(), str(self.origin)
+                werte = {"insteadOf": {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": f"url.{z}.insteadOf",
+                                       "GIT_CONFIG_VALUE_0": o},
+                         "pushInsteadOf": {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": f"url.{z}.pushInsteadOf",
+                                           "GIT_CONFIG_VALUE_0": o},
+                         "parameter": {"GIT_CONFIG_PARAMETERS": f"'url.{z}.insteadof'='{o}'"},
+                         "pushurl": {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "remote.origin.pushurl",
+                                     "GIT_CONFIG_VALUE_0": z}}[art]
+                self.neue_preise()
+                with mock.patch.dict(os.environ, werte):
+                    self.pa.push(self.ziel)
+                self.pruefe_gepusht()
+                self.assertEqual(self.git(zweit, "rev-parse", "gh-pages").strip(), self.start)
+
+    def test_pushinsteadof_bricht_ab(self):
+        """R2-04: url.<x>.pushInsteadOf würde nur den Push umschreiben → Abbruch, nirgends etwas gepusht."""
+        zweit = self.zweites_origin()
+        self.git(self.repo, "config", f"url.{zweit}.pushInsteadOf", str(self.origin))
+        self.neue_preise()
+        with self.assertRaises(SystemExit) as fehler:
+            self.pa.push(self.ziel)
+        self.assertIn("pushInsteadOf", str(fehler.exception))
+        self.assertEqual(self.remote(), self.start)
+        self.assertEqual(self.git(zweit, "rev-parse", "gh-pages").strip(), self.start)
+
+    def mktree(self, eintraege):
+        """Baum aus Einträgen (Modus, Typ, SHA, Pfad als Bytes), bytegenau über `mktree -z`."""
+        roh = b"".join(f"{m} {t} {s}\t".encode() + p + b"\0" for m, t, s, p in eintraege)
+        return subprocess.run(["git", "-C", str(self.repo), "mktree", "-z"], input=roh, capture_output=True,
+                              check=True).stdout.decode().strip()
+
+    def ls_tree(self, c):
+        aus = subprocess.run(["git", "-C", str(self.repo), "ls-tree", "-z", c], capture_output=True, check=True).stdout
+        return [tuple(k.decode().split()) + (p,) for k, p in (z.split(b"\t", 1) for z in aus.split(b"\0") if z)]
+
+    def test_wurzelpfade_bytegenau(self):
+        """Codex R2-03: CRLF/CR in einem Pfad und ungültiges UTF-8 – jede Umbenennung oder Ergänzung bricht ab."""
+        for alt, neu_pfad in ((b"a\r\nb", b"a\nb"), (b"c\rd", b"c\nd"), (None, b"x\xff"), (b"y\xfe", b"y\xff")):
+            with self.subTest(alt=alt, neu=neu_pfad):
+                self.setUp()
+                self.git(self.repo, "config", "core.protectNTFS", "false")   # Git für Windows lehnt CR in Pfaden sonst ab
+                blob = self.git(self.repo, "rev-parse", f"{self.start}:finder-daten.json").strip()
+                basis = self.ls_tree(self.start)
+                if alt is not None:   # gh-pages auf origin bekommt zuerst den Pfad `alt`
+                    baum = self.mktree(basis + [("100644", "blob", blob, alt)])
+                    self.start = self.git(self.repo, "commit-tree", baum, "-p", self.start, "-m", "Pfad").strip()
+                    self.git(self.repo, "push", "-q", "origin", f"{self.start}:refs/heads/gh-pages")
+                echt = self.pa.preis_commit
+
+                def umbenannt(ordner, eltern, ziel):
+                    k = self.ls_tree(echt(ordner, eltern, ziel))
+                    k = [e for e in k if e[3] != alt] + [("100644", "blob", blob, neu_pfad)]
+                    return self.git(ordner, "commit-tree", self.mktree(k), "-p", eltern, "-m", "umbenannt").strip()
+                self.neue_preise()
+                with mock.patch.object(self.pa, "preis_commit", side_effect=umbenannt):
+                    with self.assertRaises(SystemExit) as fehler:
+                        self.pa.push(self.ziel)
+                self.assertIn("nicht genau preise.json", str(fehler.exception))
+                self.assertEqual(self.remote(), self.start)
+
+    def test_kandidat_ohne_preise_json(self):
+        """Codex R2-05: preise.json im Kandidaten gelöscht oder als Verzeichnis → gezielte Meldung, kein KeyError."""
+        leer = self.mktree([])
+        for ersatz in (None, ("040000", "tree", leer)):
+            with self.subTest(ersatz=ersatz):
+                echt = self.pa.preis_commit
+
+                def ohne(ordner, eltern, ziel):
+                    k = [e for e in self.ls_tree(echt(ordner, eltern, ziel)) if e[3] != b"preise.json"]
+                    k += [ersatz + (b"preise.json",)] if ersatz else []
+                    return self.git(ordner, "commit-tree", self.mktree(k), "-p", eltern, "-m", "ohne").strip()
+                self.neue_preise()
+                with mock.patch.object(self.pa, "preis_commit", side_effect=ohne):
+                    with self.assertRaises(SystemExit) as fehler:
+                        self.pa.push(self.ziel)
+                self.assertIn("fehlt im Commit" if ersatz is None else "keine reguläre Datei", str(fehler.exception))
+                self.assertEqual(self.remote(), self.start)
+
+    def main_mit(self, *argv, **kw):
+        """main() im Prozess mit SEITEN = Testrepo; aktualisiere/lade_skript/lies_alt dürfen nicht laufen."""
+        verboten = mock.Mock(side_effect=AssertionError("Ziel gelesen oder geschrieben"))
+        with mock.patch.object(self.pa, "SEITEN", self.repo), \
+                mock.patch.object(self.pa, "aktualisiere", verboten), \
+                mock.patch.object(self.pa, "lies_alt", verboten), \
+                mock.patch.object(self.pa, "lade_skript", verboten), \
+                mock.patch.object(sys, "argv", ["preise_aktualisieren.py", "--ziel", str(self.ziel), *argv]):
+            with self.assertRaises(SystemExit) as fehler:
+                self.pa.main()
+        self.assertIn("keine reguläre Datei", str(fehler.exception))
+        verboten.assert_not_called()
+        self.assertEqual(self.remote(), self.start)
+
+    def test_main_prueft_ziel_vor_jedem_lesen_und_schreiben(self):
+        """Codex R2-02: preise.json als Verzeichnis oder Symlink → Abbruch, bevor main() das Ziel liest oder schreibt."""
+        abruf = Path(self.tmp.name) / "abruf.json"
+        abruf.write_text('{"zeit": "2026-11-08T10:00:00+01:00", "modelle": {}}', encoding="utf-8")
+        self.ziel.unlink()
+        self.ziel.mkdir()
+        for argv in (("--push", "--abruf", str(abruf)), ("--push",), ("--nur-push",)):
+            with self.subTest(fall="Verzeichnis", argv=argv):
+                self.main_mit(*argv)
+        self.ziel.rmdir()
+        aussen = Path(self.tmp.name) / "aussen.json"
+        aussen.write_text("unberührt\n", encoding="utf-8")
+        try:
+            os.symlink(aussen, self.ziel)
+        except OSError:
+            self.skipTest("Symlink ohne Recht (Windows ohne Entwicklermodus)")
+        for argv in (("--push", "--abruf", str(abruf)), ("--push",), ("--nur-push",)):
+            with self.subTest(fall="Symlink", argv=argv):
+                self.main_mit(*argv)
+        self.assertEqual(aussen.read_text(encoding="utf-8"), "unberührt\n")
 
     def test_unveraendert_kein_commit(self):
         self.pa.push(self.ziel)
@@ -1207,7 +1389,7 @@ class PreisPush(unittest.TestCase):
         self.assertEqual(self.git(self.origin, "rev-list", "--parents", "-n", "1", neu).split()[1:], [mitte])
         self.assertEqual(self.git(self.origin, "diff-tree", "--no-renames", "-r", "--name-only", mitte, neu).split(),
                          ["preise.json"])
-        # lokaler Zweig stand nicht auf `eltern`: bleibt unverändert, preise.json bleibt als Änderung stehen
+        # lokaler Zweig bleibt unverändert (R2-01), preise.json bleibt als Änderung stehen
         self.assertEqual(self.git(flach, "rev-parse", "HEAD").strip(), self.start)
         self.assertEqual(self.git(flach, "status", "--porcelain").strip(), "M preise.json")
 

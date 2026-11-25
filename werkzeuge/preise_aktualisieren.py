@@ -203,8 +203,22 @@ OHNE_ERSATZ = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": os.devnull}
 REGULAER = ("100644", "100755")
 
 
+def umgebungs_konfig(k):
+    """Konfiguration aus der Umgebung (Codex R2-04): GIT_CONFIG_COUNT/KEY_n/VALUE_n und GIT_CONFIG_PARAMETERS (`git -c`)
+    lenken sonst über url.<x>.insteadOf/pushInsteadOf oder pushurl um. GIT_CONFIG_GLOBAL/SYSTEM/NOSYSTEM bleiben
+    (Dateiorte; ein insteadOf dort gilt für Lesen und Schreiben gleich, ein pushInsteadOf bricht in ziel_url() ab)."""
+    return k in ("GIT_CONFIG_COUNT", "GIT_CONFIG_PARAMETERS") or k.startswith(("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_"))
+
+
 def git_umgebung(**extra):
-    return {k: v for k, v in os.environ.items() if k not in UMLEITUNGEN} | OHNE_ERSATZ | extra
+    return {k: v for k, v in os.environ.items() if k not in UMLEITUNGEN and not umgebungs_konfig(k)} | OHNE_ERSATZ | extra
+
+
+def ziel_pruefen(ziel):
+    """preise.json darf kein Symlink und, wenn vorhanden, nur eine reguläre Datei sein (sonst SystemExit). Läuft in main()
+    vor jedem Lesen oder Schreiben des Ziels (Codex R2-02) und noch einmal in preis_commit()."""
+    if ziel.is_symlink() or (ziel.exists() and not ziel.is_file()):
+        raise SystemExit(f"--push: {ziel.name} ist keine reguläre Datei, nichts gelesen, geschrieben oder gepusht")
 
 
 def git_aus(ordner, *a):
@@ -232,16 +246,37 @@ def git_lauf(ordner, *a, env=None, pruefen=True):
     return r
 
 
-def eltern_holen(ordner):
+def git_bytes(ordner, *a):
+    """git im Ordner, Ausgabe als Bytes (Pfade bytegenau, Codex R2-03); bei Fehler SystemExit."""
+    r = subprocess.run(["git", "-C", str(ordner), *a], capture_output=True, env=git_umgebung())
+    if r.returncode != 0:
+        raise SystemExit(f"--push: git {a[0]} fehlgeschlagen, nichts gepusht: " + r.stderr.decode("utf-8", "replace").strip())
+    return r.stdout
+
+
+def ziel_url(ordner):
+    """Die eine URL von origin für ls-remote, fetch und push (Codex R2-04): Lesen und Schreiben treffen dasselbe Ziel,
+    remote.origin.pushurl wirkt so nicht. url.<x>.pushInsteadOf würde nur den Push umschreiben: dann Abbruch.
+    (url.<x>.insteadOf gilt für alle drei Aufrufe gleich.)"""
+    url = git_lauf(ordner, "remote", "get-url", "origin").stdout.strip()
+    if not url or "\n" in url:
+        raise SystemExit("--push: origin hat keine eindeutige URL, nichts gepusht")
+    umschreiben = git_lauf(ordner, "config", "--get-regexp", r"^url\..*\.pushinsteadof$", pruefen=False)
+    if umschreiben.returncode == 0 and umschreiben.stdout.strip():
+        raise SystemExit("--push: url.*.pushInsteadOf ist gesetzt (Push ginge an ein anderes Ziel), nichts gepusht")
+    return url
+
+
+def eltern_holen(ordner, url):
     """SHA von gh-pages auf origin (ls-remote, nicht der lokale Zweig; P2A2-03/-05). Fehlt der Commit lokal (z. B.
     flacher Abruf in Actions und inzwischen ein fremder Push), wird der Zweig nachgeholt; er muss dann noch derselbe sein."""
-    zeilen = git_lauf(ordner, "ls-remote", "--exit-code", "origin", "refs/heads/gh-pages", pruefen=False)
+    zeilen = git_lauf(ordner, "ls-remote", "--exit-code", url, "refs/heads/gh-pages", pruefen=False)
     treffer = [z.split("\t")[0] for z in zeilen.stdout.splitlines() if z.endswith("\trefs/heads/gh-pages")]
     sha = treffer[0] if zeilen.returncode == 0 and len(treffer) == 1 else ""   # genau der Zweig, nicht x/refs/heads/…
     if len(sha) not in (40, 64):
         raise SystemExit("--push: gh-pages fehlt auf origin oder ist nicht lesbar, nichts gepusht")
     if git_lauf(ordner, "cat-file", "-e", f"{sha}^{{commit}}", pruefen=False).returncode != 0:
-        git_lauf(ordner, "fetch", "-q", "--no-tags", "origin", "+refs/heads/gh-pages:refs/remotes/origin/gh-pages")
+        git_lauf(ordner, "fetch", "-q", "--no-tags", url, "+refs/heads/gh-pages:refs/remotes/origin/gh-pages")
         if git_lauf(ordner, "rev-parse", "refs/remotes/origin/gh-pages^{commit}").stdout.strip() != sha:
             raise SystemExit("--push: gh-pages hat sich während des Abrufs geändert, nichts gepusht (erneut starten)")
     return sha
@@ -250,8 +285,9 @@ def eltern_holen(ordner):
 def preis_commit(ordner, eltern, ziel):
     """Commit aus genau `eltern`, darin allein preise.json durch die Datei `ziel` ersetzt (eigener Index; HEAD, Index
     und lokaler Zweig gehen nicht ein). None, wenn preise.json in `eltern` schon genau so steht."""
-    if ziel.is_symlink() or not ziel.is_file():
-        raise SystemExit(f"--push: {ziel.name} ist keine reguläre Datei, nichts gepusht")
+    ziel_pruefen(ziel)
+    if not ziel.is_file():
+        raise SystemExit(f"--push: {ziel.name} fehlt, nichts gepusht")
     # Einmal gelesen: dieselben Bytes für JSON und Blob, ohne Git-Filter (P2A2-05-04). Zeilenenden fest auf LF wie
     # `.gitattributes` (`eol=lf`), damit ein lokal mit autocrlf ausgecheckter Stand keinen Scheincommit erzeugt.
     daten = ziel.read_bytes().replace(b"\r\n", b"\n")
@@ -281,30 +317,37 @@ def commit_fehler(ordner, eltern, neu, name="preise.json"):
     if kopf[1:] != [eltern]:
         return f"Commit {neu[:12]} hat nicht genau gh-pages {eltern[:12]} als Elternteil"
     # Wurzeleinträge ohne Rekursion (P2A2-05-02): jede weitere Änderung an Pfad, Modus, Typ oder Objekt-ID zählt, auch
-    # an Verzeichnissen und leeren Unterbäumen, die `diff-tree -r` nicht meldet.
+    # an Verzeichnissen und leeren Unterbäumen, die `diff-tree -r` nicht meldet. Pfade als Bytes (R2-03): kein
+    # Umwandeln von CR/CRLF, kein Dekodierfehler bei ungültigem UTF-8.
     def wurzel(c):
         eintraege = {}
-        for z in git_lauf(ordner, "ls-tree", "-z", c).stdout.split("\0"):
+        for z in git_bytes(ordner, "ls-tree", "-z", c).split(b"\0"):
             if z:
-                kopf, pfad = z.split("\t", 1)
-                eintraege[pfad] = tuple(kopf.split())
+                kopf, pfad = z.split(b"\t", 1)
+                eintraege[pfad] = tuple(kopf.decode("ascii").split())
         return eintraege
-    a, b = wurzel(eltern), wurzel(neu)
+    a, b, n = wurzel(eltern), wurzel(neu), name.encode("utf-8")
     geaendert = sorted(p for p in a.keys() | b.keys() if a.get(p) != b.get(p))
-    if geaendert != [name]:
-        return f"Commit {neu[:12]} ändert gegenüber gh-pages nicht genau {name}: " + ", ".join(geaendert[:10])
-    if b[name][0] not in REGULAER or b[name][1] != "blob":
-        return f"{name} im Commit {neu[:12]} ist keine reguläre Datei ({b[name][0]})"
+    if geaendert != [n]:
+        return (f"Commit {neu[:12]} ändert gegenüber gh-pages nicht genau {name}: "
+                + ", ".join(repr(p.decode("utf-8", "backslashreplace")) for p in geaendert[:10]))
+    eintrag = b.get(n)
+    if eintrag is None:   # R2-05: im Kandidaten gelöscht
+        return f"{name} fehlt im Commit {neu[:12]}"
+    if eintrag[0] not in REGULAER or eintrag[1] != "blob":
+        return f"{name} im Commit {neu[:12]} ist keine reguläre Datei ({eintrag[0]})"
     return None
 
 
 def push(ziel):
     """Preis-Push (P2a-2, P2A2-05; Muster veroeffentlichen.py): Commit nur aus dem Remote-Stand `eltern`, Baumprüfung,
-    Push genau dieses Commits mit Lease auf `eltern`. Ein unveröffentlichter lokaler Commit (etwa mit finder-daten.json)
-    kommt so nicht mit; ist gh-pages auf origin inzwischen versetzt oder gelöscht, scheitert die Lease."""
+    Push genau dieses Commits mit Lease auf `eltern`, an die eine URL von origin (ziel_url). Ein unveröffentlichter
+    lokaler Commit (etwa mit finder-daten.json) kommt so nicht mit; ist gh-pages auf origin inzwischen versetzt oder
+    gelöscht, scheitert die Lease. Lokaler Zweig, HEAD und Index bleiben immer unverändert (Codex R2-01)."""
     ordner = ziel.parent
     arbeitsbaum_pruefen(ordner)
-    eltern = eltern_holen(ordner)
+    url = ziel_url(ordner)
+    eltern = eltern_holen(ordner, url)
     neu = preis_commit(ordner, eltern, ziel)
     if neu is None:
         print("preise.json unverändert, kein Commit")
@@ -312,28 +355,16 @@ def push(ziel):
     grund = commit_fehler(ordner, eltern, neu, ziel.name)
     if grund:
         raise SystemExit("--push: Abbruch, nichts gepusht: " + grund)
-    r = git_lauf(ordner, "push", "-q", "--no-follow-tags", f"--force-with-lease=refs/heads/gh-pages:{eltern}", "origin",
+    r = git_lauf(ordner, "push", "-q", "--no-follow-tags", f"--force-with-lease=refs/heads/gh-pages:{eltern}", url,
                  f"{neu}:refs/heads/gh-pages", pruefen=False)
     if r.returncode != 0:
         raise SystemExit("--push: Push abgelehnt (gh-pages ist nicht mehr der abgerufene Stand), erneut starten: "
                          + r.stderr.strip())
     print("gepusht: gh-pages/preise.json")
-    # Lokalen Zweig nur nachziehen, wenn er genau auf `eltern` stand; dann ist der Arbeitsbaum wieder sauber. Sonst
-    # bleibt er, wie er ist (lokale Commits gehen nicht verloren), und preise.json bleibt dort als Änderung stehen.
-    # Der Push ist hier schon erfolgt: Fehler beim Nachziehen sind nur Hinweise, kein Abbruch. Eine im Index eigens
-    # gestagte Fassung von preise.json (anders als in `eltern`) bleibt erhalten: dann kein Nachziehen (P2A2-05-03).
-    im_index = git_lauf(ordner, "ls-files", "-s", "--", ziel.name, pruefen=False).stdout.split()
-    in_eltern = git_lauf(ordner, "ls-tree", eltern, "--", ziel.name, pruefen=False).stdout.split()
-    if im_index[:2] != in_eltern[:1] + in_eltern[2:3]:
-        print("Hinweis: preise.json ist im lokalen Index anders gestagt; lokaler gh-pages und Index bleiben unverändert",
-              file=sys.stderr)
-    elif git_lauf(ordner, "rev-parse", "HEAD", pruefen=False).stdout.strip() == eltern:
-        if (git_lauf(ordner, "update-ref", "refs/heads/gh-pages", neu, eltern, pruefen=False).returncode
-                or git_lauf(ordner, "reset", "-q", "--", ziel.name, pruefen=False).returncode):
-            print("Hinweis: gepusht, aber lokaler gh-pages nicht nachgezogen", file=sys.stderr)
-    else:
-        print(f"Hinweis: lokaler gh-pages steht nicht auf {eltern[:12]} und bleibt unverändert; preise.json bleibt "
-              "im Arbeitsbaum als Änderung", file=sys.stderr)
+    # Kein Nachziehen des lokalen Stands (R2-01): jede Schreibaktion auf Index oder Zweig kann eine lokale Fassung
+    # verwerfen. In Actions endet der Arbeitsbaum ohnehin; lokal bleibt preise.json als Änderung stehen.
+    print("Hinweis: lokaler gh-pages und Index bleiben unverändert; preise.json steht im Arbeitsbaum als Änderung "
+          "(veroeffentlichen.py bricht ab, bis sie geklärt ist)", file=sys.stderr)
 
 
 def meldetext(treffer):
@@ -370,6 +401,7 @@ def main():
         ziel = Path(x.ziel)
         assert ziel.parent.resolve() == SEITEN.resolve() and ziel.name == "preise.json", "--push nur mit dem gh-pages-Arbeitsbaum"
         arbeitsbaum_pruefen(ziel.parent)
+        ziel_pruefen(ziel)   # R2-02: vor lies_alt() und aktualisiere(), die sonst durch einen Symlink lesen/schreiben
     if x.nur_push:
         push(Path(x.ziel))
         return
