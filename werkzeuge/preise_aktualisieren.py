@@ -195,8 +195,21 @@ def aktualisiere(pw, erg, ziel, wunsch=None):
     return bericht, lauf
 
 
+# Umgebung jedes Git-Aufrufs (Codex P2A2-05-01/-05): ohne Ersetzungsreferenzen und Grafts (wie herkunft.OHNE_ERSATZ),
+# ohne geerbte Umleitung von Repository, Arbeitsbaum, Index oder Objektspeicher. Transport und Zugang bleiben.
+UMLEITUNGEN = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+               "GIT_COMMON_DIR", "GIT_NAMESPACE", "GIT_CEILING_DIRECTORIES", "GIT_DISCOVERY_ACROSS_FILESYSTEM")
+OHNE_ERSATZ = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": os.devnull}
+REGULAER = ("100644", "100755")
+
+
+def git_umgebung(**extra):
+    return {k: v for k, v in os.environ.items() if k not in UMLEITUNGEN} | OHNE_ERSATZ | extra
+
+
 def git_aus(ordner, *a):
-    r = subprocess.run(["git", "-C", str(ordner), *a], capture_output=True, text=True, encoding="utf-8")
+    r = subprocess.run(["git", "-C", str(ordner), *a], capture_output=True, text=True, encoding="utf-8",
+                       env=git_umgebung())
     return r.stdout.strip() if r.returncode == 0 else None
 
 
@@ -212,7 +225,8 @@ def arbeitsbaum_pruefen(ordner, zweig="gh-pages"):
 
 def git_lauf(ordner, *a, env=None, pruefen=True):
     """git im Ordner; bei Fehler (pruefen=True) SystemExit mit der Meldung von git, sonst CompletedProcess."""
-    r = subprocess.run(["git", "-C", str(ordner), *a], capture_output=True, text=True, encoding="utf-8", env=env)
+    r = subprocess.run(["git", "-C", str(ordner), *a], capture_output=True, text=True, encoding="utf-8",
+                       env=env or git_umgebung())
     if pruefen and r.returncode != 0:
         raise SystemExit(f"--push: git {a[0]} fehlgeschlagen, nichts gepusht: {r.stderr.strip()}")
     return r
@@ -236,17 +250,28 @@ def eltern_holen(ordner):
 def preis_commit(ordner, eltern, ziel):
     """Commit aus genau `eltern`, darin allein preise.json durch die Datei `ziel` ersetzt (eigener Index; HEAD, Index
     und lokaler Zweig gehen nicht ein). None, wenn preise.json in `eltern` schon genau so steht."""
-    blob = git_lauf(ordner, "hash-object", "-w", "--", ziel.name).stdout.strip()
+    if ziel.is_symlink() or not ziel.is_file():
+        raise SystemExit(f"--push: {ziel.name} ist keine reguläre Datei, nichts gepusht")
+    # Einmal gelesen: dieselben Bytes für JSON und Blob, ohne Git-Filter (P2A2-05-04). Zeilenenden fest auf LF wie
+    # `.gitattributes` (`eol=lf`), damit ein lokal mit autocrlf ausgecheckter Stand keinen Scheincommit erzeugt.
+    daten = ziel.read_bytes().replace(b"\r\n", b"\n")
+    datum = json.loads(daten.decode("utf-8"))["zeit"][:10]
+    r = subprocess.run(["git", "-C", str(ordner), "hash-object", "-w", "--no-filters", "--stdin"], input=daten,
+                       capture_output=True, env=git_umgebung())
+    if r.returncode != 0:
+        raise SystemExit("--push: git hash-object fehlgeschlagen, nichts gepusht: " + r.stderr.decode("utf-8", "replace"))
+    blob = r.stdout.decode("ascii").strip()
     alt = git_lauf(ordner, "ls-tree", eltern, "--", ziel.name).stdout.split()
-    modus = alt[0] if alt and alt[1] == "blob" else "100644"
+    if alt and (alt[1] != "blob" or alt[0] not in REGULAER):
+        raise SystemExit(f"--push: {ziel.name} ist auf gh-pages keine reguläre Datei ({alt[0]}), nichts gepusht")
+    modus = alt[0] if alt else "100644"
     with tempfile.TemporaryDirectory(prefix="kb-preis-index-") as tmp:
-        env = os.environ | {"GIT_INDEX_FILE": str(Path(tmp) / "index")}
+        env = git_umgebung(GIT_INDEX_FILE=str(Path(tmp) / "index"))
         git_lauf(ordner, "read-tree", eltern, env=env)
         git_lauf(ordner, "update-index", "--add", "--cacheinfo", f"{modus},{blob},{ziel.name}", env=env)
         baum = git_lauf(ordner, "write-tree", env=env).stdout.strip()
     if baum == git_lauf(ordner, "rev-parse", f"{eltern}^{{tree}}").stdout.strip():
         return None
-    datum = json.loads(ziel.read_text(encoding="utf-8"))["zeit"][:10]
     return git_lauf(ordner, "commit-tree", baum, "-p", eltern, "-m", "Preise " + datum).stdout.strip()
 
 
@@ -255,10 +280,21 @@ def commit_fehler(ordner, eltern, neu, name="preise.json"):
     kopf = git_lauf(ordner, "rev-list", "--parents", "-n", "1", neu).stdout.split()
     if kopf[1:] != [eltern]:
         return f"Commit {neu[:12]} hat nicht genau gh-pages {eltern[:12]} als Elternteil"
-    geaendert = git_lauf(ordner, "diff-tree", "--no-renames", "--no-commit-id", "-r", "--name-only", eltern, neu).stdout.split("\n")
-    geaendert = [d for d in geaendert if d]
+    # Wurzeleinträge ohne Rekursion (P2A2-05-02): jede weitere Änderung an Pfad, Modus, Typ oder Objekt-ID zählt, auch
+    # an Verzeichnissen und leeren Unterbäumen, die `diff-tree -r` nicht meldet.
+    def wurzel(c):
+        eintraege = {}
+        for z in git_lauf(ordner, "ls-tree", "-z", c).stdout.split("\0"):
+            if z:
+                kopf, pfad = z.split("\t", 1)
+                eintraege[pfad] = tuple(kopf.split())
+        return eintraege
+    a, b = wurzel(eltern), wurzel(neu)
+    geaendert = sorted(p for p in a.keys() | b.keys() if a.get(p) != b.get(p))
     if geaendert != [name]:
         return f"Commit {neu[:12]} ändert gegenüber gh-pages nicht genau {name}: " + ", ".join(geaendert[:10])
+    if b[name][0] not in REGULAER or b[name][1] != "blob":
+        return f"{name} im Commit {neu[:12]} ist keine reguläre Datei ({b[name][0]})"
     return None
 
 
@@ -284,8 +320,14 @@ def push(ziel):
     print("gepusht: gh-pages/preise.json")
     # Lokalen Zweig nur nachziehen, wenn er genau auf `eltern` stand; dann ist der Arbeitsbaum wieder sauber. Sonst
     # bleibt er, wie er ist (lokale Commits gehen nicht verloren), und preise.json bleibt dort als Änderung stehen.
-    # Der Push ist hier schon erfolgt: Fehler beim Nachziehen sind nur Hinweise, kein Abbruch.
-    if git_lauf(ordner, "rev-parse", "HEAD", pruefen=False).stdout.strip() == eltern:
+    # Der Push ist hier schon erfolgt: Fehler beim Nachziehen sind nur Hinweise, kein Abbruch. Eine im Index eigens
+    # gestagte Fassung von preise.json (anders als in `eltern`) bleibt erhalten: dann kein Nachziehen (P2A2-05-03).
+    im_index = git_lauf(ordner, "ls-files", "-s", "--", ziel.name, pruefen=False).stdout.split()
+    in_eltern = git_lauf(ordner, "ls-tree", eltern, "--", ziel.name, pruefen=False).stdout.split()
+    if im_index[:2] != in_eltern[:1] + in_eltern[2:3]:
+        print("Hinweis: preise.json ist im lokalen Index anders gestagt; lokaler gh-pages und Index bleiben unverändert",
+              file=sys.stderr)
+    elif git_lauf(ordner, "rev-parse", "HEAD", pruefen=False).stdout.strip() == eltern:
         if (git_lauf(ordner, "update-ref", "refs/heads/gh-pages", neu, eltern, pruefen=False).returncode
                 or git_lauf(ordner, "reset", "-q", "--", ziel.name, pruefen=False).returncode):
             print("Hinweis: gepusht, aber lokaler gh-pages nicht nachgezogen", file=sys.stderr)

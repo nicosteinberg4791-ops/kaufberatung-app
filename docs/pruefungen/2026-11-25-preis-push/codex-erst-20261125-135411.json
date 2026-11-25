@@ -1,0 +1,63 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Lokale Git-Ersetzungsreferenzen und leere Unterbäume können die Baumprüfung umgehen. Beim Nachziehen kann eine separat gestagte Preisfassung verloren gehen. Für den unveränderten Actions-Workflow ist nach einem einzelnen fremden Push vor dem Remote-Abruf kein dauerhafter Fehler erkennbar.",
+  "befunde": [
+    {
+      "id": "P2A2-05-01",
+      "schwere": "schwer",
+      "titel": "Lokale Ersetzungsreferenzen umgehen die Baumprüfung",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 244,
+      "beleg": "Vorgabe aus §9.3 „Baum von `eltern`, darin allein `preise.json` ersetzt“. Ersetzt eine lokale Git-Referenz den Commit `eltern` durch einen Commit mit abweichender `finder-daten.json`, lesen `read-tree` und `diff-tree` denselben Ersatzbaum. Der neue Commit trägt trotzdem die ursprüngliche Eltern-ID. Der Git-Packtransfer verwendet das tatsächliche Objekt, und die Lease prüft die unveränderte Remote-ID.",
+      "auswirkung": "Der Push kann eine ungeprüfte `finder-daten.json` zusammen mit `preise.json` veröffentlichen. Die lokale Prüfung meldet dabei ausschließlich `preise.json`.",
+      "vorschlag": "Für alle Git-Aufrufe Ersetzungsreferenzen und Grafts wie in `veroeffentlichen.py` abschalten. Einen Test ergänzen, der einen Ersatzbaum mit geänderter Finder-Datei hinterlegt und den echten Remote-Baum prüft.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-02",
+      "schwere": "schwer",
+      "titel": "Baumprüfung übersieht Änderungen an leeren Unterbäumen",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 258,
+      "beleg": "Vorgabe aus §9.3 „Baum von `eltern`, darin allein `preise.json` ersetzt“. `diff-tree -r --name-only` meldet keine Baumeinträge. Fügt der Kandidat neben der Preisänderung einen leeren Unterbaum hinzu oder entfernt er einen solchen, bleibt die Ausgabe `preise.json` und `commit_fehler` akzeptiert den Kandidaten.",
+      "auswirkung": "Auf gh-pages kann ein Commit landen, dessen Baum sich zusätzlich außerhalb von `preise.json` ändert.",
+      "vorschlag": "Die Wurzelbaumeinträge ohne Rekursion vergleichen. So wird jede weitere Änderung an Pfad, Modus oder Objekt-ID erfasst, auch bei Verzeichnissen. Den Fall mit einem leeren Unterbaum in 47(j) abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-03",
+      "schwere": "kritisch",
+      "titel": "Nachziehen verwirft eine separat gestagte Preisfassung",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 290,
+      "beleg": "Steht der lokale Zweig auf `eltern` und enthält der Index für `preise.json` eine andere Fassung als die Arbeitsdatei, baut `preis_commit` aus der Arbeitsdatei. Nach dem Push setzt `update-ref` den Zweig auf den neuen Commit. `reset -- preise.json` ersetzt anschließend den bisherigen Indexeintrag durch den gepushten Stand. Die Prüfung des alten Zweigwerts schützt den Indexeintrag nicht.",
+      "auswirkung": "Die separat gestagte Fassung verschwindet aus dem Index und ist weder in der Arbeitsdatei noch im neuen Commit enthalten. Hatte ihr Blob keine weitere Referenz, ist die Fassung nur bis zur Git-Objektbereinigung wiederherstellbar.",
+      "vorschlag": "Den lokalen Zweig und Index nur nachziehen, wenn der Preiseintrag im Index noch dem Elterncommit entspricht. Eine separat gestagte Fassung erhalten und mit einem Hinweis melden. Den Fall mit drei unterschiedlichen Fassungen in Elterncommit, Index und Arbeitsdatei testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-04",
+      "schwere": "mittel",
+      "titel": "Der Preisblob kann vom geprüften JSON abweichen",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 239,
+      "beleg": "`hash-object` mit Dateipfad wendet konfigurierte Clean-Filter an. Zeile 249 liest für das Datum erneut die ungefilterte Arbeitsdatei. Ein Clean-Filter kann daher gültiges JSON etwa in einen Git-LFS-Zeiger umwandeln. Zusätzlich übernimmt Zeile 241 für jeden Eintrag vom Typ `blob` den alten Modus, einschließlich `120000` für Symlinks.",
+      "auswirkung": "Die Pfadprüfung akzeptiert einen Commit, dessen `preise.json` einen Zeiger statt JSON enthält oder dessen JSON in einem Git-Checkout als Symlink-Ziel interpretiert wird.",
+      "vorschlag": "Eine reguläre Preisdatei einmal lesen, dieselben Bytes für das JSON und den Blob verwenden und Filter beim Hashen ausschalten. Einen bestehenden Symlink oder anderen unerwarteten Typ vor dem Push ablehnen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-05-05",
+      "schwere": "mittel",
+      "titel": "Geerbte Git-Variablen können Repository und Index umleiten",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 215,
+      "beleg": "`git -C` übernimmt `GIT_DIR` und `GIT_WORK_TREE`. Zeigen sie auf das Git-Verzeichnis eines anderen Repos und zugleich auf den erwarteten Arbeitsordner, kann `arbeitsbaum_pruefen` bei einem dortigen Zweig `gh-pages` bestehen. Ferner überschreibt nur der temporäre Baumaufbau `GIT_INDEX_FILE`. Das spätere `reset` verwendet wieder den geerbten Wert. `PreisPush.setUp` entfernt alle `GIT_*`-Variablen. Der Test der gestagten Fremddatei prüft in Zeile 1110 nur den Remote-Stand.",
+      "auswirkung": "Der Lauf kann einen anderen `origin` verwenden oder beim Nachziehen einen fremden Index ändern. Der Test der Fremddatei bleibt auch grün, wenn die Datei durch einen versehentlich gemeinsam genutzten Index ihre Staging-Markierung verliert.",
+      "vorschlag": "Repository- und Index-Overrides vor der Arbeitsbaumprüfung und allen folgenden Git-Aufrufen gezielt entfernen oder ablehnen. Transport- und Zugangskonfiguration erhalten. Im Test zusätzlich den lokalen Indexeintrag der Fremddatei vor und nach dem Push vergleichen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Lesende Prüfung von Commit 26485e79db51171896ed1672678dd8f1d88d2ce7. Die gemeldeten 19 grünen Tests wurden nicht unabhängig wiederholt. Sie benötigen beschreibbare Test-Repositories, und im Prüfterminal war kein Python verfügbar. Der Workflow ist im Diff unverändert. Seine Checkout-Zugangsdaten und der Nachabruf wurden statisch geprüft. Ein weiterer Remote-Wechsel während Abruf oder Push kann den laufenden Versuch abbrechen. Die Tests für den Rücksprung auf einen Vorfahren und für den gelöschten Zweig unterscheiden eine explizite Lease vom normalen Push. Beim vorgeschobenen Zweig greift bereits der Non-Fast-Forward-Schutz. Die bekannte lokale Preisänderung bei abweichendem Elternstand kann `veroeffentlichen.py:89` bis zur lokalen Bereinigung blockieren."
+}

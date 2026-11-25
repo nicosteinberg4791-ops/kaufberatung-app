@@ -1109,6 +1109,75 @@ class PreisPush(unittest.TestCase):
         self.pa.push(self.ziel)
         self.pruefe_gepusht()
 
+    def test_ersetzungsreferenz_wird_ignoriert(self):
+        """Codex P2A2-05-01: `git replace` für `eltern` mit anderer finder-daten.json darf nicht in den Push gelangen."""
+        (self.repo / "finder-daten.json").write_text('{"herkunft": "ersatz"}\n', encoding="utf-8")
+        self.git(self.repo, "add", "finder-daten.json")
+        baum = self.git(self.repo, "write-tree").strip()
+        self.git(self.repo, "reset", "-q", "--hard", "HEAD")
+        ersatz = self.git(self.repo, "commit-tree", baum, "-p", f"{self.start}^", "-m", "ersatz").strip()
+        self.git(self.repo, "replace", self.start, ersatz)
+        self.neue_preise()
+        self.pa.push(self.ziel)
+        self.pruefe_gepusht()
+
+    def test_gestagte_preisfassung_bleibt_erhalten(self):
+        """Codex P2A2-05-03: drei Fassungen (eltern, Index, Datei); gepusht wird die Datei, der Index behält seine."""
+        self.ziel.write_text('{"zeit": "2026-11-08T09:00:00+01:00"}\n', encoding="utf-8")
+        self.git(self.repo, "add", "preise.json")
+        gestagt = self.git(self.repo, "ls-files", "-s", "--", "preise.json").split()[1]
+        self.neue_preise()
+        self.pa.push(self.ziel)
+        self.pruefe_gepusht()
+        self.assertEqual(self.git(self.repo, "ls-files", "-s", "--", "preise.json").split()[1], gestagt)
+        self.assertEqual(self.git(self.repo, "rev-parse", "HEAD").strip(), self.start)
+
+    def test_clean_filter_wirkt_nicht(self):
+        """Codex P2A2-05-04: gepusht werden genau die Bytes der Datei, kein Ergebnis eines Clean-Filters."""
+        (self.repo / ".git" / "info").mkdir(exist_ok=True)
+        (self.repo / ".git" / "info" / "attributes").write_text("preise.json filter=zeiger\n", encoding="utf-8")
+        self.git(self.repo, "config", "filter.zeiger.clean", "cat >/dev/null; echo zeiger")
+        self.neue_preise()
+        self.pa.push(self.ziel)
+        neu = self.pruefe_gepusht()
+        self.assertEqual(self.git(self.origin, "show", f"{neu}:preise.json"), self.ziel.read_text(encoding="utf-8"))
+
+    def test_symlink_auf_gh_pages_bricht_ab(self):
+        """Codex P2A2-05-04: ist preise.json auf gh-pages kein reguläres Blob (120000), kein Push."""
+        blob = self.git(self.repo, "rev-parse", f"{self.start}:preise.json").strip()
+        self.git(self.repo, "update-index", "--cacheinfo", f"120000,{blob},preise.json")
+        baum = self.git(self.repo, "write-tree").strip()
+        link = self.git(self.repo, "commit-tree", baum, "-p", self.start, "-m", "link").strip()
+        self.git(self.repo, "push", "-q", "origin", f"{link}:refs/heads/gh-pages")
+        self.git(self.repo, "reset", "-q", "--hard", link)
+        self.ziel.unlink(missing_ok=True)
+        self.neue_preise()
+        with self.assertRaises(SystemExit) as fehler:
+            self.pa.push(self.ziel)
+        self.assertIn("keine reguläre Datei", str(fehler.exception))
+        self.assertEqual(self.remote(), link)
+
+    def test_geerbte_git_umleitung_wirkt_nicht(self):
+        """Codex P2A2-05-05: GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE aus der Umgebung lenken nicht auf ein anderes Repo."""
+        anders_origin = Path(self.tmp.name) / "anders.git"
+        subprocess.run(["git", "init", "-q", "--bare", "-b", "gh-pages", str(anders_origin)], check=True)
+        anders = Path(self.tmp.name) / "anders"
+        subprocess.run(["git", "clone", "-q", str(self.origin), str(anders)], check=True)
+        self.git(anders, "remote", "set-url", "origin", str(anders_origin))
+        self.git(anders, "push", "-q", "origin", "gh-pages")
+        anders_vorher = self.git(anders_origin, "rev-parse", "gh-pages").strip()
+        (self.repo / "privat.txt").write_text("x", encoding="utf-8")
+        self.git(self.repo, "add", "privat.txt")
+        self.neue_preise()
+        os.environ.update(GIT_DIR=str(anders / ".git"), GIT_WORK_TREE=str(self.repo),
+                          GIT_INDEX_FILE=str(Path(self.tmp.name) / "fremder-index"))
+        self.pa.push(self.ziel)
+        for k in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE"):
+            del os.environ[k]
+        self.pruefe_gepusht()
+        self.assertEqual(self.git(anders_origin, "rev-parse", "gh-pages").strip(), anders_vorher)
+        self.assertIn("privat.txt", self.git(self.repo, "ls-files", "--", "privat.txt"))
+
     def test_lokaler_zweig_wird_nachgezogen_und_ist_sauber(self):
         self.neue_preise()
         self.pa.push(self.ziel)
@@ -1160,6 +1229,25 @@ class PreisPush(unittest.TestCase):
                 self.pa.push(self.ziel)
         self.assertIn("fremd.js", str(fehler.exception))
         self.assertEqual(self.remote(), self.start, "es darf nichts gepusht werden")
+
+    def test_47j_leerer_unterbaum_bricht_ab(self):
+        """Codex P2A2-05-02: ein zusätzlicher leerer Unterbaum meldet `diff-tree -r` nicht; die Prüfung muss ihn sehen."""
+        echt = self.pa.preis_commit
+
+        def mit_leerem_baum(ordner, eltern, ziel):
+            neu = echt(ordner, eltern, ziel)
+            leer = subprocess.run(["git", "-C", str(ordner), "mktree"], input="", capture_output=True, text=True,
+                                  check=True).stdout.strip()
+            eintraege = self.git(ordner, "ls-tree", f"{neu}^{{tree}}") + f"040000 tree {leer}\tleer\n"
+            baum = subprocess.run(["git", "-C", str(ordner), "mktree"], input=eintraege, capture_output=True,
+                                  text=True, check=True).stdout.strip()
+            return self.git(ordner, "commit-tree", baum, "-p", eltern, "-m", "leerer Unterbaum").strip()
+        self.neue_preise()
+        with mock.patch.object(self.pa, "preis_commit", side_effect=mit_leerem_baum):
+            with self.assertRaises(SystemExit) as fehler:
+                self.pa.push(self.ziel)
+        self.assertIn("leer", str(fehler.exception))
+        self.assertEqual(self.remote(), self.start)
 
     def test_47j_falscher_elternteil_bricht_ab(self):
         echt = self.pa.preis_commit
