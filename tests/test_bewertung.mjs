@@ -1043,7 +1043,7 @@ test("P2A1-03 (21): echte Daten – datenPruefen ändert keinen Wert, Teilpunkt,
     execFileSync(process.env.PYTHON || "python", ["-I", path.join(PROJEKT, "werkzeuge", "datenbank.py"), "bauen", ziel], { stdio: "pipe" });
     const roh = JSON.parse(fs.readFileSync(ziel, "utf8")), vorher = kopie(roh);
     B.datenPruefen(roh);
-    let modelle = 0, noten = 0;
+    let modelle = 0, noten = 0, erwartet = 0;
     roh.kategorien.forEach((k, i) => {
       const alt = vorher.kategorien[i];
       assert.deepEqual(k.testquelle || null, alt.testquelle || null, k.id);
@@ -1055,16 +1055,22 @@ test("P2A1-03 (21): echte Daten – datenPruefen ändert keinen Wert, Teilpunkt,
         assert.deepEqual(m.belege, a.belege || {}, m.id);
         modelle++;
       });
-      // Noten: Vorgabe und jede einzelne Antwort, geprüfte Daten gegen unveränderte Rohdaten
-      const eingaben = [{}].concat(...(k.fragen || []).map(f => f.antworten.map(x => ({ [f.id]: x.id }))));
+      // Noten: Vorgabe und jede einzelne Antwort, jedes Modell direkt über bewerteModell (r2, P2A1-03: auch Modelle, die
+      // eine Anforderung aus der Rangliste nimmt), je Seite mit eigenen Gewichten; Zahl der Vergleiche aus den Rohdaten
+      const eingaben = [{}].concat(...(alt.fragen || []).map(f => f.antworten.map(x => ({ [f.id]: x.id }))));
       for (const antworten of eingaben) {
-        const n = kat => Object.fromEntries(B.auswerten(kat, roh.regeln, { antworten }).rang.map(e => [e.modell.id, e.note]));
-        const neu = n(k), vorh = n(alt);
-        assert.deepEqual(neu, vorh, k.id + " " + JSON.stringify(antworten));
-        noten += Object.keys(neu).length;
+        const gNeu = B.gewichte(k, antworten), gAlt = B.gewichte(alt, antworten);
+        alt.modelle.forEach((a, j) => {
+          const neu = B.bewerteModell(k.modelle[j], k, gNeu, roh.regeln), vorh = B.bewerteModell(a, alt, gAlt, vorher.regeln);
+          assert.equal(neu.note, vorh.note, a.id + " " + JSON.stringify(antworten));
+          assert.equal(neu.art, vorh.art, a.id + " " + JSON.stringify(antworten));
+          noten++;
+        });
+        erwartet += alt.modelle.length;
       }
     });
-    assert.ok(modelle > 300 && noten > 4000, modelle + " Modelle, " + noten + " Noten");
+    assert.equal(noten, erwartet);
+    assert.ok(modelle > 300 && noten > 5000, modelle + " Modelle, " + noten + " Noten");
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 });
 

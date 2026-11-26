@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 26.11.2026 · Branch main, P2a-1 gebaut und selbst geprüft (Erstprüfung durch Codex offen), Preis-Push abgeschlossen (O30 ohne r4) · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [docs/status-verlauf.md](docs/status-verlauf.md) · Letzte Commits: `git log`.
+Stand: 26.11.2026 · Branch main, P2a-1 gebaut, Codex r1/r2 bewertet und korrigiert (nicht gepusht), Preis-Push abgeschlossen (O30 ohne r4) · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [docs/status-verlauf.md](docs/status-verlauf.md) · Letzte Commits: `git log`.
 
 ## Lage
 
@@ -11,12 +11,13 @@ Stand: 26.11.2026 · Branch main, P2a-1 gebaut und selbst geprüft (Erstprüfung
 
 ## Nächster Schritt
 
-**P2a-1 gebaut (26.11.2026, selbst geprüft, nicht gepusht):** Schema 2 (`daten/schema/kategorien.json`), `werkzeuge/datenbank.py` (`schema_fehler`, Vertrag §9.6, Maße 0 < x ≤ 500, Quellen und Belege im Bau), `app/finder/bewertung.js` (`alternativen`, `notenblatt`, `methodik`, `fassung`, neue Prüfregeln), Doku `docs/punkteschema.md` §7a und `daten/produkte/FORMAT.md`. Sammellauf 0 Fehler; Mutanten: Bau 15/15 rot (Userinfo-Mutante erst mit kanon_host zusammen), Client 19/20 rot (1 äquivalent). Gegenprobe: 4 536 Noten alt gegen neu, 0 Abweichungen. `finder-daten.json` wächst von 330 436 auf 582 760 Byte (465 Quellen, 4 043 Belege; F-4 offen). **Nicht erledigt:** Codex-Erstprüfung (Skill `pruefschleife`), Test 44 Bau gegen Client auf denselben Fällen gemeinsam, **P2a-2** (Pflicht und Fassung 1 von `gewichte_version`, Referenzvergleich, Freigabeschranke, Tests 6, 37–42, 47, 48; Gewichte brauchen deine Freigabe F-1). Preis-Push abgeschlossen (O30), wirksam erst nach Push von `main` (Nico). **Nächste Aufgabe:** Erstprüfung P2a-1 starten, dann P2a-2 bauen nach [p2-entwurf.md](docs/recherche-ux/p2-entwurf.md).
+**P2a-1 gebaut (26.11.2026, selbst geprüft, nicht gepusht):** Schema 2 (`daten/schema/kategorien.json`), `werkzeuge/datenbank.py` (`schema_fehler`, Vertrag §9.6, Maße 0 < x ≤ 500, Quellen und Belege im Bau), `app/finder/bewertung.js` (`alternativen`, `notenblatt`, `methodik`, `fassung`, neue Prüfregeln), Doku `docs/punkteschema.md` §7a und `daten/produkte/FORMAT.md`. Sammellauf 0 Fehler; Mutanten: Bau 15/15 rot (Userinfo-Mutante erst mit kanon_host zusammen), Client 19/20 rot (1 äquivalent). Gegenprobe: 4 536 Noten alt gegen neu, 0 Abweichungen. `finder-daten.json` wächst von 330 436 auf 582 760 Byte (465 Quellen, 4 043 Belege; F-4 offen). **Codex-Prüfung P2a-1 (26.11., Sol 6.2 medium, `docs/pruefungen/2026-11-26-p2a1-bau/`):** r1 nicht bestanden, 4 Befunde bestätigt und korrigiert (ef5f946: `sichereQuelle` ohne `href`, Test 44 Freigabe nach Produktstand, Test 21 mit echten Daten, `persoenlich` nur bei anwendbarem Feld). r2 nicht bestanden: 3 geschlossen, P2A1-03 nachgeschärft (Live-Test über `bewerteModell`, 5 237 Vergleiche), nur selbst geprüft, keine dritte Runde. P2A1-R2-01 (Testlinks speichern `href`, außerhalb des Umfangs) → O31. **Nicht erledigt:** Test 44 Bau gegen Client auf denselben Fällen gemeinsam, **P2a-2** (Pflicht und Fassung 1 von `gewichte_version`, Referenzvergleich, Freigabeschranke, Tests 6, 37–42, 47, 48; Gewichte brauchen deine Freigabe F-1). Preis-Push abgeschlossen (O30), wirksam erst nach Push von `main` (Nico). **Nächste Aufgabe:** P2a-2 bauen nach [p2-entwurf.md](docs/recherche-ux/p2-entwurf.md), sobald F-1 entschieden ist.
 
 ## Offen für Nico
 
 - Fotos Finder G1 freigeben; P2 GS-1, „gleichauf“ im Vergleich (`docs/pruefungen/2026-11-24-finder-g1/gestaltung-r3.md`).
 - Push und gh-pages nach Merge; Impeccable installieren (D21).
+- P2: F-1 (Gewichte), F-4 (Quellen in eigener Datei), Start P2a-2; O31 (Testlinks mit Originalzeichenfolge, in P2a-2 oder P6; `bewertung-r2.md`).
 - O12, O13, O10, O5, O6, O7 – Wortlaut im Verlauf.
 - Nicht auf echtem Android-Handy geprüft: Icons, Push-Zustellung, Besitzer-Merker.
 

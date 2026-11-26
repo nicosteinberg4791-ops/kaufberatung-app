@@ -1,0 +1,11 @@
+# Bewertung r2 – P2a-1 gebaut (Codex gpt-6.2-sol medium, nach)
+
+Bericht: `codex-nach-20261126-091905.json` · geprüfter Stand `ef5f946` (Basis `dda4d33`, Auftrag `auftrag-r2.md`) · Urteil **nicht bestanden** (schwer 1 im Umfang, mittel 1 außerhalb) · 227 s, Eingabe ungecacht 68 410, Ausgabe 6 306. Geschlossen: P2A1-01, P2A1-02, P2A1-04. Gegenprobe des Prüfers: 5 237 Vergleiche ohne Abweichung.
+Bewertet vom Lead am 26.11.2026. Korrigiert ist nur `tests/test_bewertung.mjs` (Test „P2A1-03 (21)“), am Code ändert sich nichts.
+
+| Nr. | Schwere | Einordnung | Klasse | Suche | Korrektur | Probe |
+|---|---|---|---|---|---|---|
+| P2A1-03 | schwer | bestätigt: Der Live-Test las `auswerten().rang`. `auswerten` nimmt Modelle mit verletzter Anforderung aus der Rangliste, 701 der 5 237 Ergebnisse blieben ungeprüft. | wie r1 (Anforderung an echte Daten unvollständig getestet) | Andere Tests, die Noten über `rang` vergleichen: Test 22 und 36 nutzen das Orakel aus §9.2 (Ein-Modell-Kopie ohne `mindest`/`hoechst`), dort fällt kein Modell heraus. Keine weitere Instanz. | Je Antwort und Seite eigene `gewichte`, dann für jedes Modell `bewerteModell`, verglichen werden `note` und `art`. Die Zahl der Vergleiche muss der aus den Rohdaten abgeleiteten Zahl entsprechen (Modelle × Eingaben). | Lauf zählt 418 Einträge und 5 237 Vergleiche (vorher 4 536). Mutanten gegen den Test: M4 (Stufe bis 15 Codepunkte) → rot, M6 (Teilpunkte ab 99,5 verworfen) → rot. |
+| P2A1-R2-01 | mittel | bewusste Entscheidung (außerhalb des Umfangs, schon in r1 als Grenze genannt): `datenPruefen` speichert Testlinks als `sichereUrl(t.url)` = `href`. `finder.js:123` (`testLinks`) prüft beim Anzeigen erneut, ein gültiger 2000-Zeichen-Link mit `'` wird dabei zu lang und entfällt. Das Verhalten bestand schon vor P2a-1, und §9.6 legt `sichereUrl` als unverändert fest. | wie P2A1-01 (Normalisierung vor erneuter Prüfung) | `grep -n "\.href" app/finder/*.js`: nur `sichereUrl` (`bewertung.js:456`). | keine. Vorgelegt als **O31**: in P2a-2 oder P6 Testlinks wie `sichereQuelle` mit der Originalzeichenfolge speichern und den Grenzfall bis zum Anzeigen testen. | – |
+
+**Weiter:** Keine dritte Runde. Die Korrektur betrifft nur den Test, und die Probe ist belegt (Skill `pruefschleife` Schritt 7, KERN §3). Restrisiko: Die Korrektur von P2A1-03 ist selbst geprüft, aber nicht vom Prüfer nachgeprüft.

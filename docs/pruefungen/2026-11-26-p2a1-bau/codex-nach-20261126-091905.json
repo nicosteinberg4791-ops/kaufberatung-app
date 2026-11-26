@@ -1,0 +1,34 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "P2A1-03 bleibt offen. Test 21 vergleicht 4.536 Notenergebnisse aus der Rangliste und lässt 701 weitere berechnete Modellergebnisse aus. Die unabhängige Gegenprobe im Speicher fand bei allen 5.237 Vergleichen keine Abweichung.",
+  "befunde": [
+    {
+      "id": "P2A1-03",
+      "schwere": "schwer",
+      "titel": "Test 21 lässt die Noten ausgeschlossener Modelle ungeprüft",
+      "datei": "tests/test_bewertung.mjs",
+      "zeile": 1061,
+      "beleg": "Test 21 verlangt „gültige Live-Daten → keine Note ändert sich“. Der neue Test baut die echten Daten, liest für jede Antwort aber nur `auswerten(...).rang`. `bewertung.js:271–282` berechnet zuerst alle Modellergebnisse und entfernt dann Modelle mit verletzten Anforderungen aus der Rangliste. Die Gegenprobe am geprüften Commit ergab 4.536 Vergleiche im Test und 5.237 beim direkten Vergleich aller Modelle.",
+      "auswirkung": "Eine Änderung an einem der 701 ausgeblendeten Notenergebnisse kann unentdeckt bleiben. Der automatisierte Nachweis deckt damit den zugesagten Umfang nur teilweise ab.",
+      "vorschlag": "Für die Vorgabe und jede einzelne Antwort die Note jedes Modells direkt mit `bewerteModell` vergleichen. Auf beiden Seiten die jeweiligen Gewichte und Regeln verwenden und die Zahl der Vergleiche aus den Rohdaten ableiten.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A1-R2-01",
+      "schwere": "mittel",
+      "titel": "Langer Testlink wird nach der Normalisierung beim Rendern verworfen",
+      "datei": "app/finder/finder.js",
+      "zeile": 123,
+      "beleg": "`datenPruefen` speichert Testlinks als normalisierte URL (`bewertung.js:617–618`). `testLinks` übergibt diesen Wert beim Rendern erneut an `sichereUrl` (`finder.js:762`, `finder.js:123`). In der Gegenprobe wurde eine HTTPS-URL mit 2.000 Zeichen und Apostrophen in der Abfrage auf 5.966 Zeichen verlängert. Der zweite Aufruf gab `null` zurück.",
+      "auswirkung": "Ein solcher Testbericht fehlt bereits beim ersten Rendern. Ein zweiter Aufruf von `datenPruefen` ist dafür nicht erforderlich.",
+      "vorschlag": "Bei der separaten Änderung der bestehenden Testlink-Prüfung die geprüfte Original-URL bis zur Linkerzeugung erhalten und den langen Grenzfall bis zum Rendern testen.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": [
+    "P2A1-01",
+    "P2A1-02",
+    "P2A1-04"
+  ],
+  "pruefgrenzen": "Geprüft wurde Commit ef5f946a0fb2e608dbe2772aebaadae054a9e281. Für alle vier Altfunde war die Fehlerklasse angegeben, und alle vier waren zur Nachprüfung vorgesehen. 62 Node-Tests und 13 Python-Tests liefen unverändert grün. Der Python-Freigabefall und der Vergleich mit frisch gebauten Daten liefen zusätzlich mit Dateiausgabe im Speicher. Die unveränderten Gesamtläufe mit 63 beziehungsweise 32 Tests benötigen temporäre Schreibzugriffe und wurden im Nur-Lese-Modus nicht ausgeführt. Test 37 liegt außerhalb dieses Pakets."
+}
