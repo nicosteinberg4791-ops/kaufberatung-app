@@ -207,7 +207,10 @@ def umgebungs_konfig(k):
     """Konfiguration aus der Umgebung (Codex R2-04): GIT_CONFIG_COUNT/KEY_n/VALUE_n und GIT_CONFIG_PARAMETERS (`git -c`)
     lenken sonst über url.<x>.insteadOf/pushInsteadOf oder pushurl um. GIT_CONFIG_GLOBAL/SYSTEM/NOSYSTEM bleiben
     (Dateiorte; ein insteadOf dort gilt für Lesen und Schreiben gleich, ein pushInsteadOf bricht in ziel_url() ab)."""
-    return k in ("GIT_CONFIG_COUNT", "GIT_CONFIG_PARAMETERS") or k.startswith(("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_"))
+    # GIT_CONFIG (R3-02) gilt nur für `git config` und ließe die Prüfung in ziel_url() eine andere Datei lesen als die
+    # Transportbefehle.
+    return (k in ("GIT_CONFIG", "GIT_CONFIG_COUNT", "GIT_CONFIG_PARAMETERS")
+            or k.startswith(("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_")))
 
 
 def git_umgebung(**extra):
@@ -261,9 +264,15 @@ def ziel_url(ordner):
     url = git_lauf(ordner, "remote", "get-url", "origin").stdout.strip()
     if not url or "\n" in url:
         raise SystemExit("--push: origin hat keine eindeutige URL, nichts gepusht")
+    # R3-01: Git löst das Zielargument zuerst als Namen einer konfigurierten Remote auf (deren url/pushurl/Refspec
+    # griffen dann). Eine URL mit „/“ liest Git nie aus .git/remotes oder .git/branches; die Konfiguration genügt.
+    if url in git_lauf(ordner, "remote").stdout.splitlines():
+        raise SystemExit("--push: eine Remote heißt wie die URL von origin (Ziel nicht eindeutig), nichts gepusht")
     umschreiben = git_lauf(ordner, "config", "--get-regexp", r"^url\..*\.pushinsteadof$", pruefen=False)
-    if umschreiben.returncode == 0 and umschreiben.stdout.strip():
-        raise SystemExit("--push: url.*.pushInsteadOf ist gesetzt (Push ginge an ein anderes Ziel), nichts gepusht")
+    if umschreiben.returncode not in (0, 1) or (umschreiben.returncode == 0 and umschreiben.stdout.strip()):
+        # rc 1 = kein Eintrag; 0 mit Treffer oder jeder andere Code (Prüffehler, R3-02) = Abbruch
+        raise SystemExit("--push: url.*.pushInsteadOf ist gesetzt oder nicht prüfbar (Push ginge an ein anderes Ziel), "
+                         "nichts gepusht")
     return url
 
 
@@ -397,6 +406,8 @@ def main():
                    help="nichts abrufen: die vorhandene preise.json im gh-pages-Arbeitsbaum committen und pushen")
     a.add_argument("--meldung", help="Datei für den Benachrichtigungstext (wird immer geschrieben, leer = keine Meldung)")
     x = a.parse_args()
+    if x.meldung and Path(x.meldung).resolve() == Path(x.ziel).resolve():   # R3-03: Meldung überschriebe preise.json
+        raise SystemExit("--meldung und --ziel sind dieselbe Datei, nichts abgerufen oder geschrieben")
     if x.nur_push or x.push:   # vor allem anderen: nur der gh-pages-Arbeitsbaum, nur preise.json
         ziel = Path(x.ziel)
         assert ziel.parent.resolve() == SEITEN.resolve() and ziel.name == "preise.json", "--push nur mit dem gh-pages-Arbeitsbaum"

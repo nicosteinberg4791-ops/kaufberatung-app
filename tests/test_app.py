@@ -1279,6 +1279,75 @@ class PreisPush(unittest.TestCase):
         self.assertEqual(self.remote(), self.start)
         self.assertEqual(self.git(zweit, "rev-parse", "gh-pages").strip(), self.start)
 
+    def test_remote_mit_namen_der_url_bricht_ab(self):
+        """Codex R3-01: eine Remote, die genau wie die URL von origin heißt, lenkt über url/pushurl um oder schreibt über
+        ihren Fetch-Refspec den lokalen Zweig → Abbruch, beide Repos und der lokale Stand unverändert."""
+        for art in ("pushurl", "refspec"):
+            with self.subTest(art=art):
+                self.setUp()
+                zweit = self.zweites_origin()
+                name = self.git(self.repo, "remote", "get-url", "origin").strip()
+                self.git(self.repo, "config", f"remote.{name}.url", str(zweit))
+                if art == "pushurl":
+                    self.git(self.repo, "config", f"remote.{name}.pushurl", str(zweit))
+                else:
+                    self.git(self.repo, "config", f"remote.{name}.fetch", "+refs/heads/gh-pages:refs/heads/gh-pages")
+                self.neue_preise()
+                vorher = self.lokaler_stand()
+                with self.assertRaises(SystemExit) as fehler:
+                    self.pa.push(self.ziel)
+                self.assertIn("heißt wie die URL", str(fehler.exception))
+                self.assertEqual(self.remote(), self.start)
+                self.assertEqual(self.git(zweit, "rev-parse", "gh-pages").strip(), self.start)
+                self.assertEqual(self.lokaler_stand(), vorher)
+
+    def test_geerbtes_git_config_umgeht_die_pruefung_nicht(self):
+        """Codex R3-02: GIT_CONFIG auf eine leere Datei, pushInsteadOf in der Repo-Konfiguration → trotzdem Abbruch;
+        ein Prüffehler von `git config` (Code ≠ 0/1) bricht ebenfalls ab."""
+        zweit = self.zweites_origin()
+        self.git(self.repo, "config", f"url.{zweit}.pushInsteadOf", str(self.origin))
+        leer = Path(self.tmp.name) / "leer.gitconfig"
+        leer.write_text("", encoding="utf-8")
+        self.neue_preise()
+        with mock.patch.dict(os.environ, {"GIT_CONFIG": str(leer)}):
+            with self.assertRaises(SystemExit) as fehler:
+                self.pa.push(self.ziel)
+        self.assertIn("pushInsteadOf", str(fehler.exception))
+        self.assertEqual(self.remote(), self.start)
+        self.assertEqual(self.git(zweit, "rev-parse", "gh-pages").strip(), self.start)
+        self.git(self.repo, "config", "--unset", f"url.{zweit}.pushInsteadOf")
+        echt = self.pa.git_lauf
+
+        def config_scheitert(ordner, *a, **k):
+            if a[0] == "config":
+                return subprocess.CompletedProcess(a, 3, "", "kaputt")
+            return echt(ordner, *a, **k)
+        with mock.patch.object(self.pa, "git_lauf", side_effect=config_scheitert):
+            with self.assertRaises(SystemExit) as fehler:
+                self.pa.push(self.ziel)
+        self.assertIn("nicht prüfbar", str(fehler.exception))
+        self.assertEqual(self.remote(), self.start)
+
+    def test_meldung_gleich_ziel_bricht_vor_dem_abruf_ab(self):
+        """Codex R3-03: --meldung auf dieselbe Datei wie --ziel (auch anders geschrieben) → Abbruch, nichts gelesen."""
+        abruf = Path(self.tmp.name) / "abruf.json"
+        abruf.write_text('{"zeit": "2026-11-08T10:00:00+01:00", "modelle": {}}', encoding="utf-8")
+        vorher = self.ziel.read_bytes()
+        anders = self.repo / "unter" / ".." / "preise.json"
+        for meldung, argv in ((self.ziel, ("--abruf", str(abruf))), (anders, ("--push",)), (anders, ())):
+            with self.subTest(meldung=str(meldung), argv=argv):
+                verboten = mock.Mock(side_effect=AssertionError("weitergelaufen"))
+                with mock.patch.object(self.pa, "SEITEN", self.repo), \
+                        mock.patch.object(self.pa, "aktualisiere", verboten), \
+                        mock.patch.object(self.pa, "lade_skript", verboten), \
+                        mock.patch.object(sys, "argv", ["preise_aktualisieren.py", "--ziel", str(self.ziel),
+                                                        "--meldung", str(meldung), *argv]):
+                    with self.assertRaises(SystemExit) as fehler:
+                        self.pa.main()
+                self.assertIn("dieselbe Datei", str(fehler.exception))
+                verboten.assert_not_called()
+                self.assertEqual(self.ziel.read_bytes(), vorher)
+
     def mktree(self, eintraege):
         """Baum aus Einträgen (Modus, Typ, SHA, Pfad als Bytes), bytegenau über `mktree -z`."""
         roh = b"".join(f"{m} {t} {s}\t".encode() + p + b"\0" for m, t, s, p in eintraege)

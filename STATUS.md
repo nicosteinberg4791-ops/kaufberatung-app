@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 25.11.2026 · Branch main, Preis-Push selbst geprüft bis 40ed171, Codex r3 nicht bestanden (b47a70b) · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [docs/status-verlauf.md](docs/status-verlauf.md) · Letzte Commits: `git log`.
+Stand: 26.11.2026 · Branch main, Preis-Push selbst geprüft bis zum Commit „Preis-Push R3-01–03“ (Codex r1–r3 nicht bestanden, O30 ohne r4) · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [docs/status-verlauf.md](docs/status-verlauf.md) · Letzte Commits: `git log`.
 
 ## Lage
 
@@ -11,7 +11,7 @@ Stand: 25.11.2026 · Branch main, Preis-Push selbst geprüft bis 40ed171, Codex 
 
 ## Nächster Schritt
 
-**Preis-Push (Besitzer 25.11.: zuerst):** gebaut (`werkzeuge/preise_aktualisieren.py` `push()`, Tests `PreisPush` in `tests/test_app.py`), Codex r1 nicht bestanden → 5 korrigiert (dc8a741), r2 nicht bestanden → bewertet ([bewertung-r2.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r2.md)), **O29 = Neuansatz** (Besitzer 25.11.2026): R2-01–05 korrigiert (40ed171, Mutanten 9/9 rot). r3 (Codex high) nicht bestanden: R2-02/-03/-05 geschlossen, neu R3-01 kritisch (URL als Remote-Name aufgelöst), R3-02 schwer (`GIT_CONFIG` täuscht die pushInsteadOf-Prüfung), R3-03 mittel außerhalb, alle nur bei manipulierter lokaler Konfiguration, in Actions nicht wirksam ([bewertung-r3.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r3.md)), nicht korrigiert. **O30 (Nico, Rundenlimit erreicht):** Vorschlag: R3-01 bis R3-03 mechanisch korrigieren, selbst geprüft, ohne r4, Rest als lokale Grenze annehmen. Alternative: nichts korrigieren und `--push` lokal sperren. Danach P2a-1/P2a-2 bauen. Nichts gepusht.
+**Preis-Push abgeschlossen (nicht gepusht):** `werkzeuge/preise_aktualisieren.py` `push()`, Codex r1–r3 nicht bestanden, alle 15 bestätigten Befunde korrigiert ([bewertung-r2.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r2.md), [bewertung-r3.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r3.md)); **O30 (Nico 26.11.):** R3-01–03 ohne r4 korrigiert, Mutanten 4/4 rot, Restrisiko nur bei manipulierter lokaler Git-Konfiguration. Wirksam erst nach Push von `main` (Nico). **Nächste Aufgabe:** P2a-1/P2a-2 bauen nach [p2-entwurf.md](docs/recherche-ux/p2-entwurf.md); fertig, wenn Tests grün und Erstprüfung gestartet.
 
 ## Offen für Nico
 
