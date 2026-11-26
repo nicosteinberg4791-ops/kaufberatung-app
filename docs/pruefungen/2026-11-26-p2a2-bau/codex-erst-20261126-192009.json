@@ -1,0 +1,74 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Die Freigabeschranke kann eine Finder-Datei passieren lassen, die der Browser vollständig verwirft. Test 37 wird außerdem nach der Veröffentlichung von Fassung 1 bei unverändertem Schema rot.",
+  "befunde": [
+    {
+      "id": "P2A2-BAU-01",
+      "schwere": "kritisch",
+      "titel": "Der Bau kann nicht lesbares JSON zur Veröffentlichung freigeben",
+      "datei": "werkzeuge/datenbank.py",
+      "zeile": 675,
+      "beleg": "In der Gegenprobe wurde die HDMI-Mindestanforderung einer Fernseher-Antwort auf die JSON-Zahl `1e999` gesetzt. Der Python-Parser liest sie als `inf`, die Prüfung in Z. 264–267 kontrolliert bei `mindest` nur Objektform und Schlüssel, und die Projektion bleibt gleich. Schema, Referenzvergleich und Bau meldeten 0 Fehler. Der Bau schrieb `Infinity` in die Finder-Datei. Python `json.load` im Workflow akzeptiert diese Ausgabe, `JSON.parse` im Browser verwirft sie vollständig.",
+      "auswirkung": "Eine Änderung außerhalb der Gewichtsfassung kann eine online ausgelieferte Datei erzeugen, die der Finder nicht laden kann.",
+      "vorschlag": "Beim Laden des Schemas Zahlen ablehnen, die beim Parsen nicht endlich bleiben. Die Ausgabe zusätzlich mit `allow_nan=False` absichern und den Fall mit einer Prüfung der gebauten Datei abdecken.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-02",
+      "schwere": "schwer",
+      "titel": "Test 37 scheitert nach der ersten Veröffentlichung an der gültigen Live-Fassung",
+      "datei": "tests/test_bewertung.mjs",
+      "zeile": 1157,
+      "beleg": "§9.9 verlangt „jede Fassung aus §9.1 gegen die neue Datei, Erwartung ‚wie mit den heutigen Live-Daten‘“. Sobald gh-pages eine Datei aus diesem Commit trägt und `origin/gh-pages` aktualisiert ist, baut Z. 1155 die Vergleichsdatei mit einem Werkzeug, das `gewichte_version` ausgibt. Z. 1157 verlangt weiterhin, dass der Schlüssel überall fehlt. Der Test bricht dann bei identischen Gewichten vor dem Vergleich der Clients ab. Gegen die heutige Referenz erkannte die lesende Gegenprobe `bildtechnik.gewicht` 30 → 31 mit 1.950 abweichenden Noten je rechnender Fassung.",
+      "auswirkung": "Die nächste reguläre Ausführung des Sammellaufs nach Veröffentlichung kann trotz unveränderter Noten fehlschlagen. Mit einem veralteten lokalen Ref prüft der Test weiter gegen den älteren Seitenstand.",
+      "vorschlag": "Die Behauptung über fehlende Fassungsmetadaten aus Test 37 entfernen und das Verhalten je Client direkt zwischen den beiden Dateien vergleichen. Die verwendete Seiten-SHA für den Prüflauf festhalten.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-03",
+      "schwere": "schwer",
+      "titel": "Explizit ungültige Referenzfassung wird als Schema 1 behandelt",
+      "datei": "werkzeuge/datenbank.py",
+      "zeile": 313,
+      "beleg": "§9.3 erlaubt den Sonderfall „Hat `<rev>` noch keine `gewichte_version` (Schema 1)“. `get()` unterscheidet einen fehlenden Schlüssel nicht von `gewichte_version: null`, und der Zweig prüft die Schema-Version nicht. Eine Gegenprobe mit Schema-Version 2, `gewichte_version: null` und gleicher Projektion ergab für den Kandidaten mit Nummer 1 eine leere Fehlerliste.",
+      "auswirkung": "Alle drei Freigabewege können eine ungültige Referenzfassung als Erstfassung behandeln. Der Vergleich verliert dadurch die Grundlage für die Prüfung der bisherigen Nummer.",
+      "vorschlag": "Die Legacy-Ausnahme auf tatsächlich fehlende Fassungsangaben im zulässigen Altschema begrenzen. Explizite ungültige Werte und fehlende Pflichtfassungen im Referenzschema vor der Projektion mit Herkunfts-SHA melden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-04",
+      "schwere": "mittel",
+      "titel": "Der Daten-Push bindet die eingelesene Datei nicht an den geprüften Kandidaten",
+      "datei": "werkzeuge/freigabe.py",
+      "zeile": 166,
+      "beleg": "`daten_push` liest die Datei als Bytes und prüft das Schema separat anhand des Arguments `neu`. In einer Gegenprobe ohne Git-Schreibzugriff übergab die Funktion bei grünem Schema- und Elternvergleich eine Datei mit einer anderen `herkunft` an `_seitencommit` und erreichte den Push-Aufruf. Die Workflow-Vorprüfung in Z. 49–55 vergleicht die Herkunft ebenfalls nicht mit `GITHUB_SHA`.",
+      "auswirkung": "Eine vertauschte oder zwischen Bau und Freigabeschritt ersetzte Datei kann unter einem anderen Schema geprüft und anschließend veröffentlicht werden. Die Lease schützt den Elterncommit. Der nächste Lauf würde die Herkunft aus der tatsächlich veröffentlichten Datei verwenden.",
+      "vorschlag": "Die eingefrorenen Bytes strikt parsen, ihre `herkunft` mit `neu` vergleichen und das Artefakt an den geprüften Bau binden. Für eine abweichende Herkunft einen Abbruch vor dem Commit testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-05",
+      "schwere": "mittel",
+      "titel": "Eine entfernte Kategorie kann mit zurückgesetzter Nummer wiederkehren",
+      "datei": "werkzeuge/datenbank.py",
+      "zeile": 310,
+      "beleg": "Der Vergleich iteriert nur über Kandidatenkategorien. Fehlende Referenzkategorien werden übergangen. In einer Gegenprobe akzeptierte die Freigabefunktion zuerst ein Schema ohne `fernseher` gegenüber einer Referenz mit Fassung 8 und anschließend ein Schema mit `fernseher`, geänderter Gewichtung und Nummer 1 gegenüber diesem Zwischenstand.",
+      "auswirkung": "Nach einer veröffentlichten Entfernung oder Umbenennung geht die Fassungsfolge für dieselbe Kategorie-ID verloren. Beim Wiedereinführen können geänderte Gewichte mit einer bereits verwendeten oder kleineren Nummer erscheinen.",
+      "vorschlag": "Für entfernte Kategorie-IDs die letzte Fassung weiterführen oder Löschung und Wiederaufnahme als expliziten Freigabefall behandeln. Beide Übergänge zusammen testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-06",
+      "schwere": "mittel",
+      "titel": "Test 41 erkennt eine entfernte Schutzregel gegen sinkende Nummern nicht",
+      "datei": "tests/test_datenbank.py",
+      "zeile": 568,
+      "beleg": "Der Test prüft 3 → 2 bei gleicher Projektion. Nach Deaktivierung des eigenen Zweigs für kleinere Nummern in `datenbank.py:321` blieben alle fünf gezielt ausgeführten Referenzvergleichstests grün. Bei gleichzeitig geändertem Gewicht und neuem Datum akzeptierte die Mutante 3 → 2. Das Original lehnte denselben Fall ab.",
+      "auswirkung": "Eine Regression kann einen Rückschritt der Gewichtsfassung bei geänderter Bewertung erlauben, ohne dass die Referenzvergleichstests fehlschlagen.",
+      "vorschlag": "Den Rückschritt zusätzlich mit geänderter Projektion und gültigem neuem Datum prüfen und den Schutz gegen kleinere Nummern in den Mutantenlauf aufnehmen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Geprüft wurde Commit 9f066297f26fd771ae654a34d93abd567574488e. Die Datenbankprüfung ergab 14 Dateien, 418 Varianten, 0 Fehler und 60 Abdeckungswarnungen. Alle 14 Kategorien tragen Nummer 1 mit Stand 2026-11-26. Gezielt ausgeführte schreibfreie Tests bestanden. Die Gegenproben zu 37 und 42 liefen im Speicher gegen die lokal vorhandenen Git-Objekte. Test 42 ergab 10.474 gleiche Noten. Der explizite Vergleich gegen die lokal vorhandene Live-Herkunft 7339711 endete mit Code 0. Sammellauf, dateischreibender Mutantenlauf und Live-Abruf wurden wegen des ausschließlich lesenden Auftrags nicht ausgeführt. Versionierte Dateien blieben unverändert. Zwei unversionierte Prüfausgaben waren bereits beim ersten Statusabruf vorhanden."
+}

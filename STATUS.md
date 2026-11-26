@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 26.11.2026 · Branch main, P2a-2 gebaut und abgeschlossen (selbst geprüft, Codex-Erstprüfung läuft, nicht gepusht; letzter Commit siehe `git log`) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
+Stand: 26.11.2026 · Branch main, P2a-2 gebaut und abgeschlossen (selbst geprüft bis 9f06629; Codex-Erstprüfung r1 nicht bestanden, unbewertet; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
 
 ## Lage
 
@@ -17,7 +17,8 @@ Stand: 26.11.2026 · Branch main, P2a-2 gebaut und abgeschlossen (selbst geprüf
 
 ## Nächster Schritt
 
-**Codex-Erstprüfung P2a-2 auswerten** (Auftrag [docs/pruefungen/2026-11-26-p2a2-bau/auftrag.md](docs/pruefungen/2026-11-26-p2a2-bau/auftrag.md), Sol 6.2 medium, Basis dbfdca6): Bericht und Befund-JSON im selben Ordner, Bewertung `bewertung-r1.md` nach Skill `pruefschleife` Schritt 5–7.
+**Codex-Erstprüfung P2a-2 r1 auswerten und korrigieren.** Ergebnis (Sol 6.2 medium, Basis dbfdca6, Prüfstand 9f06629): nicht bestanden, im Umfang offen kritisch 1, schwer 2, mittel 3. Je Befund einordnen (`bewertung-r1.md` neben dem Bericht), bestätigte je Klasse korrigieren mit Probe (Mutante rot, Korrektur grün), einfrieren, bei offenem kritisch/schwer Nachprüfung `-Art nach` (Skill `pruefschleife` 5–7).
+**Fertig, wenn** `bewertung-r1.md` jeden Befund einordnet, die bestätigten korrigiert sind (Proben rot/grün), `tests/alle-tests.ps1` Fehler 0 meldet, committet ist und die Nachprüfung läuft. Lesen: Befund-JSON [codex-erst-20261126-192009.json](docs/pruefungen/2026-11-26-p2a2-bau/codex-erst-20261126-192009.json), dann nur die dort genannten Stellen; Auftrag [auftrag.md](docs/pruefungen/2026-11-26-p2a2-bau/auftrag.md).
 
 ## Offen für Nico
 
