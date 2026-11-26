@@ -1143,17 +1143,18 @@ test("P2a-2 (42): Fassung 1 – alle Modelle, alle Vorgaben, Note vor und nach d
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 });
 
-test("P2a-2 (37): jede umlaufende bewertung.js verhält sich auf der neuen Datei wie auf Daten ohne neue Angaben", () => {
+test("P2a-2 (37): jede umlaufende bewertung.js verhält sich auf der neuen Datei wie mit den Live-Daten", () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kb-p2a2-37-"));
   try {
     bauNeu(path.join(tmp, "neu.json"));
     const neu = JSON.parse(fs.readFileSync(path.join(tmp, "neu.json"), "utf8"));
-    // Vergleichsdatei im Live-Format: dieselben Daten ohne die Angaben aus P2a (Fassung, Testquelle, Quellen, Belege)
-    const alt = kopie(neu);
-    for (const k of alt.kategorien) {
-      delete k.gewichte_version; delete k.testquelle; delete k.quellen;
-      for (const m of k.modelle) delete m.belege;
-    }
+    // §9.1: Vergleichsdatei = Bau mit Werkzeug und Schema der Live-Herkunft (herkunft der Datei auf gh-pages),
+    // dazu die heutigen Produktdaten. So wird der Test rot, wenn sich das Schema seit dem Live-Stand ändert.
+    const live = JSON.parse(git("show", "origin/gh-pages:finder-daten.json").replace(/^﻿/, ""));
+    assert.match(String(live.herkunft), /^[0-9a-f]{40}$/, "herkunft der Live-Datei");
+    bauMitStand(live.herkunft, tmp, path.join(tmp, "alt.json"));
+    const alt = JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8"));
+    assert.ok(alt.kategorien.every(k => k.gewichte_version === undefined), "Live-Werkzeug kennt keine Fassung");
     // §9.1: alle Blobs von bewertung.js im gh-pages-Verlauf, dazu G1 und die heutige Fassung auf main
     const blobs = new Set(git("log", "--format=%H", "origin/gh-pages", "--", "bewertung.js").split("\n").filter(Boolean)
       .map(c => git("rev-parse", c + ":bewertung.js").trim()));
