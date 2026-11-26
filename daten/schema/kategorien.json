@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "stand": "2026-11-21",
   "hinweis": "Entwurf. Schwellen und Gewichte sind begründete Vorschläge (siehe docs/punkteschema.md), keine Messwerte. Kurven vor Einsatz mit echten Datenblattwerten (EPREL, Pilotdaten) kalibrieren.",
   "regeln": {

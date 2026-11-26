@@ -9,7 +9,9 @@
      das beste im Budget mit „nicht belegt“-Markierung (Status "unbelegt"); dann ein passendes Modell im Budget ohne
      Note ("ohne_note"); passt nichts ins Budget, das beste über Budget ("ueber_budget").
    - B (Aufpreis) und C (Spar) müssen alle Anforderungen belegt erfüllen, eine Note und einen Preis haben.
-   - Schwellen werden mit ungerundeten Werten und einer Toleranz von 1e-9 geprüft (Gleitkomma bei Cent-Preisen). */
+   - Schwellen werden mit ungerundeten Werten und einer Toleranz von 1e-9 geprüft (Gleitkomma bei Cent-Preisen).
+   P2a-1 (docs/recherche-ux/p2-entwurf.md): alternativen (Note bei anderer Antwort), notenblatt, methodik und die
+   Prüfung der neuen Metadaten (gewichte_version, testquelle, quellen, belege) in datenPruefen; alles nur Rechnung, kein DOM. */
 (function (wurzel, fabrik) {
   "use strict";
   const api = fabrik();
@@ -259,7 +261,8 @@
   /* Gesamtauswertung einer Kategorie.
      eingabe = {antworten: {frageId: antwortId}, budget: Zahl|null (null = egal), filter: {…}, sortierung: "note"|"preis"|"effizienz",
        prioritaeten: {feldId: Faktor} (G1, optional)}
-     Ergebnis: {gewichte, anforderungen, rang, empfehlung, status, aufpreis, spar, ausgeschlossen, ohneNote, anzahl} */
+     Ergebnis: {gewichte, anforderungen, rang, empfehlung, status, aufpreis, spar, fassung, ausgeschlossen, ohneNote, anzahl}
+     (fassung = {nummer, stand} der Gewichtsfassung der Kategorie oder null, P2a-1) */
   function auswerten(kat, regeln, eingabe) {
     const e = eingabe || {};
     const budget = istZahl(e.budget) && e.budget > 0 ? e.budget : null;
@@ -302,7 +305,7 @@
     }
     return {
       gewichte: gew, anforderungen: anf, rang: sortiere(passend, e.sortierung || "note"),
-      empfehlung: A, status: status || "leer", aufpreis, spar, budget,
+      empfehlung: A, status: status || "leer", aufpreis, spar, budget, fassung: fassungPruefen(kat.gewichte_version),
       ausgeschlossen: alle.length - passend.length, ohneNote: passend.length - mitNote.length, anzahl: alle.length,
     };
   }
@@ -325,6 +328,112 @@
   /* Stärken: die höchsten Beiträge (Gewicht × Teilpunkte) mit guten Teilpunkten (mindestens 60). */
   function staerken(eintrag, n) {
     return (eintrag.beitraege || []).filter(b => b.teilpunkte >= 60).slice(0, n || 3);
+  }
+
+  /* P2a-1, §3: „Note bei anderer Antwort“. Für jede Frage mit mindestens zwei Antworten und jede Antwort außer der
+     aktuellen wird genau diese eine Antwort geändert (nie zwei zugleich) und das Modell mit denselben Funktionen,
+     denselben wirksamen Antworten und denselben Reglern (prio) wie die Hauptnote neu bewertet. Eine Zeile gibt es nur,
+     wenn sich die angezeigte (gerundete) Zahl oder der Zustand (Note ↔ keine Note) ändert, nie „66 statt 66“.
+     Zeile: {frage, frage_text, antwort, antwort_text, note, anzeige, art, abdeckung, delta, passt}; delta aus
+     angezeigten Zahlen, null ohne Note auf einer Seite; passt = "ok"|"nein"|"unbelegt" nur für Frageanforderungen (keine
+     Oberflächenfilter). Reihenfolge: Zeilen ohne Note zuerst, dann |delta| absteigend, bei Gleichstand Reihenfolge der
+     Fragen und Antworten; höchstens max (3) Zeilen. Eingaben bleiben unverändert. */
+  const angezeigteNote = n => (istZahl(n) ? Math.round(n) : null);
+  function alternativen(kat, regeln, modell, antworten, prio, max) {
+    const grenze = istZahl(max) && max >= 0 ? Math.floor(max) : 3;
+    const aktuell = antworten || {};
+    const basis = bewerteModell(modell, kat, gewichte(kat, aktuell, prio), regeln);
+    const a0 = angezeigteNote(basis.note);
+    const zeilen = [];
+    let nr = 0;
+    for (const frage of kat.fragen || []) {
+      const liste = frage.antworten || [];
+      if (liste.length < 2) continue;
+      for (const a of liste) {
+        const reihe = nr++;
+        if (a.id === aktuell[frage.id]) continue;
+        const neu = Object.assign({}, aktuell, { [frage.id]: a.id });
+        const b = bewerteModell(modell, kat, gewichte(kat, neu, prio), regeln);
+        const a1 = angezeigteNote(b.note);
+        if (a1 === a0 && !(a1 === null && b.art !== basis.art)) continue;
+        const pr = anforderungen(kat, neu, {}).map(x => pruefe(modell.werte, x));
+        zeilen.push({ reihe, zeile: {
+          frage: frage.id, frage_text: frage.text, antwort: a.id, antwort_text: a.text,
+          note: b.note, anzeige: a1, art: b.art, abdeckung: b.abdeckung,
+          delta: a0 === null || a1 === null ? null : a1 - a0,
+          passt: pr.indexOf("nein") >= 0 ? "nein" : pr.indexOf("unbelegt") >= 0 ? "unbelegt" : "ok",
+        } });
+      }
+    }
+    const rang = z => (z.delta === null ? 0 : 1), betrag = z => (z.delta === null ? 0 : Math.abs(z.delta));
+    zeilen.sort((x, y) => rang(x.zeile) - rang(y.zeile) || betrag(y.zeile) - betrag(x.zeile) || x.reihe - y.reihe);
+    return zeilen.slice(0, grenze).map(x => x.zeile);
+  }
+
+  /* P2a-1, §4/§9.5: alles, was das Notenblatt (P2b) braucht, aus der bewerteten Zeile `eintrag` (Ergebnis von auswerten
+     bzw. bewerteModell, keine zweite Rechnung). anteil = 100 · g / Σ g über alle anwendbaren Felder (belegt und fehlend),
+     beitrag_r = g · Teilpunkte / Σ g über die belegten anwendbaren Felder (Summe = R, ein Anteil an R und keine
+     „Punkte der Note“). merkmale enthält beide Zeilentypen (belegt: true|false; fehlend: wert, teilpunkte, beitrag_r,
+     beleg = null), sortiert nach anteil absteigend, dann Schemareihenfolge; bei keine_merkmale leer.
+     persoenlich: mindestens ein gültiger Regler ≠ 1 wirkt auf ein Feld, das die Antworten nicht schon abgeschaltet haben. */
+  function belegFuer(kat, modell, feld) {
+    const qid = eigen(modell.belege, feld) ? modell.belege[feld] : null;
+    const q = typeof qid === "string" && eigen(kat.quellen, qid) ? kat.quellen[qid] : null;
+    return q ? { titel: q.titel, url: q.url, gelesen: q.gelesen } : null;
+  }
+  function reglerWirken(kat, antworten, prio) {
+    if (!istObjekt(prio)) return false;
+    const g0 = gewichte(kat, antworten, undefined);
+    return (kat.felder || []).some(f => istZahl(f.gewicht) && f.gewicht > 0 && eigen(prio, f.id) && istZahl(prio[f.id])
+      && prio[f.id] >= 0 && prio[f.id] !== 1 && eigen(g0, f.id));
+  }
+  function notenblatt(kat, regeln, eintrag, antworten, prio) {
+    const modell = eintrag.modell, werte = modell.werte || {};
+    const beitraege = eintrag.beitraege || [], fehlend = eintrag.fehlend || [];
+    const summe = [...beitraege, ...fehlend].reduce((s, x) => s + x.gewicht, 0);
+    const summeBelegt = beitraege.reduce((s, x) => s + x.gewicht, 0);
+    const felder = kat.felder || [];
+    const zeile = (id, g, t) => {
+      const f = felder.find(x => x.id === id), belegt = t !== null;
+      return {
+        feld: id, name: f ? f.name : id, einheit: f && f.einheit ? f.einheit : "", belegt,
+        wert: belegt && eigen(werte, id) ? werte[id] : null, teilpunkte: t,
+        anteil: 100 * g / summe,
+        beitrag_r: belegt && summeBelegt > 0 ? g * t / summeBelegt : null,
+        beleg: belegt ? belegFuer(kat, modell, id) : null,
+      };
+    };
+    const merkmale = summe > 0
+      ? [...beitraege.map(b => zeile(b.feld, b.gewicht, b.teilpunkte)), ...fehlend.map(f => zeile(f.feld, f.gewicht, null))] : [];
+    const platz = id => felder.findIndex(f => f.id === id);
+    merkmale.sort((a, b) => b.anteil - a.anteil || platz(a.feld) - platz(b.feld));
+    const gew = gewichte(kat, antworten, prio);
+    return {
+      note: eintrag.note, anzeige: angezeigteNote(eintrag.note), art: eintrag.art, abdeckung: eintrag.abdeckung,
+      spanne: eintrag.spanne, R: eintrag.R, persoenlich: reglerWirken(kat, antworten, prio),
+      fassung: fassungPruefen(kat.gewichte_version),
+      merkmale, fehlend: fehlend.map(f => f.feld),
+      nicht_anwendbar: Object.keys(gew).filter(id => nichtAnwendbar(kat.id, id, werte)),
+      alternativen: alternativen(kat, regeln, modell, antworten, prio),
+      testquelle: testquellePruefen(kat.testquelle), tests: modell.tests || [],
+    };
+  }
+
+  /* P2a-1, §4: Angaben für die Methodikseite (P2b): Abschlagswerte aus den Regeln, je Kategorie Gewichtsfassung,
+     Testquelle und die Grundgewichte (ohne Antworten und ohne Regler, Summe 100, nur Felder mit Gewicht > 0). */
+  function methodik(daten) {
+    const db = daten.regeln.datenblatt_abschlag;
+    return {
+      abschlag: { anker: db.anker, faktor: db.faktor, abzug: db.abzug, abdeckung_mindest: db.abdeckung_mindest,
+        spanne_plus_minus: db.spanne_plus_minus },
+      kategorien: (daten.kategorien || []).map(k => {
+        const g = gewichte(k, {});
+        const grund = (k.felder || []).filter(f => eigen(g, f.id)).map((f, i) => ({ feld: f.id, name: f.name, anteil: g[f.id], i }))
+          .sort((a, b) => b.anteil - a.anteil || a.i - b.i).map(({ feld, name, anteil }) => ({ feld, name, anteil }));
+        return { id: k.id, name: k.name, fassung: fassungPruefen(k.gewichte_version), testquelle: testquellePruefen(k.testquelle),
+          grundgewichte: grund };
+      }),
+    };
   }
 
   /* Budget-Schnellwahl aus vorhandenen Preisen: Quartile und Höchstpreis, auf runde Beträge aufgerundet. */
@@ -385,6 +494,50 @@
   const istText = (x, max) => typeof x === "string" && x.length <= (max || 500);
   const istName = (x, max) => istText(x, max) && x.trim() !== "";
   function pruefOderWirf(ok, was) { if (!ok) throw new Error(was); }
+
+  /* P2a-1, gemeinsamer Vertrag mit werkzeuge/datenbank.py (p2-entwurf.md §9.6). Die neuen Angaben (Gewichtsfassung,
+     Testquelle, Quellen, Belege) dienen nur der Anzeige und werden still verworfen statt zu werfen (§2.6).
+     Abweichung laut Entwurf: Datum ohne obere Grenze (der Client kennt kein verlässliches „heute“), Namen in Codepunkten. */
+  const codepunkte = x => Array.from(x).length;
+  const quellName = (x, max) => typeof x === "string" && codepunkte(x) >= 1 && codepunkte(x) <= max && x.trim() !== "";
+  function quellDatum(x) {
+    if (typeof x !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(x)) return false;
+    const [j, m, t] = x.split("-").map(Number);
+    if (j < 2020) return false;
+    const d = new Date(Date.UTC(j, m - 1, t));
+    return d.getUTCFullYear() === j && d.getUTCMonth() === m - 1 && d.getUTCDate() === t;
+  }
+  // Hostteil: DNS-Name in Kleinbuchstaben mit Punkt, Endung beginnt mit Buchstaben (keine IP), kein Port, kein Userinfo, kein xn--
+  const DNS_NAME = /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]([a-z0-9-]*[a-z0-9])?$/;
+  function sichereQuelle(u) {
+    if (typeof u !== "string" || u.length < 1 || u.length > 2000 || !/^[\x21-\x7e]+$/.test(u) || u.indexOf("https://") !== 0) return null;
+    const rest = u.slice(8), ende = rest.search(/[/?#]/);
+    const host = ende < 0 ? rest : rest.slice(0, ende);
+    if (!DNS_NAME.test(host) || host.split(".").some(l => l.indexOf("xn--") === 0)) return null;
+    try { const x = new URL(u); return x.protocol === "https:" ? x.href : null; } catch (err) { return null; }
+  }
+  function fassungPruefen(f) {
+    return istObjekt(f) && Number.isInteger(f.nummer) && f.nummer >= 1 && f.nummer <= 9999 && quellDatum(f.stand)
+      ? { nummer: f.nummer, stand: f.stand } : null;
+  }
+  function testquellePruefen(t) {
+    if (!istObjekt(t)) return null;
+    const url = sichereQuelle(t.url), methodikUrl = sichereQuelle(t.methodik_url);
+    return quellName(t.name, 80) && url && methodikUrl && quellDatum(t.stand)
+      ? { name: t.name, url, methodik_url: methodikUrl, stand: t.stand } : null;
+  }
+  function quellenPruefen(q) {
+    const aus = {};
+    if (!istObjekt(q)) return aus;
+    for (const [id, x] of Object.entries(q)) {
+      if (!kennungOk(id) || !istObjekt(x)) continue;
+      const url = sichereQuelle(x.url);
+      if (quellName(x.titel, 200) && url && quellDatum(x.gelesen)) aus[id] = { titel: x.titel, url, gelesen: x.gelesen };
+    }
+    return aus;
+  }
+  // Maßfelder haben feste Namen (Entwurf §2.3, §9.7); Wert nur 0 < x ≤ 500
+  const MASSFELDER = ["breite_cm", "hoehe_cm", "tiefe_cm"];
   function regelnPruefen(r) {
     pruefOderWirf(istObjekt(r), "regeln");
     // D12: klassen und kappung werden nicht mehr gelesen (ältere Dateien dürfen sie noch tragen)
@@ -420,6 +573,15 @@
   }
   /* Modellwert, wie die Anzeige ihn braucht (R2-03): endliche Zahl, Wahrheitswert oder kurzer Text */
   const wertOk = w => istZahl(w) || typeof w === "boolean" || istText(w, 200);
+  /* Wert nach dem veröffentlichten Typ des Schemafelds (P2a-1, §2.6/§9.7, wie feld_ok im Bau): zahl = endliche Zahl mit
+     |x| < 1e7, bool = Wahrheitswert, stufe = Text mit 1..200 Codepunkten; Maßfelder zusätzlich 0 < x ≤ 500. Ohne
+     Schemafeld gilt wie bisher nur wertOk. */
+  function wertNachTyp(feld, w) {
+    if (!feld) return wertOk(w);
+    if (feld.typ === "zahl") return istZahl(w) && Math.abs(w) < 1e7 && (MASSFELDER.indexOf(feld.id) < 0 || (w > 0 && w <= 500));
+    if (feld.typ === "bool") return typeof w === "boolean";
+    return typeof w === "string" && codepunkte(w) >= 1 && codepunkte(w) <= 200;
+  }
   function datenPruefen(d) {
     pruefOderWirf(istObjekt(d) && Array.isArray(d.kategorien) && istObjekt(d.regeln), "format");
     // Kopfangaben (R2-03): stand nur null/Datum, herkunft nur Commit (40 Hex-Zeichen); sonst ganze Datei ungültig
@@ -433,12 +595,21 @@
       k.fragen = k.fragen === undefined ? [] : k.fragen;
       pruefOderWirf(Array.isArray(k.fragen), "fragen");
       k.fragen.forEach(fragePruefen);
+      k.gewichte_version = fassungPruefen(k.gewichte_version);   // P2a-1: neue Angaben optional, kaputt → still verworfen
+      k.testquelle = testquellePruefen(k.testquelle);
+      k.quellen = quellenPruefen(k.quellen);
+      const feldVon = Object.create(null);
+      for (const f of k.felder) if (!(f.id in feldVon)) feldVon[f.id] = f;
       k.modelle = k.modelle.filter(m => istObjekt(m) && typeof m.id === "string" && m.id !== "" && istName(m.hersteller, 80)
         && istName(m.name, 200) && (m.variante === undefined || m.variante === null || istText(m.variante, 200))
         && (m.werte === undefined || istObjekt(m.werte)) && (m.teilpunkte === undefined || istObjekt(m.teilpunkte)));
       for (const m of k.modelle) {
-        m.werte = Object.fromEntries(Object.entries(m.werte || {}).filter(([k, w]) => !reserviert(k) && wertOk(w)));
-        m.teilpunkte = Object.fromEntries(Object.entries(m.teilpunkte || {}).filter(([k, t]) => !reserviert(k) && zahlIn(t, 0, 100)));
+        // Wert, Teilpunkte und Beleg gehören zusammen (P2a-1, R2-06): Teilpunkt und Beleg nur für ein Feld, dessen Wert bleibt
+        m.werte = Object.fromEntries(Object.entries(m.werte || {}).filter(([f, w]) => !reserviert(f) && wertNachTyp(feldVon[f], w)));
+        m.teilpunkte = Object.fromEntries(Object.entries(m.teilpunkte || {})
+          .filter(([f, t]) => !reserviert(f) && zahlIn(t, 0, 100) && eigen(m.werte, f)));
+        m.belege = Object.fromEntries(Object.entries(istObjekt(m.belege) ? m.belege : {})
+          .filter(([f, q]) => !reserviert(f) && eigen(m.werte, f) && typeof q === "string" && eigen(k.quellen, q)));
         if (m.preis !== null && m.preis !== undefined && !preisOk(m.preis)) m.preis = null;
         m.tests = (Array.isArray(m.tests) ? m.tests : []).filter(t => istObjekt(t) && sichereUrl(t.url) && istName(t.titel, 200))
           .map(t => ({ url: sichereUrl(t.url), titel: t.titel }));
@@ -450,6 +621,7 @@
   return {
     gewichte, anforderungen, pruefe, datenblattNote, bewerteModell, sortiere, auswerten,
     aufpreisHinweis, sparHinweis, feldSieger, staerken, budgetStufen, sichereUrl, preiseUeberlagern, datenPruefen,
-    nichtAnwendbar, PRIO_FAKTOREN,
+    nichtAnwendbar, PRIO_FAKTOREN, NICHT_ANWENDBAR,
+    alternativen, notenblatt, methodik, quellDatum, sichereQuelle, quellName,
   };
 });

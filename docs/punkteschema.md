@@ -194,6 +194,17 @@ Begründung: Die Schwelle 3 Punkte ist die Unterschiedsschwelle der App; bei Dat
 
 Air Fryer, Budget 100 €: A 99 € mit 62, B 119 € mit 67 → Δp 20, ΔN 5, E 25, 119 ≤ 125 → Hinweis „Für 20 € mehr bekommst du +5 Punkte.“
 
+## 7a. Schema 2, Maße, Quellen und „Note bei anderer Antwort“ (P2a-1, gebaut 26.11.2026)
+
+Grundlage: `docs/recherche-ux/p2-entwurf.md`. Die Zahl der Note ändert sich dadurch nicht (Gegenprobe: gleiche Noten vor und nach dem Bau).
+
+- **`schema_version` 2.** `datenbank.py` prüft den Wert und das Schema selbst (`schema_fehler`): erlaubte Kategorieschlüssel `id, name, felder, fragen, gewichte_version, testquelle`; doppelte JSON-Schlüssel sind ein Fehler.
+- **`testquelle`** (je Kategorie höchstens eine, nur Link, D13): genau `name`, `url`, `methodik_url`, `stand`. Keine Noten oder Punkte. P2a-1 trägt keine Quelle ein, die Auswahl trifft der Besitzer (F-3). **`gewichte_version`** `{nummer, stand}` wird, wenn vorhanden, geprüft und mit ausgeliefert. Pflicht, Referenzvergleich und die erste Fassung gehören zu P2a-2 und stehen noch aus.
+- **Maße:** feste Feldnamen `breite_cm`, `hoehe_cm`, `tiefe_cm` (Zahl, cm), Werte 0 < x ≤ 500 (Plausibilitätsschranke, kein Fachwert). Neue Maßfelder und Werte kommen mit P6 und nur mit Beleg. `hoehe_cm` beim Saugroboter bleibt Bewertungsfeld (Gewicht 6).
+- **Quellen und Belege** gehen in `finder-daten.json` (je Kategorie `quellen`, je Modell `belege`), damit die App Wert, Quelle und Datum zeigen kann (Ebene 3). Der Vertrag für URL, Datum, Namen und Quellen-ID steht im Entwurf §9.6 und gilt im Bau und im Client gleich (Tests auf beiden Seiten).
+- **`PRIO_FAKTOREN` und `NICHT_ANWENDBAR`** (Regler 0 / 0,5 / 1 / 2 / 3, nicht anwendbare Felder) bleiben im Code und gehören zur App-Fassung, nicht zur Gewichtsfassung. Eine Änderung braucht eine Entscheidung in `docs/entscheidungen.md`.
+- **Rechenfunktionen** (`app/finder/bewertung.js`): `alternativen` (Note bei einer anderen Antwort, gleiche Regler wie die Hauptnote), `notenblatt` (Anteil je Merkmal, Beitrag zu R, Beleg), `methodik`. Alles aus denselben Datenblattwerten, keine neue Aussage und keine Rangaussage.
+
 ## 8. Offene Punkte und Lücken
 
 1. **Kurven kalibrieren:** Alle Schwellen sind Vorschläge. Vor dem Einsatz je Kategorie 20–50 echte Datenblätter (EPREL, Shops) auswerten; Ziel: Marktmedian bei 60–70 Teilpunkten, Spitzenmodelle bei 90–100.

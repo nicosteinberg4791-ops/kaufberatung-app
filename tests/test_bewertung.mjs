@@ -135,7 +135,7 @@ test("D12: keine Klassen und keine Kappung, auch wenn ältere Daten sie noch tra
   const alt = kopie(REGELN);
   alt.klassen = [{ ab: "0;background:red", name: "<b>x</b>" }];
   alt.datenblatt_abschlag.kappung = 84;
-  const d = { regeln: alt, kategorien: [{ id: "probe", name: "Probe", felder: kopie(KAT.felder), fragen: kopie(KAT.fragen), modelle: [modell("m", { a: 100, b: 100 }, {}, 100)] }] };
+  const d = { regeln: alt, kategorien: [{ id: "probe", name: "Probe", felder: kopie(KAT.felder), fragen: kopie(KAT.fragen), modelle: [modell("m", { a: 100, b: 100 }, { a: 5, b: true }, 100)] }] };   // P2a-1: Teilpunkte brauchen den Wert
   assert.doesNotThrow(() => B.datenPruefen(d), "Altdaten bleiben lesbar");
   const r = B.bewerteModell(d.kategorien[0].modelle[0], d.kategorien[0], B.gewichte(d.kategorien[0], {}), d.regeln);
   nah(r.note, 89.5, 1e-9);   // nicht auf 84 gekappt
@@ -375,7 +375,7 @@ test("Feldsieger und Stärken", () => {
 // ---------- Codex r1 (Finder-Veröffentlichung) ----------
 const kopie = x => JSON.parse(JSON.stringify(x));
 const minimal = () => ({ regeln: kopie(REGELN), kategorien: [{ id: "probe", name: "Probe", felder: kopie(KAT.felder), fragen: kopie(KAT.fragen),
-  modelle: [modell("m", { a: 90, b: 100 }, {}, 100)] }] });
+  modelle: [modell("m", { a: 90, b: 100 }, { a: 5, b: true }, 100)] }] });
 
 test("F-01: Testlinks verlieren übernommene Punkte, die Note bleibt aus dem Datenblatt", () => {
   const d = minimal();
@@ -441,9 +441,10 @@ test("R2-03: stand und herkunft nur gültig, sonst Fehler; Modellwerte nur einfa
   assert.doesNotThrow(() => B.datenPruefen(ok));
   const n = minimal(); n.stand = null; assert.doesNotThrow(() => B.datenPruefen(n));
   const d = minimal();
-  d.kategorien[0].modelle[0].werte = { a: { toString: null }, b: 3, c: true, e: "gut", f: Infinity, g: "x".repeat(201), h: null };
+  // P2a-1 (R2-06): Schemafelder nach Typ; hier „groesse“ (zahl), „a“ (zahl, Objekt), nicht im Schema: c, e, f, g, h (einfache Typen)
+  d.kategorien[0].modelle[0].werte = { a: { toString: null }, groesse: 3, c: true, e: "gut", f: Infinity, g: "x".repeat(201), h: null };
   B.datenPruefen(d);
-  assert.deepEqual(d.kategorien[0].modelle[0].werte, { b: 3, c: true, e: "gut" });
+  assert.deepEqual(d.kategorien[0].modelle[0].werte, { groesse: 3, c: true, e: "gut" });
 });
 
 test("R3-02: Kennungen aus dem Objekt-Prototyp machen die Datei ungültig, solche Wert-Schlüssel fallen weg", () => {
@@ -501,4 +502,493 @@ test("P1-04: ohne wirksame Gewichte art „keine_merkmale“, fehlende Werte ble
   const luecke = Object.assign({}, KAT, { modelle: [modell("m3", { b: 100 }, {}, 100)] });
   const e = B.auswerten(luecke, REGELN, { budget: null }).rang[0];
   assert.equal(e.note, null); assert.equal(e.art, "zu_wenig_daten"); assert.equal(e.fehlend[0].feld, "a");
+});
+
+// ====================================================================================================================
+// P2a-1 (Notenmodell, Rechnung und Schnittstelle; docs/recherche-ux/p2-entwurf.md, Testnummern in Klammern)
+// ====================================================================================================================
+const emoji = n => "😀".repeat(n);
+const AFKAT = () => kopie(SCHEMA.kategorien.find(k => k.id === "airfryer"));
+// Air Fryer mit einem Garraum: Teilpunkte nach den Kurven des Schemas (Volumen 5 l → 67,5 usw.)
+const AF_WERTE = { volumen_l: 5, spuelmaschinenfest: true, koerbe: 1, leistung_w: 1700, sichtfenster: true, beschichtung: "keramik",
+  sync_funktion: false, temp_max_c: 200, doerren: false };
+const AF_TP = { volumen_l: 67.5, spuelmaschinenfest: 100, koerbe: 50, leistung_w: 75, sichtfenster: 100, beschichtung: 100,
+  sync_funktion: 0, temp_max_c: 80, doerren: 0 };
+const afModell = (id, werte = {}, tp = {}) => modell(id, Object.assign({}, AF_TP, tp), Object.assign({}, AF_WERTE, werte), 100);
+const mitModell = (kat, m) => Object.assign(kopie(kat), { modelle: [m] });
+const eintragFuer = (kat, m, antworten, prio) => Object.assign({ modell: m, preis: null },
+  B.bewerteModell(m, kat, B.gewichte(kat, antworten, prio), REGELN));
+// Orakel (§9.2): auswerten auf einer Ein-Modell-Kopie ohne mindest/hoechst
+function orakel(kat, m, antworten, prio) {
+  const k1 = kopie(kat); k1.modelle = [kopie(m)];
+  for (const f of k1.fragen || []) for (const a of f.antworten) { delete a.mindest; delete a.hoechst; }
+  return B.auswerten(k1, REGELN, { antworten, prioritaeten: prio }).rang[0];
+}
+const angezeigt = n => (typeof n === "number" ? Math.round(n) : null);
+function alleKandidaten(kat, antworten) {
+  const aus = [];
+  for (const f of kat.fragen || []) {
+    if ((f.antworten || []).length < 2) continue;
+    for (const a of f.antworten) if (antworten[f.id] !== a.id) aus.push({ frage: f.id, antwort: a.id });
+  }
+  return aus;
+}
+/* Jede Zeile gleich dem Orakel (Zahl, Zustand, Abdeckung, delta) und genau die Kandidaten mit geänderter angezeigter Zahl */
+function pruefeGegenOrakel(kat, m, antworten, prio) {
+  const zeilen = B.alternativen(kat, REGELN, m, antworten, prio, 1000);
+  const basis = orakel(kat, m, antworten, prio), a0 = angezeigt(basis.note);
+  for (const z of zeilen) {
+    const o = orakel(kat, m, Object.assign({}, antworten, { [z.frage]: z.antwort }), prio);
+    assert.equal(z.note, o.note, `${z.frage}/${z.antwort}`);
+    assert.equal(z.anzeige, angezeigt(o.note));
+    assert.equal(z.art, o.art);
+    assert.equal(z.abdeckung, o.abdeckung);
+    assert.equal(z.delta, a0 === null || z.anzeige === null ? null : z.anzeige - a0);
+  }
+  const erwartet = alleKandidaten(kat, antworten).filter(c => {
+    const o = orakel(kat, m, Object.assign({}, antworten, { [c.frage]: c.antwort }), prio), a1 = angezeigt(o.note);
+    return a1 !== a0 || (a1 === null && o.art !== basis.art);
+  }).map(c => c.frage + "/" + c.antwort).sort();
+  assert.deepEqual(zeilen.map(z => z.frage + "/" + z.antwort).sort(), erwartet);
+  return zeilen;
+}
+
+test("P2a-1 (17): Daten ohne neue Felder – kein Wurf, Fassung, Testquelle und Quellen leer", () => {
+  const d = minimal(); B.datenPruefen(d);
+  const k = d.kategorien[0];
+  assert.equal(k.gewichte_version, null); assert.equal(k.testquelle, null);
+  assert.deepEqual(k.quellen, {}); assert.deepEqual(k.modelle[0].belege, {});
+  assert.equal(B.auswerten(k, d.regeln, {}).fassung, null);
+  assert.doesNotThrow(beispiel);   // die Beispieldaten (erfunden, ohne Schema 2) bleiben gültig
+});
+
+test("P2a-1 (18): gewichte_version kaputt → null ohne Wurf; gültig → genau {nummer, stand}", () => {
+  const faelle = [{ nummer: -1, stand: "2026-11-24" }, { nummer: 0, stand: "2026-11-24" }, { nummer: 10000, stand: "2026-11-24" },
+    { nummer: 1.5, stand: "2026-11-24" }, { nummer: "1", stand: "2026-11-24" }, { nummer: true, stand: "2026-11-24" },
+    { nummer: 1, stand: "24.11.2026" }, { nummer: 1, stand: "2026-02-30" }, { nummer: 1, stand: "2019-12-31" }, { nummer: 1 },
+    [1], "1", 1, true];
+  for (const f of faelle) {
+    const d = minimal(); d.kategorien[0].gewichte_version = f;
+    assert.doesNotThrow(() => B.datenPruefen(d), JSON.stringify(f));
+    assert.equal(d.kategorien[0].gewichte_version, null, JSON.stringify(f));
+  }
+  const ok = minimal(); ok.kategorien[0].gewichte_version = { nummer: 3, stand: "2026-11-24", pruefsumme: "x", html: "<b>" };
+  B.datenPruefen(ok);
+  assert.deepEqual(ok.kategorien[0].gewichte_version, { nummer: 3, stand: "2026-11-24" });
+  assert.deepEqual(B.auswerten(ok.kategorien[0], ok.regeln, {}).fassung, { nummer: 3, stand: "2026-11-24" });
+});
+
+test("P2a-1 (19): testquelle – unsichere URL oder Name → null; zusätzliche Schlüssel entfallen", () => {
+  const gut = { name: "Beispieltester", url: "https://example.org/test/probe", methodik_url: "https://example.org/so-testen-wir", stand: "2026-11-24" };
+  const mit = t => { const d = minimal(); d.kategorien[0].testquelle = t; B.datenPruefen(d); return d.kategorien[0].testquelle; };
+  assert.deepEqual(mit(gut), gut);
+  assert.deepEqual(Object.keys(mit(Object.assign({ punkte: 99, note: "sehr gut", urteil: "x" }, gut))).sort(),
+    ["methodik_url", "name", "stand", "url"]);
+  for (const kaputt of [{ url: "javascript:alert(1)" }, { url: "http://example.org/x" }, { methodik_url: "javascript:alert(1)" },
+    { methodik_url: "https://user:pw@example.org/x" }, { name: "" }, { name: emoji(81) }, { stand: "2026-13-01" }, { name: undefined }]) {
+    assert.equal(mit(Object.assign({}, gut, kaputt)), null, JSON.stringify(kaputt));
+  }
+  for (const nichtObjekt of [[gut], "x", 5, true]) assert.equal(mit(nichtObjekt), null);
+  assert.deepEqual(mit(Object.assign({}, gut, { name: emoji(80) })).name, emoji(80));
+});
+
+test("P2a-1 (20): Quellen und Belege – kaputte Quelle, Beleg auf Feld ohne Wert und Verweis ins Leere entfallen", () => {
+  const d = minimal(), k = d.kategorien[0];
+  k.quellen = JSON.parse(`{"gut": {"titel": "Datenblatt", "url": "https://example.org/db", "gelesen": "2026-11-20", "extra": 1},
+    "kaputt": {"titel": "Seite", "url": "javascript:alert(1)", "gelesen": "2026-11-20"},
+    "ohne-datum": {"titel": "Seite", "url": "https://example.org/x", "gelesen": "20.11.2026"},
+    "Gross": {"titel": "x", "url": "https://example.org/x", "gelesen": "2026-11-20"},
+    "__proto__": {"titel": "x", "url": "https://example.org/x", "gelesen": "2026-11-20"}}`);
+  k.modelle[0].belege = { a: "gut", b: "kaputt", groesse: "gut", unbekannt: "gut", c: "gibtsnicht" };
+  k.modelle[0].werte.c = 1;
+  B.datenPruefen(d);
+  assert.deepEqual(Object.keys(k.quellen), ["gut"]);
+  assert.deepEqual(k.quellen.gut, { titel: "Datenblatt", url: "https://example.org/db", gelesen: "2026-11-20" });
+  // a: Wert + gültige Quelle; b: Quelle entfernt; groesse/unbekannt: kein Wert; c: Quelle unbekannt
+  assert.deepEqual(k.modelle[0].belege, { a: "gut" });
+  for (const nichtObjekt of [null, [1], "x", 3]) {
+    const e = minimal(); e.kategorien[0].quellen = nichtObjekt; e.kategorien[0].modelle[0].belege = nichtObjekt;
+    assert.doesNotThrow(() => B.datenPruefen(e));
+    assert.deepEqual(e.kategorien[0].quellen, {}); assert.deepEqual(e.kategorien[0].modelle[0].belege, {});
+  }
+});
+
+test("P2a-1 (21): Wert und Teilpunkte (und Beleg) gehören zusammen; Maße 0 < x ≤ 500; Wert nach Typ", () => {
+  const bau = (werte, tp, belege = {}) => {
+    const d = minimal(), k = d.kategorien[0];
+    k.felder.push({ id: "hoehe_cm", name: "Höhe", einheit: "cm", typ: "zahl", gewicht: 6 }, { id: "form", name: "Form", einheit: "", typ: "stufe", gewicht: 4 });
+    k.quellen = { q1: { titel: "Datenblatt", url: "https://example.org/db", gelesen: "2026-11-20" } };
+    Object.assign(k.modelle[0], { werte: Object.assign({ a: 5, b: true, hoehe_cm: 9, form: "rund" }, werte),
+      teilpunkte: Object.assign({ a: 90, b: 100, hoehe_cm: 70, form: 60 }, tp),
+      belege: Object.assign({ a: "q1", b: "q1", hoehe_cm: "q1", form: "q1" }, belege) });
+    B.datenPruefen(d);
+    const m = k.modelle[0];
+    return { m, abdeckung: B.bewerteModell(m, k, B.gewichte(k, {}), d.regeln).abdeckung };
+  };
+  const voll = bau({}, {});
+  assert.equal(voll.abdeckung, 1);
+  assert.deepEqual(Object.keys(voll.m.belege).sort(), ["a", "b", "form", "hoehe_cm"]);
+  // Maßfeld: negativ, 0, Objekt, Text, 501 → Wert, Teilpunkte und Beleg weg, Abdeckung sinkt
+  for (const schlecht of [-3, 0, { wert: 9 }, "9", 501, Infinity, true]) {
+    const r = bau({ hoehe_cm: schlecht }, {});
+    assert.equal("hoehe_cm" in r.m.werte, false, JSON.stringify(schlecht));
+    assert.equal("hoehe_cm" in r.m.teilpunkte, false); assert.equal("hoehe_cm" in r.m.belege, false);
+    assert.ok(r.abdeckung < 1, "Abdeckung sinkt: " + JSON.stringify(schlecht));
+  }
+  for (const gut of [0.5, 9, 500]) assert.equal(bau({ hoehe_cm: gut }, {}).m.werte.hoehe_cm, gut);
+  // Nicht-Maßfeld mit Objektwert → Wert und Teilpunkte weg (Teilpunkte „hängen“ nicht allein)
+  const o = bau({ a: { wert: 9 } }, {});
+  assert.equal("a" in o.m.werte, false); assert.equal("a" in o.m.teilpunkte, false); assert.equal("a" in o.m.belege, false);
+  // typfalscher Wert außerhalb der Maßfelder: Zahlfeld mit Text, Zahlfeld mit |x| ≥ 1e7, bool-Feld mit Text oder Zahl
+  for (const [feld, schlecht] of [["a", "1400"], ["a", 1e7], ["a", true], ["b", "ja"], ["b", 3], ["form", 5], ["form", true], ["form", ""]]) {
+    const r = bau({ [feld]: schlecht }, {});
+    assert.equal(feld in r.m.werte, false, feld + " " + JSON.stringify(schlecht));
+    assert.equal(feld in r.m.teilpunkte, false); assert.equal(feld in r.m.belege, false);
+    assert.ok(r.abdeckung < 1);
+  }
+  assert.equal(bau({ a: 9999999 }, {}).m.werte.a, 9999999);
+  // Stufenwert: 200 Codepunkte (Emoji, 400 UTF-16-Einheiten) bleibt, 201 entfällt
+  assert.equal(bau({ form: emoji(200) }, {}).m.werte.form, emoji(200));
+  assert.equal("form" in bau({ form: emoji(201) }, {}).m.werte, false);
+  // Teilpunkt ohne Wert entfällt, Wert ohne Teilpunkt bleibt (R4-01)
+  const ohneWert = bau({ hoehe_cm: undefined }, {});
+  assert.equal("hoehe_cm" in ohneWert.m.teilpunkte, false);
+  const tp101 = bau({}, { a: 101 });
+  assert.equal(tp101.m.werte.a, 5); assert.equal("a" in tp101.m.teilpunkte, false);
+  // gültige Daten: Werte und Teilpunkte bleiben unverändert (Beispieldaten), damit auch jede Note
+  const roh = JSON.parse(fs.readFileSync(path.join(HIER, "vorlagen", "finder-beispiel.json"), "utf8")), vorher = kopie(roh);
+  B.datenPruefen(roh);
+  roh.kategorien.forEach((k, i) => k.modelle.forEach((m, j) => {
+    assert.deepEqual(m.werte, vorher.kategorien[i].modelle[j].werte, m.id);
+    assert.deepEqual(m.teilpunkte, vorher.kategorien[i].modelle[j].teilpunkte, m.id);
+  }));
+});
+
+test("P2a-1 (22/28): alternativen – jede Zeile gleich dem Orakel, auch mit passt „nein“ (Air Fryer mit einem Garraum)", () => {
+  const kat = mitModell(AFKAT(), afModell("na120-00"));
+  const antworten = { personen: "p34", beilage: "nein", reinigung: "normal", material: "egal" };
+  const zeilen = pruefeGegenOrakel(kat, kat.modelle[0], antworten, {});
+  const ja = zeilen.find(z => z.frage === "beilage" && z.antwort === "ja");
+  assert.ok(ja, "beilage → ja ändert die angezeigte Zahl");
+  assert.equal(ja.passt, "nein");                 // mindest koerbe 2, das Modell hat einen Garraum
+  assert.equal(ja.frage_text, kat.fragen.find(f => f.id === "beilage").text);
+  assert.equal(ja.antwort_text, "Ja");
+  // eine Zeile mit passt „nein“ gibt es in auswerten() nicht – dort fällt das Modell aus rang
+  const r = B.auswerten(kat, REGELN, { antworten: Object.assign({}, antworten, { beilage: "ja" }) });
+  assert.equal(r.rang.length, 0);
+  // Gegenprobe: ein Modell mit zwei Garräumen passt
+  const kat2 = mitModell(AFKAT(), afModell("zwei", { koerbe: 2 }, { koerbe: 100 }));
+  const z2 = pruefeGegenOrakel(kat2, kat2.modelle[0], antworten, {});
+  for (const z of z2.filter(x => x.frage === "beilage")) assert.equal(z.passt, "ok");
+  // unbelegt: Wert fehlt, Anforderung (mindest volumen_l 7 bei „5 oder mehr“) ist nicht prüfbar
+  const kat3 = mitModell(AFKAT(), afModell("ohne-volumen"));
+  delete kat3.modelle[0].werte.volumen_l; delete kat3.modelle[0].teilpunkte.volumen_l;
+  const z3 = pruefeGegenOrakel(kat3, kat3.modelle[0], antworten, {});
+  const p5 = z3.find(z => z.frage === "personen" && z.antwort === "p5");
+  if (p5) assert.equal(p5.passt, "unbelegt");
+  assert.ok(z3.every(z => ["ok", "nein", "unbelegt"].includes(z.passt)));
+  // alle Modelle der Beispieldaten (ohne Antworten und mit Reglern)
+  for (const k of beispiel().kategorien) for (const m of k.modelle.slice(0, 3)) pruefeGegenOrakel(k, m, {}, {});
+});
+
+test("P2a-1 (23): Faktor ändert die Note nur um 0,3 (gleiche angezeigte Zahl) → keine Zeile", () => {
+  const kat = { id: "p23", name: "P", felder: [{ id: "a", name: "A", einheit: "", typ: "zahl", gewicht: 50 }, { id: "b", name: "B", einheit: "", typ: "zahl", gewicht: 50 }],
+    fragen: [{ id: "q", text: "?", antworten: [{ id: "std", text: "", gewichte: {} }, { id: "leicht", text: "", gewichte: { b: 1.05 } }] }], modelle: [] };
+  const m = modell("m", { a: 60, b: 62 }, { a: 1, b: 2 }, 100);
+  const n0 = orakel(kat, m, { q: "std" }).note, n1 = orakel(kat, m, { q: "leicht" }).note;
+  assert.ok(n1 !== n0 && Math.abs(n1 - n0) < 0.5 && Math.round(n1) === Math.round(n0), `${n0} ${n1}`);
+  assert.deepEqual(B.alternativen(kat, REGELN, m, { q: "std" }, {}), []);
+});
+
+test("P2a-1 (24): Alternative unter 70 % → Zeile ohne Note, vor Zeilen mit Zahl", () => {
+  const kat = Object.assign(kopie(KAT), { modelle: [] });
+  const m = modell("m", { a: 80 }, { a: 5 }, 100);
+  const zeilen = pruefeGegenOrakel(kat, m, {}, {});
+  assert.deepEqual(zeilen.map(z => z.antwort), ["mehr_b", "ohne_b"]);
+  const z0 = zeilen[0];
+  assert.equal(z0.note, null); assert.equal(z0.anzeige, null); assert.equal(z0.delta, null);
+  assert.equal(z0.art, "zu_wenig_daten"); assert.equal(z0.abdeckung, 0.5);
+  assert.equal(zeilen[1].delta, zeilen[1].anzeige - 69);   // Basis: 68,5 → 69
+  assert.ok(zeilen[1].delta > 0);
+});
+
+test("P2a-1 (25): Alternative schaltet alle Felder aus → art „keine_merkmale“", () => {
+  const kat = Object.assign(kopie(KAT), { felder: KAT.felder.map(f => Object.assign({}, f, { gewicht: f.id === "b" ? 20 : 0 })), modelle: [] });
+  const m = modell("m", { b: 100 }, { b: true }, 100);
+  const zeilen = pruefeGegenOrakel(kat, m, {}, {});
+  assert.equal(zeilen.length, 1);
+  assert.equal(zeilen[0].antwort, "ohne_b"); assert.equal(zeilen[0].art, "keine_merkmale");
+  assert.equal(zeilen[0].note, null); assert.equal(zeilen[0].anzeige, null); assert.equal(zeilen[0].delta, null);
+});
+
+test("P2a-1 (26): höchstens 3 Zeilen; feste Reihenfolge nach |delta|, dann Frage, dann Antwort", () => {
+  const alt = (id, gew) => ({ id: "q" + id, text: "Frage " + id, antworten: [{ id: "std", text: "", gewichte: {} }, { id: "plus", text: "plus", gewichte: gew }] });
+  const kat = { id: "p26", name: "P", felder: [{ id: "a", name: "A", einheit: "", typ: "zahl", gewicht: 50 }, { id: "b", name: "B", einheit: "", typ: "zahl", gewicht: 50 }],
+    fragen: [alt(1, { a: 2 }), alt(2, { a: 2 }), alt(3, { a: 2 }), alt(4, { a: 2 }), alt(5, { a: 4 }), alt(6, { b: 4 })], modelle: [] };
+  const m = modell("m", { a: 90, b: 30 }, { a: 1, b: 2 }, 100);
+  const antworten = { q1: "std", q2: "std", q3: "std", q4: "std", q5: "std", q6: "std" };
+  const alle = pruefeGegenOrakel(kat, m, antworten, {});
+  assert.deepEqual(alle.map(z => z.frage), ["q6", "q5", "q1", "q2", "q3", "q4"]);   // |−16| > 15 > 8 = 8 = 8 = 8
+  assert.deepEqual(B.alternativen(kat, REGELN, m, antworten, {}).map(z => z.frage), ["q6", "q5", "q1"]);   // max 3 ist Standard
+  assert.deepEqual(B.alternativen(kat, REGELN, m, antworten, {}, 2).map(z => z.frage), ["q6", "q5"]);
+  assert.ok(alle[0].delta < 0 && alle[1].delta > 0);
+  // gleiche |delta| innerhalb einer Frage: Antwortreihenfolge
+  const k2 = { id: "p26b", name: "P", felder: kat.felder, modelle: [],
+    fragen: [{ id: "q", text: "?", antworten: [{ id: "x", text: "", gewichte: {} }, { id: "y", text: "", gewichte: { a: 2 } }, { id: "z", text: "", gewichte: { a: 2 } }] }] };
+  assert.deepEqual(B.alternativen(k2, REGELN, m, { q: "x" }, {}).map(z => z.antwort), ["y", "z"]);
+});
+
+test("P2a-1 (27): aktuelle Antwort nie Alternative; Frage mit einer Antwort ohne Zeile; ohne Fragen []", () => {
+  const m = modell("m", { a: 80, b: 100 }, { a: 5, b: true }, 100);
+  const mitAntwort = B.alternativen(KAT, REGELN, m, { f1: "mehr_b" }, {}, 1000);
+  assert.equal(mitAntwort.some(z => z.frage === "f1" && z.antwort === "mehr_b"), false);
+  assert.ok(mitAntwort.some(z => z.frage === "f1" && z.antwort === "ohne_b"));
+  assert.equal(mitAntwort.some(z => z.frage === "f2"), false);          // f2 hat nur „halb_b“
+  assert.deepEqual(B.alternativen(Object.assign({}, KAT, { fragen: [] }), REGELN, m, {}, {}), []);
+  assert.deepEqual(B.alternativen(Object.assign({}, KAT, { fragen: undefined }), REGELN, m, undefined, undefined), []);
+});
+
+test("P2a-1 (29): modell, antworten, prio und Kategorie bleiben unverändert", () => {
+  const kat = mitModell(AFKAT(), afModell("na120-00"));
+  const antworten = { personen: "p34", beilage: "nein" }, prio = { volumen_l: 2, doerren: 0 };
+  const vorher = kopie({ kat, antworten, prio });
+  const eintrag = eintragFuer(kat, kat.modelle[0], antworten, prio);
+  const eVorher = kopie(eintrag);
+  B.alternativen(kat, REGELN, kat.modelle[0], antworten, prio);
+  B.notenblatt(kat, REGELN, eintrag, antworten, prio);
+  B.methodik({ regeln: REGELN, kategorien: [kat] });
+  assert.deepEqual(kopie({ kat, antworten, prio }), vorher);
+  assert.deepEqual(kopie(eintrag), eVorher);
+});
+
+test("P2a-1 (30): notenblatt – Air Fryer mit einem Garraum: Summe der Gewichte 86,96, Summe anteil 100; beilage=nein 100/100", () => {
+  const kat = mitModell(AFKAT(), afModell("na120-00", {}, {}));
+  const m = kat.modelle[0];
+  const summe = l => l.reduce((s, x) => s + x, 0);
+  const blatt = antw => {
+    const e = eintragFuer(kat, m, antw, {});
+    return { e, b: B.notenblatt(kat, REGELN, e, antw, {}) };
+  };
+  const ja = blatt({ beilage: "ja" });
+  nah(summe(ja.e.beitraege.map(x => x.gewicht)) + summe(ja.e.fehlend.map(x => x.gewicht)), 86.9565, 1e-3);
+  nah(summe(ja.b.merkmale.map(x => x.anteil)), 100);
+  assert.deepEqual(ja.b.nicht_anwendbar, ["sync_funktion"]);
+  assert.equal(ja.b.merkmale.some(x => x.feld === "sync_funktion"), false);
+  const nein = blatt({ beilage: "nein" });
+  nah(summe(nein.e.beitraege.map(x => x.gewicht)) + summe(nein.e.fehlend.map(x => x.gewicht)), 100);
+  nah(summe(nein.b.merkmale.map(x => x.anteil)), 100);
+  assert.deepEqual(nein.b.nicht_anwendbar, []);   // sync_funktion steht per Antwort schon auf Faktor 0 (kein Gewicht mehr)
+  // Sortierung: anteil absteigend, bei Gleichstand Schemareihenfolge
+  const ids = kat.felder.map(f => f.id);
+  for (let i = 1; i < ja.b.merkmale.length; i++) {
+    const a = ja.b.merkmale[i - 1], b = ja.b.merkmale[i];
+    assert.ok(a.anteil > b.anteil + 1e-9 || (Math.abs(a.anteil - b.anteil) <= 1e-9 && ids.indexOf(a.feld) < ids.indexOf(b.feld)), a.feld + " " + b.feld);
+  }
+  // fehlend = IDs der unbelegten anwendbaren Felder; beleg null ohne Quelle
+  const luecke = mitModell(AFKAT(), afModell("luecke"));
+  delete luecke.modelle[0].teilpunkte.doerren; delete luecke.modelle[0].werte.doerren;
+  const el = eintragFuer(luecke, luecke.modelle[0], {}, {});
+  const bl = B.notenblatt(luecke, REGELN, el, {}, {});
+  assert.deepEqual(bl.fehlend, ["doerren"]);
+  const zeile = bl.merkmale.find(x => x.feld === "doerren");
+  assert.equal(zeile.belegt, false);
+  for (const f of ["wert", "teilpunkte", "beitrag_r", "beleg"]) assert.equal(zeile[f], null, f);
+  const volumen = bl.merkmale.find(x => x.feld === "volumen_l");
+  assert.equal(volumen.belegt, true); assert.equal(volumen.wert, 5); assert.equal(volumen.teilpunkte, 67.5);
+  assert.equal(volumen.beleg, null); assert.equal(volumen.name, kat.felder[0].name); assert.equal(volumen.einheit, "l");
+  // Note, R, Abdeckung stammen aus dem Eintrag (keine zweite Rechnung)
+  assert.equal(bl.note, el.note); assert.equal(bl.R, el.R); assert.equal(bl.abdeckung, el.abdeckung); assert.equal(bl.art, el.art);
+  assert.equal(bl.anzeige, Math.round(bl.note));
+});
+
+test("P2a-1 (30b): notenblatt – Beleg mit Quelle, tests, testquelle, fassung", () => {
+  const d = { regeln: kopie(REGELN), kategorien: [Object.assign(AFKAT(), {
+    gewichte_version: { nummer: 1, stand: "2026-11-24" },
+    testquelle: { name: "Beispieltester", url: "https://example.org/t", methodik_url: "https://example.org/m", stand: "2026-11-24" },
+    quellen: { q1: { titel: "Datenblatt", url: "https://example.org/db", gelesen: "2026-11-20" } },
+    modelle: [Object.assign(afModell("m1"), { belege: { volumen_l: "q1" }, tests: [{ url: "https://example.org/t1", titel: "Test" }] })] })] };
+  B.datenPruefen(d);
+  const kat = d.kategorien[0], m = kat.modelle[0];
+  const b = B.notenblatt(kat, d.regeln, eintragFuer(kat, m, {}, {}), {}, {});
+  assert.deepEqual(b.merkmale.find(x => x.feld === "volumen_l").beleg, { titel: "Datenblatt", url: "https://example.org/db", gelesen: "2026-11-20" });
+  assert.equal(b.merkmale.find(x => x.feld === "koerbe").beleg, null);
+  assert.deepEqual(b.fassung, { nummer: 1, stand: "2026-11-24" });
+  assert.equal(b.testquelle.name, "Beispieltester");
+  assert.deepEqual(b.tests, [{ url: "https://example.org/t1", titel: "Test" }]);
+  assert.ok(Array.isArray(b.alternativen));
+});
+
+test("P2a-1 (31): methodik übernimmt Abschlagswerte aus den Regeln, nicht aus Konstanten", () => {
+  const regeln = kopie(REGELN);
+  Object.assign(regeln.datenblatt_abschlag, { anker: 41, faktor: 0.9, abzug: 2, abdeckung_mindest: 0.6, spanne_plus_minus: 7 });
+  const kat = mitModell(AFKAT(), afModell("m"));
+  kat.gewichte_version = { nummer: 2, stand: "2026-11-25" };
+  const me = B.methodik({ regeln, kategorien: [kat, KAT] });
+  assert.deepEqual(me.abschlag, { anker: 41, faktor: 0.9, abzug: 2, abdeckung_mindest: 0.6, spanne_plus_minus: 7 });
+  assert.equal(me.kategorien.length, 2);
+  assert.deepEqual(me.kategorien[0].fassung, { nummer: 2, stand: "2026-11-25" });
+  assert.equal(me.kategorien[1].fassung, null); assert.equal(me.kategorien[1].testquelle, null);
+  assert.equal(me.kategorien[0].id, "airfryer");
+  const g = me.kategorien[0].grundgewichte;
+  nah(g.reduce((s, x) => s + x.anteil, 0), 100);
+  assert.deepEqual(Object.keys(g[0]).sort(), ["anteil", "feld", "name"]);
+  assert.equal(g[0].feld, "volumen_l"); nah(g[0].anteil, 25);   // Grundgewichte ohne Antworten und ohne Regler
+  assert.equal(me.kategorien[1].grundgewichte.some(x => x.feld === "groesse"), false);   // Filterfelder (Gewicht 0) fehlen
+});
+
+test("P2a-1 (32): auswerten liefert die Fassung der Kategorie", () => {
+  const kat = Object.assign(kopie(KAT), { gewichte_version: { nummer: 4, stand: "2026-11-24" }, modelle: [modell("m", { a: 90, b: 100 }, {}, 100)] });
+  assert.deepEqual(B.auswerten(kat, REGELN, {}).fassung, { nummer: 4, stand: "2026-11-24" });
+  kat.gewichte_version = { nummer: 0, stand: "2026-11-24" };   // auch ungeprüfte Kategorien: kaputte Fassung → null
+  assert.equal(B.auswerten(kat, REGELN, {}).fassung, null);
+  assert.equal(B.auswerten(KAT, REGELN, {}).fassung, null);
+});
+
+test("P2a-1 (33/A-1): alternativen rechnet mit denselben Reglern wie die Hauptnote", () => {
+  const kat = mitModell(AFKAT(), afModell("m", { koerbe: 2 }, { koerbe: 100, doerren: 100 }));
+  const antworten = { personen: "p34", beilage: "nein", reinigung: "normal", material: "egal" };
+  const prio = { volumen_l: 3, leistung_w: 0, temp_max_c: 2, doerren: 0.5 };
+  const mit = pruefeGegenOrakel(kat, kat.modelle[0], antworten, prio);
+  assert.ok(mit.length > 0);
+  // ohne prio wären die Zeilen andere (sonst bewiese der Test nichts)
+  const ohne = B.alternativen(kat, REGELN, kat.modelle[0], antworten, undefined, 1000);
+  assert.notDeepEqual(ohne.map(z => [z.frage, z.antwort, z.note]), mit.map(z => [z.frage, z.antwort, z.note]));
+});
+
+test("P2a-1 (34/A-2): notenblatt mit prio – Priorität + fehlender Wert + nicht anwendbares Feld; Zahlenbeispiel; Sonderfälle", () => {
+  const summe = l => l.reduce((s, x) => s + x, 0);
+  // Priorität, fehlender Wert und nicht anwendbares Feld zusammen
+  const kat = mitModell(AFKAT(), afModell("m"));
+  delete kat.modelle[0].teilpunkte.doerren; delete kat.modelle[0].werte.doerren;
+  const antw = { beilage: "ja" }, prio = { volumen_l: 2 };
+  const e = eintragFuer(kat, kat.modelle[0], antw, prio);
+  const b = B.notenblatt(kat, REGELN, e, antw, prio);
+  nah(summe(b.merkmale.map(x => x.anteil)), 100);
+  nah(summe(b.merkmale.filter(x => x.belegt).map(x => x.beitrag_r)), e.R);
+  assert.equal(b.persoenlich, true);
+  assert.deepEqual(b.nicht_anwendbar, ["sync_funktion"]); assert.deepEqual(b.fehlend, ["doerren"]);
+  assert.equal(B.notenblatt(kat, REGELN, eintragFuer(kat, kat.modelle[0], antw, {}), antw, {}).persoenlich, false);
+  // persönlich nur, wenn ein Regler wirkt: Faktor 1, ungültige Faktoren und per Antwort abgeschaltete Felder zählen nicht
+  const pers = p => B.notenblatt(kat, REGELN, eintragFuer(kat, kat.modelle[0], { beilage: "nein" }, p), { beilage: "nein" }, p).persoenlich;
+  assert.equal(pers({ volumen_l: 1 }), false); assert.equal(pers({ koerbe: 3 }), false); assert.equal(pers({ volumen_l: 0 }), true);
+  assert.equal(pers({ volumen_l: "2" }), false); assert.equal(pers({ volumen_l: -1 }), false); assert.equal(pers(undefined), false);
+  // konkreter Prozentwert: g = 5 / 3 / 4 → 41,67 / 25 / 33,33 (nicht 0,4167)
+  const k3 = { id: "p34", name: "P", fragen: [], modelle: [], felder: [["x", 5], ["y", 3], ["z", 4]].map(([id, g]) => ({ id, name: id, einheit: "", typ: "zahl", gewicht: g })) };
+  const m3 = modell("m3", { x: 80, y: 60, z: 40 }, { x: 1, y: 2, z: 3 }, 100);
+  const b3 = B.notenblatt(k3, REGELN, eintragFuer(k3, m3, {}, {}), {}, {});
+  assert.deepEqual(b3.merkmale.map(x => x.feld), ["x", "z", "y"]);
+  nah(b3.merkmale[0].anteil, 41.6667, 1e-3); nah(b3.merkmale[1].anteil, 33.3333, 1e-3); nah(b3.merkmale[2].anteil, 25, 1e-9);
+  nah(summe(b3.merkmale.map(x => x.beitrag_r)), b3.R);
+  // nur fehlende Merkmale: R null, jedes beitrag_r null, Summe anteil 100
+  const bl = B.notenblatt(k3, REGELN, eintragFuer(k3, modell("leer", {}, {}, 100), {}, {}), {}, {});
+  assert.equal(bl.R, null); assert.equal(bl.merkmale.length, 3);
+  for (const x of bl.merkmale) { assert.equal(x.beitrag_r, null); assert.equal(x.belegt, false); }
+  nah(summe(bl.merkmale.map(x => x.anteil)), 100);
+  // keine_merkmale: alle Felder aus → merkmale leer, fehlend leer
+  const aus = { x: 0, y: 0, z: 0 };
+  const bk = B.notenblatt(k3, REGELN, eintragFuer(k3, m3, {}, aus), {}, aus);
+  assert.equal(bk.art, "keine_merkmale"); assert.deepEqual(bk.merkmale, []); assert.deepEqual(bk.fehlend, []);
+  // R4-01: gültiger Wert, Teilpunkte außerhalb 0..100 verworfen → Zeile nicht belegt, Feld in fehlend
+  const d = { regeln: kopie(REGELN), kategorien: [Object.assign(AFKAT(), {
+    quellen: { q1: { titel: "Datenblatt", url: "https://example.org/db", gelesen: "2026-11-20" } },
+    modelle: [Object.assign(afModell("r4", { leistung_w: 1400 }, { leistung_w: 101 }), { belege: { leistung_w: "q1" } })] })] };
+  B.datenPruefen(d);
+  const kr = d.kategorien[0], br = B.notenblatt(kr, d.regeln, eintragFuer(kr, kr.modelle[0], {}, {}), {}, {});
+  const zr = br.merkmale.find(x => x.feld === "leistung_w");
+  assert.equal(kr.modelle[0].werte.leistung_w, 1400);
+  assert.equal(zr.belegt, false);
+  for (const f of ["wert", "teilpunkte", "beitrag_r", "beleg"]) assert.equal(zr[f], null, f);
+  assert.ok(br.fehlend.includes("leistung_w"));
+});
+
+test("P2a-1 (35/45): PRIO_FAKTOREN und NICHT_ANWENDBAR sind festgeschrieben", () => {
+  assert.deepEqual(B.PRIO_FAKTOREN, [0, 0.5, 1, 2, 3]);
+  assert.deepEqual(Object.keys(B.NICHT_ANWENDBAR), ["airfryer"]);
+  assert.deepEqual(Object.keys(B.NICHT_ANWENDBAR.airfryer), ["sync_funktion"]);
+  assert.equal(B.nichtAnwendbar("airfryer", "sync_funktion", { koerbe: 1 }), true);
+  assert.equal(B.nichtAnwendbar("airfryer", "sync_funktion", { koerbe: 2 }), false);
+  assert.equal(B.nichtAnwendbar("airfryer", "koerbe", { koerbe: 1 }), false);
+  assert.equal(B.nichtAnwendbar("fernseher", "sync_funktion", { koerbe: 1 }), false);
+});
+
+test("P2a-1 (36): alternativen – alle Regler aus → []; Air Fryer beilage=nein mit Reglern aus → Zeile für beilage=ja mit Note", () => {
+  const m = modell("m", { a: 80, b: 100 }, { a: 5, b: true }, 100);
+  assert.deepEqual(B.alternativen(KAT, REGELN, m, {}, { a: 0, b: 0 }, 1000), []);
+  const kat = mitModell(AFKAT(), afModell("zwei", { koerbe: 2 }, { koerbe: 100, sync_funktion: 100 }));
+  const aus = { volumen_l: 0, spuelmaschinenfest: 0, leistung_w: 0, sichtfenster: 0, beschichtung: 0, temp_max_c: 0, doerren: 0 };
+  const antworten = { personen: "p34", beilage: "nein", reinigung: "normal", material: "egal" };
+  assert.equal(orakel(kat, kat.modelle[0], antworten, aus).art, "keine_merkmale");
+  const zeilen = pruefeGegenOrakel(kat, kat.modelle[0], antworten, aus);
+  const ja = zeilen.find(z => z.frage === "beilage" && z.antwort === "ja");
+  assert.ok(ja); assert.equal(ja.art, "datenblatt"); assert.equal(typeof ja.note, "number");
+  assert.equal(ja.delta, null); assert.equal(ja.passt, "ok");
+});
+
+test("P2a-1 (43): alternativen – egal als Vorgabe; Frage ohne egal; null ohne Note", () => {
+  const kat = Object.assign(kopie(KAT), { fragen: [
+    { id: "f", text: "?", antworten: [{ id: "egal", text: "egal", gewichte: {} }, { id: "mehr", text: "mehr", gewichte: { b: 4 } }, { id: "aus", text: "aus", gewichte: { b: 0 } }] },
+    { id: "g", text: "?", antworten: [{ id: "x", text: "x", gewichte: { a: 0 } }, { id: "y", text: "y", gewichte: { a: 3 } }] }] });
+  const m = modell("m", { a: 40, b: 100 }, { a: 5, b: true }, 100);
+  // egal ist wirksame Antwort (kommt von der Seite als antwortenWirksam): nie Kandidat
+  const z1 = pruefeGegenOrakel(kat, m, { f: "egal", g: "y" }, {});
+  assert.equal(z1.some(z => z.frage === "f" && z.antwort === "egal"), false);
+  assert.ok(z1.some(z => z.frage === "f" && z.antwort === "aus"));
+  // unbeantwortete Frage ohne egal: alle Antworten sind Kandidaten
+  const z2 = pruefeGegenOrakel(kat, m, { f: "egal" }, {});
+  assert.ok(z2.some(z => z.frage === "g" && z.antwort === "x") && z2.some(z => z.frage === "g" && z.antwort === "y"));
+  // ohne Note: anzeige und delta null
+  const ohneNote = modell("n", { b: 100 }, { b: true }, 100);
+  const z3 = pruefeGegenOrakel(kat, ohneNote, { f: "egal", g: "y" }, {});
+  assert.ok(z3.length >= 1);
+  for (const z of z3.filter(x => x.note === null)) { assert.equal(z.anzeige, null); assert.equal(z.delta, null); }
+});
+
+test("P2a-1 (46): passt hängt nur von den Frageanforderungen ab, nicht von Oberflächenfiltern", () => {
+  const kat = Object.assign(kopie(KAT), { fragen: [{ id: "g", text: "?", antworten: [
+    { id: "x", text: "x", gewichte: {} },
+    { id: "gross", text: "gross", gewichte: { a: 3 }, mindest: { groesse: 55 } },
+    { id: "klein", text: "klein", gewichte: { a: 0.2 }, hoechst: { groesse: 43 } }] }] });
+  const m = modell("m", { a: 40, b: 100 }, { a: 5, b: true, groesse: 50 }, 100);
+  const zeilen = B.alternativen(kat, REGELN, m, { g: "x" }, {}, 1000);
+  assert.equal(zeilen.find(z => z.antwort === "gross").passt, "nein");   // 50 < 55
+  assert.equal(zeilen.find(z => z.antwort === "klein").passt, "nein");   // 50 > 43
+  assert.equal(B.alternativen.length <= 6, true);                        // kein Parameter für Filter
+  // Ohne Wert für groesse: unbelegt, nicht „nein“
+  const m2 = modell("m2", { a: 40, b: 100 }, { a: 5, b: true }, 100);
+  assert.equal(B.alternativen(kat, REGELN, m2, { g: "x" }, {}, 1000).find(z => z.antwort === "gross").passt, "unbelegt");
+});
+
+test("P2a-1 (44, Client): gemeinsamer Vertrag – Datum, URL, Namen, Quellen-ID", () => {
+  // Datum: echtes Kalenderdatum ab 2020-01-01, keine obere Grenze im Client
+  for (const gut of ["2020-01-01", "2026-02-28", "2024-02-29", "2099-12-31"]) assert.equal(B.quellDatum(gut), true, gut);
+  for (const schlecht of ["2026-02-30", "2019-12-31", "2026-13-01", "2026-1-1", "26-01-01", "2026-01-01\n", "", null, 20260101, "2023-02-29"])
+    assert.equal(B.quellDatum(schlecht), false, String(schlecht));
+  // URL: https, ASCII, DNS-Name ohne Port, Userinfo, Punycode
+  for (const u of ["https://example.org/", "https://example.org/pfad?x=1#a", "https://ab--c.de/", "https://www.sub.example.co.uk/x", "https://example.org"])
+    assert.ok(B.sichereQuelle(u), u);
+  const lang = n => "https://example.org/" + "a".repeat(n - 20);
+  assert.equal(lang(2000).length, 2000); assert.ok(B.sichereQuelle(lang(2000)));
+  assert.equal(B.sichereQuelle(lang(2001)), null);
+  for (const u of ["http://example.org/", "https://user:pw@example.org/", "https://example.org:8443/", "https://example.org:443/",
+    "https://999.999.999.999/", "https://192.168.0.1/", "https://localhost/", "https://Example.org/", "https://example.ORG/",
+    "https://example.org/pfad/ä", "https://example.org/a b", "https://xn--a.de/", "https://xn--mnchen-3ya.de/", "https://a.xn--b.de/",
+    "javascript:alert(1)", "//example.org/", "https://example.org/\n", "https://example.org/\t", "https://-a.de/", "https://a-.de/",
+    "https://example.1/", "https://.example.org/", "", null, 5, {}])
+    assert.equal(B.sichereQuelle(u), null, String(u));
+  // Namen: Codepunkte statt UTF-16-Einheiten, nicht nur Leerraum
+  assert.equal(B.quellName(emoji(200), 200), true); assert.equal(B.quellName(emoji(201), 200), false);
+  assert.equal(B.quellName(emoji(80), 80), true); assert.equal(B.quellName(emoji(81), 80), false);
+  for (const schlecht of ["", " ", " ", "\t", "﻿", 5, null, undefined]) assert.equal(B.quellName(schlecht, 200), false, JSON.stringify(schlecht));
+  // Quellen-ID und Titel am Verwendungsort
+  const d = minimal(), k = d.kategorien[0];
+  const Q = JSON.stringify({ titel: "T", url: "https://example.org/x", gelesen: "2026-11-20" });
+  const t201 = JSON.stringify({ titel: "x".repeat(201), url: "https://example.org/x", gelesen: "2026-11-20" });
+  const e200 = JSON.stringify({ titel: emoji(200), url: "https://example.org/x", gelesen: "2026-11-20" });
+  const e201 = JSON.stringify({ titel: emoji(201), url: "https://example.org/x", gelesen: "2026-11-20" });
+  const leer = JSON.stringify({ titel: " ", url: "https://example.org/x", gelesen: "2026-11-20" });
+  k.quellen = JSON.parse(`{"gut": ${Q}, "constructor": ${Q}, "prototype": ${Q}, "quelle\\n": ${Q}, "q-1_a": ${Q}, "toString": ${Q},
+    "__proto__": ${Q}, "t201": ${t201}, "e200": ${e200}, "e201": ${e201}, "leer": ${leer}}`);
+  B.datenPruefen(d);
+  assert.deepEqual(Object.keys(k.quellen).sort(), ["e200", "gut", "q-1_a"]);
+  assert.equal(Object.getPrototypeOf(k.quellen), Object.prototype);
 });

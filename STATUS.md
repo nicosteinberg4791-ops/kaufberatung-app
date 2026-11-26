@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 26.11.2026 · Branch main, Preis-Push selbst geprüft bis zum Commit „Preis-Push R3-01–03“ (Codex r1–r3 nicht bestanden, O30 ohne r4) · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [docs/status-verlauf.md](docs/status-verlauf.md) · Letzte Commits: `git log`.
+Stand: 26.11.2026 · Branch main, P2a-1 gebaut und selbst geprüft (Erstprüfung durch Codex offen), Preis-Push abgeschlossen (O30 ohne r4) · Vollständiger Verlauf (Finder, UX, Pilot, Prüfrunden): [docs/status-verlauf.md](docs/status-verlauf.md) · Letzte Commits: `git log`.
 
 ## Lage
 
@@ -11,7 +11,7 @@ Stand: 26.11.2026 · Branch main, Preis-Push selbst geprüft bis zum Commit „P
 
 ## Nächster Schritt
 
-**Preis-Push abgeschlossen (nicht gepusht):** `werkzeuge/preise_aktualisieren.py` `push()`, Codex r1–r3 nicht bestanden, alle 15 bestätigten Befunde korrigiert ([bewertung-r2.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r2.md), [bewertung-r3.md](docs/pruefungen/2026-11-25-preis-push/bewertung-r3.md)); **O30 (Nico 26.11.):** R3-01–03 ohne r4 korrigiert, Mutanten 4/4 rot, Restrisiko nur bei manipulierter lokaler Git-Konfiguration. Wirksam erst nach Push von `main` (Nico). **Nächste Aufgabe:** P2a-1/P2a-2 bauen nach [p2-entwurf.md](docs/recherche-ux/p2-entwurf.md); fertig, wenn Tests grün und Erstprüfung gestartet.
+**P2a-1 gebaut (26.11.2026, selbst geprüft, nicht gepusht):** Schema 2 (`daten/schema/kategorien.json`), `werkzeuge/datenbank.py` (`schema_fehler`, Vertrag §9.6, Maße 0 < x ≤ 500, Quellen und Belege im Bau), `app/finder/bewertung.js` (`alternativen`, `notenblatt`, `methodik`, `fassung`, neue Prüfregeln), Doku `docs/punkteschema.md` §7a und `daten/produkte/FORMAT.md`. Sammellauf 0 Fehler; Mutanten: Bau 15/15 rot (Userinfo-Mutante erst mit kanon_host zusammen), Client 19/20 rot (1 äquivalent). Gegenprobe: 4 536 Noten alt gegen neu, 0 Abweichungen. `finder-daten.json` wächst von 330 436 auf 582 760 Byte (465 Quellen, 4 043 Belege; F-4 offen). **Nicht erledigt:** Codex-Erstprüfung (Skill `pruefschleife`), Test 44 Bau gegen Client auf denselben Fällen gemeinsam, **P2a-2** (Pflicht und Fassung 1 von `gewichte_version`, Referenzvergleich, Freigabeschranke, Tests 6, 37–42, 47, 48; Gewichte brauchen deine Freigabe F-1). Preis-Push abgeschlossen (O30), wirksam erst nach Push von `main` (Nico). **Nächste Aufgabe:** Erstprüfung P2a-1 starten, dann P2a-2 bauen nach [p2-entwurf.md](docs/recherche-ux/p2-entwurf.md).
 
 ## Offen für Nico
 
