@@ -375,17 +375,18 @@
      beitrag_r = g · Teilpunkte / Σ g über die belegten anwendbaren Felder (Summe = R, ein Anteil an R und keine
      „Punkte der Note“). merkmale enthält beide Zeilentypen (belegt: true|false; fehlend: wert, teilpunkte, beitrag_r,
      beleg = null), sortiert nach anteil absteigend, dann Schemareihenfolge; bei keine_merkmale leer.
-     persoenlich: mindestens ein gültiger Regler ≠ 1 wirkt auf ein Feld, das die Antworten nicht schon abgeschaltet haben. */
+     persoenlich: mindestens ein gültiger Regler ≠ 1 wirkt auf ein Feld, das die Antworten nicht schon abgeschaltet haben
+     und das für dieses Modell anwendbar ist (P2A1-04: ein Regler nur auf ein nicht anwendbares Feld ändert die Note nicht). */
   function belegFuer(kat, modell, feld) {
     const qid = eigen(modell.belege, feld) ? modell.belege[feld] : null;
     const q = typeof qid === "string" && eigen(kat.quellen, qid) ? kat.quellen[qid] : null;
     return q ? { titel: q.titel, url: q.url, gelesen: q.gelesen } : null;
   }
-  function reglerWirken(kat, antworten, prio) {
+  function reglerWirken(kat, antworten, prio, werte) {
     if (!istObjekt(prio)) return false;
     const g0 = gewichte(kat, antworten, undefined);
     return (kat.felder || []).some(f => istZahl(f.gewicht) && f.gewicht > 0 && eigen(prio, f.id) && istZahl(prio[f.id])
-      && prio[f.id] >= 0 && prio[f.id] !== 1 && eigen(g0, f.id));
+      && prio[f.id] >= 0 && prio[f.id] !== 1 && eigen(g0, f.id) && !nichtAnwendbar(kat.id, f.id, werte || {}));
   }
   function notenblatt(kat, regeln, eintrag, antworten, prio) {
     const modell = eintrag.modell, werte = modell.werte || {};
@@ -410,7 +411,7 @@
     const gew = gewichte(kat, antworten, prio);
     return {
       note: eintrag.note, anzeige: angezeigteNote(eintrag.note), art: eintrag.art, abdeckung: eintrag.abdeckung,
-      spanne: eintrag.spanne, R: eintrag.R, persoenlich: reglerWirken(kat, antworten, prio),
+      spanne: eintrag.spanne, R: eintrag.R, persoenlich: reglerWirken(kat, antworten, prio, werte),
       fassung: fassungPruefen(kat.gewichte_version),
       merkmale, fehlend: fehlend.map(f => f.feld),
       nicht_anwendbar: Object.keys(gew).filter(id => nichtAnwendbar(kat.id, id, werte)),
@@ -514,7 +515,9 @@
     const rest = u.slice(8), ende = rest.search(/[/?#]/);
     const host = ende < 0 ? rest : rest.slice(0, ende);
     if (!DNS_NAME.test(host) || host.split(".").some(l => l.indexOf("xn--") === 0)) return null;
-    try { const x = new URL(u); return x.protocol === "https:" ? x.href : null; } catch (err) { return null; }
+    // P2A1-01: die geprüfte Zeichenfolge zurückgeben, nicht x.href. new URL kodiert z. B. ' und " um, die Länge wüchse
+    // über 2000, und eine zweite Prüfung (methodik, notenblatt, erneutes datenPruefen) verwürfe die Quelle.
+    try { return new URL(u).protocol === "https:" ? u : null; } catch (err) { return null; }
   }
   function fassungPruefen(f) {
     return istObjekt(f) && Number.isInteger(f.nummer) && f.nummer >= 1 && f.nummer <= 9999 && quellDatum(f.stand)

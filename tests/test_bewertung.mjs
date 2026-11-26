@@ -3,6 +3,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
+import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
@@ -991,4 +993,90 @@ test("P2a-1 (44, Client): gemeinsamer Vertrag – Datum, URL, Namen, Quellen-ID"
   B.datenPruefen(d);
   assert.deepEqual(Object.keys(k.quellen).sort(), ["e200", "gut", "q-1_a"]);
   assert.equal(Object.getPrototypeOf(k.quellen), Object.prototype);
+});
+
+// ---- Erstprüfung P2a-1 (Codex, docs/pruefungen/2026-11-26-p2a1-bau/bewertung-r1.md) ----
+
+test("P2A1-01 (44): gültige 2000-Zeichen-URL, die new URL umkodiert, bleibt bis methodik und notenblatt erhalten", () => {
+  // ' (Abfrage) und " (Pfad) kodiert new URL zu %27/%22 um; die geprüfte Zeichenfolge muss unverändert bleiben
+  const urls = ["https://ab.de/?q=" + "'".repeat(1983), "https://ab.de/" + '"'.repeat(1986), "https://ab.de/{" + "a".repeat(1985)];
+  for (const u of urls) {
+    assert.equal(u.length, 2000);
+    assert.equal(B.sichereQuelle(u), u, u.slice(0, 20));
+    const d = minimal(), k = d.kategorien[0];
+    k.testquelle = { name: "Beispieltester", url: u, methodik_url: u, stand: "2026-11-24" };
+    k.quellen = { q1: { titel: "T", url: u, gelesen: "2026-11-20" } };
+    k.modelle[0].belege = { a: "q1" };
+    B.datenPruefen(d);
+    for (let lauf = 0; lauf < 2; lauf++) {   // zweiter Lauf: datenPruefen ist auf geprüften Daten ohne Wirkung
+      assert.deepEqual(k.testquelle, { name: "Beispieltester", url: u, methodik_url: u, stand: "2026-11-24" });
+      assert.equal(k.quellen.q1.url, u); assert.deepEqual(k.modelle[0].belege, { a: "q1" });
+      assert.deepEqual(B.methodik(d).kategorien[0].testquelle, k.testquelle);
+      const nb = B.notenblatt(k, d.regeln, eintragFuer(k, k.modelle[0], {}, {}), {}, {});
+      assert.deepEqual(nb.testquelle, k.testquelle);
+      assert.equal(nb.merkmale.find(x => x.feld === "a").beleg.url, u);
+      B.datenPruefen(d);
+    }
+  }
+});
+
+test("P2A1-02 (44): Freigabe nach dem Produktdatenstand (stand später als d.stand, nicht in der Zukunft) → gültig", () => {
+  const d = minimal(); d.stand = "2026-11-20";
+  d.kategorien[0].gewichte_version = { nummer: 2, stand: "2026-11-25" };
+  d.kategorien[0].testquelle = { name: "T", url: "https://example.org/t", methodik_url: "https://example.org/m", stand: "2026-11-25" };
+  B.datenPruefen(d);
+  assert.ok(d.kategorien[0].gewichte_version.stand > d.stand);
+  assert.deepEqual(d.kategorien[0].gewichte_version, { nummer: 2, stand: "2026-11-25" });
+  assert.equal(d.kategorien[0].testquelle.stand, "2026-11-25");
+  assert.deepEqual(B.auswerten(d.kategorien[0], d.regeln, {}).fassung, { nummer: 2, stand: "2026-11-25" });
+  // gleicher Tag und früher bleiben ebenso gültig
+  for (const s of ["2026-11-20", "2026-11-01"]) {
+    const e = minimal(); e.stand = "2026-11-20"; e.kategorien[0].gewichte_version = { nummer: 1, stand: s };
+    B.datenPruefen(e); assert.deepEqual(e.kategorien[0].gewichte_version, { nummer: 1, stand: s });
+  }
+});
+
+test("P2A1-03 (21): echte Daten – datenPruefen ändert keinen Wert, Teilpunkt, Beleg und keine Note", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kb-p2a1-"));
+  try {
+    const ziel = path.join(tmp, "finder-daten.json");
+    execFileSync(process.env.PYTHON || "python", ["-I", path.join(PROJEKT, "werkzeuge", "datenbank.py"), "bauen", ziel], { stdio: "pipe" });
+    const roh = JSON.parse(fs.readFileSync(ziel, "utf8")), vorher = kopie(roh);
+    B.datenPruefen(roh);
+    let modelle = 0, noten = 0;
+    roh.kategorien.forEach((k, i) => {
+      const alt = vorher.kategorien[i];
+      assert.deepEqual(k.testquelle || null, alt.testquelle || null, k.id);
+      assert.deepEqual(k.quellen, alt.quellen || {}, k.id);
+      k.modelle.forEach((m, j) => {
+        const a = alt.modelle[j];
+        assert.equal(m.id, a.id);
+        assert.deepEqual(m.werte, a.werte, m.id); assert.deepEqual(m.teilpunkte, a.teilpunkte, m.id);
+        assert.deepEqual(m.belege, a.belege || {}, m.id);
+        modelle++;
+      });
+      // Noten: Vorgabe und jede einzelne Antwort, geprüfte Daten gegen unveränderte Rohdaten
+      const eingaben = [{}].concat(...(k.fragen || []).map(f => f.antworten.map(x => ({ [f.id]: x.id }))));
+      for (const antworten of eingaben) {
+        const n = kat => Object.fromEntries(B.auswerten(kat, roh.regeln, { antworten }).rang.map(e => [e.modell.id, e.note]));
+        const neu = n(k), vorh = n(alt);
+        assert.deepEqual(neu, vorh, k.id + " " + JSON.stringify(antworten));
+        noten += Object.keys(neu).length;
+      }
+    });
+    assert.ok(modelle > 300 && noten > 4000, modelle + " Modelle, " + noten + " Noten");
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test("P2A1-04 (34): persoenlich nur, wenn ein Regler auf ein für dieses Modell anwendbares Feld wirkt", () => {
+  const pers = (kat, antw, p) => B.notenblatt(kat, REGELN, eintragFuer(kat, kat.modelle[0], antw, p), antw, p).persoenlich;
+  const ein = mitModell(AFKAT(), afModell("ein"));                                   // ein Garraum: sync_funktion nicht anwendbar
+  const zwei = mitModell(AFKAT(), afModell("zwei", { koerbe: 2 }, { koerbe: 100 }));  // zwei Garräume: anwendbar
+  const antw = { beilage: "ja" };
+  assert.equal(pers(ein, antw, { sync_funktion: 3 }), false);
+  assert.equal(pers(ein, antw, { sync_funktion: 0 }), false);
+  assert.equal(pers(ein, antw, { sync_funktion: 3, volumen_l: 2 }), true);
+  assert.equal(pers(zwei, antw, { sync_funktion: 3 }), true);
+  // Gegenprobe: die Note des Ein-Garraum-Modells ist mit und ohne diesen Regler gleich
+  assert.equal(eintragFuer(ein, ein.modelle[0], antw, { sync_funktion: 3 }).note, eintragFuer(ein, ein.modelle[0], antw, {}).note);
 });

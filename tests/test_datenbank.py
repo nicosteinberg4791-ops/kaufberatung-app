@@ -256,7 +256,9 @@ class VertragMetadaten(unittest.TestCase):
             self.assertEqual(datenbank.ist_datum(t), ok, t)
 
     def test_url(self):
-        gut = ["https://example.org/a", "https://ab--c.de/", "https://sub.example.org/a?b=1#c", "https://example.org/" + "a" * 1980]
+        gut = ["https://example.org/a", "https://ab--c.de/", "https://sub.example.org/a?b=1#c", "https://example.org/" + "a" * 1980,
+               # P2A1-01: 2000 Zeichen, die new URL umkodiert; der Client muss sie ebenso behalten (test_bewertung.mjs)
+               "https://ab.de/?q=" + "'" * 1983, "https://ab.de/" + '"' * 1986, "https://ab.de/{" + "a" * 1985]
         schlecht = ["http://example.org/a", "https://u@example.org/a", "https://example.org:8443/a", "https://example.org:443/a",
                     "https://999.999.999.999/", "https://192.168.0.1/", "https://localhost/", "https://Example.org/a",
                     "https://example.org/ä", "https://example.org/a b", "https://xn--a.de/", "https://xn--mnchen-3ya.de/",
@@ -360,8 +362,13 @@ class BauMetadaten(unittest.TestCase):
         return next(k for k in aus["kategorien"] if k["id"] == "fernseher")
 
     def test_fassung_und_testquelle(self):
-        k = self.fernseher(self.bauen(beispiel()))
+        aus = self.bauen(beispiel())
+        k = self.fernseher(aus)
         self.assertEqual(k["gewichte_version"], {"nummer": 1, "stand": "2026-11-24"})
+        # P2A1-02 (Test 44): Freigabe nach dem Produktdatenstand (stand später als d.stand, nicht in der Zukunft) → gültig
+        self.assertEqual(aus["stand"], "2026-11-21")
+        self.assertGreater(k["gewichte_version"]["stand"], aus["stand"])
+        self.assertGreater(k["testquelle"]["stand"], aus["stand"])
         self.assertEqual(sorted(k["testquelle"]), ["methodik_url", "name", "stand", "url"])
         andere = next(x for x in self.bauen(beispiel())["kategorien"] if x["id"] == "akkusauger")
         self.assertNotIn("gewichte_version", andere)     # fehlt im Schema → fehlt in der Ausgabe

@@ -1,0 +1,52 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Der Client verwirft eine vom Bau akzeptierte Testquelle. Außerdem fehlen vorgeschriebene Fälle in den nummerierten Tests. Die eigene Gegenprobe ergab bei 5.237 Notenvergleichen keine Abweichung.",
+  "befunde": [
+    {
+      "id": "P2A1-01",
+      "schwere": "schwer",
+      "titel": "Gültige Testquelle geht nach URL-Normalisierung verloren",
+      "datei": "app/finder/bewertung.js",
+      "zeile": 517,
+      "beleg": "Fertigkriterium 5 verlangt „Der Client verwirft nichts, was der Bau annimmt (Datum, URL, Namen, Quellen-ID, Stufenwerte)“. Die Gegenprobe mit `https://ab.de/?q=` und 1.983 angehängten Apostrophen ergibt eine 2.000 Zeichen lange URL, die `quell_url_ok` annimmt. `datenPruefen` speichert die auf 5.966 Zeichen normalisierte URL. `methodik` prüft sie in Zeile 433 erneut und liefert `testquelle: null`. Die Testquelle müsste erhalten bleiben.",
+      "auswirkung": "Methodik und Notenblatt können eine gültige Testquelle ausblenden. Bei einem zweiten `datenPruefen`-Aufruf fallen auch solche Quell-URLs samt ihren Belegen weg.",
+      "vorschlag": "Die geprüfte Original-URL in den Daten erhalten und die Normalisierung beim Erzeugen des Links vornehmen. Den 2.000-Zeichen-Fall bis zur Ausgabe von `methodik` und `notenblatt` testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A1-02",
+      "schwere": "schwer",
+      "titel": "Test 44 prüft eine Freigabe nach dem Produktdatenstand nicht",
+      "datei": "tests/test_bewertung.mjs",
+      "zeile": 961,
+      "beleg": "Fertigkriterium 4 verlangt „Jeder Test 1–5, 7–36, 43–46 aus §6/§9.9 hat einen Testfall mit den dort genannten Fällen (Testnamen tragen die Nummer).“ Test 44 verlangt „Freigabe nach dem Produktdatenstand (`stand` später als `d.stand`, nicht in der Zukunft) → beide gültig“. Der Client-Test prüft Kalenderdaten isoliert über `quellDatum`. Auch der gültige Fassungsfall in Test 18 setzt kein `d.stand`. Auf der Bauseite prüfen die Fälle in `tests/test_datenbank.py:206` und `:253` die Fassung oder das Datum isoliert.",
+      "auswirkung": "Eine Regression, die eine gültige Fassung bei einem älteren Produktdatenstand ausfiltert, bliebe in den Vertragsfällen unentdeckt.",
+      "vorschlag": "Auf beiden Seiten denselben Fall mit einem älteren Produktdatenstand und einem gültigen späteren Freigabedatum prüfen. Im Client die erhaltene Fassung und im Bau die ausgegebene Fassung prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A1-03",
+      "schwere": "schwer",
+      "titel": "Test 21 verwendet Beispieldaten für die Notenstabilität",
+      "datei": "tests/test_bewertung.mjs",
+      "zeile": 659,
+      "beleg": "Fertigkriterium 4 verlangt „Jeder Test 1–5, 7–36, 43–46 aus §6/§9.9 hat einen Testfall mit den dort genannten Fällen (Testnamen tragen die Nummer).“ Test 21 verlangt „gültige Live-Daten → keine Note ändert sich“. Der automatisierte Fall lädt ausschließlich `tests/vorlagen/finder-beispiel.json` und vergleicht dort Werte und Teilpunkte.",
+      "auswirkung": "Eine Änderung, die nur ein Modell aus dem veröffentlichten Bestand betrifft, kann Test 21 passieren. Die eigene Gegenprobe und die Selbstprüfung zum vorliegenden Commit sichern künftige Änderungen nicht ab.",
+      "vorschlag": "Test 21 um einen reproduzierbaren Vergleich mit gültigen Veröffentlichungsdaten ergänzen und die Noten vor und nach der Client-Prüfung vergleichen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A1-04",
+      "schwere": "mittel",
+      "titel": "Ein Regler für ein nicht anwendbares Feld setzt `persoenlich`",
+      "datei": "app/finder/bewertung.js",
+      "zeile": 384,
+      "beleg": "Nach §8 A-2 gilt `persoenlich: true`, „sobald ein Faktor ≠ 1 wirkt“. Beim Air Fryer mit `koerbe: 1`, `beilage: \"ja\"` und ausschließlich `prio: {sync_funktion: 3}` liefert `notenblatt` in der Gegenprobe `persoenlich: true`. Die Sync-Funktion steht zugleich in `nicht_anwendbar` und geht nicht in die Merkmalsrechnung ein. `reglerWirken` prüft nur, ob die Antworten das Feld aktiv lassen.",
+      "auswirkung": "Das Notenblatt kann die Note mit „nach deinen Prioritäten“ kennzeichnen, obwohl der einzige verstellte Regler für dieses Modell kein anwendbares Merkmal betrifft.",
+      "vorschlag": "Bei der Prüfung wirksamer Regler die Modellwerte und `nichtAnwendbar` berücksichtigen. Test 34 um einen ausschließlich für das ausgeschlossene Merkmal gesetzten Regler ergänzen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Geprüft wurde Commit dda4d33b352c05932793920f73155d29a882ff12 mit Basis feee180. Node meldete 59 bestandene Tests und 0 Fehler. `datenbank.py pruefen` meldete 0 Fehler und 60 Warnungen. Die 32 Python-Tests bestanden mit temporären Dateien im Arbeitsspeicher. Der unveränderte Unittest-Aufruf würde temporäre Dateien anlegen. Der Notenvergleich nutzte den lokal vorhandenen Stand von `origin/gh-pages` und den im Arbeitsspeicher erzeugten Neubau. Er deckte alle 418 Varianten mit den wirksamen Vorgaben und jeweils einzeln variierten Antworten ab. Die Vergleichsprüfung für P2a-2 war ausgenommen."
+}
