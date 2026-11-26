@@ -1042,10 +1042,17 @@ test("P2A1-03 (21): echte Daten – datenPruefen ändert keinen Wert, Teilpunkt,
     const ziel = path.join(tmp, "finder-daten.json");
     execFileSync(process.env.PYTHON || "python", ["-I", path.join(PROJEKT, "werkzeuge", "datenbank.py"), "bauen", ziel], { stdio: "pipe" });
     const roh = JSON.parse(fs.readFileSync(ziel, "utf8")), vorher = kopie(roh);
+    // r3 (P2A1-03): Sollzahlen vorab und unabhängig von den Prüfschleifen aus den Rohdaten:
+    // Einträge = Σ Modelle, Vergleiche = Σ Modelle × (1 Vorgabe + Zahl aller Antworten)
+    const sollModelle = vorher.kategorien.reduce((s, k) => s + k.modelle.length, 0);
+    const sollNoten = vorher.kategorien.reduce((s, k) =>
+      s + k.modelle.length * (1 + (k.fragen || []).reduce((t, f) => t + f.antworten.length, 0)), 0);
     B.datenPruefen(roh);
-    let modelle = 0, noten = 0, erwartet = 0;
+    assert.equal(roh.kategorien.length, vorher.kategorien.length);
+    let modelle = 0, noten = 0;
     roh.kategorien.forEach((k, i) => {
       const alt = vorher.kategorien[i];
+      assert.equal(k.id, alt.id); assert.equal(k.modelle.length, alt.modelle.length, k.id);
       assert.deepEqual(k.testquelle || null, alt.testquelle || null, k.id);
       assert.deepEqual(k.quellen, alt.quellen || {}, k.id);
       k.modelle.forEach((m, j) => {
@@ -1066,10 +1073,9 @@ test("P2A1-03 (21): echte Daten – datenPruefen ändert keinen Wert, Teilpunkt,
           assert.equal(neu.art, vorh.art, a.id + " " + JSON.stringify(antworten));
           noten++;
         });
-        erwartet += alt.modelle.length;
       }
     });
-    assert.equal(noten, erwartet);
+    assert.equal(modelle, sollModelle); assert.equal(noten, sollNoten);
     assert.ok(modelle > 300 && noten > 5000, modelle + " Modelle, " + noten + " Noten");
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 });

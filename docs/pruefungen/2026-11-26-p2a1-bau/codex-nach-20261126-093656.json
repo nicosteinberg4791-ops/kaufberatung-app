@@ -1,0 +1,19 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Test 21 vergleicht auf dem geprüften Stand alle 5.237 vorgesehenen Paare direkt über `bewerteModell`, einschließlich ausgeschlossener Modelle. `note` und `art` stimmen jeweils überein. Beide Seiten verwenden ihre eigenen Gewichte und Regeln. Die Vergleiche von Werten, Teilpunkten, Belegen, Quellen und Testquelle bestehen ebenfalls. Die Zählassertion erkennt jedoch eine ausgelassene Antwort nicht. P2A1-03 bleibt deshalb offen.",
+  "befunde": [
+    {
+      "id": "P2A1-03",
+      "schwere": "schwer",
+      "titel": "Sollzählung übernimmt Auslassungen aus der Vergleichsschleife",
+      "datei": "tests/test_bewertung.mjs",
+      "zeile": 1069,
+      "beleg": "Fertigkriterium 2 verlangt „Die Zahl der Vergleiche wird aus den Rohdaten abgeleitet und geprüft (418 Einträge, 5 237 Vergleiche).“ Die äußere Schleife läuft über die bereits validierten Kategorien (Zeile 1047). `erwartet` wächst innerhalb derselben Eingabeschleife wie `noten` (Zeilen 1061–1069). In der Gegenprobe wurde eine einzelne Soundbar-Antwort im Speicher aus der Eingabeliste entfernt. Beide Zähler fielen von 5.237 auf 5.223, und Test 21 blieb grün.",
+      "auswirkung": "Fällt eine Antwort aus der Vergleichsschleife, können Notenänderungen für diese Eingabe ungeprüft bleiben. In der Gegenprobe entfielen 14 Modellvergleiche, ohne dass die Assertion oder die Untergrenze anschlug.",
+      "vorschlag": "Die Sollzahl vor der Validierung in einem eigenen Durchlauf über alle Rohkategorien berechnen. Pro Kategorie die Zahl der Modelle mit eins plus der Summe ihrer Antwortzahlen multiplizieren. Die Zahl der tatsächlich geprüften Einträge und Vergleiche separat zählen und beide mit ihren Sollzahlen abgleichen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [],
+  "pruefgrenzen": "Der unveränderte Standardaufruf scheiterte im Nur-Lese-Sandbox am Anlegen des Temp-Verzeichnisses. Mit dem echten Python-Bau und der JSON-Übergabe im Speicher liefen 63 Tests mit 0 Fehlern. Test 21 prüft die Vorgabe und Einzelantworten mit neutralen Prioritäten. Antwortkombinationen und abweichende Prioritäten liegen außerhalb dieses Fertigkriteriums. Die weiteren Rückgabefelder `R`, `abdeckung`, `spanne`, `beitraege` und `fehlend` werden nicht direkt verglichen. Die Orakel in Test 22 und 36 verwenden jeweils eine Ein-Modell-Kopie ohne Mindest- oder Höchstanforderungen. P2A1-R2-01 (O31) und die bereits geschlossenen r1-Befunde wurden nicht erneut geprüft."
+}
