@@ -77,6 +77,7 @@
     {
       "id": "fernseher",
       "name": "Fernseher",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "bildtechnik", "name": "Bildtechnik", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["oled", 100], ["miniled", 85], ["lcd_local_dimming", 65], ["lcd_quantum_dot", 50], ["lcd", 40]]}, "gewicht": 30},
         {"id": "bildwiederholrate_hz", "name": "Native Bildwiederholrate", "einheit": "Hz", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[50, 40], [60, 40], [100, 85], [120, 85], [144, 100]]}, "gewicht": 15},
@@ -116,6 +117,7 @@
     {
       "id": "akkusauger",
       "name": "Akku-Staubsauger",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "laufzeit_min", "name": "Laufzeit in kleinster Stufe mit Bodendüse", "einheit": "min", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[15, 0], [20, 20], [40, 60], [60, 85], [80, 100]]}, "gewicht": 20},
         {"id": "saugleistung_aw", "name": "Saugleistung (Herstellerangabe)", "einheit": "AW", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[50, 20], [100, 50], [150, 75], [220, 100]]}, "gewicht": 15},
@@ -157,6 +159,7 @@
     {
       "id": "saugroboter",
       "name": "Saugroboter",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "navigation", "name": "Navigation", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["lidar", 100], ["kamera_vslam", 75], ["gyroskop", 40], ["zufall", 10]]}, "gewicht": 18},
         {"id": "saugleistung_pa", "name": "Saugleistung (Herstellerangabe)", "einheit": "Pa", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2000, 20], [5000, 60], [8000, 85], [12000, 100]]}, "gewicht": 14},
@@ -196,6 +199,7 @@
     {
       "id": "airfryer",
       "name": "Air Fryer",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "volumen_l", "name": "Fassungsvermögen gesamt", "einheit": "l", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 20], [4, 55], [6, 80], [9, 100]]}, "gewicht": 25},
         {"id": "spuelmaschinenfest", "name": "Korb und Einsatz spülmaschinenfest", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 15},
@@ -230,6 +234,7 @@
     {
       "id": "smartphone",
       "name": "Smartphones",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "akku_ausdauer_h", "name": "Akkuausdauer je Ladung (EU-Label)", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[25, 20], [40, 60], [55, 90], [70, 100]]}, "gewicht": 15},
         {"id": "update_jahre", "name": "Zugesagte Software-Updates ab Marktstart", "einheit": "Jahre", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 0], [3, 30], [5, 60], [7, 100]]}, "gewicht": 14},
@@ -279,6 +284,7 @@
     {
       "id": "tablet",
       "name": "Tablets",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "akku_ausdauer_h", "name": "Akkuausdauer je Ladung (EU-Label)", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[20, 20], [35, 60], [50, 90], [65, 100]]}, "gewicht": 18},
         {"id": "update_jahre", "name": "Zugesagte Software-Updates ab Marktstart", "einheit": "Jahre", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[2, 0], [3, 30], [5, 60], [7, 100]]}, "gewicht": 12},
@@ -323,6 +329,7 @@
     {
       "id": "laptop",
       "name": "Laptops",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "akku_wh", "name": "Akkukapazität", "einheit": "Wh", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[40, 20], [55, 55], [70, 85], [90, 100]]}, "gewicht": 18},
         {"id": "ram_gb", "name": "Arbeitsspeicher", "einheit": "GB", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[8, 40], [16, 80], [32, 100]]}, "gewicht": 14},
@@ -370,6 +377,7 @@
     {
       "id": "kopfhoerer_inear",
       "name": "Kopfhörer In-Ear",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "anc", "name": "Aktive Geräuschunterdrückung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 18},
         {"id": "akku_h", "name": "Akkulaufzeit je Ladung (mit ANC, falls vorhanden)", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[3, 0], [4, 20], [6, 50], [8, 80], [10, 100]]}, "gewicht": 18},
@@ -403,6 +411,7 @@
     {
       "id": "kopfhoerer_overear",
       "name": "Kopfhörer Over-Ear",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "anc", "name": "Aktive Geräuschunterdrückung", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 20},
         {"id": "akku_h", "name": "Akkulaufzeit (mit ANC, falls vorhanden)", "einheit": "h", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[15, 0], [20, 30], [30, 60], [40, 85], [60, 100]]}, "gewicht": 18},
@@ -435,6 +444,7 @@
     {
       "id": "soundbar",
       "name": "Soundbars",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "kanaele", "name": "Kanäle", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["2.0", 20], ["2.1", 45], ["3.0", 50], ["3.1", 60], ["5.1", 75], ["3.1.2", 80], ["5.1.2", 90], ["7.1.4", 100], ["9.1.4", 100], ["11.1.4", 100]]}, "gewicht": 25},
         {"id": "subwoofer", "name": "Subwoofer", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["extern_kabellos", 100], ["extern_kabel", 85], ["integriert", 50], ["keiner", 0]]}, "gewicht": 15},
@@ -472,6 +482,7 @@
     {
       "id": "waschmaschine",
       "name": "Waschmaschinen",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 90], ["C", 78], ["D", 64], ["E", 48], ["F", 30], ["G", 12]]}, "gewicht": 20},
         {"id": "wasserschutz", "name": "Schutz gegen Wasserschäden", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["vollschutz", 100], ["teilschutz", 50], ["keiner", 0]]}, "gewicht": 12},
@@ -510,6 +521,7 @@
     {
       "id": "trockner",
       "name": "Trockner",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label ab 07/2025)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 90], ["C", 78], ["D", 64], ["E", 48], ["F", 30], ["G", 12]]}, "gewicht": 22},
         {"id": "kondensationsklasse", "name": "Kondensationseffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 70], ["C", 40], ["D", 15], ["E", 5], ["F", 0], ["G", 0]]}, "gewicht": 10},
@@ -546,6 +558,7 @@
     {
       "id": "kuehlschrank",
       "name": "Kühlschränke",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 90], ["C", 78], ["D", 64], ["E", 48], ["F", 30], ["G", 12]]}, "gewicht": 30},
         {"id": "nofrost", "name": "NoFrost (kein Abtauen im Gefrierteil)", "einheit": "", "typ": "bool", "kurve": {"art": "ja_nein", "punkte": [[true, 100], [false, 0]]}, "gewicht": 12},
@@ -585,6 +598,7 @@
     {
       "id": "geschirrspueler",
       "name": "Geschirrspüler",
+      "gewichte_version": {"nummer": 1, "stand": "2026-11-26"},
       "felder": [
         {"id": "energieklasse", "name": "Energieeffizienzklasse (EU-Label)", "einheit": "", "typ": "stufe", "kurve": {"art": "stufen", "punkte": [["A", 100], ["B", 90], ["C", 78], ["D", 64], ["E", 48], ["F", 30], ["G", 12]]}, "gewicht": 18},
         {"id": "geraeusch_db", "name": "Geräusch Eco-Programm (EU-Label)", "einheit": "dB(A)", "typ": "zahl", "kurve": {"art": "linear", "punkte": [[40, 100], [42, 85], [44, 65], [46, 45], [49, 15]]}, "gewicht": 14},

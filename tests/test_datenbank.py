@@ -234,9 +234,9 @@ class SchemaRegeln(unittest.TestCase):
         feld["einheit"] = "cm"
         feld["typ"] = "stufe"
         self.assertTrue(self.fehler(s))
-        s = echtes_schema()
-        self.kat(s, "geschirrspueler")["fragen"].append({"id": "breite", "text": "?", "antworten": []})   # Frage-ID breite bleibt grün
-        self.assertFalse(any("breite" in f for f in self.fehler(s)))
+        s = echtes_schema()   # Frage-ID breite bleibt grün (P2a-2: gültige, eindeutige Frage, sonst greifen die Vorbedingungen)
+        self.kat(s, "fernseher")["fragen"].append({"id": "breite", "text": "?", "antworten": [{"id": "a", "text": "a"}]})
+        self.assertEqual(self.fehler(s), [])
 
     def test_stufenwert_200_codepunkte(self):        # Test 44 (Stufenwert)
         s = echtes_schema()
@@ -371,8 +371,8 @@ class BauMetadaten(unittest.TestCase):
         self.assertGreater(k["testquelle"]["stand"], aus["stand"])
         self.assertEqual(sorted(k["testquelle"]), ["methodik_url", "name", "stand", "url"])
         andere = next(x for x in self.bauen(beispiel())["kategorien"] if x["id"] == "akkusauger")
-        self.assertNotIn("gewichte_version", andere)     # fehlt im Schema → fehlt in der Ausgabe
-        self.assertNotIn("testquelle", andere)
+        self.assertEqual(andere["gewichte_version"], {"nummer": 1, "stand": FASSUNG1_STAND})   # P2a-2: Pflicht, Fassung 1
+        self.assertNotIn("testquelle", andere)           # fehlt im Schema → fehlt in der Ausgabe
 
     def test_quellen_nur_mit_verweis_und_drei_schluessel(self):
         d = beispiel()
@@ -403,6 +403,206 @@ class BauMetadaten(unittest.TestCase):
         k = self.fernseher(self.bauen(beispiel()))
         for m in k["modelle"]:
             self.assertTrue(set(m["belege"]) <= set(m["werte"]))
+
+
+FASSUNG1_STAND = "2026-11-26"   # F-1: Fassung 1 = heutige Werte, vom Besitzer am 26.11.2026 freigegeben
+
+
+def kat_von(s, kid="fernseher"):
+    return next(k for k in s["kategorien"] if k["id"] == kid)
+
+
+def feld_von(s, fid, kid="fernseher"):
+    return next(f for f in kat_von(s, kid)["felder"] if f["id"] == fid)
+
+
+def referenz():
+    """Echtes Schema als Referenz mit Schema 2 und älterem Stand, damit ein Kandidat einen neuen Stand setzen kann."""
+    s = echtes_schema()
+    for k in s["kategorien"]:
+        k["gewichte_version"] = {"nummer": 1, "stand": "2026-11-01"}
+    return s
+
+
+def hochzaehlen(s, *kids, stand="2026-11-25"):
+    for k in s["kategorien"]:
+        if not kids or k["id"] in kids:
+            k["gewichte_version"] = {"nummer": k["gewichte_version"]["nummer"] + 1, "stand": stand}
+    return s
+
+
+class Gewichtsfassung(unittest.TestCase):
+    """P2a-2 (Entwurf §2.1, §9.1, §9.3, §9.9): Pflicht der Fassung, Projektion, Referenzvergleich, Vorbedingungen."""
+
+    def vergleich(self, kandidat, ref):
+        return datenbank.fassung_gegen_fehler(kandidat, ref)
+
+    def rot(self, kandidat, ref, art):
+        self.assertTrue(self.vergleich(kandidat, ref), art)
+
+    def gruen(self, kandidat, ref, art):
+        self.assertEqual(self.vergleich(kandidat, ref), [], art)
+
+    def test_pflicht_und_fassung_1(self):            # Test 3, F-1
+        s = echtes_schema()
+        for k in s["kategorien"]:
+            self.assertEqual(k.get("gewichte_version"), {"nummer": 1, "stand": FASSUNG1_STAND}, k["id"])
+        self.assertEqual(datenbank.schema_fehler(s), [])
+        del kat_von(s)["gewichte_version"]
+        self.assertTrue(any("fernseher" in f and "gewichte_version" in f for f in datenbank.schema_fehler(s)))
+
+    def test_referenzvergleich(self):                # Test 6
+        ref = referenz()
+        self.gruen(copy.deepcopy(ref), ref, "unverändert")
+        faelle = {
+            "gewicht": lambda s: feld_von(s, "bildtechnik").update(gewicht=31),
+            "faktor": lambda s: kat_von(s)["fragen"][0]["antworten"][0]["gewichte"].update(bildtechnik=1.4),
+            "kurvenpunkt": lambda s: feld_von(s, "bildtechnik")["kurve"]["punkte"][0].__setitem__(1, 99),
+        }
+        for art, aendern in faelle.items():
+            with self.subTest(art=art):
+                k = copy.deepcopy(ref); aendern(k)
+                self.rot(k, ref, art + " bei gleicher Nummer")
+                self.gruen(hochzaehlen(copy.deepcopy(k), "fernseher"), ref, art + " mit Nummer + 1 und neuem Stand")
+                self.rot(hochzaehlen(copy.deepcopy(k), "fernseher", stand="2026-11-01"), ref,
+                         art + " mit Nummer + 1, aber altem Stand")
+        k = copy.deepcopy(ref)
+        k["datenblatt_abschlag"]["anker"] = 51          # betrifft alle Kategorien
+        fehler = self.vergleich(k, ref)
+        self.assertEqual(len([f for f in fehler if "Nummer" in f]), len(ref["kategorien"]), fehler)
+        self.gruen(hochzaehlen(copy.deepcopy(k)), ref, "anker mit neuer Nummer überall")
+        self.rot(hochzaehlen(copy.deepcopy(k), "fernseher"), ref, "anker, aber nur eine Kategorie hochgezählt")
+        k = copy.deepcopy(ref)                          # Gegenprobe: mindest ändert keine Note
+        spiele = next(a for a in kat_von(k)["fragen"][0]["antworten"] if a["id"] == "spiele")
+        spiele["mindest"]["hdmi_4k120_anzahl"] = 2
+        self.gruen(k, ref, "nur mindest geändert")
+
+    def test_gleiche_projektion_gleiche_nummer(self):   # Test 38
+        ref = referenz()
+        self.gruen(copy.deepcopy(ref), ref, "gleich")
+        self.rot(hochzaehlen(copy.deepcopy(ref), "fernseher"), ref, "gleiche Projektion, Nummer erhöht")
+        k = copy.deepcopy(ref)
+        kat_von(k)["gewichte_version"]["nummer"] = 0
+        self.rot(k, ref, "Nummer 0")
+        del kat_von(k)["gewichte_version"]
+        self.rot(k, ref, "Kandidat ohne Fassung")
+
+    def test_egal_umbenannt(self):                   # Test 39
+        ref = referenz()
+        k = copy.deepcopy(ref)
+        kat, frage = next((kat, q) for kat in k["kategorien"] for q in kat.get("fragen", [])
+                          if any(a["id"] == "egal" for a in q["antworten"]))
+        next(a for a in frage["antworten"] if a["id"] == "egal")["id"] = "beliebig"
+        self.rot(k, ref, "egal umbenannt, Faktoren gleich")
+        self.gruen(hochzaehlen(k, kat["id"]), ref, "mit neuer Nummer")
+
+    def test_projektion_normalform_und_reihenfolge(self):   # Test 40
+        ref = referenz()
+        k = copy.deepcopy(ref); feld_von(k, "bildtechnik")["gewicht"] = 30.0
+        self.gruen(k, ref, "1 gegen 1.0")
+        k = copy.deepcopy(ref); f = kat_von(k)["felder"]; f[0], f[1] = f[1], f[0]
+        self.rot(k, ref, "Reihenfolge der Felder mit Gewicht > 0")
+        k = copy.deepcopy(ref); f = kat_von(k)["felder"]; f.insert(0, f.pop(f.index(feld_von(k, "diagonale_zoll"))))
+        self.gruen(k, ref, "Feld mit Gewicht 0 verschoben")
+        k = copy.deepcopy(ref); q = kat_von(k)["fragen"]; q[0], q[1] = q[1], q[0]
+        self.rot(k, ref, "Reihenfolge der Fragen")
+        k = copy.deepcopy(ref); a = kat_von(k)["fragen"][0]["antworten"]; a[0], a[1] = a[1], a[0]
+        self.rot(k, ref, "Reihenfolge der Antworten")
+        k = copy.deepcopy(ref); feld_von(k, "bildwiederholrate_hz")["kurve"]["punkte"].reverse()
+        self.rot(k, ref, "Reihenfolge der Kurvenpunkte")
+        k = copy.deepcopy(ref); g = kat_von(k)["fragen"][0]["antworten"][0]["gewichte"]
+        kat_von(k)["fragen"][0]["antworten"][0]["gewichte"] = dict(reversed(list(g.items())))
+        self.gruen(k, ref, "Schlüsselreihenfolge in gewichte einer Antwort wirkt nicht")
+        # R2-01: f0…f4 mit 8/3/7/11/5, ohne Fragen; die Umordnung kippt die Anzeige 39 → 38 (Rechnung: test_bewertung.mjs)
+        r2 = copy.deepcopy(ref)
+        kat_von(r2)["felder"] = [{"id": f"f{i}", "name": f"F{i}", "einheit": "", "typ": "zahl", "gewicht": g,
+                                  "kurve": {"art": "linear", "punkte": [[0, 0], [100, 100]]}} for i, g in enumerate((8, 3, 7, 11, 5))]
+        kat_von(r2)["fragen"] = []
+        k = copy.deepcopy(r2); kat_von(k)["felder"].reverse()
+        self.rot(k, r2, "R2-01: umgekehrte Feldliste ohne neue Nummer")
+        # Normalform: |x| >= 1e7 rot (int 34,8 gegen float 34,7), 1200 gegen 1200.0 gleich
+        k = copy.deepcopy(ref); feld_von(k, "bildwiederholrate_hz")["kurve"]["punkte"][0][0] = -10000000000000000
+        self.assertTrue(datenbank.schema_fehler(k)); self.rot(k, ref, "Stützpunkt -1e16")
+        k = copy.deepcopy(ref); feld_von(k, "bildwiederholrate_hz")["kurve"]["punkte"][0][0] = 1e7
+        self.assertTrue(datenbank.schema_fehler(k), "x = 1e7")
+        k = copy.deepcopy(ref); feld_von(k, "bildwiederholrate_hz")["kurve"]["punkte"][0][1] = 101
+        self.assertTrue(datenbank.schema_fehler(k), "y = 101")
+        a = copy.deepcopy(ref); feld_von(a, "bildwiederholrate_hz")["kurve"]["punkte"] = [[1200, 20], [1204, 79]]
+        b = copy.deepcopy(ref); feld_von(b, "bildwiederholrate_hz")["kurve"]["punkte"] = [[1200.0, 20], [1204.0, 79]]
+        self.gruen(b, a, "1200 gegen 1200.0")
+        ta = round(datenbank.teilpunkte(feld_von(a, "bildwiederholrate_hz"), 1201), 1)
+        tb = round(datenbank.teilpunkte(feld_von(b, "bildwiederholrate_hz"), 1201), 1)
+        self.assertEqual((ta, tb), (34.8, 34.8))
+        k = copy.deepcopy(ref); feld_von(k, "vrr")["gewicht"] = True
+        r = copy.deepcopy(ref); feld_von(r, "vrr")["gewicht"] = 1
+        self.rot(k, r, "Gewicht true statt 1")
+        # P2A2-04: Feld außerhalb der Projektion (Gewicht 0) kaputt → Vorbedingung rot, Kandidat und Referenz gleich
+        k = copy.deepcopy(ref); feld_von(k, "diagonale_zoll")["gewicht"] = False
+        self.assertTrue(datenbank.schema_fehler(k))
+        self.assertTrue(any(f.startswith("Kandidat") for f in self.vergleich(k, ref)))
+        self.assertTrue(any(f.startswith("Referenz") for f in self.vergleich(ref, k)))
+        k = copy.deepcopy(ref); feld_von(k, "diagonale_zoll")["id"] = "constructor"
+        fehler = self.vergleich(k, ref)
+        self.assertTrue(fehler and all("Kennung" in f for f in fehler), fehler)
+        # jede Zahl der normierten Projektion ist float
+        p = datenbank.projektion(echtes_schema(), "fernseher")
+        zahlen = [f["gewicht"] for f in p["felder"]] + [y for f in p["felder"] for _, y in f["kurve"]["punkte"]]
+        zahlen += [x for f in p["felder"] if f["kurve"]["art"] == "linear" for x, _ in f["kurve"]["punkte"]]
+        zahlen += [v for q in p["fragen"] for a in q["antworten"] for v in a["gewichte"].values()]
+        zahlen += [v for v in p["abschlag"].values() if not isinstance(v, dict)] + list(p["abschlag"].get("mischung", {}).values())
+        self.assertTrue(zahlen and all(type(z) is float for z in zahlen))
+        self.assertEqual(sorted(p), ["abschlag", "felder", "fragen"])
+        self.assertNotIn("diagonale_zoll", [f["id"] for f in p["felder"]])
+
+    def test_referenz_schema_1(self):                # Test 41
+        r1 = echtes_schema()
+        r1["schema_version"] = 1
+        for k in r1["kategorien"]:
+            k.pop("gewichte_version", None)
+        k = echtes_schema()
+        self.gruen(k, r1, "gleiche Projektion, Nummer 1")
+        self.rot(hochzaehlen(copy.deepcopy(k), "fernseher"), r1, "gleiche Projektion, Nummer 2")
+        g = copy.deepcopy(k); feld_von(g, "bildtechnik")["gewicht"] = 31
+        self.rot(g, r1, "geänderte Projektion, Nummer 1")
+        self.rot(hochzaehlen(g, "fernseher"), r1, "geänderte Projektion, Nummer 2")
+        r3 = referenz(); kat_von(r3)["gewichte_version"]["nummer"] = 3
+        k2 = referenz(); kat_von(k2)["gewichte_version"] = {"nummer": 2, "stand": "2026-11-25"}
+        self.rot(k2, r3, "Nummer kleiner als in der Referenz mit Schema 2")
+
+    def test_eindeutige_ids(self):                   # Test 48
+        def dopplung(aendern):
+            s = echtes_schema(); aendern(s); return datenbank.schema_fehler(s)
+        vrr2 = {"id": "vrr", "name": "VRR", "einheit": "", "typ": "bool", "gewicht": 0,
+                "kurve": {"art": "ja_nein", "punkte": [[True, 100], [False, 0]]}}
+        faelle = {
+            "feld": lambda s: kat_von(s)["felder"].append(vrr2),
+            "frage": lambda s: kat_von(s)["fragen"].append(copy.deepcopy(kat_von(s)["fragen"][0])),
+            "antwort": lambda s: kat_von(s)["fragen"][0]["antworten"].append(copy.deepcopy(kat_von(s)["fragen"][0]["antworten"][0])),
+            "kategorie": lambda s: s["kategorien"].append(copy.deepcopy(kat_von(s))),
+            "stufenwert": lambda s: feld_von(s, "bildtechnik")["kurve"]["punkte"].append(["oled", 10]),
+        }
+        for art, aendern in faelle.items():
+            with self.subTest(art=art):
+                fehler = dopplung(aendern)
+                self.assertTrue(any("doppelt" in f for f in fehler), (art, fehler))
+        # Gegenprobe: gleiche Antwort-ID in zwei Fragen ist erlaubt (das echte Schema hat das schon)
+        self.assertEqual(dopplung(lambda s: None), [])
+        s = echtes_schema(); q = kat_von(s)["fragen"]
+        q[1]["antworten"][0]["id"] = q[0]["antworten"][0]["id"]
+        self.assertEqual(datenbank.schema_fehler(s), [])
+        # weder Projektion noch Bau: doppeltes Feld mit Gewicht 0 am Ende → Bau rot, keine Datei
+        with tempfile.TemporaryDirectory() as t:
+            s = echtes_schema(); kat_von(s)["felder"].append(vrr2)
+            (Path(t) / "k.json").write_text(json.dumps(s, ensure_ascii=False), encoding="utf-8")
+            alt = datenbank.SCHEMA
+            datenbank.SCHEMA = Path(t) / "k.json"
+            try:
+                _, fehler, _ = datenbank.bauen(Path(t) / "aus.json")
+            finally:
+                datenbank.SCHEMA = alt
+            self.assertTrue(fehler)
+            self.assertFalse((Path(t) / "aus.json").exists())
+            self.assertTrue(any("Referenz" in f or "Kandidat" in f for f in self.vergleich(s, referenz())))
 
 
 if __name__ == "__main__":

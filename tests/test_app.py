@@ -317,7 +317,7 @@ class Veroeffentlichen(unittest.TestCase):
         self.assertTrue(f(json.dumps({"herkunft": h, "kategorien": [1]}), gut, h), "anderer Inhalt als der eigene Bau")
 
     def _lauf(self, schreibe_daten, argv=None, hook_sperrt=False, vor_commit=None, vor=None, waehrend_bau=None,
-              nach=None, vorher=None):
+              nach=None, vorher=None, vorlauf=None, online=None, kandidat_schema=None):
         """main() gegen echte lokale Test-Repositorys (R4-01/R4-02): Quelle mit origin (bare) und gh-pages; der Bau
         schreibt in sein Ziel und gleichzeitig ein paralleler App-Bau nach dist/. hook_sperrt: aktiver pre-commit-Hook,
         der jeden Commit ablehnt (wie der Projekt-Hook im Seitenbaum ohne tests/). vor_commit(seiten): läuft direkt vor
@@ -326,7 +326,10 @@ class Veroeffentlichen(unittest.TestCase):
         Quelle während des Baus, danach wird er zurückgesetzt (R5-04). nach {git-Befehl: f(seiten, ergebnis)}: ersetzt das
         Ergebnis dieses Befehls im Seitenbaum (R6-01). vorher(quelle, head): läuft direkt vor main (R7-01). Der Bau
         liest app/seite.txt aus seiner Quelle
-        (wie der echte Bau app/ liest) und schreibt sie in index.html."""
+        (wie der echte Bau app/ liest) und schreibt sie in index.html.
+        P2a-2 (Test 47(b)/(c)): die Quelle trägt daten/schema/kategorien.json (kandidat_schema, Standard das echte Schema);
+        vorlauf(quelle, g) legt davor Commits an und gibt die Herkunft der Online-Datei zurück (Standard: head);
+        online(herkunft) liefert den Text der Online-finder-daten.json (None = Datei fehlt)."""
         sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
         umgebung = mock.patch.dict(os.environ, sauber, clear=True)
         umgebung.start(); self.addCleanup(umgebung.stop)
@@ -341,10 +344,16 @@ class Veroeffentlichen(unittest.TestCase):
             g(r, "config", "user.name", "Test"); g(r, "config", "user.email", "test@example.invalid")
             g(r, "config", "core.autocrlf", "false")
         (quelle / ".gitignore").write_text(".veroeffentlichung/\ndist/\n", encoding="utf-8")
-        (quelle / "app").mkdir()
+        vor_herkunft = vorlauf(quelle, g) if vorlauf else None
+        (quelle / "app").mkdir(exist_ok=True)
         (quelle / "app" / "seite.txt").write_text("geprueft", encoding="utf-8")
+        (quelle / "daten" / "schema").mkdir(parents=True, exist_ok=True)
+        (quelle / "daten" / "schema" / "kategorien.json").write_text(
+            kandidat_schema if kandidat_schema is not None else (WURZEL / "daten" / "schema" / "kategorien.json")
+            .read_text(encoding="utf-8"), encoding="utf-8")
         g(quelle, "add", "-A"); g(quelle, "commit", "-q", "-m", "quelle")
         head = g(quelle, "rev-parse", "HEAD")
+        online_herkunft = vor_herkunft or head
         g(quelle, "remote", "add", "origin", str(ursprung)); g(quelle, "push", "-q", "origin", "HEAD:refs/heads/main")
         (seite / "uralt.txt").write_text("vorgaenger", encoding="utf-8")
         g(seite, "add", "-A"); g(seite, "commit", "-q", "-m", "seite davor")   # gh-pages hat einen Vorgänger (R5-03)
@@ -352,7 +361,9 @@ class Veroeffentlichen(unittest.TestCase):
         (seite / "index.html").write_text("<p>alt</p>", encoding="utf-8")
         (seite / "alt.js").write_text("// alt", encoding="utf-8")
         (seite / "preise.json").write_text('{"online": 1}', encoding="utf-8")
-        (seite / "finder-daten.json").write_text(json.dumps({"herkunft": head}), encoding="utf-8")
+        text = online(online_herkunft) if online else json.dumps({"herkunft": online_herkunft})
+        if text is not None:
+            (seite / "finder-daten.json").write_text(text, encoding="utf-8")
         g(seite, "add", "-A"); g(seite, "commit", "-q", "-m", "seite")
         eltern = g(seite, "rev-parse", "HEAD")
         g(seite, "push", "-q", str(ursprung), "HEAD:refs/heads/gh-pages")
@@ -424,6 +435,66 @@ class Veroeffentlichen(unittest.TestCase):
         e = self._lauf(lambda h: json.dumps({"kategorien": []}))
         self.assertEqual(e["code"], 1, "Datei ohne geprüfte Herkunft wird nicht bereitgestellt")
         self.assertEqual(e["oben"], e["eltern"], "nichts gepusht")
+
+    @staticmethod
+    def _referenz(text):
+        """vorlauf: ein Commit mit diesem Schema-Text (None = ohne Schema) vor dem geprüften Stand."""
+        def vorlauf(quelle, g):
+            p = quelle / "daten" / "schema" / "kategorien.json"
+            if text is None:
+                (quelle / "app").mkdir(exist_ok=True)
+                (quelle / "app" / "seite.txt").write_text("vorher", encoding="utf-8")
+            else:
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(text, encoding="utf-8")
+            g(quelle, "add", "-A"); g(quelle, "commit", "-q", "-m", "referenz")
+            return g(quelle, "rev-parse", "HEAD")
+        return vorlauf
+
+    def _mit_ausgabe(self, **kw):
+        import contextlib
+        import io
+        puffer = io.TextIOWrapper(io.BytesIO(), encoding="utf-8")   # main() ruft stdout.reconfigure auf
+        with contextlib.redirect_stdout(puffer):
+            e = self._lauf(self._gut, **kw)
+        puffer.flush()
+        e["text"] = puffer.buffer.getvalue().decode("utf-8")
+        return e
+
+    def test_fassung_geaendert_bricht_vor_dem_bau_ab(self):
+        """Test 47(b): Gewicht geändert bei gleicher Nummer, Online-Herkunft älter → Abbruch vor dem Bau."""
+        echt = (WURZEL / "daten" / "schema" / "kategorien.json").read_text(encoding="utf-8")
+        s = json.loads(echt)
+        next(f for f in s["kategorien"][0]["felder"] if f["id"] == "bildtechnik")["gewicht"] = 31
+        e = self._mit_ausgabe(vorlauf=self._referenz(echt), kandidat_schema=json.dumps(s, ensure_ascii=False))
+        self.assertEqual(e["code"], 1, e["text"])
+        self.assertEqual(e["ziele"], [], "kein Bau")
+        self.assertEqual(e["oben"], e["eltern"], "nichts veröffentlicht")
+        self.assertIn("Nummer", e["text"])
+        e = self._mit_ausgabe(vorlauf=self._referenz(echt))
+        self.assertEqual(e["code"], 0, "Gegenprobe: gleiche Projektion " + e["text"])
+
+    def test_negative_referenzen_brechen_vor_dem_bau_ab(self):
+        """Test 47(c), App-Publish: strikte Referenz, Abbruch mit SHA, kein Bau, kein Commit, kein Push."""
+        faelle = {
+            "Online-Datei fehlt": dict(online=lambda h: None),
+            "Datei unlesbar": dict(online=lambda h: "kein json"),
+            "herkunft fehlt": dict(online=lambda h: json.dumps({"kategorien": []})),
+            "herkunft nicht auflösbar": dict(online=lambda h: json.dumps({"herkunft": "c" * 40})),
+            "Schema fehlt": dict(vorlauf=self._referenz(None)),
+            "Schema unlesbar": dict(vorlauf=self._referenz("kaputt{")),
+        }
+        for art, kw in faelle.items():
+            with self.subTest(art=art):
+                e = self._mit_ausgabe(**kw)
+                self.assertEqual(e["code"], 1, (art, e["text"]))
+                self.assertEqual(e["ziele"], [], "kein Bau")
+                self.assertEqual(e["oben"], e["eltern"], "nichts veröffentlicht")
+                shas = {"herkunft nicht auflösbar": "c" * 12}
+                erwartet = shas.get(art)
+                if erwartet is None and "vorlauf" in kw:
+                    erwartet = e["g"](e["quelle"], "rev-parse", "HEAD~1")[:12]   # Herkunftscommit
+                self.assertIn(erwartet or e["eltern"][:12], e["text"], art)
 
     def test_commit_genau_der_gepruefte_baum(self):
         """R4-01: gepusht wird genau der geprüfte Baum auf dem geprüften Elterncommit, als feste Commit-ID."""
@@ -777,16 +848,8 @@ class Herkunft(unittest.TestCase):
             with self.assertRaises(ValueError):
                 datenbank.bauen(z, herkunft="main")
 
-    def test_workflow_prueft_herkunft_vor_jedem_kopieren(self):
-        wf = (WURZEL / ".github" / "workflows" / "finder-daten.yml").read_text(encoding="utf-8")
-        self.assertIn("fetch-depth: 0", wf)
-        self.assertIn('--herkunft "$GITHUB_SHA"', wf)
-        schritt = wf.split("Auf gh-pages veröffentlichen", 1)[1].split("- name:", 1)[0]
-        kopien = schritt.count('cp "$RUNNER_TEMP/finder-daten.json"')
-        self.assertEqual(kopien, 2)
-        for teil in schritt.split('cp "$RUNNER_TEMP/finder-daten.json"')[:-1]:
-            letzte = teil.rsplit("git worktree add", 1)[-1].rsplit("git reset", 1)[-1]
-            self.assertIn("werkzeuge/herkunft.py pruefen", letzte, "Prüfung direkt vor jedem Kopieren")
+    # P2a-2: Der Veröffentlichungsschritt des Datenworkflows ist jetzt werkzeuge/freigabe.py daten-push (Herkunft und
+    # Fassung vor jedem Commit, Lease auf den geprüften Elterncommit); Tests in tests/test_freigabe.py (DatenPush, WorkflowText).
 
 
 class Rahmen(unittest.TestCase):

@@ -41,6 +41,7 @@ import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import freigabe  # noqa: E402
 import herkunft  # noqa: E402
 
 WURZEL = Path(__file__).resolve().parent.parent
@@ -312,6 +313,17 @@ def main(argv=None):
             return 1
     arbeitsbaum()
     eltern = git("rev-parse", "HEAD^{commit}", cwd=SEITEN).stdout.strip()   # geprüfter Seiten-Elterncommit (R4-01)
+    # P2a-2 (Entwurf §9.3): Freigabeschranke vor dem Bau, Referenz = herkunft der Online-Datei des Elterncommits, streng;
+    # Kandidat = Schema genau des geprüften Stands (aus den Git-Objekten, nicht aus dem Arbeitsbaum)
+    try:
+        kandidat = freigabe.schema_am_commit(head, WURZEL)
+    except freigabe.ReferenzFehler as e:
+        print("Abbruch, nichts veröffentlicht: Kandidat –", e)
+        return 1
+    fehler, _ = freigabe.seiten_fehler(kandidat, eltern, WURZEL)
+    if fehler:
+        print(f"Abbruch, nichts veröffentlicht (gh-pages {eltern[:12]}):\n  - " + "\n  - ".join(fehler[:20]))
+        return 1
     r = git("show", f"{eltern}:finder-daten.json", cwd=SEITEN, check=False)
     grund = herkunft.fehler(r.stdout if r.returncode == 0 else None, head, herkunft.git_vorfahr(WURZEL))
     if grund:

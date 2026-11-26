@@ -1092,3 +1092,109 @@ test("P2A1-04 (34): persoenlich nur, wenn ein Regler auf ein für dieses Modell 
   // Gegenprobe: die Note des Ein-Garraum-Modells ist mit und ohne diesen Regler gleich
   assert.equal(eintragFuer(ein, ein.modelle[0], antw, { sync_funktion: 3 }).note, eintragFuer(ein, ein.modelle[0], antw, {}).note);
 });
+
+/* ---- P2a-2 (Entwurf §9.1, §9.3, §9.9): Fassung 1 ändert keine Note, umlaufende bewertung.js, Rechnung R2-01 ---- */
+const PY = process.env.PYTHON || "python";
+const git = (...a) => execFileSync("git", ["-C", PROJEKT, ...a], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+const VOR_P2A2 = "dbfdca67a49387371846d2587f69363574175bed";   // letzter Stand vor P2a-2 (ohne gewichte_version)
+const bauNeu = ziel => execFileSync(PY, ["-I", path.join(PROJEKT, "werkzeuge", "datenbank.py"), "bauen", ziel], { stdio: "pipe" });
+/* Bau mit Werkzeug und Schema eines Commits, aber den heutigen Produktdaten und Freigaben (gleiche Eingabe, alte Regeln) */
+function bauMitStand(commit, tmp, ziel) {
+  const w = path.join(tmp, "stand");
+  fs.mkdirSync(path.join(w, "werkzeuge"), { recursive: true }); fs.mkdirSync(path.join(w, "daten", "schema"), { recursive: true });
+  fs.writeFileSync(path.join(w, "werkzeuge", "datenbank.py"), git("show", commit + ":werkzeuge/datenbank.py"));
+  fs.writeFileSync(path.join(w, "daten", "schema", "kategorien.json"), git("show", commit + ":daten/schema/kategorien.json"));
+  fs.copyFileSync(path.join(PROJEKT, "daten", "quellen.json"), path.join(w, "daten", "quellen.json"));
+  fs.cpSync(path.join(PROJEKT, "daten", "produkte"), path.join(w, "daten", "produkte"), { recursive: true });
+  execFileSync(PY, ["-I", path.join(w, "werkzeuge", "datenbank.py"), "bauen", ziel], { stdio: "pipe" });
+}
+/* Vorgabe und jede einzelne Antwort (wie Test 21), für jedes Modell direkt über bewerteModell */
+const eingabenVon = k => [{}].concat(...(k.fragen || []).map(f => f.antworten.map(x => ({ [f.id]: x.id }))));
+
+test("P2a-2 (42): Fassung 1 – alle Modelle, alle Vorgaben, Note vor und nach dem Bau gleich", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kb-p2a2-42-"));
+  try {
+    bauMitStand(VOR_P2A2, tmp, path.join(tmp, "vor.json")); bauNeu(path.join(tmp, "nach.json"));
+    const vor = B.datenPruefen(JSON.parse(fs.readFileSync(path.join(tmp, "vor.json"), "utf8")));
+    const nach = B.datenPruefen(JSON.parse(fs.readFileSync(path.join(tmp, "nach.json"), "utf8")));
+    const sollNoten = nach.kategorien.reduce((s, k) => s + k.modelle.length * eingabenVon(k).length * 2, 0);
+    let noten = 0, kategorien = 0;
+    assert.deepEqual(nach.regeln, vor.regeln);
+    nach.kategorien.forEach((k, i) => {
+      const a = vor.kategorien[i];
+      assert.equal(k.id, a.id);
+      assert.equal(a.gewichte_version, null, "vorher ohne Fassung");
+      assert.deepEqual(k.gewichte_version, { nummer: 1, stand: "2026-11-26" }, k.id);   // F-1: Fassung 1 freigegeben
+      kategorien++;
+      assert.deepEqual(k.felder, a.felder, k.id); assert.deepEqual(k.fragen, a.fragen, k.id);
+      assert.equal(k.modelle.length, a.modelle.length, k.id);
+      const prio = { [k.felder.find(f => f.gewicht > 0).id]: 3 };   // auch mit gesetztem Regler (G1)
+      for (const antworten of eingabenVon(k)) for (const p of [undefined, prio]) {
+        const gN = B.gewichte(k, antworten, p), gV = B.gewichte(a, antworten, p);
+        k.modelle.forEach((m, j) => {
+          const n = B.bewerteModell(m, k, gN, nach.regeln), v = B.bewerteModell(a.modelle[j], a, gV, vor.regeln);
+          assert.equal(m.id, a.modelle[j].id);
+          assert.equal(n.note, v.note, m.id + " " + JSON.stringify(antworten)); assert.equal(n.art, v.art, m.id);
+          noten++;
+        });
+      }
+    });
+    assert.equal(kategorien, 14); assert.equal(noten, sollNoten); assert.ok(noten > 10000, noten + " Noten");
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test("P2a-2 (37): jede umlaufende bewertung.js verhält sich auf der neuen Datei wie auf Daten ohne neue Angaben", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kb-p2a2-37-"));
+  try {
+    bauNeu(path.join(tmp, "neu.json"));
+    const neu = JSON.parse(fs.readFileSync(path.join(tmp, "neu.json"), "utf8"));
+    // Vergleichsdatei im Live-Format: dieselben Daten ohne die Angaben aus P2a (Fassung, Testquelle, Quellen, Belege)
+    const alt = kopie(neu);
+    for (const k of alt.kategorien) {
+      delete k.gewichte_version; delete k.testquelle; delete k.quellen;
+      for (const m of k.modelle) delete m.belege;
+    }
+    // §9.1: alle Blobs von bewertung.js im gh-pages-Verlauf, dazu G1 und die heutige Fassung auf main
+    const blobs = new Set(git("log", "--format=%H", "origin/gh-pages", "--", "bewertung.js").split("\n").filter(Boolean)
+      .map(c => git("rev-parse", c + ":bewertung.js").trim()));
+    blobs.add(git("rev-parse", "0996e86:app/finder/bewertung.js").trim());
+    assert.ok(blobs.size >= 3, "gh-pages-Verlauf fehlt? " + blobs.size);
+    const fassungen = [...blobs].map(b => ["blob " + b.slice(0, 7), git("cat-file", "blob", b)]);
+    fassungen.push(["main", fs.readFileSync(path.join(PROJEKT, "app", "finder", "bewertung.js"), "utf8")]);
+    let geworfen = 0, gerechnet = 0;
+    fassungen.forEach(([name, text], i) => {
+      const datei = path.join(tmp, `bewertung-${i}.js`);
+      fs.writeFileSync(datei, text);
+      const V = require(datei);
+      const lauf = d => { try { return { d: V.datenPruefen(kopie(d)) }; } catch (e) { return { fehler: e.message }; } };
+      const n = lauf(neu), a = lauf(alt);
+      assert.equal(n.fehler, a.fehler, name + ": gleiches Werfen");
+      if (n.fehler) { geworfen++; return; }
+      n.d.kategorien.forEach((k, ki) => {
+        const ak = a.d.kategorien[ki];
+        assert.equal(k.modelle.length, ak.modelle.length, name + " " + k.id);
+        const prio = V.PRIO_FAKTOREN ? { [k.felder.find(f => f.gewicht > 0).id]: 3 } : undefined;
+        for (const antworten of eingabenVon(k)) for (const p of [undefined, prio]) {
+          const gN = V.gewichte(k, antworten, p), gA = V.gewichte(ak, antworten, p);
+          k.modelle.forEach((m, j) => {
+            const x = V.bewerteModell(m, k, gN, n.d.regeln), y = V.bewerteModell(ak.modelle[j], ak, gA, a.d.regeln);
+            assert.equal(x.note, y.note, name + " " + m.id); assert.equal(x.art, y.art, name + " " + m.id);
+            gerechnet++;
+          });
+        }
+      });
+    });
+    assert.equal(geworfen, 1, "b24c18f wirft schon heute (klassen, §9.1)");
+    assert.ok(gerechnet > 20000, gerechnet + " Noten");
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test("P2a-2 (40): R2-01 – Feldreihenfolge kippt die angezeigte Zahl an der ,5-Grenze", () => {
+  const felder = [8, 3, 7, 11, 5].map((g, i) => ({ id: "f" + i, name: "F" + i, einheit: "", typ: "zahl", gewicht: g }));
+  const tp = { f0: 59.8, f1: 31.5, f2: 64.6, f3: 22.9, f4: 16.6 };
+  const note = fs => { const k = { id: "r", name: "R", felder: fs, fragen: [] };
+    return B.bewerteModell({ id: "m", teilpunkte: tp, werte: {} }, k, B.gewichte(k, {}), REGELN); };
+  const vorwaerts = note(felder), rueckwaerts = note(kopie(felder).reverse());
+  assert.equal(vorwaerts.note, 38.5); assert.equal(Math.round(vorwaerts.note), 39);
+  assert.equal(rueckwaerts.note, 38.499999999999986); assert.equal(Math.round(rueckwaerts.note), 38);
+});

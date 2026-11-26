@@ -4,9 +4,9 @@
 # online und der Lauf wird rot. Keine Secrets nötig (GITHUB_TOKEN genügt). Pushes von github-actions[bot] auf gh-pages
 # lösen den Pages-Bau aus (belegt: pages/builds, pusher github-actions[bot], 20./21.11.2026); der letzte Schritt prüft das
 # trotzdem als Abnahme: die öffentliche finder-daten.json muss bytegleich mit dem Bau sein (F-02).
-# Herkunft (R2-07): die Datei trägt den Commit, aus dem sie gebaut ist; vor jedem Kopieren prüft werkzeuge/herkunft.py,
-# dass der Online-Stand in diesem Commit enthalten ist. Ein neu gestarteter alter Lauf setzt so nie neuere Daten zurück
-# (Lauf wird rot, nichts gepusht).
+# Herkunft (R2-07): die Datei trägt den Commit, aus dem sie gebaut ist; vor jedem Commit prüft werkzeuge/herkunft.py,
+# dass der Online-Stand in diesem Commit enthalten ist, und werkzeuge/freigabe.py die Gewichtsfassung (P2a-2). Ein neu
+# gestarteter alter Lauf setzt so nie neuere Daten zurück (Lauf wird rot, nichts gepusht).
 name: Finder-Daten
 
 on:
@@ -17,6 +17,7 @@ on:
       - "daten/schema/**"
       - "daten/quellen.json"
       - "werkzeuge/datenbank.py"
+      - "werkzeuge/freigabe.py"
   workflow_dispatch:
 
 permissions:
@@ -55,29 +56,14 @@ jobs:
           EOF
 
       - name: Auf gh-pages veröffentlichen (nur finder-daten.json, nur bei Änderung)
+        # P2a-2 (Entwurf §9.3): werkzeuge/freigabe.py daten-push holt je Versuch den gh-pages-SHA (eltern), prüft gegen die
+        # herkunft von <eltern>:finder-daten.json (Gewichtsfassung streng, herkunft.py zusätzlich), committet nur aus
+        # eltern mit ersetzter finder-daten.json und pusht mit --force-with-lease auf eltern; höchstens drei Versuche
+        # (die tägliche Preisabfrage pusht ebenfalls auf gh-pages). Getestet in tests/test_freigabe.py (DatenPush).
         run: |
-          git fetch --no-tags --depth=1 origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
-          git worktree add -B gh-pages .veroeffentlichung origin/gh-pages
-          cd .veroeffentlichung
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          python3 -X utf8 -I ../werkzeuge/herkunft.py pruefen finder-daten.json "$GITHUB_SHA" ..
-          cp "$RUNNER_TEMP/finder-daten.json" finder-daten.json
-          git add finder-daten.json
-          if git diff --cached --quiet; then echo "finder-daten.json unverändert"; exit 0; fi
-          git commit -q -m "Finder-Daten ${GITHUB_SHA::7}"
-          # Die tägliche Preisabfrage pusht ebenfalls auf gh-pages: bei Konflikt neu aufsetzen (nur eigene Datei)
-          for versuch in 1 2 3; do
-            if git push -q origin gh-pages; then echo "gepusht: gh-pages/finder-daten.json"; exit 0; fi
-            git fetch --no-tags --depth=1 origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
-            git reset -q --hard origin/gh-pages
-            python3 -X utf8 -I ../werkzeuge/herkunft.py pruefen finder-daten.json "$GITHUB_SHA" ..
-            cp "$RUNNER_TEMP/finder-daten.json" finder-daten.json
-            git add finder-daten.json
-            if git diff --cached --quiet; then echo "finder-daten.json schon aktuell"; exit 0; fi
-            git commit -q -m "Finder-Daten ${GITHUB_SHA::7}"
-          done
-          echo "::error::Push auf gh-pages dreimal gescheitert"; exit 1
+          python3 -X utf8 -I werkzeuge/freigabe.py daten-push "$RUNNER_TEMP/finder-daten.json" "$GITHUB_SHA"
 
       - name: Abnahme – Pages liefert den neuen Stand aus (bis 10 min)
         env:

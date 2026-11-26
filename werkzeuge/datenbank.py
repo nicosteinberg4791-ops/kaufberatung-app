@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 """Produktdatenbank der Finder-Suche: prüfen und für die App zusammenbauen.
 
-    python -I werkzeuge/datenbank.py pruefen [datei.json …]   # ohne Datei: alle daten/produkte/*.json
+    python -I werkzeuge/datenbank.py pruefen [--gegen [<commit>]] [datei.json …]   # ohne Datei: alle daten/produkte/*.json
     python -I werkzeuge/datenbank.py bauen <ziel.json> [--herkunft <commit>]   # prüft alles, schreibt kompakte App-Daten
     (--herkunft: 40-stelliger Commit, aus dem gebaut wird; werkzeuge/herkunft.py entscheidet damit über das Ersetzen)
+    (--gegen: Freigabeschranke der Gewichtsfassung, Entwurf §9.3. Mit Commit: Referenz ist dessen Schema. Ohne Wert:
+     Referenz ist die herkunft der Online-finder-daten.json auf gh-pages (git ls-remote, nie ein vorhandener Ref).)
 
 Format: daten/produkte/FORMAT.md. Schema (Felder, Kurven, Fragen): daten/schema/kategorien.json.
 Exitcode 0 = keine Fehler (Warnungen erlaubt), 1 = Fehler. Nur Standardbibliothek.
 """
 import json
+import math
 import re
 import sys
 import unicodedata
@@ -58,8 +61,18 @@ def _ohne_doppelte_schluessel(paare):
     return d
 
 
+def _keine_konstante(name):
+    """parse_constant (P2a-2): NaN und Infinity sind keine JSON-Zahlen (Python nähme sie sonst an, der Client nie)."""
+    raise ValueError(f"keine JSON-Zahl: {name}")
+
+
+def schema_laden(text):
+    """Schema aus Text, mit denselben Regeln wie lade_schema (auch für die Referenz aus Git, §9.3)."""
+    return json.loads(text, object_pairs_hook=_ohne_doppelte_schluessel, parse_constant=_keine_konstante)
+
+
 def lade_schema():
-    s = json.loads(SCHEMA.read_text(encoding="utf-8"), object_pairs_hook=_ohne_doppelte_schluessel)
+    s = schema_laden(SCHEMA.read_text(encoding="utf-8"))
     return s, {k["id"]: k for k in s["kategorien"]}
 
 
@@ -90,7 +103,7 @@ def quell_url_ok(u):
 
 
 def fassung_fehler(g):
-    """Grund, wenn gewichte_version nicht {nummer 1..9999, stand} ist (§2.1/§9.6; Pflicht und Vergleich folgen mit P2a-2)."""
+    """Grund, wenn gewichte_version nicht {nummer 1..9999, stand} ist (§2.1/§9.6; Pflicht ab P2a-2, siehe schema_fehler)."""
     if not isinstance(g, dict) or set(g) != {"nummer", "stand"}:
         return "gewichte_version muss genau nummer und stand enthalten"
     if not isinstance(g["nummer"], int) or isinstance(g["nummer"], bool) or not 1 <= g["nummer"] <= 9999:
@@ -115,23 +128,226 @@ def testquelle_fehler(t):
     return None
 
 
+# ---- P2a-2, Entwurf §9.3: Vorbedingungen, Projektion und Referenzvergleich der Gewichtsfassung ----
+# Kennung wie kennungOk im Client (bewertung.js): [a-z0-9_]+(-[a-z0-9_]+)* als ganze Zeichenfolge, Prototyp-Namen gesperrt
+KENNUNG = re.compile(r"[a-z0-9_]+(?:-[a-z0-9_]+)*")
+KURVENART = {"zahl": "linear", "bool": "ja_nein", "stufe": "stufen"}
+ABSCHLAG_PROJEKTION = ("anker", "faktor", "abzug", "abdeckung_mindest")   # was die Zahl bestimmt (spanne nur Anzeige)
+
+
+def _js_leer(c):
+    """Zeichen, die JS String.prototype.trim entfernt (WhiteSpace und LineTerminator)."""
+    return c in "\t\n\v\f\r﻿  " or unicodedata.category(c) == "Zs"
+
+
+def js_text(x, n=500):
+    """istText im Client: Text mit höchstens n UTF-16-Einheiten (String.length)."""
+    return isinstance(x, str) and len(x.encode("utf-16-le")) // 2 <= n
+
+
+def js_name(x, n):
+    """istName im Client: istText und nicht leer nach trim."""
+    return js_text(x, n) and not all(_js_leer(c) for c in x)
+
+
+def js_zahl(x, lo, hi):
+    """zahlIn im Client: echte, endliche Zahl (kein Wahrheitswert) im Bereich lo..hi."""
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) and lo <= x <= hi
+
+
+def kennung_ok(x):
+    return isinstance(x, str) and KENNUNG.fullmatch(x) is not None and x not in GESPERRTE_IDS
+
+
+def _regeln_fehler(s):
+    """regelnPruefen (bewertung.js): datenblatt_abschlag und aufpreis_regeln, sonst verwirft der Client die ganze Datei."""
+    f = []
+    db = s.get("datenblatt_abschlag")
+    if not (isinstance(db, dict) and all(js_zahl(db.get(n), 0, 100) for n in ("anker", "abzug", "spanne_plus_minus"))
+            and js_zahl(db.get("faktor"), 0, 2) and js_zahl(db.get("abdeckung_mindest"), 0, 1)):
+        return ["datenblatt_abschlag wie im Client ungültig (anker/abzug/spanne 0..100, faktor 0..2, abdeckung_mindest 0..1)"]
+    if "getestet" in db:
+        m = db["getestet"].get("mischung") if isinstance(db["getestet"], dict) else None
+        if not (isinstance(m, dict) and js_zahl(m.get("test"), 0, 1) and js_zahl(m.get("datenblatt_roh"), 0, 1)):
+            f.append("datenblatt_abschlag.getestet.mischung wie im Client ungültig (test, datenblatt_roh 0..1)")
+    a = s.get("aufpreis_regeln")
+    if not (isinstance(a, dict) and isinstance(a.get("aufpreis"), dict) and isinstance(a.get("spar"), dict)):
+        return f + ["aufpreis_regeln wie im Client ungültig"]
+    ap, sp = a["aufpreis"], a["spar"]
+    if not (all(js_zahl(ap.get(n), 0, 100000) for n in ("budget_faktor_max", "aufpreis_min_eur", "punkte_min",
+                                                       "punkte_min_datenblatt", "effizienz_min_je_100eur"))
+            and js_text(ap.get("text"))):
+        f.append("aufpreis_regeln.aufpreis wie im Client ungültig")
+    if not (all(js_zahl(sp.get(n), 0, 100000) for n in ("ersparnis_min_eur", "ersparnis_min_anteil", "verlust_max_gleich",
+                                                       "verlust_max_schwaecher", "ersparnis_anteil_schwaecher"))
+            and js_text(sp.get("text_gleich")) and js_text(sp.get("text_schwaecher"))
+            and ("text_gleichauf" not in sp or js_text(sp["text_gleichauf"]))):
+        f.append("aufpreis_regeln.spar wie im Client ungültig")
+    return f
+
+
+def _kurve_fehler(f):
+    """Nur im Bau (§9.3, P2A2-R3-01): Kurvenart passt zum Typ, Teilpunkte 0..100, lineares x mit |x| < 1e7, Stufen- und
+    ja/nein-Werte vom passenden Typ und eindeutig (P2A2-01)."""
+    k = f.get("kurve")
+    art = k.get("art") if isinstance(k, dict) else None
+    if art != KURVENART.get(f.get("typ")) or not isinstance(k.get("punkte"), list) or not k["punkte"]:
+        return f"Kurve braucht art {KURVENART.get(f.get('typ'))!r} und Stützpunkte"
+    werte = []
+    for p in k["punkte"]:
+        if not (isinstance(p, list) and len(p) == 2):
+            return "Stützpunkt muss [wert, teilpunkte] sein"
+        x, y = p
+        if not js_zahl(y, 0, 100):
+            return f"Teilpunkte {y!r} sind keine Zahl 0..100"
+        if art == "linear" and not (js_zahl(x, float("-inf"), float("inf")) and abs(x) < 1e7):
+            return f"Stützpunkt {x!r} ist keine Zahl mit |x| < 1e7"
+        if (art == "stufen" and not isinstance(x, str)) or (art == "ja_nein" and not isinstance(x, bool)):
+            return f"Kurvenwert {x!r} passt nicht zur Kurvenart {art}"
+        werte.append(x)
+    if art != "linear" and len(set(werte)) != len(werte):
+        return "Kurvenwert doppelt"
+    return None
+
+
+def _doppelt(ids):
+    gesehen, doppelt = set(), []
+    for i in ids:
+        if i in gesehen and i not in doppelt:
+            doppelt.append(i)
+        gesehen.add(i)
+    return doppelt
+
+
+def vorbedingung_fehler(s):
+    """§9.3 Vorbedingungen für Kandidat und Referenz (P2A2-01, P2A2-04): eindeutige IDs, das ganze Schema besteht die
+    Prüfungen, mit denen datenPruefen die Datei verwirft (alle Kategorien, Felder auch mit Gewicht 0, Fragen, Antworten,
+    Regeln), dazu Kurven nur im Bau. Liste der Fehler, leer = Projektion und Bau dürfen laufen."""
+    if not isinstance(s, dict) or not isinstance(s.get("kategorien"), list):
+        return ["Schema: kategorien fehlt"]
+    fehler = [f"Schema: {x}" for x in _regeln_fehler(s)]
+    kats = [k for k in s["kategorien"] if isinstance(k, dict)]
+    if len(kats) != len(s["kategorien"]):
+        fehler.append("Schema: Kategorie ist kein Objekt")
+    fehler += [f"Schema: Kategorie-ID {i!r} doppelt" for i in _doppelt(k.get("id") for k in kats)]
+    for k in kats:
+        kid = k.get("id", "?")
+        if not kennung_ok(k.get("id")) or not js_name(k.get("name"), 80):
+            fehler.append(f"Schema {kid}: Kennung oder Name der Kategorie wie im Client ungültig")
+        felder, fragen = k.get("felder"), k.get("fragen", [])
+        if not isinstance(felder, list) or not isinstance(fragen, list):
+            fehler.append(f"Schema {kid}: felder muss eine Liste sein, fragen fehlen oder eine Liste sein")
+            continue
+        felder_ok = [f for f in felder if isinstance(f, dict)]
+        fehler += [f"Schema {kid}: Feld-ID {i!r} doppelt" for i in _doppelt(f.get("id") for f in felder_ok)]
+        fehler += [f"Schema {kid}: Frage-ID {i!r} doppelt" for i in _doppelt(q.get("id") for q in fragen if isinstance(q, dict))]
+        for f in felder:
+            fid = f.get("id", "?") if isinstance(f, dict) else "?"
+            if not (isinstance(f, dict) and kennung_ok(f.get("id")) and js_name(f.get("name"), 80)
+                    and f.get("typ") in KURVENART and js_zahl(f.get("gewicht"), 0, 1000)
+                    and "einheit" in f and (f["einheit"] is None or js_text(f["einheit"], 20))):
+                fehler.append(f"Schema {kid}/{fid}: Feld wie im Client ungültig (Kennung, Name, typ, gewicht 0..1000, einheit)")
+                continue
+            if grund := _kurve_fehler(f):
+                fehler.append(f"Schema {kid}/{fid}: {grund}")
+        for q in fragen:
+            qid = q.get("id", "?") if isinstance(q, dict) else "?"
+            if not (isinstance(q, dict) and kennung_ok(q.get("id")) and js_text(q.get("text"))
+                    and isinstance(q.get("antworten"), list) and q["antworten"]):
+                fehler.append(f"Schema {kid}/{qid}: Frage wie im Client ungültig (Kennung, text, antworten)")
+                continue
+            fehler += [f"Schema {kid}/{qid}: Antwort-ID {i!r} doppelt"
+                       for i in _doppelt(a.get("id") for a in q["antworten"] if isinstance(a, dict))]
+            for a in q["antworten"]:
+                aid = a.get("id", "?") if isinstance(a, dict) else "?"
+                ok = isinstance(a, dict) and kennung_ok(a.get("id")) and js_text(a.get("text"))
+                for n in ("gewichte", "mindest", "hoechst"):
+                    ok = ok and (n not in a or (isinstance(a[n], dict) and all(x not in GESPERRTE_IDS for x in a[n])))
+                if ok and isinstance(a.get("gewichte"), dict):
+                    ok = all(js_zahl(v, 0, 100) for v in a["gewichte"].values())
+                if not ok:
+                    fehler.append(f"Schema {kid}/{qid}/{aid}: Antwort wie im Client ungültig (Kennung, text, Faktoren 0..100)")
+    return fehler
+
+
+def projektion(s, kid):
+    """§9.3: alles, was die Zahl der Kategorie bestimmt, in Normalform (jede Zahl float). Felder mit Gewicht > 0 in
+    Schemareihenfolge [{id, typ, gewicht, kurve}], Fragen und Antworten in ihrer Reihenfolge mit id und gewichte, dazu
+    datenblatt_abschlag (anker, faktor, abzug, abdeckung_mindest, ggf. getestet.mischung). Ohne mindest/hoechst und
+    Felder mit Gewicht 0. Nur nach bestandenen Vorbedingungen aufrufen."""
+    k = next(x for x in s["kategorien"] if x["id"] == kid)
+    db = s["datenblatt_abschlag"]
+    abschlag = {n: float(db[n]) for n in ABSCHLAG_PROJEKTION}
+    if "getestet" in db:
+        abschlag["mischung"] = {n: float(db["getestet"]["mischung"][n]) for n in ("test", "datenblatt_roh")}
+    felder = []
+    for f in k["felder"]:
+        if f["gewicht"] > 0:
+            art = f["kurve"]["art"]
+            punkte = [[float(x) if art == "linear" else x, float(y)] for x, y in f["kurve"]["punkte"]]
+            felder.append({"id": f["id"], "typ": f["typ"], "gewicht": float(f["gewicht"]),
+                           "kurve": {"art": art, "punkte": punkte}})
+    fragen = [{"id": q["id"], "antworten": [{"id": a["id"], "gewichte": {fid: float(v) for fid, v in a.get("gewichte", {}).items()}}
+                                            for a in q["antworten"]]} for q in k.get("fragen", [])]
+    return {"felder": felder, "fragen": fragen, "abschlag": abschlag}
+
+
+def fassung_gegen_fehler(kandidat, referenz):
+    """§9.3 Referenzvergleich je Kategorie. Vorbedingungen für beide Seiten zuerst (sonst keine Projektion). Gleiche
+    Projektion → gleiche Nummer; abweichend → größere Nummer und neuer stand; kleinere Nummer immer Fehler; Referenz
+    ohne gewichte_version (Schema 1) → Projektion gleich und Nummer 1. Eine neue Kategorie ohne Referenz wird nur auf
+    ihre Form geprüft. Liste der Fehler, leer = Fassung freigegeben."""
+    fehler = [f"Kandidat: {x}" for x in vorbedingung_fehler(kandidat)]
+    fehler += [f"Referenz: {x}" for x in vorbedingung_fehler(referenz)]
+    if fehler:
+        return fehler
+    alt = {k["id"]: k for k in referenz["kategorien"]}
+    for k in kandidat["kategorien"]:
+        kid, gv = k["id"], k.get("gewichte_version")
+        if grund := fassung_fehler(gv):
+            fehler.append(f"{kid}: {grund}")
+            continue
+        if kid not in alt:
+            continue
+        gleich = projektion(kandidat, kid) == projektion(referenz, kid)
+        rv = alt[kid].get("gewichte_version")
+        if rv is None:
+            if not gleich:
+                fehler.append(f"{kid}: Projektion weicht von der Referenz ohne Fassung ab (Fassung 1 darf keine Note ändern)")
+            if gv["nummer"] != 1:
+                fehler.append(f"{kid}: erste Fassung muss Nummer 1 haben (gefunden {gv['nummer']})")
+        elif grund := fassung_fehler(rv):
+            fehler.append(f"{kid}: Referenz: {grund}")
+        elif gv["nummer"] < rv["nummer"]:
+            fehler.append(f"{kid}: Nummer {gv['nummer']} ist kleiner als in der Referenz ({rv['nummer']})")
+        elif gleich and gv["nummer"] != rv["nummer"]:
+            fehler.append(f"{kid}: Projektion unverändert, Nummer muss {rv['nummer']} bleiben (gefunden {gv['nummer']})")
+        elif not gleich and gv["nummer"] == rv["nummer"]:
+            fehler.append(f"{kid}: Gewichte, Kurven oder Abschlag geändert, Nummer muss steigen (Referenz {rv['nummer']})")
+        elif not gleich and gv["stand"] == rv["stand"]:
+            fehler.append(f"{kid}: neue Nummer {gv['nummer']} braucht einen neuen stand (Referenz {rv['stand']})")
+    return fehler
+
+
 def schema_fehler(s):
-    """Prüfung des Schemas selbst (P2a-1): schema_version 2, Kategorieschlüssel, gewichte_version/testquelle (wenn da),
-    Maßfeldregel, Stufenwerte. Liste der Fehler, leer = gültig."""
+    """Prüfung des Schemas selbst: schema_version 2, Kategorieschlüssel, gewichte_version Pflicht (P2a-2), testquelle
+    (wenn da), Vorbedingungen §9.3, Maßfeldregel, Stufenwerte. Liste der Fehler, leer = gültig."""
     fehler = []
     version = s.get("schema_version") if isinstance(s, dict) else None
     if version != 2 or isinstance(version, bool):
         fehler.append(f"Schema: schema_version muss 2 sein (gefunden {version!r})")
     if not isinstance(s, dict) or not isinstance(s.get("kategorien"), list):
         return fehler + ["Schema: kategorien fehlt"]
+    fehler += vorbedingung_fehler(s)
     for k in s["kategorien"]:
         if not isinstance(k, dict):
-            fehler.append("Schema: Kategorie ist kein Objekt")
             continue
         kid = k.get("id", "?")
         for sch in sorted(set(k) - KATEGORIE_SCHLUESSEL):
             fehler.append(f"Schema {kid}: unbekannter Kategorieschlüssel {sch!r} (erlaubt: {', '.join(sorted(KATEGORIE_SCHLUESSEL))})")
-        if "gewichte_version" in k and (grund := fassung_fehler(k["gewichte_version"])):
+        if "gewichte_version" not in k:
+            fehler.append(f"Schema {kid}: gewichte_version fehlt (Pflicht ab Schema 2, Entwurf §2.1)")
+        elif grund := fassung_fehler(k["gewichte_version"]):
             fehler.append(f"Schema {kid}: {grund}")
         if "testquelle" in k and (grund := testquelle_fehler(k["testquelle"])):
             fehler.append(f"Schema {kid}: {grund}")
@@ -472,7 +688,17 @@ def main():
             return 2
         daten, fehler, warnungen = bauen(a[0], a[2].strip().lower() if len(a) == 3 else None)
     else:
-        daten, fehler, warnungen = alle_pruefen(sys.argv[2:] or None)
+        a, gegen = list(sys.argv[2:]), None
+        if "--gegen" in a:
+            i = a.index("--gegen")
+            a.pop(i)
+            gegen = a.pop(i).lower() if i < len(a) and re.fullmatch(r"[0-9a-fA-F]{40}", a[i]) else ""
+        daten, fehler, warnungen = alle_pruefen(a or None)
+        if gegen is not None and not fehler:
+            sys.path.insert(0, str(Path(__file__).resolve().parent))   # -I nimmt den Skriptordner nicht in sys.path
+            import freigabe
+            kandidat = lade_schema()[0]
+            fehler = freigabe.gegen_commit_fehler(kandidat, gegen, WURZEL) if gegen else freigabe.lokal_fehler(WURZEL, kandidat)
     for w in warnungen:
         print("WARNUNG", w)
     for f in fehler:
