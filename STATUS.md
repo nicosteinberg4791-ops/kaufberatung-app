@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Erstprüfung r1 bewertet und korrigiert (selbst geprüft bis 171fb5d; Codex-Nachprüfung r1 läuft; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
+Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Codex-Nachprüfung r2 läuft; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
 
 ## Lage
 
@@ -19,10 +19,12 @@ Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Erstprüfung r1 bewertet und kor
 
 - **Erstprüfung r1 bewertet und korrigiert:** alle sechs Befunde bestätigt ([bewertung-r1.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r1.md)). Korrektur 171fb5d: strenges JSON auf allen Lesewegen und `allow_nan=False` im Bau (01), Test 37 ohne Annahme über den Live-Stand plus Fall „nach Veröffentlichung“ (02), Altschema-Ausnahme nur Schema 1 ohne Schlüssel (03), `daten_push` bindet die Datei an den Kandidaten (04), entfernte Referenzkategorie ist Fehler (05), Test 41 erweitert (06). Mutantenlauf 17 Mutanten, 20 Zielläufe rot, Original 20/20 grün; Sammellauf Fehler 0.
 
+- **Nachprüfung r1 bewertet und korrigiert:** vier Befunde bestätigt ([bewertung-r2.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r2.md)). Korrektur 8ca76c0 plus Folgecommit: `daten_push` vergleicht die Bytes mit dem Nachbau aus `neu` (`freigabe.bau_aus_commit`, 04), Test 37 ohne feste Zahl werfender Fassungen, Altfall an Blob gebunden (02), Altschema nur bei ganzer Zahl 1, Referenzfassung vor jeder Projektion geprüft, Kandidat braucht ganze Zahl 2 (03), `test_abschlag_isoliert` (06). Sammellauf Fehler 0; Mutantenlauf 28/30 rot, die zwei verdeckten r1-Mutanten nach Testkorrektur einzeln rot.
+
 ## Nächster Schritt
 
-**Codex-Nachprüfung P2a-2 r1 auswerten** (gpt-6.2-sol medium, `-Art nach`, Basis 9f06629, Prüfstand 275e635): nicht bestanden. Geschlossen BAU-01, BAU-05; offen BAU-04 kritisch (Herkunft passt, Kennwerte können trotzdem falsch sein), BAU-02 schwer (Test 37 erzwingt feste Zahl werfender Fassungen), BAU-03 schwer (Altschema-Ausnahme nimmt gerundeten Wert, z. B. 1.0), BAU-06 mittel (Mutante zur Mindestabdeckung überlebt). Einordnen in `bewertung-r2.md`, bestätigte korrigieren mit Probe wie r1, einfrieren, dann zweite Nachprüfung (`-Vorbericht` = Nachbericht r1, `-Bewertung bewertung-r2.md`, `-Basis 275e635`).
-**Fertig, wenn** jeder Befund eingeordnet ist, die bestätigten korrigiert sind, der Sammellauf Fehler 0 meldet, committet ist und die Nachprüfung r2 läuft. Lesen: [codex-nach-20261127-074822.json](docs/pruefungen/2026-11-26-p2a2-bau/codex-nach-20261127-074822.json), dann nur genannte Stellen.
+**Codex-Nachprüfung P2a-2 r2 auswerten** (gpt-6.2-sol medium, `-Art nach`, Basis 275e635, Auftrag [auftrag-nach-r2.md](docs/pruefungen/2026-11-26-p2a2-bau/auftrag-nach-r2.md)): Bericht `codex-nach-*.json` im Prüfordner (neuester). Bei offenen Befunden `bewertung-r3.md` wie r2; bei „bestanden“ Übergabe und Nico melden.
+**Fertig, wenn** jeder neue Befund eingeordnet ist und ein Urteil ohne offenes kritisch/schwer vorliegt.
 
 ## Offen für Nico
 

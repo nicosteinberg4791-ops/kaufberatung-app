@@ -17,5 +17,6 @@ Mutantenlauf: `python -I docs/pruefungen/2026-11-26-p2a2-bau/mutanten.py <projek
 
 - Gezielt vor dem Commit: `test_datenbank.py` 44 Tests OK (davon `Gewichtsfassung` 12), `test_freigabe.py` 15 Tests OK, beide Fälle von Test 37 grün (gh-pages 7d31d86, herkunft 7339711).
 - Laufzeit `test_freigabe.py` unverändert gegenüber 275e635 (gleicher Einzeltest dort 86 s, hier 81 s); die Git-Aufrufe dominieren, der Nachbau kostet je Push etwa 1–2 s.
-- Mutantenlauf und Sammellauf: werden nach dem Korrekturcommit eingetragen.
+- Sammellauf `tests/alle-tests.ps1` im Commit-Hook von 8ca76c0: Fehler 0, Warnungen 0.
+- Mutantenlauf auf 8ca76c0: 27 Mutanten, 30 Zielläufe; Original 30/30 grün, 28 rot, Rücksetzen sauber. Nicht rot: die r1-Mutanten „BAU-01 parse_float/parse_int entfernt“ und „BAU-04 herkunft der Datei nicht geprüft“ in `test_datei_an_kandidat_gebunden`, weil der neue Bytevergleich dieselben Dateien abweist und den Wegfall der frühen Prüfung verdeckt. Korrektur im Folgecommit: die r1-Fälle verlangen ihre eigene Meldung („kein strenges JSON“, „trägt herkunft“). Danach einzeln: Original grün, beide Mutanten rot (1 bzw. 3 Fehlschläge). Die übrigen Zielläufe dieses Tests betreffen unveränderte Fälle.
 - Nachweis: selbst geprüft. Unabhängig geprüft: offen (Nachprüfung r2).

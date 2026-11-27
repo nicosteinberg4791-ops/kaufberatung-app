@@ -233,16 +233,19 @@ class DatenPush(unittest.TestCase):
         e0 = r.seite_commit(herkunft(h0))
         h1 = r.quelle_commit(schema(), "kandidat")
         datei = r.t / "finder-daten.json"
-        for art, inhalt in {"andere herkunft": herkunft(h0), "fremde herkunft": herkunft("d" * 40),
-                            "ohne herkunft": json.dumps({"kategorien": []}),
-                            "Infinity": '{"herkunft": "%s", "kategorien": [], "x": Infinity}' % h1,
-                            "1e999": '{"herkunft": "%s", "kategorien": [], "x": 1e999}' % h1,
-                            "keine Objektform": "[]"}.items():
+        # r1-Fälle mit ihrer eigenen, frühen Meldung (vor dem Nachbau); r2: sonst deckte der Bytevergleich sie verdeckt ab
+        for art, (inhalt, meldung) in {
+                "andere herkunft": (herkunft(h0), "trägt herkunft"), "fremde herkunft": (herkunft("d" * 40), "trägt herkunft"),
+                "ohne herkunft": (json.dumps({"kategorien": []}), "trägt herkunft"),
+                "Infinity": ('{"herkunft": "%s", "kategorien": [], "x": Infinity}' % h1, "kein strenges JSON"),
+                "1e999": ('{"herkunft": "%s", "kategorien": [], "x": 1e999}' % h1, "kein strenges JSON"),
+                "keine Objektform": ("[]", "trägt herkunft")}.items():
             with self.subTest(art=art):
                 datei.write_text(inhalt + "\n", encoding="utf-8")
                 code, text = ausgabe(freigabe.daten_push, r.quelle, datei, h1)
                 self.assertEqual((code, r.oben()), (1, e0), text)
                 self.assertIn("nichts veröffentlicht", text)
+                self.assertIn(meldung, text)
         # P2A2-BAU-04 r2: gleiche herkunft, aber andere Bytes als der Bau aus h1
         echt = r.bau(h1).read_bytes()
         d = json.loads(echt)
