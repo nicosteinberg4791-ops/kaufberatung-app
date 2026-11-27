@@ -1229,9 +1229,9 @@ test("P2a-2 (37): nach Veröffentlichung von Fassung 1 – Vergleich gegen eine 
 test("P2a-2 (37): kleiner Verlauf und kleine Datei – Kriterium ist der Vergleich, keine Mindestgröße (P2A2-BAU-02 r3)", () => {
   // Speicherproben aus dem Bericht r2: Verlauf nur mit dem Altfall (dazu G1 und main), einmal mit allen Modellen,
   // einmal mit je einem Modell pro Kategorie; beide Male verhält sich jede Fassung auf beiden Dateien gleich
-  const n1 = vergleich37(MIT_FASSUNG1, [], { verlauf: [ALTFALL_B24C18F] });
-  const n2 = vergleich37(MIT_FASSUNG1, [], { verlauf: [ALTFALL_B24C18F], kuerzen: true });
-  assert.ok(n2 > 0 && n2 < n1, `${n2} < ${n1}`);
+  // r3-Hinweis: keine Größenbeziehung zwischen beiden Läufen (bei schon kleinen Dateien wären sie gleich groß)
+  vergleich37(MIT_FASSUNG1, [], { verlauf: [ALTFALL_B24C18F] });
+  vergleich37(MIT_FASSUNG1, [], { verlauf: [ALTFALL_B24C18F], kuerzen: true });
   assert.throws(() => vergleich37(MIT_FASSUNG1, [], { verlauf: [] }), /Altfall b24c18f/, "ohne Altfall rot");
 });
 

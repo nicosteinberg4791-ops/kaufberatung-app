@@ -1,0 +1,33 @@
+{
+  "urteil": "bestanden_mit_hinweisen",
+  "zusammenfassung": "P2A2-BAU-03 und P2A2-BAU-04-TEST sind geschlossen. Bei P2A2-BAU-02 und P2A2-BAU-06 sind die ursprünglichen Fälle korrigiert. In beiden Fehlerklassen bleibt je eine mittlere Testlücke offen.",
+  "befunde": [
+    {
+      "id": "P2A2-BAU-02",
+      "schwere": "mittel",
+      "titel": "Der dritte Fall von Test 37 setzt weiterhin mehr als ein Modell voraus",
+      "datei": "tests/test_bewertung.mjs",
+      "zeile": 1234,
+      "beleg": "Die beiden absoluten Schwellen in `vergleich37` sind entfernt. Der dritte Fall fordert weiterhin `n2 > 0 && n2 < n1`. In der Speicherprobe lief das unveränderte `vergleich37` mit einem Modell pro Kategorie und dem dokumentierten Altblob zweimal erfolgreich durch. Beide Aufrufe lieferten vier übereinstimmende Notenvergleiche. Der dritte Testfall scheiterte danach mit `AssertionError: 4 < 4`.",
+      "auswirkung": "Wenn die Ausgangsdateien bereits auf ein Modell pro Kategorie beschränkt sind, meldet der dritte Testfall einen Fehlschlag, obwohl alle Fassungsvergleiche bestehen.",
+      "vorschlag": "Für den Größenvergleich eine Testdatei mit gezielt vorgegebener Modellzahl verwenden oder im dritten Fall nur die erfolgreichen Fassungsvergleiche und die Bindung an den Altblob prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-06",
+      "schwere": "mittel",
+      "titel": "Die ID eines gewichteten Feldes hat weiterhin keine isolierte Probe",
+      "datei": "tests/test_datenbank.py",
+      "zeile": 550,
+      "beleg": "`test_frage_id_isoliert` prüft jetzt jede Frage-ID einzeln bei gleicher und erhöhter Fassungsnummer. Die Feld-ID-Probe in Zeile 550 setzt dagegen `constructor` bei `diagonale_zoll`, einem Feld mit Gewicht 0. Die Zusicherung prüft eine ungültige Kennung in den Vorbedingungen. `projektion` übernimmt die ID gewichteter Felder in `werkzeuge/datenbank.py:312`. Die direkten Projektionszusicherungen in Zeilen 553–561 verlangen keine konkrete ID eines gewichteten Feldes. Damit fehlt die isolierte Gegenprobe für diesen Projektionsbestandteil.",
+      "auswirkung": "Ein Wegfall der ID gewichteter Felder aus der Projektion könnte unbemerkt bleiben. Eine gültige Umbenennung könnte dann bei unveränderter Fassungsnummer durchgehen.",
+      "vorschlag": "Ein gewichtetes Feld mit einer gültigen ID isoliert umbenennen. Gültiges Schema, den Fehler „Nummer muss steigen“ bei gleicher Nummer und die Freigabe mit neuer Nummer und neuem Stand absichern.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "P2A2-BAU-03. Die ganzzahlige Schema-Version der Referenz und die Fassungsangaben aller Referenzkategorien werden vor dem ersten Projektionsaufruf geprüft. Jeder Fehler führt vorher zur Rückgabe.",
+    "P2A2-BAU-04-TEST. `git cat-file blob` liefert im Binärmodus unveränderte Blob-Bytes. Die Gegenprobe vergleicht sie direkt mit den Bytes des Kandidatenbaus, einschließlich des Schlusszeilenumbruchs."
+  ],
+  "pruefgrenzen": "Nachprüfung am Commit db9f4e639264088703bc4574e69acba472d9a5d4 mit lokalem `origin/gh-pages` auf `7d31d86`. Alle vier beauftragten Klassen wurden geprüft. Für Test 37 lief eine Node-Speicherprobe. Der Python-Launcher meldete keinen installierten Interpreter, daher beruhen die Python-Befunde auf Codeprüfung. Mutantenlauf und Sammellauf lagen außerhalb des Auftrags."
+}

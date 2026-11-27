@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Nachprüfung r2 bewertet und korrigiert (r3 läuft); nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
+Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Codex-Nachprüfung r3 bestanden mit Hinweisen, Hinweise korrigiert; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
 
 ## Lage
 
@@ -22,11 +22,12 @@ Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und kor
 - **Nachprüfung r1 bewertet und korrigiert:** vier Befunde bestätigt ([bewertung-r2.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r2.md)). Korrektur 8ca76c0 plus Folgecommit: `daten_push` vergleicht die Bytes mit dem Nachbau aus `neu` (`freigabe.bau_aus_commit`, 04), Test 37 ohne feste Zahl werfender Fassungen, Altfall an Blob gebunden (02), Altschema nur bei ganzer Zahl 1, Referenzfassung vor jeder Projektion geprüft, Kandidat braucht ganze Zahl 2 (03), `test_abschlag_isoliert` (06). Sammellauf Fehler 0; Mutantenlauf 28/30 rot, die zwei verdeckten r1-Mutanten nach Testkorrektur einzeln rot.
 
 - **Nachprüfung r2 bewertet und korrigiert:** vier Befunde bestätigt ([bewertung-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r3.md)). Korrektur 288125d: Test 37 ohne Mindestgröße und Notenschwelle, stattdessen Vollständigkeit je Fassung (02); `fassung_gegen_fehler` prüft Schema-Version und alle Fassungsangaben vor der ersten Projektion (03); `test_frage_id_isoliert` (06); Bytegegenprobe binär (04-TEST). Sammellauf Fehler 0; Mutantenlauf 36/36 rot, Original einmal nicht reproduzierbar rot (siehe Bewertung). Selbst geprüft.
+- **Nachprüfung r3 (Codex, gpt-6.2-sol medium, 129 s, Eingabe 330 Tsd., ungecacht 56 Tsd.):** bestanden mit Hinweisen; geschlossen BAU-03 und BAU-04-TEST, BAU-02 und BAU-06 auf mittel gesunken. Beide Hinweise korrigiert: Test 37 ohne Größenvergleich im Probenfall, `test_feld_id_isoliert` ([bewertung-r4.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r4.md)).
 
 ## Nächster Schritt
 
-**Codex-Nachprüfung P2a-2 r3 auswerten** (4. Runde, von Nico am 27.11. freigegeben; gpt-6.2-sol medium, `-Art nach`, Basis 676771b, Auftrag [auftrag-nach-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/auftrag-nach-r3.md)). Danach entscheidet Nico (KERN §3, Rundenlimit erreicht).
-**Fertig, wenn** der Bericht neben [bewertung-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r3.md) eingeordnet ist und Nico über offene Blocker entschieden hat.
+**P2a-2 ist durch die Prüfschleife:** Codex r3 bestanden mit Hinweisen (4. Runde, von Nico freigegeben). Beide mittleren Hinweise sind korrigiert und nur selbst geprüft ([bewertung-r4.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r4.md)). Als Nächstes entscheidet Nico über Merge mit origin/main und den Push (die Schranke kommt in den Datenworkflow).
+Offen: ein einmaliger, nicht reproduzierter Fehlschlag von `test_datei_an_kandidat_gebunden` im Mutantenlauf ([bewertung-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r3.md), Selbstprüfung). Bei Wiederauftreten die Ausgabe auswerten, die das Skript jetzt mitschreibt.
 
 ## Offen für Nico
 

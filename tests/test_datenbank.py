@@ -686,6 +686,26 @@ class Gewichtsfassung(unittest.TestCase):
                                                         f"(Referenz {kat_von(ref, kid)['gewichte_version']['nummer']})"])
                 self.gruen(hochzaehlen(k, kid), ref, "mit neuer Nummer")
 
+    def test_feld_id_isoliert(self):                # P2A2-BAU-06 r3-Hinweis
+        """§9.3: die ID eines Feldes mit Gewicht > 0 gehört zur Projektion. Je Kategorie jedes gewichtete Feld einzeln
+        umbenannt (Verweise in den Antworten mit, sonst wäre das Schema ungültig): gleiche Nummer rot, neue grün."""
+        ref = referenz()
+        faelle = [(kat["id"], f["id"]) for kat in ref["kategorien"] for f in kat["felder"] if f["gewicht"] > 0]
+        self.assertTrue(faelle)
+        for kid, fid in faelle:
+            with self.subTest(kategorie=kid, feld=fid):
+                k = copy.deepcopy(ref); kat = kat_von(k, kid); neu = "neu_" + fid
+                feld_von(k, fid, kid)["id"] = neu
+                for q in kat.get("fragen", []):
+                    for a in q["antworten"]:
+                        for n in ("gewichte", "mindest", "hoechst"):
+                            if fid in a.get(n, {}):
+                                a[n] = {(neu if x == fid else x): v for x, v in a[n].items()}
+                self.assertEqual(datenbank.schema_fehler(k), [])
+                self.assertEqual(self.vergleich(k, ref), [f"{kid}: Gewichte, Kurven oder Abschlag geändert, Nummer muss steigen "
+                                                        f"(Referenz {kat_von(ref, kid)['gewichte_version']['nummer']})"])
+                self.gruen(hochzaehlen(k, kid), ref, "mit neuer Nummer")
+
     def test_entfernte_kategorie(self):              # P2A2-BAU-05
         r8 = referenz(); kat_von(r8)["gewichte_version"] = {"nummer": 8, "stand": "2026-11-01"}
         ohne = copy.deepcopy(r8); ohne["kategorien"].remove(kat_von(ohne))
