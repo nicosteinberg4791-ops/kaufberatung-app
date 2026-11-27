@@ -26,8 +26,9 @@ Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und kor
 
 ## Nächster Schritt
 
-**P2a-2 ist durch die Prüfschleife:** Codex r3 bestanden mit Hinweisen (4. Runde, von Nico freigegeben). Beide mittleren Hinweise sind korrigiert und nur selbst geprüft ([bewertung-r4.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r4.md)). Als Nächstes entscheidet Nico über Merge mit origin/main und den Push (die Schranke kommt in den Datenworkflow).
-Offen: ein einmaliger, nicht reproduzierter Fehlschlag von `test_datei_an_kandidat_gebunden` im Mutantenlauf ([bewertung-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r3.md), Selbstprüfung). Bei Wiederauftreten die Ausgabe auswerten, die das Skript jetzt mitschreibt.
+**origin/main lokal in `main` mergen, ohne Push** (Nico, 27.11.: „Merge in neuem Chat“). `main` liegt 54 Commits vor, origin/main 9 (Paket `abruf.py`, Basis 7339711). Konflikte erwartet vor allem in `STATUS.md`; Code- und Testkonflikte nach beiden Seiten auflösen. Danach Sammellauf und Schranke gegen Live. Keinen Push ohne Nicos Wort. Vor dem Push auf gh-pages folgt die kritische Prüfung (Prüfpunkt „Veröffentlichung“, Codex high).
+**Fertig, wenn** der Merge-Commit auf `main` liegt, `tests/alle-tests.ps1` Fehler 0 meldet und `python -I werkzeuge/datenbank.py pruefen --gegen` grün ist. Erst dann den Auftrag für die kritische Prüfung vorschlagen. Lesen: `git log --oneline main..origin/main`, [docs/pruefungen/2026-11-24-abruf/](docs/pruefungen/2026-11-24-abruf/) (nur die letzte Bewertung), bei Bedarf [bewertung-r4.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r4.md).
+Offen aus P2a-2: ein einmaliger, nicht reproduzierter Fehlschlag von `test_datei_an_kandidat_gebunden` im Mutantenlauf ([bewertung-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r3.md), Selbstprüfung).
 
 ## Offen für Nico
 
