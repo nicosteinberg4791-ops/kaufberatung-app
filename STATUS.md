@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 26.11.2026 · Branch main, P2a-2 gebaut und abgeschlossen (selbst geprüft bis 9f06629; Codex-Erstprüfung r1 nicht bestanden, unbewertet; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
+Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Erstprüfung r1 bewertet und korrigiert (selbst geprüft bis 171fb5d; Codex-Nachprüfung r1 läuft; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
 
 ## Lage
 
@@ -15,10 +15,14 @@ Stand: 26.11.2026 · Branch main, P2a-2 gebaut und abgeschlossen (selbst geprüf
 
 - **P2a-2 abgeschlossen:** Test 37 vergleicht gegen einen Bau mit Werkzeug und Schema der Live-Herkunft (`bauMitStand(herkunft)`). Mutanten ([mutanten.py](docs/pruefungen/2026-11-26-p2a2-bau/mutanten.py)): 9 Mutanten, 11 Zielläufe rot, Original 11/11 grün. Doku: `punkteschema.md` §7a, Kopf und §9.9 von `p2-entwurf.md`. Sammellauf Fehler 0.
 
+## Erledigt (27.11.2026)
+
+- **Erstprüfung r1 bewertet und korrigiert:** alle sechs Befunde bestätigt ([bewertung-r1.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r1.md)). Korrektur 171fb5d: strenges JSON auf allen Lesewegen und `allow_nan=False` im Bau (01), Test 37 ohne Annahme über den Live-Stand plus Fall „nach Veröffentlichung“ (02), Altschema-Ausnahme nur Schema 1 ohne Schlüssel (03), `daten_push` bindet die Datei an den Kandidaten (04), entfernte Referenzkategorie ist Fehler (05), Test 41 erweitert (06). Mutantenlauf 17 Mutanten, 20 Zielläufe rot, Original 20/20 grün; Sammellauf Fehler 0.
+
 ## Nächster Schritt
 
-**Codex-Erstprüfung P2a-2 r1 auswerten und korrigieren.** Ergebnis (Sol 6.2 medium, Basis dbfdca6, Prüfstand 9f06629): nicht bestanden, im Umfang offen kritisch 1, schwer 2, mittel 3. Je Befund einordnen (`bewertung-r1.md` neben dem Bericht), bestätigte je Klasse korrigieren mit Probe (Mutante rot, Korrektur grün), einfrieren, bei offenem kritisch/schwer Nachprüfung `-Art nach` (Skill `pruefschleife` 5–7).
-**Fertig, wenn** `bewertung-r1.md` jeden Befund einordnet, die bestätigten korrigiert sind (Proben rot/grün), `tests/alle-tests.ps1` Fehler 0 meldet, committet ist und die Nachprüfung läuft. Lesen: Befund-JSON [codex-erst-20261126-192009.json](docs/pruefungen/2026-11-26-p2a2-bau/codex-erst-20261126-192009.json), dann nur die dort genannten Stellen; Auftrag [auftrag.md](docs/pruefungen/2026-11-26-p2a2-bau/auftrag.md).
+**Codex-Nachprüfung P2a-2 r1 auswerten** (Sol 6.2 medium, `-Art nach`, Basis 9f06629, Auftrag [auftrag-nach-r1.md](docs/pruefungen/2026-11-26-p2a2-bau/auftrag-nach-r1.md)). Bestanden → `uebergabe`, dann Push/Merge-Frage an Nico. Nicht bestanden → `bewertung-r2.md`, Korrektur mit Probe wie r1.
+**Fertig, wenn** der Nachprüfbericht eingeordnet ist und offene kritisch/schwer korrigiert oder an Nico gegeben sind. Lesen: Kurzausgabe und Befund-JSON der Nachprüfung, dann nur genannte Stellen.
 
 ## Offen für Nico
 
