@@ -52,16 +52,16 @@ M = [
      'separators=(",", ":"), allow_nan=False)', 'separators=(",", ":"))',
      [py("test_datenbank.py", "test_nur_endliche_zahlen")]),
     ("BAU-02 alte Annahme 'Live ohne Fassung' zurück", "tests/test_bewertung.mjs",
-     '    const alt = JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8"));\n    // §9.1: alle Blobs',
-     '    const alt = JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8"));\n'
+     '    const alt = kurz(JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8")));\n    // §9.1: alle Blobs',
+     '    const alt = kurz(JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8")));\n'
      '    assert.ok(alt.kategorien.every(k => k.gewichte_version === undefined), "Live-Werkzeug kennt keine Fassung");\n'
      '    // §9.1: alle Blobs',
      [node("nach Veröffentlichung von Fassung 1")]),
-    ("BAU-03 null wieder als Altschema", "werkzeuge/datenbank.py",   # r2: Stelle nach Umbau (fehlt)
-     'fehlt = "gewichte_version" not in alt[kid]', "fehlt = rv is None",
+    ("BAU-03 null wieder als Altschema", "werkzeuge/datenbank.py",   # r3: Stelle im Vordurchlauf
+     'if "gewichte_version" not in ka:', 'if ka.get("gewichte_version") is None:',
      [py("test_datenbank.py", "test_referenz_fassung_explizit_ungueltig")]),
     ("BAU-03 Schema-Version nicht geprüft", "werkzeuge/datenbank.py",
-     "if fehlt and not altschema:", "if False:",
+     "            if not altschema:", "            if False:",
      [py("test_datenbank.py", "test_referenz_fassung_explizit_ungueltig")]),
     ("BAU-05 entfernte Kategorie übergangen", "werkzeuge/datenbank.py",
      "for kid in alt if kid not in neu_ids]", "for kid in alt if False]",
@@ -84,13 +84,13 @@ M = [
      '      if (n.fehler) { assert.equal(blob, ALTFALL_B24C18F, "nur b24c18f wirft"); return; }',
      [node("nach Veröffentlichung von Fassung 1")]),
     ("BAU-03 r2 gerundete Schema-Version wieder Altschema", "werkzeuge/datenbank.py",
-     'altschema = type(referenz.get("schema_version")) is int and referenz["schema_version"] == 1',
-     'altschema = referenz.get("schema_version") == 1 and not isinstance(referenz.get("schema_version"), bool)',
+     "    if type(version) is not int or version not in (1, 2):",
+     "    if isinstance(version, bool) or version not in (1, 2):",
      [py("test_datenbank.py", "test_referenz_gerundet_und_ohne_projektion")]),
-    ("BAU-03 r2 Projektion vor der Referenzprüfung", "werkzeuge/datenbank.py",
-     "        fehlt = \"gewichte_version\" not in alt[kid]",
-     "        gleich = projektion(kandidat, kid) == projektion(referenz, kid)\n"
-     "        fehlt = \"gewichte_version\" not in alt[kid]",
+    ("BAU-03 r2/r3 Referenz nur je Kategorie geprüft (Stand r2)", "werkzeuge/datenbank.py",
+     "    if fehler:\n        return fehler\n    for k in kandidat[\"kategorien\"]:\n        kid, gv = k[\"id\"], k[\"gewichte_version\"]\n",
+     "    for k in kandidat[\"kategorien\"]:\n        kid, gv = k[\"id\"], k.get(\"gewichte_version\")\n"
+     "        if any(f.startswith(kid + \":\") for f in fehler):\n            continue\n",
      [py("test_datenbank.py", "test_referenz_gerundet_und_ohne_projektion")]),
     ("BAU-03 r2 Kandidat mit schema_version 2.0", "werkzeuge/datenbank.py",
      "    if type(version) is not int or version != 2:", "    if version != 2 or isinstance(version, bool):",
@@ -108,6 +108,29 @@ M = [
      'abschlag["mischung"] = {n: float(db["getestet"]["mischung"][n]) for n in ("test", "datenblatt_roh")}',
      'abschlag["mischung"] = {}',
      [py("test_datenbank.py", "test_abschlag_isoliert")]),
+    # ---- Korrektur r3 (bewertung-r3.md) ----
+    ("BAU-02 r3 Mindestgröße des Verlaufs zurück", "tests/test_bewertung.mjs",
+     '    assert.ok(blobs.has(ALTFALL_B24C18F), "Altfall b24c18f im Verlauf");',
+     '    assert.ok(blobs.size >= 3, "gh-pages-Verlauf fehlt? " + blobs.size);\n'
+     '    assert.ok(blobs.has(ALTFALL_B24C18F), "Altfall b24c18f im Verlauf");',
+     [node("kleiner Verlauf")]),
+    ("BAU-02 r3 absolute Notenschwelle zurück", "tests/test_bewertung.mjs",
+     '    assert.equal(gerechnet, soll, "jede Eingabe jeder rechnenden Fassung verglichen");',
+     '    assert.ok(gerechnet > 20000, gerechnet + " Noten");',
+     [node("kleiner Verlauf")]),
+    ("BAU-02 r3 Vergleich nur der ersten Kategorie", "tests/test_bewertung.mjs",
+     "      n.d.kategorien.forEach((k, ki) => {\n        const ak", "      n.d.kategorien.slice(0, 1).forEach((k, ki) => {\n        const ak",
+     [node(r"P2a-2 \(37\)")]),
+    ("BAU-03 r3 Schema-Version der Referenz nicht geprüft", "werkzeuge/datenbank.py",
+     "    if type(version) is not int or version not in (1, 2):", "    if False:",
+     [py("test_datenbank.py", "test_referenz_gerundet_und_ohne_projektion")]),
+    ("BAU-06 r3 Frage-ID aus der Projektion", "werkzeuge/datenbank.py",
+     'fragen = [{"id": q["id"], "antworten":', 'fragen = [{"antworten":',
+     [py("test_datenbank.py", "test_frage_id_isoliert")]),
+    ("BAU-04-TEST r3 Schlusszeilenumbruch beim Schreiben des Blobs", "werkzeuge/freigabe.py",
+     'r = _git(ordner, "hash-object", "-w", "--stdin", eingabe=inhalt)',
+     'r = _git(ordner, "hash-object", "-w", "--stdin", eingabe=inhalt + b"\n")',
+     [py("test_freigabe.py", "test_datei_an_kandidat_gebunden")]),
 ]
 
 def lauf(cmd):
@@ -144,7 +167,7 @@ for name, datei, alt, neu, cmds in M:
     finally:
         subprocess.run(["git", "checkout", "--", datei], cwd=P, check=True)
 print("== Rücksetzen geprüft ==")
-st = subprocess.run(["git", "status", "--porcelain", "--", "werkzeuge", "daten"], cwd=P, capture_output=True, text=True).stdout
+st = subprocess.run(["git", "status", "--porcelain", "--", "werkzeuge", "daten", "tests"], cwd=P, capture_output=True, text=True).stdout
 print("sauber" if not st.strip() else st); gesamt_ok &= not st.strip()
 print("ERGEBNIS", "OK" if gesamt_ok else "FEHLER")
 sys.exit(0 if gesamt_ok else 1)

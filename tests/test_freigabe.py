@@ -108,6 +108,11 @@ class Repos:
     def zeige(self, rev, pfad):
         return self.g(self.ursprung, "show", f"{rev}:{pfad}")
 
+    def blob_bytes(self, rev, pfad):
+        """Unveränderte Bytes eines Blobs (Binärmodus, ohne strip; P2A2-BAU-04-TEST)."""
+        return subprocess.run(["git", "-C", str(self.ursprung), "cat-file", "blob", f"{rev}:{pfad}"],
+                              capture_output=True, check=True).stdout
+
     def bau(self, herkunft):
         """Wie der Workflow: Bau im Arbeitsbaum des Kandidaten (HEAD = herkunft) mit --herkunft."""
         assert self.g(self.quelle, "rev-parse", "HEAD") == herkunft, "Arbeitsbaum steht nicht auf dem Kandidaten"
@@ -279,7 +284,7 @@ class DatenPush(unittest.TestCase):
         code, text = self.push(h1)                                     # Gegenprobe: passende Datei
         self.assertEqual(code, 0, text)
         self.assertNotEqual(r.oben(), e0)
-        self.assertEqual(r.zeige(r.oben(), "finder-daten.json").encode("utf-8"), echt.rstrip(b"\r\n"),
+        self.assertEqual(r.blob_bytes(r.oben(), "finder-daten.json"), echt,
                          "veröffentlicht sind genau die Bytes des Baus aus h1")
 
     def test_herkunft_nicht_enthalten(self):

@@ -317,7 +317,8 @@ def projektion(s, kid):
 
 
 def fassung_gegen_fehler(kandidat, referenz):
-    """§9.3 Referenzvergleich je Kategorie. Vorbedingungen für beide Seiten zuerst (sonst keine Projektion). Gleiche
+    """§9.3 Referenzvergleich je Kategorie. Vorbedingungen für beide Seiten zuerst, dann Schema-Version und alle
+    Fassungsangaben beider Seiten (bei einem Fehler keine Projektion, P2A2-BAU-03 r3). Gleiche
     Projektion → gleiche Nummer; abweichend → größere Nummer und neuer stand; kleinere Nummer immer Fehler; Referenz
     ohne gewichte_version → nur bei schema_version 1 und fehlendem Schlüssel Projektion gleich und Nummer 1, sonst Fehler
     (null ist ungültig, P2A2-BAU-03). Eine neue Kategorie ohne Referenz wird nur auf ihre Form geprüft; eine Kategorie
@@ -332,26 +333,28 @@ def fassung_gegen_fehler(kandidat, referenz):
     # Fassungsfolge verloren und sie könnte später mit kleinerer Nummer wiederkehren. Entfernen braucht eine eigene Freigabe.
     fehler += [f"{kid}: Kategorie fehlt gegenüber der Referenz (Entfernen oder Umbenennen ist kein Freigabefall der Schranke)"
                for kid in alt if kid not in neu_ids]
-    # P2A2-BAU-03 r2: Altschema nur bei der ganzen Zahl 1 (kein bool, kein float wie 1.0 aus 0.99999999999999999)
-    altschema = type(referenz.get("schema_version")) is int and referenz["schema_version"] == 1
+    # P2A2-BAU-03 r3: Fassungsangaben der Referenz in einem eigenen Durchlauf vor der ersten Projektion prüfen
+    # (Schema-Version und jede Kategorie); bei einem Fehler läuft keine Projektion.
+    version = referenz.get("schema_version")
+    if type(version) is not int or version not in (1, 2):   # r2: kein bool, kein 1.0/2.0 (auch nicht gerundet gelesen)
+        return fehler + [f"Referenz: schema_version muss die ganze Zahl 1 oder 2 sein (gefunden {version!r})"]
+    altschema = version == 1
+    for kid, ka in alt.items():
+        if "gewichte_version" not in ka:   # P2A2-BAU-03: null ist eine (ungültige) Angabe, kein Fehlen
+            if not altschema:   # die Ausnahme gilt nur für tatsächlich fehlende Angaben im Altschema 1
+                fehler.append(f"{kid}: Referenz ohne gewichte_version, aber nicht Schema 1 "
+                              f"(schema_version {version!r}); Pflicht ab Schema 2")
+        elif grund := fassung_fehler(ka["gewichte_version"]):
+            fehler.append(f"{kid}: Referenz: {grund}")
+    fehler += [f"{k['id']}: {grund}" for k in kandidat["kategorien"] if (grund := fassung_fehler(k.get("gewichte_version")))]
+    if fehler:
+        return fehler
     for k in kandidat["kategorien"]:
-        kid, gv = k["id"], k.get("gewichte_version")
-        if grund := fassung_fehler(gv):
-            fehler.append(f"{kid}: {grund}")
-            continue
+        kid, gv = k["id"], k["gewichte_version"]
         if kid not in alt:
             continue
         rv = alt[kid].get("gewichte_version")
-        fehlt = "gewichte_version" not in alt[kid]   # P2A2-BAU-03: null ist eine (ungültige) Angabe, kein Fehlen
-        # Fassungsangaben der Referenz vor jeder Projektion prüfen (P2A2-BAU-03 r2: keine Projektion bei ungültiger Referenz)
-        if fehlt and not altschema:
-            # P2A2-BAU-03: die Ausnahme gilt nur für tatsächlich fehlende Angaben im Altschema 1
-            fehler.append(f"{kid}: Referenz ohne gewichte_version, aber nicht Schema 1 "
-                          f"(schema_version {referenz.get('schema_version')!r}); Pflicht ab Schema 2")
-            continue
-        if not fehlt and (grund := fassung_fehler(rv)):
-            fehler.append(f"{kid}: Referenz: {grund}")
-            continue
+        fehlt = "gewichte_version" not in alt[kid]
         gleich = projektion(kandidat, kid) == projektion(referenz, kid)
         if fehlt:
             if not gleich:

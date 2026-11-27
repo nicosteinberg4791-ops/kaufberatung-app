@@ -594,7 +594,9 @@ class Gewichtsfassung(unittest.TestCase):
                     else:
                         kat["gewichte_version"] = wert
                 fehler = self.vergleich(k, r)
-                self.assertTrue(fehler and all("gewichte_version" in f for f in fehler), fehler)
+                # Schema true/3: Meldung zur Schema-Version vor jeder Fassungsprüfung (P2A2-BAU-03 r3)
+                wort = "gewichte_version" if version in (1, 2) and type(version) is int else "schema_version"
+                self.assertTrue(fehler and all(wort in f for f in fehler), fehler)
         r1 = echtes_schema(); r1["schema_version"] = 1   # Gegenprobe: Altschema mit fehlendem Schlüssel
         for kat in r1["kategorien"]:
             kat.pop("gewichte_version")
@@ -610,13 +612,14 @@ class Gewichtsfassung(unittest.TestCase):
             with self.subTest(schema_version=text):
                 r = datenbank.json_streng(roh.replace('"schema_version": 2', '"schema_version": ' + text, 1))
                 self.assertEqual(r["schema_version"], 1.0)
-                fehler = self.vergleich(k, r)
-                self.assertEqual(len(fehler), len(k["kategorien"]), fehler)
-                self.assertTrue(all("gewichte_version" in f for f in fehler), fehler)
+                with mock.patch.object(datenbank, "projektion", wraps=datenbank.projektion) as p:
+                    fehler = self.vergleich(k, r)
+                self.assertTrue(fehler and all("schema_version" in f for f in fehler), fehler)
+                self.assertEqual(p.call_count, 0, text)
         r = datenbank.json_streng(roh.replace('"schema_version": 2', '"schema_version": 1', 1))
         self.gruen(k, r, "Gegenprobe: ganze Zahl 1 bleibt Altschema")
-        for art, version, wert in (("fehlt, Schema 2", 2, "fehlt"), ("fehlt, Schema 1.0", 1.0, "fehlt"),
-                                   ("null", 2, None), ("Nummer 0", 2, {"nummer": 0, "stand": "2026-11-01"})):
+        for art, version, wert in (("fehlt, Schema 2", 2, "fehlt"), ("null", 2, None),
+                                   ("Nummer 0", 2, {"nummer": 0, "stand": "2026-11-01"})):
             with self.subTest(art=art):
                 r = echtes_schema(); r["schema_version"] = version
                 for kat in r["kategorien"]:
@@ -628,6 +631,22 @@ class Gewichtsfassung(unittest.TestCase):
                     fehler = self.vergleich(k, r)
                 self.assertEqual(len(fehler), len(k["kategorien"]), fehler)
                 self.assertEqual(p.call_count, 0, art)
+        # P2A2-BAU-03 r3 (Speicherproben aus dem Bericht r2): ungültige Schema-Version bei sonst gültigen Fassungen,
+        # und eine einzige ungültige Fassung in einer späten Kategorie – beide rot, ohne einen Projektionsaufruf
+        letzte = k["kategorien"][-1]["id"]
+        for art, version, kaputt in (("Schema 2.0, Fassungen gültig", 2.0, None), ("Schema 3, Fassungen gültig", 3, None),
+                                     ("Schema true", True, None), (f"nur {letzte} null", 2, letzte),
+                                     ("nur akkusauger null", 2, "akkusauger")):
+            with self.subTest(art=art):
+                r = referenz(); r["schema_version"] = version
+                if kaputt:
+                    next(x for x in r["kategorien"] if x["id"] == kaputt)["gewichte_version"] = None
+                with mock.patch.object(datenbank, "projektion", wraps=datenbank.projektion) as p:
+                    fehler = self.vergleich(k, r)
+                self.assertTrue(fehler, art)
+                self.assertEqual(p.call_count, 0, art)
+                if kaputt:
+                    self.assertTrue(all(f.startswith(kaputt + ":") for f in fehler), fehler)
         with mock.patch.object(datenbank, "projektion", wraps=datenbank.projektion) as p:   # Gegenprobe gültig
             self.gruen(k, referenz(), "gültige Referenz")
         self.assertEqual(p.call_count, 2 * len(k["kategorien"]))
@@ -651,6 +670,21 @@ class Gewichtsfassung(unittest.TestCase):
                 self.gruen(hochzaehlen(copy.deepcopy(k)), ref, art + " mit neuer Nummer überall")
         k = copy.deepcopy(ref); k["datenblatt_abschlag"]["spanne_plus_minus"] = 9   # Gegenprobe: nur Anzeige
         self.gruen(k, ref, "spanne ändert keine Note")
+
+    def test_frage_id_isoliert(self):               # P2A2-BAU-06 r3
+        """§9.3: die Frage-ID gehört zur Projektion. Jede Frage jeder Kategorie einzeln umbenannt (sonst nichts):
+        Schema gültig, gleiche Nummer rot, neue Nummer grün."""
+        ref = referenz()
+        faelle = [(kat["id"], i) for kat in ref["kategorien"] for i in range(len(kat.get("fragen", [])))]
+        self.assertTrue(faelle)
+        for kid, i in faelle:
+            with self.subTest(kategorie=kid, frage=i):
+                k = copy.deepcopy(ref); q = next(x for x in k["kategorien"] if x["id"] == kid)["fragen"][i]
+                q["id"] = q["id"] + "-neu"
+                self.assertEqual(datenbank.schema_fehler(k), [])
+                self.assertEqual(self.vergleich(k, ref), [f"{kid}: Gewichte, Kurven oder Abschlag geändert, Nummer muss steigen "
+                                                        f"(Referenz {kat_von(ref, kid)['gewichte_version']['nummer']})"])
+                self.gruen(hochzaehlen(k, kid), ref, "mit neuer Nummer")
 
     def test_entfernte_kategorie(self):              # P2A2-BAU-05
         r8 = referenz(); kat_von(r8)["gewichte_version"] = {"nummer": 8, "stand": "2026-11-01"}

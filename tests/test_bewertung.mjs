@@ -1150,23 +1150,28 @@ test("P2a-2 (42): Fassung 1 – alle Modelle, alle Vorgaben, Note vor und nach d
 // §9.1: b24c18f wirft schon heute („klassen“); die Erwartung ist an diesen Blob gebunden, nicht an eine Anzahl (P2A2-BAU-02)
 const ALTFALL_B24C18F = "4f725603c46208eb562fe780640a271b87751f3a";
 
-function vergleich37(herkunft, zusatz = []) {
+// opts.verlauf: Blob-Liste statt des gh-pages-Verlaufs; opts.kuerzen: je Kategorie nur das erste Modell (beide Dateien)
+// – beides nur für die Probe zu P2A2-BAU-02 r3 (kleiner Verlauf, kleine Datei)
+function vergleich37(herkunft, zusatz = [], opts = {}) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kb-p2a2-37-"));
   try {
     bauNeu(path.join(tmp, "neu.json"));
-    const neu = JSON.parse(fs.readFileSync(path.join(tmp, "neu.json"), "utf8"));
+    const kurz = d => { if (opts.kuerzen) d.kategorien.forEach(k => { k.modelle = k.modelle.slice(0, 1); }); return d; };
+    const neu = kurz(JSON.parse(fs.readFileSync(path.join(tmp, "neu.json"), "utf8")));
     bauMitStand(herkunft, tmp, path.join(tmp, "alt.json"));
-    const alt = JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8"));
+    const alt = kurz(JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8")));
     // §9.1: alle Blobs von bewertung.js im gh-pages-Verlauf, dazu G1 und die heutige Fassung auf main
-    const blobs = new Set(git("log", "--format=%H", "origin/gh-pages", "--", "bewertung.js").split("\n").filter(Boolean)
+    const blobs = new Set(opts.verlauf || git("log", "--format=%H", "origin/gh-pages", "--", "bewertung.js").split("\n").filter(Boolean)
       .map(c => git("rev-parse", c + ":bewertung.js").trim()));
     blobs.add(git("rev-parse", "0996e86:app/finder/bewertung.js").trim());
-    assert.ok(blobs.size >= 3, "gh-pages-Verlauf fehlt? " + blobs.size);
+    // P2A2-BAU-02 r3: keine Mindestgröße des Verlaufs; gebunden ist nur der dokumentierte Altfall
     assert.ok(blobs.has(ALTFALL_B24C18F), "Altfall b24c18f im Verlauf");
     const fassungen = [...blobs].map(b => ["blob " + b.slice(0, 7), git("cat-file", "blob", b), b]);
     fassungen.push(["main", fs.readFileSync(path.join(PROJEKT, "app", "finder", "bewertung.js"), "utf8"), null]);
     fassungen.push(...zusatz);
-    let gerechnet = 0;
+    // P2A2-BAU-02 r3: statt absoluter Schwellen vollständige Bearbeitung – jede ermittelte Fassung verglichen, bei
+    // rechnenden Fassungen jede Kategorie, jedes Modell, jede Eingabe (Vorgabe, jede Antwort, mit und ohne Regler)
+    let gerechnet = 0, soll = 0, bearbeitet = 0;
     fassungen.forEach(([name, text, blob], i) => {
       const datei = path.join(tmp, `bewertung-${i}.js`);
       fs.writeFileSync(datei, text);
@@ -1175,7 +1180,11 @@ function vergleich37(herkunft, zusatz = []) {
       const n = lauf(neu), a = lauf(alt);
       assert.equal(n.fehler, a.fehler, name + ": gleiches Werfen");
       if (blob === ALTFALL_B24C18F) assert.ok(n.fehler, "b24c18f wirft weiter (klassen, §9.1)");
+      bearbeitet++;
+      if (name === "main") assert.ok(!n.fehler, "main rechnet auf der neuen Datei: " + n.fehler);
       if (n.fehler) return;
+      assert.equal(n.d.kategorien.length, a.d.kategorien.length, name + ": Kategorienzahl");
+      soll += n.d.kategorien.reduce((s, k) => s + k.modelle.length * eingabenVon(k).length * 2, 0);
       n.d.kategorien.forEach((k, ki) => {
         const ak = a.d.kategorien[ki];
         assert.equal(k.modelle.length, ak.modelle.length, name + " " + k.id);
@@ -1190,7 +1199,8 @@ function vergleich37(herkunft, zusatz = []) {
         }
       });
     });
-    assert.ok(gerechnet > 20000, gerechnet + " Noten");
+    assert.equal(bearbeitet, fassungen.length, "jede Fassung verglichen");
+    assert.equal(gerechnet, soll, "jede Eingabe jeder rechnenden Fassung verglichen");
     return gerechnet;
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 }
@@ -1214,6 +1224,15 @@ test("P2a-2 (37): nach Veröffentlichung von Fassung 1 – Vergleich gegen eine 
   const KOPIE = String.fromCharCode(10) + "// Kopie" + String.fromCharCode(10);
   vergleich37(MIT_FASSUNG1, [["Kopie b24c18f", text(ALTFALL_B24C18F) + KOPIE, null],
                              ["Kopie main", main + KOPIE, null]]);
+});
+
+test("P2a-2 (37): kleiner Verlauf und kleine Datei – Kriterium ist der Vergleich, keine Mindestgröße (P2A2-BAU-02 r3)", () => {
+  // Speicherproben aus dem Bericht r2: Verlauf nur mit dem Altfall (dazu G1 und main), einmal mit allen Modellen,
+  // einmal mit je einem Modell pro Kategorie; beide Male verhält sich jede Fassung auf beiden Dateien gleich
+  const n1 = vergleich37(MIT_FASSUNG1, [], { verlauf: [ALTFALL_B24C18F] });
+  const n2 = vergleich37(MIT_FASSUNG1, [], { verlauf: [ALTFALL_B24C18F], kuerzen: true });
+  assert.ok(n2 > 0 && n2 < n1, `${n2} < ${n1}`);
+  assert.throws(() => vergleich37(MIT_FASSUNG1, [], { verlauf: [] }), /Altfall b24c18f/, "ohne Altfall rot");
 });
 
 test("P2a-2 (40): R2-01 – Feldreihenfolge kippt die angezeigte Zahl an der ,5-Grenze", () => {
