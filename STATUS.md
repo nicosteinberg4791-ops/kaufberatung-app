@@ -21,8 +21,8 @@ Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Erstprüfung r1 bewertet und kor
 
 ## Nächster Schritt
 
-**Codex-Nachprüfung P2a-2 r1 auswerten** (Sol 6.2 medium, `-Art nach`, Basis 9f06629, Auftrag [auftrag-nach-r1.md](docs/pruefungen/2026-11-26-p2a2-bau/auftrag-nach-r1.md)). Bestanden → `uebergabe`, dann Push/Merge-Frage an Nico. Nicht bestanden → `bewertung-r2.md`, Korrektur mit Probe wie r1.
-**Fertig, wenn** der Nachprüfbericht eingeordnet ist und offene kritisch/schwer korrigiert oder an Nico gegeben sind. Lesen: Kurzausgabe und Befund-JSON der Nachprüfung, dann nur genannte Stellen.
+**Codex-Nachprüfung P2a-2 r1 auswerten** (gpt-6.2-sol medium, `-Art nach`, Basis 9f06629, Prüfstand 275e635): nicht bestanden. Geschlossen BAU-01, BAU-05; offen BAU-04 kritisch (Herkunft passt, Kennwerte können trotzdem falsch sein), BAU-02 schwer (Test 37 erzwingt feste Zahl werfender Fassungen), BAU-03 schwer (Altschema-Ausnahme nimmt gerundeten Wert, z. B. 1.0), BAU-06 mittel (Mutante zur Mindestabdeckung überlebt). Einordnen in `bewertung-r2.md`, bestätigte korrigieren mit Probe wie r1, einfrieren, dann zweite Nachprüfung (`-Vorbericht` = Nachbericht r1, `-Bewertung bewertung-r2.md`, `-Basis 275e635`).
+**Fertig, wenn** jeder Befund eingeordnet ist, die bestätigten korrigiert sind, der Sammellauf Fehler 0 meldet, committet ist und die Nachprüfung r2 läuft. Lesen: [codex-nach-20261127-074822.json](docs/pruefungen/2026-11-26-p2a2-bau/codex-nach-20261127-074822.json), dann nur genannte Stellen.
 
 ## Offen für Nico
 

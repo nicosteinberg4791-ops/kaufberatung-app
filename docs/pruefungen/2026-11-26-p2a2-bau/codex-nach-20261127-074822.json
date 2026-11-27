@@ -1,0 +1,55 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Am Commit 275e635d sind BAU-01 und BAU-05 geschlossen. Die Dateibindung lässt weiterhin falsche Kennwerte passieren. Der Referenzvergleich akzeptiert einen auf 1 gerundeten Schemawert, und Test 37 kann trotz identischem Verhalten aller verglichenen Fassungen fehlschlagen. Die Probe gegen sinkende Fassungsnummern greift. Eine weitere Mutante zu §9.3 bleibt grün.",
+  "befunde": [
+    {
+      "id": "P2A2-BAU-04",
+      "schwere": "kritisch",
+      "titel": "Passende Herkunft schützt nicht vor falschen Kennwerten",
+      "datei": "werkzeuge/freigabe.py",
+      "zeile": 173,
+      "beleg": "In der Speicherprobe blieb `herkunft` in der tatsächlich gebauten Datei unverändert. Nur der Teilpunkt `hisense-e7s-43/bildtechnik` wurde von 50,0 auf 0 gesetzt. Die Datei behielt 14 Kategorien und 418 Varianten und erfüllt damit die Mengenschranken des Workflows. `daten_push` übergab die veränderten Bytes in Zeile 192 an `_seitencommit` und erreichte den simulierten Push mit Rückgabewert 0. Die Prüfung in Zeile 173 bindet nur das Herkunftsfeld.",
+      "auswirkung": "Ein abweichendes Artefakt kann unter dem SHA des geprüften Kandidaten falsche Teilpunkte veröffentlichen. Die Abnahme nach dem Push prüft die ausgelieferten Bytes gegen dieselbe Eingabedatei.",
+      "vorschlag": "Die gespeicherten Bytes vor `_seitencommit` mit dem reproduzierten Bau aus `neu` vergleichen oder den Commit direkt aus diesem Bau erzeugen. Eine Datei mit gleicher Herkunft und einem veränderten Teilpunkt muss vor dem Commit abgewiesen werden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-02",
+      "schwere": "schwer",
+      "titel": "Test 37 erzwingt weiterhin eine feste Zahl werfender Fassungen",
+      "datei": "tests/test_bewertung.mjs",
+      "zeile": 1187,
+      "beleg": "§9.9 fordert „jede Fassung aus §9.1 gegen die neue Datei, Erwartung ‚wie mit den heutigen Live-Daten‘“. Beide Fälle von Test 37 waren mit der vorhandenen Historie grün, auch mit simulierter Live-Herkunft für Fassung 1. In einer weiteren Speicherprobe enthielt die Seitenhistorie einen zusätzlichen, nur durch einen Kommentar verschiedenen Blob des alten Clients `b24c18f`. Alle Vergleiche je Fassung bestanden. Beide Fälle scheiterten anschließend in Zeile 1187 mit `2 !== 1`. Nach dem Einzelvergleich wäre für beide Fälle grün zu erwarten.",
+      "auswirkung": "Eine zusätzliche veröffentlichte Client-Fassung mit demselben Verhalten auf beiden Dateien kann den Test rot machen.",
+      "vorschlag": "Den Einzelvergleich als Kriterium verwenden. Falls der dokumentierte Altfall ausdrücklich geprüft werden soll, die Prüfung an seinen Blob binden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-03",
+      "schwere": "schwer",
+      "titel": "Die Altschema-Ausnahme akzeptiert einen gerundeten Schemawert",
+      "datei": "werkzeuge/datenbank.py",
+      "zeile": 335,
+      "beleg": "§9.3 verlangt „wenn der Schlüssel fehlt und `schema_version` genau 1 ist“. In der Speicherprobe enthielt das Referenz-JSON `schema_version: 0.99999999999999999` und keine Gewichtsnummern. Der Lader rundete den Wert auf `1.0`, Zeile 335 aktivierte die Altschema-Ausnahme und der Vergleich lieferte `[]`. Bei Schema 2 ohne Gewichtsnummern meldete der Vergleich zwar 14 Fehler, rief davor aber 28-mal `projektion` auf. Die geforderte Prüfung vor der Projektion fehlt damit ebenfalls.",
+      "auswirkung": "Eine ungültige Referenz kann als Erstfassung freigegeben werden. Bei erkannten ungültigen Fassungen läuft die Projektion bereits vor der Fehlermeldung.",
+      "vorschlag": "Die Ausnahme auf die ganzzahlige Schema-Version 1 begrenzen und die Fassungsangaben der Referenz vor jedem Projektionsaufruf validieren. Die Probe um einen auf 1 gerundeten Dezimalwert und die Aufrufreihenfolge ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-06",
+      "schwere": "mittel",
+      "titel": "Eine Mutante zur Mindestabdeckung überlebt die Gewichtsfassungstests",
+      "datei": "werkzeuge/datenbank.py",
+      "zeile": 159,
+      "beleg": "§9.3 führt `datenblatt_abschlag.abdeckung_mindest` ausdrücklich in der Projektion. Entfernt man nur diesen Eintrag aus `ABSCHLAG_PROJEKTION`, bleiben alle zehn Tests der Klasse `Gewichtsfassung` in der Speicherprobe grün. Eine isolierte Änderung von `abdeckung_mindest` bei unveränderten Fassungsnummern erzeugte im Original 14 Fehler und in der Mutante keinen. Die ausdrücklich geforderte Mutante gegen sinkende Nummern wurde dagegen von Test 41 erkannt.",
+      "auswirkung": "Eine Regression könnte die Mindestabdeckung aus dem Fassungsvergleich entfernen und Änderungen daran ohne neue Nummer zulassen.",
+      "vorschlag": "Eine isolierte Änderung von `abdeckung_mindest` bei gleicher Nummer prüfen und die Entfernung des Felds aus der Projektion als Mutante aufnehmen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "P2A2-BAU-01",
+    "P2A2-BAU-05"
+  ],
+  "pruefgrenzen": "Ausschließlich lesende Nachprüfung am angegebenen Commit. Der Sammellauf und der vollständige Mutantenlauf wurden wegen ihrer Schreibvorgänge nicht unabhängig ausgeführt. Die dokumentierte Selbstprüfung für 171fb5d weist Fehler 0 und 17 erkannte Mutanten aus. Unabhängig liefen gezielte Speicherproben, darunter alle zehn Gewichtsfassungstests im Original und beide Fälle von Test 37. Der lokale Seitenstand war 7d31d86 mit Herkunft 7339711. Die Testläufe haben den Arbeitsbaum nicht verändert. Zwei unversionierte Prüfdateien waren bereits zu Beginn sichtbar. Alle sechs früheren Befunde waren als korrigiert eingeordnet und hatten eine Klassenangabe. Die Genauigkeit ganzer Zahlen über 2^53 und ein Freigabeweg für das Entfernen von Kategorien lagen außerhalb des Auftrags."
+}
