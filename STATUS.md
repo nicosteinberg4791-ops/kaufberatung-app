@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Codex-Nachprüfung r2 läuft; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
+Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Codex-Nachprüfung r2 nicht bestanden, unbewertet; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
 
 ## Lage
 
@@ -23,8 +23,8 @@ Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und kor
 
 ## Nächster Schritt
 
-**Codex-Nachprüfung P2a-2 r2 auswerten** (gpt-6.2-sol medium, `-Art nach`, Basis 275e635, Auftrag [auftrag-nach-r2.md](docs/pruefungen/2026-11-26-p2a2-bau/auftrag-nach-r2.md)): Bericht `codex-nach-*.json` im Prüfordner (neuester). Bei offenen Befunden `bewertung-r3.md` wie r2; bei „bestanden“ Übergabe und Nico melden.
-**Fertig, wenn** jeder neue Befund eingeordnet ist und ein Urteil ohne offenes kritisch/schwer vorliegt.
+**Codex-Nachprüfung P2a-2 r2 auswerten** (gpt-6.2-sol medium, `-Art nach`, Basis 275e635, Prüfstand 676771b, 397 s): nicht bestanden. Geschlossen BAU-04; offen BAU-02 schwer (Test 37 verlangt Mindestgröße des Verlaufs), BAU-03 schwer (Referenzfassung erst während der Projektion geprüft), BAU-06 mittel (Mutante ohne Frage-ID überlebt), neu BAU-04-TEST mittel (Gegenprobe vergleicht keine unveränderten Blob-Bytes). Einordnen in `bewertung-r3.md` wie r2, korrigieren mit Probe, einfrieren; Nachprüfung r3 nur bei offenem schwer, Auftrag noch schmaler (Warnung: Eingabe 1,6 Mio. Tokens). Rundenlimit nach KERN §3 beachten, ggf. Nico fragen.
+**Fertig, wenn** jeder Befund eingeordnet ist, die bestätigten korrigiert sind, der Sammellauf Fehler 0 meldet und committet ist. Lesen: [codex-nach-20261127-092527.json](docs/pruefungen/2026-11-26-p2a2-bau/codex-nach-20261127-092527.json), dann nur genannte Stellen.
 
 ## Offen für Nico
 

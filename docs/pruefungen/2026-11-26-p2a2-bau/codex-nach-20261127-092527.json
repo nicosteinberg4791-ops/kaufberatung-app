@@ -1,0 +1,54 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Nachprüfung am Commit 676771bdf00734212da276f26810bda5633881b2. P2A2-BAU-04 ist geschlossen. P2A2-BAU-02 und P2A2-BAU-03 bleiben blockierend. P2A2-BAU-06 bleibt wegen einer weiteren Testlücke offen.",
+  "befunde": [
+    {
+      "id": "P2A2-BAU-02",
+      "schwere": "schwer",
+      "titel": "Test 37 verlangt weiterhin eine Mindestgröße des Verlaufs",
+      "datei": "tests/test_bewertung.mjs",
+      "zeile": 1164,
+      "beleg": "§9.9 fordert „jede Fassung aus §9.1 gegen die neue Datei, Erwartung ‚wie mit den heutigen Live-Daten‘“. In der Speicherprobe enthielt der Seitenverlauf nur den dokumentierten Altfall, ergänzt um G1 und main wie im Test. Zeile 1164 brach mit „gh-pages-Verlauf fehlt? 2“ ab. Ohne die Schwelle bestanden alle Einzelvergleiche mit 20.948 Noten. Eine zweite Probe mit je einem Modell pro Kategorie bestand alle 1.020 Notenvergleiche und scheiterte trotzdem an `gerechnet > 20000` in Zeile 1193.",
+      "auswirkung": "Test 37 kann eine Veröffentlichung blockieren, obwohl jede einbezogene Fassung auf beiden Dateien dasselbe Verhalten zeigt.",
+      "vorschlag": "Die beiden absoluten Schwellen durch Prüfungen auf vollständige Bearbeitung der tatsächlich ermittelten Fassungen und Eingaben ersetzen. Den dokumentierten Altfall weiterhin am Blob prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-03",
+      "schwere": "schwer",
+      "titel": "Die Schranke prüft die Referenzfassung erst während der Projektion",
+      "datei": "werkzeuge/datenbank.py",
+      "zeile": 337,
+      "beleg": "§9.3 legt fest, dass „die Fassungsangaben der Referenz […] vor jeder Projektion geprüft“ werden. Mit `gewichte_version: null` allein bei `akkusauger` meldete die Speicherprobe den Fehler, zählte aber 26 Projektionsaufrufe. Der erste betraf die davor stehende Kategorie `fernseher`. Mit `schema_version: 2.0` und gültigen Gewichtsnummern in allen Kategorien lieferte die Schranke `[]` und projizierte 28-mal. Zeile 336 prüft den Typ der Schema-Version nur für die Altschema-Ausnahme.",
+      "auswirkung": "Eine Referenz mit ungültiger Schema-Version kann den Vergleich bestehen. Bei gemischten Fassungsangaben beginnt der Vergleich vor der vollständigen Referenzprüfung.",
+      "vorschlag": "Die Schema-Version der Referenz und sämtliche Referenzfassungen in einem eigenen Durchlauf vor dem ersten Projektionsaufruf prüfen. Beide Speicherproben als Regressionstests aufnehmen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-06",
+      "schwere": "mittel",
+      "titel": "Eine Mutante ohne Frage-ID überlebt die Gewichtsfassungstests",
+      "datei": "tests/test_datenbank.py",
+      "zeile": 505,
+      "beleg": "§9.3 führt die Frage-ID als Projektionsbestandteil auf. Nach Entfernen allein von `\"id\": q[\"id\"]` aus der Projektion in `werkzeuge/datenbank.py:314` blieben alle neun im Prüfumfang ausgeführten Gewichtsfassungstests grün. Die isolierte Umbenennung der Fernseherfrage `zweck` in `zweck-neu` bestand die Schemaprüfung. Das Original meldete bei unveränderter Fassung „Nummer muss steigen“, die Mutante lieferte `[]`.",
+      "auswirkung": "Ein Rückfall bei der Projektion der Frage-ID bliebe in den Gewichtsfassungstests unentdeckt. Die neuen Einzelproben für die Abschlags- und Mischungswerte decken diesen Bestandteil nicht ab.",
+      "vorschlag": "Eine isolierte Umbenennung der Frage-ID bei gleicher Fassungsnummer prüfen und die Mutante ohne Frage-ID in den Mutantenlauf aufnehmen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "P2A2-BAU-04-TEST",
+      "schwere": "mittel",
+      "titel": "Die Gegenprobe vergleicht keine unveränderten Blob-Bytes",
+      "datei": "tests/test_freigabe.py",
+      "zeile": 282,
+      "beleg": "`Repos.zeige` liest den Blob im Textmodus und liefert über `Repos.g` in Zeile 67 `stdout.strip()`. Die Gegenprobe vergleicht diesen Wert mit `echt.rstrip(b\"\\r\\n\")`. Ein beim Schreiben des Blobs entfernter oder zusätzlicher Schlusszeilenumbruch bliebe dadurch unentdeckt.",
+      "auswirkung": "Die Gegenprobe kann einen künftigen Byteunterschied nach dem Eingangsvergleich übersehen. Der geprüfte Produktionspfad übergibt die geprüften Bytes unverändert an `git hash-object --stdin`.",
+      "vorschlag": "Den Seitenblob im Binärmodus aus Git lesen und direkt mit `echt` vergleichen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "P2A2-BAU-04"
+  ],
+  "pruefgrenzen": "Ausschließlich lesend geprüft. Der vollständige Mutantenlauf hätte Dateien überschrieben und per `git checkout` zurückgesetzt. Stattdessen wurden die zehn r2-Mutanten in gezielten Speicherproben geprüft. Die unveränderten Fassungen bestanden diese Proben, und alle zehn Mutanten wurden erkannt. Bei BAU-04 waren Dateiausgabe, Seitencommit und Push simuliert. Bei BAU-02 lief die Vergleichslogik mit echten Git-Blobs und vorbereiteten JSON-Eingaben. Der vollständige Skriptlauf samt Rücksetzen bleibt damit unabhängig unbestätigt. HEAD und der sichtbare Arbeitsbaumstatus waren vor und nach der Prüfung gleich. BAU-01 und BAU-05 wurden auftragsgemäß nicht erneut geprüft. Abweichende Python-Interpreter lagen außerhalb des Prüfumfangs. Test 37 nutzte den lokalen Stand von `origin/gh-pages`."
+}
