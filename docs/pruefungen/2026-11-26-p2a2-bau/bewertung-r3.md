@@ -16,5 +16,6 @@ Mutantenlauf: `python -I docs/pruefungen/2026-11-26-p2a2-bau/mutanten.py <projek
 ## Selbstprüfung
 
 - Gezielt vor dem Commit: `test_datenbank.py` 45 Tests OK, Test 37 alle drei Fälle grün (gh-pages 7d31d86, herkunft 7339711), `test_datei_an_kandidat_gebunden` OK.
-- Sammellauf und Mutantenlauf: siehe Folgecommit.
-- Nachweis: selbst geprüft. Unabhängig geprüft: offen.
+- Sammellauf `tests/alle-tests.ps1` im Commit-Hook von 288125d: Fehler 0, Warnungen 1 („Stand während des Laufs verändert“: `auftrag-nach-r3.md` wurde während des Laufs angelegt, kein Testbefund).
+- Mutantenlauf auf 288125d: 33 Mutanten, 36 Zielläufe; alle 36 rot, Rücksetzen sauber (`werkzeuge`, `daten`, `tests`). Original 35/36 grün: der fünfte von fünf Originalläufen von `test_datei_an_kandidat_gebunden` war einmal rot, die vier davor grün. Danach 12 Einzelläufe desselben Tests grün; Ursache ungeklärt (das Skript gab die Ausgabe bei rotem Original nicht aus, jetzt ergänzt). Als offener Punkt geführt, kein Befund der Runde.
+- Nachweis: selbst geprüft. Unabhängig geprüft: offen (Nachprüfung r3, 4. Runde, von Nico am 27.11.2026 freigegeben, KERN §3).

@@ -149,6 +149,8 @@ for _, _, _, _, cmds in M:
         ok = code == 0 and lief
         gesamt_ok &= ok
         print(("GRÜN " if ok else "FEHLER ") + " ".join(c[-3:]))
+        if not ok:   # r3: Ausgabe festhalten (ein nicht reproduzierter Fehlschlag im Lauf auf 288125d)
+            print(a[-3000:])
 print("== Mutanten ==")
 for name, datei, alt, neu, cmds in M:
     f = P / datei
