@@ -158,6 +158,44 @@ def _seitencommit(ordner, eltern, inhalt, nachricht):
     return neu
 
 
+BAU_PFADE = ("daten", "werkzeuge")   # alles, was `datenbank.py bauen` liest
+
+
+def bau_aus_commit(ordner, neu):
+    """Bytes von finder-daten.json, gebaut aus genau dem Commit neu (P2A2-BAU-04 r2): daten/ und werkzeuge/ direkt aus
+    den Git-Objekten in einen leeren Ordner (nie der Arbeitsbaum, keine Filter), dann dessen datenbank.py bauen
+    --herkunft neu als eigener Prozess. Nur normale Dateien; ein Link oder Pfad außerhalb bricht ab."""
+    r = _git(ordner, "ls-tree", "-r", "-z", neu, *BAU_PFADE)
+    if r.returncode != 0:
+        raise ReferenzFehler(f"Stand {neu} nicht lesbar")
+    with tempfile.TemporaryDirectory(prefix="kb-daten-bau-") as t:
+        wurzel = Path(t).resolve()
+        for eintrag in filter(None, r.stdout.split(b"\0")):
+            kopf, pfad = eintrag.split(b"\t", 1)
+            modus, art, blob = kopf.decode("ascii").split()
+            pfad = pfad.decode("utf-8")
+            if art != "blob" or modus not in ("100644", "100755"):
+                raise ReferenzFehler(f"{pfad} im Stand {neu[:12]} ist keine normale Datei ({modus} {art})")
+            ziel = (wurzel / pfad).resolve()
+            if wurzel not in ziel.parents:
+                raise ReferenzFehler(f"{pfad} liegt außerhalb des Bauordners")
+            b = _git(ordner, "cat-file", "blob", blob)
+            if b.returncode != 0:
+                raise ReferenzFehler(f"{pfad} im Stand {neu[:12]} nicht lesbar")
+            ziel.parent.mkdir(parents=True, exist_ok=True)
+            ziel.write_bytes(b.stdout)
+        werkzeug = wurzel / "werkzeuge" / "datenbank.py"
+        if not werkzeug.is_file():
+            raise ReferenzFehler(f"werkzeuge/datenbank.py fehlt im Stand {neu[:12]}")
+        aus = wurzel / "bau" / "finder-daten.json"
+        aus.parent.mkdir()
+        b = subprocess.run([sys.executable, "-X", "utf8", "-I", str(werkzeug), "bauen", str(aus), "--herkunft", neu],
+                           cwd=wurzel, capture_output=True)
+        if b.returncode != 0 or not aus.is_file():
+            raise ReferenzFehler("Bau gescheitert: " + (b.stdout + b.stderr).decode("utf-8", "replace").strip()[-800:])
+        return aus.read_bytes()
+
+
 def daten_push(ordner, datei, neu, kandidat=None, remote="origin", versuche=3, haken=None):
     """Veröffentlichungsschritt des Datenworkflows. haken(versuch, eltern) läuft direkt vor dem Push (nur Tests)."""
     def abbruch(grund):
@@ -173,6 +211,14 @@ def daten_push(ordner, datei, neu, kandidat=None, remote="origin", versuche=3, h
     if not isinstance(gebaut, dict) or gebaut.get("herkunft") != neu:
         h = gebaut.get("herkunft") if isinstance(gebaut, dict) else None
         return abbruch(f"{Path(datei).name} trägt herkunft {h!r}, geprüft wird {neu}")
+    # P2A2-BAU-04 r2: eine passende herkunft genügt nicht (die Kennwerte könnten trotzdem abweichen). Die Bytes müssen
+    # genau dem Bau aus dem Kandidaten gleichen (wie veroeffentlichen.bereitgestellt_fehler: Text = eigener Bau).
+    try:
+        soll = bau_aus_commit(ordner, neu)
+    except ReferenzFehler as e:
+        return abbruch(f"Bau aus {neu[:12]} nicht reproduzierbar: {e}")
+    if inhalt != soll:
+        return abbruch(f"{Path(datei).name} weicht vom Bau aus {neu[:12]} ab (gleiche herkunft genügt nicht)")
     try:
         kandidat = schema_am_commit(neu, ordner) if kandidat is None else kandidat
     except ReferenzFehler as e:

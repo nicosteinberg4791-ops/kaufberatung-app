@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 WURZEL = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(WURZEL / "werkzeuge"))
@@ -598,6 +599,58 @@ class Gewichtsfassung(unittest.TestCase):
         for kat in r1["kategorien"]:
             kat.pop("gewichte_version")
         self.gruen(k, r1, "Schema 1 ohne Schlüssel bleibt die Erstfassung")
+
+    def test_referenz_gerundet_und_ohne_projektion(self):   # P2A2-BAU-03 r2
+        """Altschema nur bei der ganzen Zahl 1 (auch nach strengem Lesen: 0.99999999999999999 wird 1.0), und bei
+        ungültigen Fassungsangaben der Referenz läuft keine Projektion."""
+        k = echtes_schema()
+        roh = json.dumps({**echtes_schema(), "kategorien": [{x: v for x, v in kat.items() if x != "gewichte_version"}
+                                                              for kat in echtes_schema()["kategorien"]]})
+        for text in ("0.99999999999999999", "1.0", "1e0", "1.00000000000000001"):
+            with self.subTest(schema_version=text):
+                r = datenbank.json_streng(roh.replace('"schema_version": 2', '"schema_version": ' + text, 1))
+                self.assertEqual(r["schema_version"], 1.0)
+                fehler = self.vergleich(k, r)
+                self.assertEqual(len(fehler), len(k["kategorien"]), fehler)
+                self.assertTrue(all("gewichte_version" in f for f in fehler), fehler)
+        r = datenbank.json_streng(roh.replace('"schema_version": 2', '"schema_version": 1', 1))
+        self.gruen(k, r, "Gegenprobe: ganze Zahl 1 bleibt Altschema")
+        for art, version, wert in (("fehlt, Schema 2", 2, "fehlt"), ("fehlt, Schema 1.0", 1.0, "fehlt"),
+                                   ("null", 2, None), ("Nummer 0", 2, {"nummer": 0, "stand": "2026-11-01"})):
+            with self.subTest(art=art):
+                r = echtes_schema(); r["schema_version"] = version
+                for kat in r["kategorien"]:
+                    if wert == "fehlt":
+                        kat.pop("gewichte_version", None)
+                    else:
+                        kat["gewichte_version"] = wert
+                with mock.patch.object(datenbank, "projektion", wraps=datenbank.projektion) as p:
+                    fehler = self.vergleich(k, r)
+                self.assertEqual(len(fehler), len(k["kategorien"]), fehler)
+                self.assertEqual(p.call_count, 0, art)
+        with mock.patch.object(datenbank, "projektion", wraps=datenbank.projektion) as p:   # Gegenprobe gültig
+            self.gruen(k, referenz(), "gültige Referenz")
+        self.assertEqual(p.call_count, 2 * len(k["kategorien"]))
+        s = echtes_schema(); s["schema_version"] = 2.0
+        self.assertTrue(any("schema_version" in f for f in datenbank.schema_fehler(s)), "Kandidat mit 2.0")
+
+    def test_abschlag_isoliert(self):               # P2A2-BAU-06 r2
+        """Jeder Wert des Datenblatt-Abschlags in der Projektion (§9.3) einzeln geändert: gleiche Nummer rot, neue
+        Nummer mit neuem Stand in allen Kategorien grün."""
+        ref = referenz()
+        faelle = {n: (lambda n: lambda db: db.__setitem__(n, db[n] + (0.05 if n in ("faktor", "abdeckung_mindest") else 1)))(n)
+                  for n in ("anker", "faktor", "abzug", "abdeckung_mindest")}   # §9.3 ausdrücklich, nicht aus dem Code
+        faelle["mischung.test"] = lambda db: db["getestet"]["mischung"].__setitem__("test", 0.65)
+        faelle["mischung.datenblatt_roh"] = lambda db: db["getestet"]["mischung"].__setitem__("datenblatt_roh", 0.35)
+        for art, aendern in faelle.items():
+            with self.subTest(art=art):
+                k = copy.deepcopy(ref); aendern(k["datenblatt_abschlag"])
+                self.assertEqual(datenbank.schema_fehler(k), [], art)
+                fehler = self.vergleich(k, ref)
+                self.assertEqual(len([f for f in fehler if "Nummer muss steigen" in f]), len(ref["kategorien"]), fehler)
+                self.gruen(hochzaehlen(copy.deepcopy(k)), ref, art + " mit neuer Nummer überall")
+        k = copy.deepcopy(ref); k["datenblatt_abschlag"]["spanne_plus_minus"] = 9   # Gegenprobe: nur Anzeige
+        self.gruen(k, ref, "spanne ändert keine Note")
 
     def test_entfernte_kategorie(self):              # P2A2-BAU-05
         r8 = referenz(); kat_von(r8)["gewichte_version"] = {"nummer": 8, "stand": "2026-11-01"}

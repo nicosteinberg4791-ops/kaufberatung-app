@@ -1147,7 +1147,10 @@ test("P2a-2 (42): Fassung 1 – alle Modelle, alle Vorgaben, Note vor und nach d
 /* §9.1/§9.9 (37): jede umlaufende bewertung.js auf der neuen Datei gegen die Datei aus Werkzeug und Schema von
    `herkunft` (dazu die heutigen Produktdaten). Keine Annahme über Fassungsmetadaten der Vergleichsdatei (P2A2-BAU-02):
    verglichen werden nur Werfen, Modellzahl, Note und Art je Client. */
-function vergleich37(herkunft) {
+// §9.1: b24c18f wirft schon heute („klassen“); die Erwartung ist an diesen Blob gebunden, nicht an eine Anzahl (P2A2-BAU-02)
+const ALTFALL_B24C18F = "4f725603c46208eb562fe780640a271b87751f3a";
+
+function vergleich37(herkunft, zusatz = []) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kb-p2a2-37-"));
   try {
     bauNeu(path.join(tmp, "neu.json"));
@@ -1159,17 +1162,20 @@ function vergleich37(herkunft) {
       .map(c => git("rev-parse", c + ":bewertung.js").trim()));
     blobs.add(git("rev-parse", "0996e86:app/finder/bewertung.js").trim());
     assert.ok(blobs.size >= 3, "gh-pages-Verlauf fehlt? " + blobs.size);
-    const fassungen = [...blobs].map(b => ["blob " + b.slice(0, 7), git("cat-file", "blob", b)]);
-    fassungen.push(["main", fs.readFileSync(path.join(PROJEKT, "app", "finder", "bewertung.js"), "utf8")]);
-    let geworfen = 0, gerechnet = 0;
-    fassungen.forEach(([name, text], i) => {
+    assert.ok(blobs.has(ALTFALL_B24C18F), "Altfall b24c18f im Verlauf");
+    const fassungen = [...blobs].map(b => ["blob " + b.slice(0, 7), git("cat-file", "blob", b), b]);
+    fassungen.push(["main", fs.readFileSync(path.join(PROJEKT, "app", "finder", "bewertung.js"), "utf8"), null]);
+    fassungen.push(...zusatz);
+    let gerechnet = 0;
+    fassungen.forEach(([name, text, blob], i) => {
       const datei = path.join(tmp, `bewertung-${i}.js`);
       fs.writeFileSync(datei, text);
       const V = require(datei);
       const lauf = d => { try { return { d: V.datenPruefen(kopie(d)) }; } catch (e) { return { fehler: e.message }; } };
       const n = lauf(neu), a = lauf(alt);
       assert.equal(n.fehler, a.fehler, name + ": gleiches Werfen");
-      if (n.fehler) { geworfen++; return; }
+      if (blob === ALTFALL_B24C18F) assert.ok(n.fehler, "b24c18f wirft weiter (klassen, §9.1)");
+      if (n.fehler) return;
       n.d.kategorien.forEach((k, ki) => {
         const ak = a.d.kategorien[ki];
         assert.equal(k.modelle.length, ak.modelle.length, name + " " + k.id);
@@ -1184,7 +1190,6 @@ function vergleich37(herkunft) {
         }
       });
     });
-    assert.equal(geworfen, 1, "b24c18f wirft schon heute (klassen, §9.1)");
     assert.ok(gerechnet > 20000, gerechnet + " Noten");
     return gerechnet;
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
@@ -1201,7 +1206,14 @@ test("P2a-2 (37): jede umlaufende bewertung.js verhält sich auf der neuen Datei
 });
 
 test("P2a-2 (37): nach Veröffentlichung von Fassung 1 – Vergleich gegen eine Herkunft mit gewichte_version", () => {
-  vergleich37(MIT_FASSUNG1);   // P2A2-BAU-02: so sieht der Live-Stand aus, sobald dieser Bau online ist
+  // P2A2-BAU-02: so sieht der Live-Stand aus, sobald dieser Bau online ist. Dazu zwei weitere veröffentlichte Fassungen
+  // mit gleichem Verhalten wie vorhandene (nur Kommentar verschieden): eine werfende und eine rechnende. Keine Annahme
+  // über die Zahl werfender Fassungen, Kriterium ist allein der Vergleich je Fassung.
+  const text = b => git("cat-file", "blob", b);
+  const main = fs.readFileSync(path.join(PROJEKT, "app", "finder", "bewertung.js"), "utf8");
+  const KOPIE = String.fromCharCode(10) + "// Kopie" + String.fromCharCode(10);
+  vergleich37(MIT_FASSUNG1, [["Kopie b24c18f", text(ALTFALL_B24C18F) + KOPIE, null],
+                             ["Kopie main", main + KOPIE, null]]);
 });
 
 test("P2a-2 (40): R2-01 – Feldreihenfolge kippt die angezeigte Zahl an der ,5-Grenze", () => {

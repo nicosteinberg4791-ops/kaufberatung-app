@@ -52,6 +52,12 @@ class Repos:
             self.g(r, "config", "user.name", "Test"); self.g(r, "config", "user.email", "test@example.invalid")
             self.g(r, "config", "core.autocrlf", "false")
             self.g(r, "remote", "add", "origin", str(self.ursprung))
+        # P2A2-BAU-04 r2: daten_push baut den Kandidaten nach; dafür liegt das echte Bauwerkzeug mit einer
+        # Produktdatei im Stand (eine Kategorie genügt, die übrigen bleiben leer)
+        for rel in ("werkzeuge/datenbank.py", "daten/quellen.json", "daten/produkte/fernseher.json"):
+            ziel = self.quelle / rel
+            ziel.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(WURZEL / rel, ziel)
 
     @staticmethod
     def g(cwd, *a, check=True):
@@ -103,8 +109,12 @@ class Repos:
         return self.g(self.ursprung, "show", f"{rev}:{pfad}")
 
     def bau(self, herkunft):
+        """Wie der Workflow: Bau im Arbeitsbaum des Kandidaten (HEAD = herkunft) mit --herkunft."""
+        assert self.g(self.quelle, "rev-parse", "HEAD") == herkunft, "Arbeitsbaum steht nicht auf dem Kandidaten"
         datei = self.t / "finder-daten.json"
-        datei.write_text(json.dumps({"herkunft": herkunft, "kategorien": []}) + "\n", encoding="utf-8")
+        lauf = subprocess.run([sys.executable, "-X", "utf8", "-I", str(self.quelle / "werkzeuge" / "datenbank.py"), "bauen",
+                               str(datei), "--herkunft", herkunft], capture_output=True, text=True, encoding="utf-8")
+        assert lauf.returncode == 0, lauf.stdout + lauf.stderr
         return datei
 
 
@@ -233,9 +243,41 @@ class DatenPush(unittest.TestCase):
                 code, text = ausgabe(freigabe.daten_push, r.quelle, datei, h1)
                 self.assertEqual((code, r.oben()), (1, e0), text)
                 self.assertIn("nichts veröffentlicht", text)
+        # P2A2-BAU-04 r2: gleiche herkunft, aber andere Bytes als der Bau aus h1
+        echt = r.bau(h1).read_bytes()
+        d = json.loads(echt)
+        modell = next(m for k in d["kategorien"] for m in k["modelle"] if m["id"] == "hisense-e7s-43")
+        self.assertEqual(modell["teilpunkte"]["bildtechnik"], 50.0)
+        manipuliert = {"Teilpunkt 50 → 0": lambda x: modell.__setitem__("teilpunkte", {**modell["teilpunkte"], "bildtechnik": 0})}
+        for art, aendern in manipuliert.items():
+            with self.subTest(art=art):
+                aendern(d)
+                datei.write_bytes(json.dumps(d, ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\n")
+                code, text = ausgabe(freigabe.daten_push, r.quelle, datei, h1)
+                self.assertEqual((code, r.oben()), (1, e0), text)
+                self.assertIn("weicht vom Bau", text)
+        for art, inhalt in {"gleicher Inhalt, andere Formatierung": json.dumps(json.loads(echt), indent=1).encode("utf-8"),
+                            "ein Byte angehängt": echt + b" "}.items():
+            with self.subTest(art=art):
+                datei.write_bytes(inhalt)
+                code, text = ausgabe(freigabe.daten_push, r.quelle, datei, h1)
+                self.assertEqual((code, r.oben()), (1, e0), text)
+                self.assertIn("weicht vom Bau", text)
+        with self.subTest(art="Bau aus verändertem Arbeitsbaum"):   # uncommittete Datenänderung, herkunft passt
+            p = r.quelle / "daten" / "produkte" / "fernseher.json"
+            alt = p.read_bytes()
+            p.write_bytes(alt.replace(b'"hisense-e7s-43"', b'"hisense-e7s-43x"', 1))
+            try:
+                code, text = ausgabe(freigabe.daten_push, r.quelle, r.bau(h1), h1)
+            finally:
+                p.write_bytes(alt)
+            self.assertEqual((code, r.oben()), (1, e0), text)
+            self.assertIn("weicht vom Bau", text)
         code, text = self.push(h1)                                     # Gegenprobe: passende Datei
         self.assertEqual(code, 0, text)
         self.assertNotEqual(r.oben(), e0)
+        self.assertEqual(r.zeige(r.oben(), "finder-daten.json").encode("utf-8"), echt.rstrip(b"\r\n"),
+                         "veröffentlicht sind genau die Bytes des Baus aus h1")
 
     def test_herkunft_nicht_enthalten(self):
         """herkunft.py läuft wie bisher zusätzlich: eine Online-Herkunft, die nicht im neuen Stand liegt, bricht ab."""

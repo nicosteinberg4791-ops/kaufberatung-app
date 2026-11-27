@@ -332,7 +332,8 @@ def fassung_gegen_fehler(kandidat, referenz):
     # Fassungsfolge verloren und sie könnte später mit kleinerer Nummer wiederkehren. Entfernen braucht eine eigene Freigabe.
     fehler += [f"{kid}: Kategorie fehlt gegenüber der Referenz (Entfernen oder Umbenennen ist kein Freigabefall der Schranke)"
                for kid in alt if kid not in neu_ids]
-    altschema = referenz.get("schema_version") == 1 and not isinstance(referenz.get("schema_version"), bool)
+    # P2A2-BAU-03 r2: Altschema nur bei der ganzen Zahl 1 (kein bool, kein float wie 1.0 aus 0.99999999999999999)
+    altschema = type(referenz.get("schema_version")) is int and referenz["schema_version"] == 1
     for k in kandidat["kategorien"]:
         kid, gv = k["id"], k.get("gewichte_version")
         if grund := fassung_fehler(gv):
@@ -340,19 +341,23 @@ def fassung_gegen_fehler(kandidat, referenz):
             continue
         if kid not in alt:
             continue
-        gleich = projektion(kandidat, kid) == projektion(referenz, kid)
         rv = alt[kid].get("gewichte_version")
-        if "gewichte_version" not in alt[kid] and not altschema:
+        fehlt = "gewichte_version" not in alt[kid]   # P2A2-BAU-03: null ist eine (ungültige) Angabe, kein Fehlen
+        # Fassungsangaben der Referenz vor jeder Projektion prüfen (P2A2-BAU-03 r2: keine Projektion bei ungültiger Referenz)
+        if fehlt and not altschema:
             # P2A2-BAU-03: die Ausnahme gilt nur für tatsächlich fehlende Angaben im Altschema 1
             fehler.append(f"{kid}: Referenz ohne gewichte_version, aber nicht Schema 1 "
                           f"(schema_version {referenz.get('schema_version')!r}); Pflicht ab Schema 2")
-        elif "gewichte_version" not in alt[kid]:
+            continue
+        if not fehlt and (grund := fassung_fehler(rv)):
+            fehler.append(f"{kid}: Referenz: {grund}")
+            continue
+        gleich = projektion(kandidat, kid) == projektion(referenz, kid)
+        if fehlt:
             if not gleich:
                 fehler.append(f"{kid}: Projektion weicht von der Referenz ohne Fassung ab (Fassung 1 darf keine Note ändern)")
             if gv["nummer"] != 1:
                 fehler.append(f"{kid}: erste Fassung muss Nummer 1 haben (gefunden {gv['nummer']})")
-        elif grund := fassung_fehler(rv):
-            fehler.append(f"{kid}: Referenz: {grund}")
         elif gv["nummer"] < rv["nummer"]:
             fehler.append(f"{kid}: Nummer {gv['nummer']} ist kleiner als in der Referenz ({rv['nummer']})")
         elif gleich and gv["nummer"] != rv["nummer"]:
@@ -369,7 +374,7 @@ def schema_fehler(s):
     (wenn da), Vorbedingungen §9.3, Maßfeldregel, Stufenwerte. Liste der Fehler, leer = gültig."""
     fehler = []
     version = s.get("schema_version") if isinstance(s, dict) else None
-    if version != 2 or isinstance(version, bool):
+    if type(version) is not int or version != 2:   # P2A2-BAU-03 r2: auch kein 2.0 (Klasse gerundete Versionsangabe)
         fehler.append(f"Schema: schema_version muss 2 sein (gefunden {version!r})")
     if not isinstance(s, dict) or not isinstance(s.get("kategorien"), list):
         return fehler + ["Schema: kategorien fehlt"]
