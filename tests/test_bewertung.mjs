@@ -1097,6 +1097,7 @@ test("P2A1-04 (34): persoenlich nur, wenn ein Regler auf ein für dieses Modell 
 const PY = process.env.PYTHON || "python";
 const git = (...a) => execFileSync("git", ["-C", PROJEKT, ...a], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 const VOR_P2A2 = "dbfdca67a49387371846d2587f69363574175bed";   // letzter Stand vor P2a-2 (ohne gewichte_version)
+const MIT_FASSUNG1 = "6bc96605a622fe05d2b10c358d39f3916eaab0ce";   // erster Stand mit Fassung 1 (P2a-2 gebaut)
 const bauNeu = ziel => execFileSync(PY, ["-I", path.join(PROJEKT, "werkzeuge", "datenbank.py"), "bauen", ziel], { stdio: "pipe" });
 /* Bau mit Werkzeug und Schema eines Commits, aber den heutigen Produktdaten und Freigaben (gleiche Eingabe, alte Regeln) */
 function bauMitStand(commit, tmp, ziel) {
@@ -1143,18 +1144,16 @@ test("P2a-2 (42): Fassung 1 – alle Modelle, alle Vorgaben, Note vor und nach d
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 });
 
-test("P2a-2 (37): jede umlaufende bewertung.js verhält sich auf der neuen Datei wie mit den Live-Daten", () => {
+/* §9.1/§9.9 (37): jede umlaufende bewertung.js auf der neuen Datei gegen die Datei aus Werkzeug und Schema von
+   `herkunft` (dazu die heutigen Produktdaten). Keine Annahme über Fassungsmetadaten der Vergleichsdatei (P2A2-BAU-02):
+   verglichen werden nur Werfen, Modellzahl, Note und Art je Client. */
+function vergleich37(herkunft) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kb-p2a2-37-"));
   try {
     bauNeu(path.join(tmp, "neu.json"));
     const neu = JSON.parse(fs.readFileSync(path.join(tmp, "neu.json"), "utf8"));
-    // §9.1: Vergleichsdatei = Bau mit Werkzeug und Schema der Live-Herkunft (herkunft der Datei auf gh-pages),
-    // dazu die heutigen Produktdaten. So wird der Test rot, wenn sich das Schema seit dem Live-Stand ändert.
-    const live = JSON.parse(git("show", "origin/gh-pages:finder-daten.json").replace(/^﻿/, ""));
-    assert.match(String(live.herkunft), /^[0-9a-f]{40}$/, "herkunft der Live-Datei");
-    bauMitStand(live.herkunft, tmp, path.join(tmp, "alt.json"));
+    bauMitStand(herkunft, tmp, path.join(tmp, "alt.json"));
     const alt = JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8"));
-    assert.ok(alt.kategorien.every(k => k.gewichte_version === undefined), "Live-Werkzeug kennt keine Fassung");
     // §9.1: alle Blobs von bewertung.js im gh-pages-Verlauf, dazu G1 und die heutige Fassung auf main
     const blobs = new Set(git("log", "--format=%H", "origin/gh-pages", "--", "bewertung.js").split("\n").filter(Boolean)
       .map(c => git("rev-parse", c + ":bewertung.js").trim()));
@@ -1187,7 +1186,22 @@ test("P2a-2 (37): jede umlaufende bewertung.js verhält sich auf der neuen Datei
     });
     assert.equal(geworfen, 1, "b24c18f wirft schon heute (klassen, §9.1)");
     assert.ok(gerechnet > 20000, gerechnet + " Noten");
+    return gerechnet;
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+}
+
+test("P2a-2 (37): jede umlaufende bewertung.js verhält sich auf der neuen Datei wie mit den Live-Daten", t => {
+  // Vergleichsdatei aus der herkunft der Datei auf gh-pages (lokaler Ref, offline); der verwendete Seitenstand
+  // wird ausgegeben, damit ein veralteter Ref im Lauf sichtbar ist (P2A2-BAU-02).
+  const seite = git("rev-parse", "origin/gh-pages").trim();
+  const live = JSON.parse(git("show", seite + ":finder-daten.json").replace(/^﻿/, ""));
+  assert.match(String(live.herkunft), /^[0-9a-f]{40}$/, "herkunft der Live-Datei");
+  t.diagnostic(`gh-pages ${seite}, herkunft ${live.herkunft}`);
+  vergleich37(live.herkunft);
+});
+
+test("P2a-2 (37): nach Veröffentlichung von Fassung 1 – Vergleich gegen eine Herkunft mit gewichte_version", () => {
+  vergleich37(MIT_FASSUNG1);   // P2A2-BAU-02: so sieht der Live-Stand aus, sobald dieser Bau online ist
 });
 
 test("P2a-2 (40): R2-01 – Feldreihenfolge kippt die angezeigte Zahl an der ,5-Grenze", () => {

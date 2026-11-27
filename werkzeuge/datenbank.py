@@ -66,9 +66,33 @@ def _keine_konstante(name):
     raise ValueError(f"keine JSON-Zahl: {name}")
 
 
+def _endlich_float(s):
+    """parse_float (P2A2-BAU-01): 1e999 wäre in Python inf, im Bau Infinity, und JSON.parse verwirft dann die ganze Datei."""
+    x = float(s)
+    if not math.isfinite(x):
+        raise ValueError(f"Zahl {s} ist nicht endlich")
+    return x
+
+
+def _endlich_int(s):
+    """parse_int (P2A2-BAU-01): ganze Zahl jenseits des float-Bereichs wäre im Client Infinity."""
+    n = int(s)
+    try:
+        float(n)
+    except OverflowError:
+        raise ValueError(f"Zahl {s[:20]}… ist nicht endlich") from None
+    return n
+
+
+def json_streng(text):
+    """JSON wie der Client es liest: keine doppelten Schlüssel, kein NaN/Infinity, nur endliche Zahlen."""
+    return json.loads(text, object_pairs_hook=_ohne_doppelte_schluessel, parse_constant=_keine_konstante,
+                      parse_float=_endlich_float, parse_int=_endlich_int)
+
+
 def schema_laden(text):
     """Schema aus Text, mit denselben Regeln wie lade_schema (auch für die Referenz aus Git, §9.3)."""
-    return json.loads(text, object_pairs_hook=_ohne_doppelte_schluessel, parse_constant=_keine_konstante)
+    return json_streng(text)
 
 
 def lade_schema():
@@ -295,13 +319,20 @@ def projektion(s, kid):
 def fassung_gegen_fehler(kandidat, referenz):
     """§9.3 Referenzvergleich je Kategorie. Vorbedingungen für beide Seiten zuerst (sonst keine Projektion). Gleiche
     Projektion → gleiche Nummer; abweichend → größere Nummer und neuer stand; kleinere Nummer immer Fehler; Referenz
-    ohne gewichte_version (Schema 1) → Projektion gleich und Nummer 1. Eine neue Kategorie ohne Referenz wird nur auf
-    ihre Form geprüft. Liste der Fehler, leer = Fassung freigegeben."""
+    ohne gewichte_version → nur bei schema_version 1 und fehlendem Schlüssel Projektion gleich und Nummer 1, sonst Fehler
+    (null ist ungültig, P2A2-BAU-03). Eine neue Kategorie ohne Referenz wird nur auf ihre Form geprüft; eine Kategorie
+    der Referenz, die im Kandidaten fehlt, ist ein Fehler (P2A2-BAU-05). Liste der Fehler, leer = Fassung freigegeben."""
     fehler = [f"Kandidat: {x}" for x in vorbedingung_fehler(kandidat)]
     fehler += [f"Referenz: {x}" for x in vorbedingung_fehler(referenz)]
     if fehler:
         return fehler
     alt = {k["id"]: k for k in referenz["kategorien"]}
+    neu_ids = {k["id"] for k in kandidat["kategorien"]}
+    # P2A2-BAU-05: eine Kategorie der Referenz darf nicht wegfallen (auch nicht umbenannt), sonst ginge ihre
+    # Fassungsfolge verloren und sie könnte später mit kleinerer Nummer wiederkehren. Entfernen braucht eine eigene Freigabe.
+    fehler += [f"{kid}: Kategorie fehlt gegenüber der Referenz (Entfernen oder Umbenennen ist kein Freigabefall der Schranke)"
+               for kid in alt if kid not in neu_ids]
+    altschema = referenz.get("schema_version") == 1 and not isinstance(referenz.get("schema_version"), bool)
     for k in kandidat["kategorien"]:
         kid, gv = k["id"], k.get("gewichte_version")
         if grund := fassung_fehler(gv):
@@ -311,7 +342,11 @@ def fassung_gegen_fehler(kandidat, referenz):
             continue
         gleich = projektion(kandidat, kid) == projektion(referenz, kid)
         rv = alt[kid].get("gewichte_version")
-        if rv is None:
+        if "gewichte_version" not in alt[kid] and not altschema:
+            # P2A2-BAU-03: die Ausnahme gilt nur für tatsächlich fehlende Angaben im Altschema 1
+            fehler.append(f"{kid}: Referenz ohne gewichte_version, aber nicht Schema 1 "
+                          f"(schema_version {referenz.get('schema_version')!r}); Pflicht ab Schema 2")
+        elif "gewichte_version" not in alt[kid]:
             if not gleich:
                 fehler.append(f"{kid}: Projektion weicht von der Referenz ohne Fassung ab (Fassung 1 darf keine Note ändern)")
             if gv["nummer"] != 1:
@@ -487,7 +522,7 @@ def pruefe_datei(pfad, kats, ids_gesamt, fehler, warnungen, gesperrt=frozenset()
     ort = Path(pfad).name
     try:
         roh = Path(pfad).read_text(encoding="utf-8")
-        d = json.loads(roh)
+        d = json_streng(roh)   # P2A2-BAU-01: auch Produktwerte nur endlich
     except (OSError, ValueError) as e:
         fehler.append(f"{ort}: nicht lesbar ({e})")
         return None
@@ -672,7 +707,12 @@ def bauen(ziel, herkunft=None):
                         "tests": testlinks(m), "ean": v.get("ean", [])})
         eintrag["quellen"] = dict(sorted(verwendet.items()))   # nur Quellen, auf die ein Beleg verweist (§2.4)
         aus["kategorien"].append(eintrag)
-    Path(ziel).write_text(json.dumps(aus, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    try:   # P2A2-BAU-01: nie NaN/Infinity schreiben (JSON.parse im Browser verwirft die Datei sonst ganz)
+        text = json.dumps(aus, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n"
+    except ValueError as e:
+        fehler.append(f"Bau: Ausgabe ist kein strenges JSON ({e}), keine Datei geschrieben")
+        return daten, fehler, warnungen
+    Path(ziel).write_text(text, encoding="utf-8")
     return daten, fehler, warnungen
 
 

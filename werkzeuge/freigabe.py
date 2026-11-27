@@ -92,7 +92,7 @@ def referenz(eltern, ordner, remote=None):
         raise ReferenzFehler(f"finder-daten.json fehlt auf gh-pages {eltern}")
     try:
         text = r.stdout.decode("utf-8")
-        d = json.loads(text)
+        d = datenbank.json_streng(text)
     except (UnicodeDecodeError, ValueError):
         raise ReferenzFehler(f"finder-daten.json auf gh-pages {eltern} unlesbar")
     h = d.get("herkunft") if isinstance(d, dict) else None
@@ -164,6 +164,15 @@ def daten_push(ordner, datei, neu, kandidat=None, remote="origin", versuche=3, h
         print("Abbruch, nichts veröffentlicht:", grund)
         return 1
     inhalt = Path(datei).read_bytes()
+    # P2A2-BAU-04: genau diese Bytes werden veröffentlicht, also an den geprüften Kandidaten binden (strenges JSON,
+    # herkunft = neu), bevor ein Schema geprüft oder ein Commit erzeugt wird.
+    try:
+        gebaut = datenbank.json_streng(inhalt.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as e:
+        return abbruch(f"{Path(datei).name} ist kein strenges JSON ({e})")
+    if not isinstance(gebaut, dict) or gebaut.get("herkunft") != neu:
+        h = gebaut.get("herkunft") if isinstance(gebaut, dict) else None
+        return abbruch(f"{Path(datei).name} trägt herkunft {h!r}, geprüft wird {neu}")
     try:
         kandidat = schema_am_commit(neu, ordner) if kandidat is None else kandidat
     except ReferenzFehler as e:

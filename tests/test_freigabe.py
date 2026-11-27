@@ -216,6 +216,27 @@ class DatenPush(unittest.TestCase):
         self.assertEqual((code, r.oben()), (1, e0), text)
         self.assertIn(h0[:12], text)
 
+    def test_datei_an_kandidat_gebunden(self):                        # P2A2-BAU-04
+        """Die veröffentlichten Bytes müssen strenges JSON mit herkunft = geprüfter Kandidat sein, sonst kein Commit."""
+        r = self.r
+        h0 = r.quelle_commit(schema(), "referenz")
+        e0 = r.seite_commit(herkunft(h0))
+        h1 = r.quelle_commit(schema(), "kandidat")
+        datei = r.t / "finder-daten.json"
+        for art, inhalt in {"andere herkunft": herkunft(h0), "fremde herkunft": herkunft("d" * 40),
+                            "ohne herkunft": json.dumps({"kategorien": []}),
+                            "Infinity": '{"herkunft": "%s", "kategorien": [], "x": Infinity}' % h1,
+                            "1e999": '{"herkunft": "%s", "kategorien": [], "x": 1e999}' % h1,
+                            "keine Objektform": "[]"}.items():
+            with self.subTest(art=art):
+                datei.write_text(inhalt + "\n", encoding="utf-8")
+                code, text = ausgabe(freigabe.daten_push, r.quelle, datei, h1)
+                self.assertEqual((code, r.oben()), (1, e0), text)
+                self.assertIn("nichts veröffentlicht", text)
+        code, text = self.push(h1)                                     # Gegenprobe: passende Datei
+        self.assertEqual(code, 0, text)
+        self.assertNotEqual(r.oben(), e0)
+
     def test_herkunft_nicht_enthalten(self):
         """herkunft.py läuft wie bisher zusätzlich: eine Online-Herkunft, die nicht im neuen Stand liegt, bricht ab."""
         r = self.r

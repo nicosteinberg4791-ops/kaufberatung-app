@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Mutantenlauf P2a-2: je Mutante genau eine Ersetzung, Ziel-Tests müssen rot sein; danach git checkout der Datei."""
-import subprocess, sys
+import re, subprocess, sys
 from pathlib import Path
 
 P = Path(sys.argv[1])
@@ -44,13 +44,42 @@ M = [
     ("42/37 Gewicht im Schema geändert", "daten/schema/kategorien.json",
      '["lcd_quantum_dot", 50], ["lcd", 40]]}, "gewicht": 30}', '["lcd_quantum_dot", 50], ["lcd", 40]]}, "gewicht": 31}',
      [node(r"P2a-2 \(42\)"), node(r"P2a-2 \(37\)")]),
+    # ---- Korrektur r1 (bewertung-r1.md): je Korrektur die Probe ----
+    ("BAU-01 parse_float/parse_int entfernt", "werkzeuge/datenbank.py",
+     "parse_float=_endlich_float, parse_int=_endlich_int)", ")",
+     [py("test_datenbank.py", "test_nur_endliche_zahlen"), py("test_freigabe.py", "test_datei_an_kandidat_gebunden")]),
+    ("BAU-01 allow_nan entfernt", "werkzeuge/datenbank.py",
+     'separators=(",", ":"), allow_nan=False)', 'separators=(",", ":"))',
+     [py("test_datenbank.py", "test_nur_endliche_zahlen")]),
+    ("BAU-02 alte Annahme 'Live ohne Fassung' zurück", "tests/test_bewertung.mjs",
+     '    const alt = JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8"));\n    // §9.1: alle Blobs',
+     '    const alt = JSON.parse(fs.readFileSync(path.join(tmp, "alt.json"), "utf8"));\n'
+     '    assert.ok(alt.kategorien.every(k => k.gewichte_version === undefined), "Live-Werkzeug kennt keine Fassung");\n'
+     '    // §9.1: alle Blobs',
+     [node("nach Veröffentlichung von Fassung 1")]),
+    ("BAU-03 null wieder als Altschema", "werkzeuge/datenbank.py",
+     'elif "gewichte_version" not in alt[kid]:', "elif rv is None:",
+     [py("test_datenbank.py", "test_referenz_fassung_explizit_ungueltig")]),
+    ("BAU-03 Schema-Version nicht geprüft", "werkzeuge/datenbank.py",
+     'if "gewichte_version" not in alt[kid] and not altschema:', "if False:",
+     [py("test_datenbank.py", "test_referenz_fassung_explizit_ungueltig")]),
+    ("BAU-05 entfernte Kategorie übergangen", "werkzeuge/datenbank.py",
+     "for kid in alt if kid not in neu_ids]", "for kid in alt if False]",
+     [py("test_datenbank.py", "test_entfernte_kategorie")]),
+    ("BAU-06 Schutz gegen kleinere Nummer entfernt", "werkzeuge/datenbank.py",
+     'elif gv["nummer"] < rv["nummer"]:', "elif False:",
+     [py("test_datenbank.py", "test_referenz_schema_1")]),
+    ("BAU-04 herkunft der Datei nicht geprüft", "werkzeuge/freigabe.py",
+     'if not isinstance(gebaut, dict) or gebaut.get("herkunft") != neu:', "if not isinstance(gebaut, dict):",
+     [py("test_freigabe.py", "test_datei_an_kandidat_gebunden")]),
 ]
 
 def lauf(cmd):
     r = subprocess.run(cmd, cwd=P, capture_output=True, text=True, encoding="utf-8", errors="replace")
     ausgabe = (r.stdout + r.stderr)
     # Sicherstellen, dass wirklich ein Test lief (kein leerer Filter)
-    lief = ("Ran 1 test" in ausgabe or "Ran 2 test" in ausgabe) if cmd[0] == "python" else ("ℹ tests 1" in ausgabe)
+    # r1: Test 37 hat zwei Fälle, daher „mindestens ein Test“ statt genau einer Zahl
+    lief = bool(re.search(r"Ran [1-9]\d* test", ausgabe)) if cmd[0] == "python" else bool(re.search(r"ℹ tests [1-9]", ausgabe))
     return r.returncode, lief, ausgabe
 
 gesamt_ok = True

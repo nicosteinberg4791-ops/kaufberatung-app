@@ -431,6 +431,11 @@ def hochzaehlen(s, *kids, stand="2026-11-25"):
     return s
 
 
+def _mit_nummer(s, nummer, kid="fernseher", stand="2026-11-25"):
+    kat_von(s, kid)["gewichte_version"] = {"nummer": nummer, "stand": stand}
+    return s
+
+
 class Gewichtsfassung(unittest.TestCase):
     """P2a-2 (Entwurf §2.1, §9.1, §9.3, §9.9): Pflicht der Fassung, Projektion, Referenzvergleich, Vorbedingungen."""
 
@@ -568,6 +573,90 @@ class Gewichtsfassung(unittest.TestCase):
         r3 = referenz(); kat_von(r3)["gewichte_version"]["nummer"] = 3
         k2 = referenz(); kat_von(k2)["gewichte_version"] = {"nummer": 2, "stand": "2026-11-25"}
         self.rot(k2, r3, "Nummer kleiner als in der Referenz mit Schema 2")
+        # P2A2-BAU-06: Rückschritt auch bei geänderter Projektion und gültigem neuem Datum (dann greift nur der
+        # Schutz gegen kleinere Nummern, nicht die Regeln für gleiche Projektion oder gleichen Stand)
+        k3 = copy.deepcopy(k2); feld_von(k3, "bildtechnik")["gewicht"] = 31
+        self.rot(k3, r3, "Nummer 3 → 2, Gewicht geändert, neuer Stand")
+        k4 = copy.deepcopy(k3); kat_von(k4)["fragen"][0]["antworten"][0]["gewichte"]["bildtechnik"] = 1.4
+        kat_von(k4)["gewichte_version"] = {"nummer": 1, "stand": "2026-11-25"}
+        self.rot(k4, r3, "Nummer 3 → 1, Faktor und Gewicht geändert, neuer Stand")
+        self.gruen(_mit_nummer(copy.deepcopy(k3), 4), r3, "Gegenprobe: dieselbe Änderung mit Nummer 4")
+
+    def test_referenz_fassung_explizit_ungueltig(self):   # P2A2-BAU-03
+        k = echtes_schema()
+        for wert, version in ((None, 2), (None, 1), ("fehlt", 2), ("fehlt", True), ("fehlt", 3)):
+            with self.subTest(wert=wert, version=version):
+                r = echtes_schema(); r["schema_version"] = version
+                for kat in r["kategorien"]:
+                    if wert == "fehlt":
+                        kat.pop("gewichte_version", None)
+                    else:
+                        kat["gewichte_version"] = wert
+                fehler = self.vergleich(k, r)
+                self.assertTrue(fehler and all("gewichte_version" in f for f in fehler), fehler)
+        r1 = echtes_schema(); r1["schema_version"] = 1   # Gegenprobe: Altschema mit fehlendem Schlüssel
+        for kat in r1["kategorien"]:
+            kat.pop("gewichte_version")
+        self.gruen(k, r1, "Schema 1 ohne Schlüssel bleibt die Erstfassung")
+
+    def test_entfernte_kategorie(self):              # P2A2-BAU-05
+        r8 = referenz(); kat_von(r8)["gewichte_version"] = {"nummer": 8, "stand": "2026-11-01"}
+        ohne = copy.deepcopy(r8); ohne["kategorien"].remove(kat_von(ohne))
+        fehler = self.vergleich(ohne, r8)
+        self.assertTrue(any(f.startswith("fernseher:") and "fehlt" in f for f in fehler), fehler)
+        umbenannt = copy.deepcopy(r8); kat_von(umbenannt)["id"] = "fernseher-neu"
+        fehler = self.vergleich(umbenannt, r8)
+        self.assertTrue(any(f.startswith("fernseher:") and "fehlt" in f for f in fehler), fehler)
+        # zweiter Übergang aus dem Befund: Wiederkehr mit Nummer 1 gegen den (nun nicht freigebbaren) Zwischenstand
+        zurueck = copy.deepcopy(r8); kat_von(zurueck)["gewichte_version"] = {"nummer": 1, "stand": "2026-11-25"}
+        feld_von(zurueck, "bildtechnik")["gewicht"] = 31
+        self.rot(zurueck, r8, "Wiederkehr mit Nummer 1 gegen die Referenz mit Fassung 8")
+        neu = copy.deepcopy(r8); extra = copy.deepcopy(kat_von(neu)); extra["id"] = "fernseher-zwei"
+        neu["kategorien"].append(extra)
+        self.gruen(neu, r8, "Gegenprobe: neue Kategorie dazu")
+
+    def test_nur_endliche_zahlen(self):             # P2A2-BAU-01
+        roh = datenbank.SCHEMA.read_text(encoding="utf-8")
+        for zahl in ("1e999", "-1e999", "1" + "0" * 400):
+            with self.subTest(zahl=zahl):
+                with self.assertRaises(ValueError):
+                    datenbank.schema_laden('{"a": {"mindest": {"x": ' + zahl + '}}}')
+        self.assertEqual(datenbank.schema_laden('{"a": 1e308, "b": 12}'), {"a": 1e308, "b": 12})
+        s = echtes_schema()
+        a = next(a for a in kat_von(s)["fragen"][0]["antworten"] if a["id"] == "spiele")
+        a["mindest"]["hdmi_4k120_anzahl"] = 7
+        text = json.dumps(s, ensure_ascii=False).replace('"hdmi_4k120_anzahl": 7', '"hdmi_4k120_anzahl": 1e999')
+        self.assertIn("1e999", text)
+        with tempfile.TemporaryDirectory() as t:
+            (Path(t) / "k.json").write_text(text, encoding="utf-8")
+            alt = datenbank.SCHEMA
+            datenbank.SCHEMA = Path(t) / "k.json"
+            try:
+                _, fehler, _ = datenbank.bauen(Path(t) / "aus.json")
+            finally:
+                datenbank.SCHEMA = alt
+            self.assertTrue(any("nicht endlich" in f for f in fehler), fehler)
+            self.assertFalse((Path(t) / "aus.json").exists())
+            # Produktdaten: eine Datei mit 1e999 ist ein Fehler
+            p = Path(t) / "p.json"
+            p.write_text('{"kategorie": "fernseher", "x": 1e999}', encoding="utf-8")
+            fehler = []
+            self.assertIsNone(datenbank.pruefe_datei(p, {}, set(), fehler, []))
+            self.assertTrue(any("nicht lesbar" in f for f in fehler), fehler)
+            # Bau: ein nicht endlicher Wert, der am Lader vorbeikommt, wird nicht geschrieben (allow_nan=False)
+            alt_lade = datenbank.lade_schema
+            def lade_inf():
+                s2, k2 = alt_lade()
+                next(a for a in kat_von(s2)["fragen"][0]["antworten"] if a["id"] == "spiele")["mindest"]["hdmi_4k120_anzahl"] = float("inf")
+                return s2, {k["id"]: k for k in s2["kategorien"]}
+            datenbank.lade_schema = lade_inf
+            try:
+                _, fehler, _ = datenbank.bauen(Path(t) / "aus2.json")
+            finally:
+                datenbank.lade_schema = alt_lade
+            self.assertTrue(any("kein strenges JSON" in f for f in fehler), fehler)
+            self.assertFalse((Path(t) / "aus2.json").exists())
+        self.assertEqual(roh, datenbank.SCHEMA.read_text(encoding="utf-8"))
 
     def test_eindeutige_ids(self):                   # Test 48
         def dopplung(aendern):
