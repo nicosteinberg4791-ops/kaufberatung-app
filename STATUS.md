@@ -28,16 +28,13 @@ Stand: 28.11.2026 · **Live:** gh-pages App cd6f226225dc aus 8a41085 (= origin/m
 
 ## Nächster Schritt
 
-Veröffentlichung abgeschlossen (siehe Lage). Nächste Entscheidungen beim Besitzer (unten), u. a. Pilot Bestpreis O12.
+Veröffentlichung abgeschlossen (siehe Lage). Besitzer hat am 28.11. D28–D31 entschieden (Vorlagen in `docs/vorlagen/`). Nächstes Paket: G1-Korrektur (b) Auf/Zu-Marke und (c) „gleichauf“ nach D29 (Skills `impeccable`, `frontend-design`), dann Fotos neu; danach P0 und P2b (D30). Impeccable installiert (D21 erledigt).
 Offen aus P2a-2: ein einmaliger, nicht reproduzierter Fehlschlag von `test_datei_an_kandidat_gebunden` im Mutantenlauf ([bewertung-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r3.md), Selbstprüfung).
 
 ## Offen für den Besitzer
 
-- Fotos Finder G1 freigeben; P2 GS-1, „gleichauf“ im Vergleich (`docs/pruefungen/2026-11-24-finder-g1/gestaltung-r3.md`).
-- Impeccable installieren (D21).
-- VER-02: Historie enthält lokale Pfade mit Vorname (öffentlich seit 28.11.); eine Bereinigung der ganzen Historie wäre ein eigenes Paket.
-- P2: F-2 (Maße), F-3 (Testquelle), F-5 (Umfang der Projektion; gebaut nach Vorschlag „ja“: Kurven und Abschlag gehören dazu).
-- O12, O13, O10, O5, O6, O7: Wortlaut im Verlauf.
+- Fotos G1 freigeben, sobald nach D29 neu aufgenommen; Ratgeber-Regel „nur die Spitze zählt“ für „gleichauf“ bestätigen (D29).
+- O13, O10, O5, O6, O7: Wortlaut im Verlauf; O12 entschieden (D28), Rechtsfrage Heimrechner offen, weitere Pilot-Messtage je Lauf freigeben.
 - Nicht auf echtem Android-Handy geprüft: Icons, Push-Zustellung, Besitzer-Merker.
 
 ## Wegweiser
