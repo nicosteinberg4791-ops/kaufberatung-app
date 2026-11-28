@@ -24,6 +24,6 @@ Die Reihenfolge Empfehlung → Regler → Rangliste → Vergleich trägt: Die No
 | Nr. | Schwere | Befund | Vorschlag |
 |---|---|---|---|
 | GS-1 | P2 | „Alle Merkmale (10)“ (Regler und Punkteherkunft) hat keine sichtbare Auf/Zu-Marke: `summary { display: flex }` blendet den Pfeil aus, kein Ersatz in `::before`/`::after` | Pfeil-Symbol, das sich beim Öffnen dreht (bestand schon vor dieser Runde, außerhalb des Auftrags) |
-| GS-2 | P3 | Vergleich „Note“: Bei gleicher Punktzahl fehlt die Marke „gleichauf“, die die Merkmalsblöcke haben | mit Frage (c) an Nico („gleichauf“ bei F/F/G) entscheiden |
+| GS-2 | P3 | Vergleich „Note“: Bei gleicher Punktzahl fehlt die Marke „gleichauf“, die die Merkmalsblöcke haben | mit Frage (c) an den Besitzer („gleichauf“ bei F/F/G) entscheiden |
 
 Kein offener P0/P1.

@@ -47,6 +47,16 @@ class Bau(unittest.TestCase):
         self.assertEqual(self.lauf.returncode, 0, self.lauf.stderr)
         self.assertIn("gebaut: dist/", self.lauf.stdout)
 
+    def test_bau_schreibt_nur_lf(self):
+        """VER-03: alle Dateien, die der Bau selbst schreibt, haben LF (Windows- und Linux-Bau bytegleich)."""
+        for d in ("finder-daten.json", "version.json", "finder-preise.json", "index.html", "ratgeber.html", "sw.js"):
+            with self.subTest(datei=d):
+                if d == "finder-preise.json" and not (self.dist / d).exists():
+                    continue   # test_preise_bleiben_beim_neubau entfernt den Startstand
+                roh = (self.dist / d).read_bytes()
+                self.assertIn(b"\n", roh)
+                self.assertNotIn(b"\r", roh)
+
     def test_manifest(self):
         m = json.loads((self.dist / "manifest.webmanifest").read_text(encoding="utf-8"))
         self.assertEqual(m["name"], "Kaufberatung")
@@ -1397,7 +1407,12 @@ class PreisPush(unittest.TestCase):
         abruf.write_text('{"zeit": "2026-11-08T10:00:00+01:00", "modelle": {}}', encoding="utf-8")
         vorher = self.ziel.read_bytes()
         anders = self.repo / "unter" / ".." / "preise.json"
-        for meldung, argv in ((self.ziel, ("--abruf", str(abruf))), (anders, ("--push",)), (anders, ())):
+        hart = Path(self.tmp.name) / "hardlink-meldung.txt"   # VER-04: anderer Pfad, dieselbe Datei
+        os.link(self.ziel, hart)
+        self.assertFalse(self.pa.dieselbe_datei(abruf, self.ziel), "zwei verschiedene Dateien")
+        self.assertFalse(self.pa.dieselbe_datei(Path(self.tmp.name) / "fehlt.txt", self.ziel), "neue Meldedatei")
+        for meldung, argv in ((self.ziel, ("--abruf", str(abruf))), (anders, ("--push",)), (anders, ()),
+                              (hart, ("--abruf", str(abruf))), (hart, ())):
             with self.subTest(meldung=str(meldung), argv=argv):
                 verboten = mock.Mock(side_effect=AssertionError("weitergelaufen"))
                 with mock.patch.object(self.pa, "SEITEN", self.repo), \

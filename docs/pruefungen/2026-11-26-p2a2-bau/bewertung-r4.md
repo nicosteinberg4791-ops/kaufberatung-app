@@ -1,6 +1,6 @@
 # Bewertung r4 – P2a-2 Nachprüfung r3 (Codex)
 
-Bericht: [codex-nach-20261127-113235.json](codex-nach-20261127-113235.json) · Prüfstand db9f4e6, Basis 676771b · Urteil: bestanden mit Hinweisen (mittel 2; geschlossen BAU-03, BAU-04-TEST) · 4. Runde, von Nico freigegeben (KERN §3) · Bewertet vom Lead (Claude Opus 5.5) am 27.11.2026. Keine weitere Nachprüfung (nur mittel offen, KERN §3).
+Bericht: [codex-nach-20261127-113235.json](codex-nach-20261127-113235.json) · Prüfstand db9f4e6, Basis 676771b · Urteil: bestanden mit Hinweisen (mittel 2; geschlossen BAU-03, BAU-04-TEST) · 4. Runde, vom Besitzer freigegeben (KERN §3) · Bewertet vom Lead (Claude Opus 5.5) am 27.11.2026. Keine weitere Nachprüfung (nur mittel offen, KERN §3).
 
 | ID | Schwere | Einordnung | Klasse | Suche | Korrektur | Probe |
 |---|---|---|---|---|---|---|

@@ -1,15 +1,16 @@
 // Bildschirmfotos G1 (375 px, hell/dunkel) per Chrome headless und DevTools-Protokoll.
-// Aufruf: node fotos.mjs <basis-url> <ausgabeordner>
+// Aufruf: CHROME=<pfad zu chrome> node fotos.mjs <basis-url> <ausgabeordner>   (Pfad nur lokal, VER-01)
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
 const [basis, aus] = process.argv.slice(2);
+if (!process.env.CHROME) { console.error("CHROME (Pfad zur Chrome-Programmdatei) fehlt"); process.exit(2); }
 fs.mkdirSync(aus, { recursive: true });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const profil = fs.mkdtempSync(path.join(os.tmpdir(), "kbfoto-"));
-const chrome = spawn("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", ["--headless=new", "--remote-debugging-port=9335",
+const chrome = spawn(process.env.CHROME, ["--headless=new", "--remote-debugging-port=9335",
   `--user-data-dir=${profil}`, "--no-first-run", "--no-default-browser-check", "--disable-extensions", "about:blank"], { stdio: "ignore" });
 let ziele = null;
 for (let i = 0; i < 50 && !ziele; i++) { await sleep(200); try { ziele = await (await fetch("http://127.0.0.1:9335/json")).json(); } catch {} }

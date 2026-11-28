@@ -1,0 +1,57 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Für Commit 4804a099 bleiben drei Freigabeblocker. Der aktuelle Diff enthält Angaben, die im öffentlichen Repo untersagt sind. Der Push würde außerdem einen inzwischen ersetzten Benutzerprofilpfad über die Git-Historie offenlegen. Bei zeitnaher App-Veröffentlichung unter Windows kann der Datenworkflow trotz fachlich identischer Daten rot enden.",
+  "befunde": [
+    {
+      "id": "VER-01",
+      "schwere": "schwer",
+      "titel": "Name und lokaler Programmpfad im Veröffentlichungsdiff",
+      "datei": "STATUS.md",
+      "zeile": 31,
+      "beleg": "Die Projektregel verlangt „keine persönlichen Daten (Namen, E-Mail, lokale Pfade, Konto-URLs) in versionierten Dateien“. STATUS.md:31 und :34 nennen den Besitzer beim Vornamen. Weitere Vorkommen stehen in docs/status-verlauf.md und den neuen Prüfberichten. docs/pruefungen/2026-11-24-finder-g1/fotos.mjs:12 enthält zudem einen absoluten lokalen Chrome-Pfad.",
+      "auswirkung": "Ein Push macht diese Angaben im aktuellen Stand des öffentlichen Repos sichtbar.",
+      "vorschlag": "Den Namen in allen zur Veröffentlichung vorgesehenen Dateien durch die Rollenbezeichnung ersetzen und den Chrome-Pfad über eine lokale Einstellung beziehen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "VER-02",
+      "schwere": "schwer",
+      "titel": "Bereinigung am Branch-Ende lässt Benutzerprofilpfad in der mitgepushten Historie",
+      "datei": "docs/pruefungen/2026-11-24-finder-g1/codex-nach-20261124-155951.stderr.txt",
+      "zeile": 3,
+      "beleg": "Die Projektregel verlangt „keine persönlichen Daten (Namen, E-Mail, lokale Pfade, Konto-URLs) in versionierten Dateien“. Zeile 3 enthält in Commit 0634588 einen absoluten Benutzerprofilpfad. 4804a099 ersetzt ihn durch den Platzhalter `<playbook>`. 0634588 ist Vorfahr von 4804a099 und liegt außerhalb des lokal vorliegenden `origin/main`.",
+      "auswirkung": "Ein regulärer Push von 4804a099 überträgt auch 0634588. Der Pfad bleibt anschließend über diesen Commit abrufbar.",
+      "vorschlag": "Einen bereinigten Veröffentlichungsstand auf Basis von `origin/main` erstellen und alle neu erreichbaren Dateistände vor dem Push erneut prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "VER-03",
+      "schwere": "schwer",
+      "titel": "Windows-App-Push kann die Abnahme des ersten Datenworkflows scheitern lassen",
+      "datei": ".github/workflows/finder-daten.yml",
+      "zeile": 74,
+      "beleg": "Auslöser ist der erste `main`-Push mit Schema 2, gefolgt von der Windows-App-Veröffentlichung desselben Commits. Wenn der Datenworkflow zuerst pusht und Pages vor einer erfolgreichen Abfrage schon den nachfolgenden App-Commit ausliefert, vergleicht der Workflow seine Linux-Datei mit LF gegen die Windows-Datei mit CRLF. `datenbank.py:723` schreibt mit dem jeweiligen Plattform-Zeilenende. `veroeffentlichen.py:336–342` übernimmt die gebaute Datei in den Seitenbaum. Die lesende Gegenprobe am gespeicherten Pages-Blob ergab identisches JSON, aber unterschiedliche SHA-256-Werte für CRLF und LF. Soll ist eine erfolgreiche Abnahme für denselben Quellstand. Ist ist ein Timeout nach zehn Minuten. Die Lease erlaubt diese Reihenfolge, weil der App-Push auf dem bereits veröffentlichten Datencommit aufsetzt.",
+      "auswirkung": "Der erste Datenworkflow kann rot enden, obwohl die neue App und die vorgesehenen Finder-Daten bereits korrekt online sind.",
+      "vorschlag": "Beim Schreiben von `finder-daten.json` LF ausdrücklich festlegen und für beide Veröffentlichungswege bytegleichen Bau aus demselben Commit prüfen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "VER-04",
+      "schwere": "mittel",
+      "titel": "Preis-Push-Korrektur R3-03 erkennt Hardlinks auf die Zieldatei nicht",
+      "datei": "werkzeuge/preise_aktualisieren.py",
+      "zeile": 409,
+      "beleg": "`Path.resolve()` vergleicht Pfade. Zwei Hardlinks auf dieselbe Datei haben unterschiedliche aufgelöste Pfade. Zeile 443 kann daher über `--meldung` die zuvor geschriebene Preisdatei überschreiben. Die Regressionstests in `tests/test_app.py:1394–1412` prüfen denselben Pfad und eine Schreibweise mit `..`.",
+      "auswirkung": "Bei einem Hardlink als Meldedatei kann die lokale `preise.json` durch Meldetext ersetzt werden. Ein anschließender Push scheitert beim JSON-Lesen.",
+      "vorschlag": "Für zwei vorhandene Pfade zusätzlich die Dateiidentität mit `samefile()` prüfen und einen Hardlink-Fall in den Regressionstest aufnehmen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "Merge-Auflösung geprüft. `tests/test_app.py:349–352` erhält die UTF-8-Probe „geprüft“ und den Schema-Aufbau. Zeile 588 prüft den resultierenden Inhalt. `STATUS.md` führt die P2a-Stände und den Abschluss des `abruf.py`-Pakets samt Restrisiko weiter.",
+    "Schemawechsel gegen 7339711 strukturell geprüft. Neben `schema_version` kommen in allen 14 Kategorien ausschließlich die Fassungsangaben mit Nummer 1 hinzu. 7339711 ist Vorfahr des Prüfcommits. App-Publish und Datenworkflow prüfen die Herkunft des jeweiligen Pages-Elterncommits vor dem Push. Der Datenworkflow prüft nach einem Lease-Konflikt erneut. Der Preis-Push prüft Elterncommit, geänderte Datei und Ziel.",
+    "Die Korrekturen zu Preis-Push R3-01 und R3-02 sowie zu den `abruf.py`-Befunden aus Runde 4 sind im Code und in gezielten Regressionstests nachvollzogen. Der P2a-1-Test aus Runde 3 ermittelt seine Sollzahl unabhängig aus den Rohdaten und vergleicht Noten direkt für jede Variante und einzelne Antwort.",
+    "36 Finder-DOM-Tests und 63 Bewertungstests bestanden. Mit dem lokal gespeicherten Pages-Stand lieferten Live- und neuer Client in 5.237 Vergleichen identische Noten. Die Build-Version ändert sich mit den Finder-Dateien. Ein installierter Client kann bis zur Aktivierung des wartenden Service Workers die bisherige Oberfläche anzeigen."
+  ],
+  "pruefgrenzen": "Der Sammellauf schreibt Protokolle und `pruefen --gegen` ohne Commit schreibt beim Git-Fetch. Beide Befehle blieben wegen des Lesemandats unausgeführt. Fünf Bewertungstests stoppten an der sandboxgesperrten Anlage von temporären Ordnern. Die berichteten Null-Fehler-Läufe und der vollständige Neubau mit Schema 2 wurden hier deshalb nicht unabhängig bestätigt. Die Pages-Gegenproben nutzten den lokalen Remote-Tracking-Stand. Die tatsächliche Auslieferung und ein Update auf einem Android-Gerät blieben ungeprüft."
+}

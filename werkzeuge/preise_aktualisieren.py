@@ -395,6 +395,18 @@ def uebersicht(erg):
     return {mid: zeile(r) for mid, r in erg["modelle"].items() if isinstance(r, dict)}
 
 
+def dieselbe_datei(a, b):
+    """True, wenn beide Pfade dieselbe Datei meinen: gleicher aufgelöster Pfad oder, bei zwei vorhandenen Dateien,
+    dieselbe Dateiidentität (Hardlink, VER-04). Lässt sich die Identität nicht feststellen, gilt sie als gleich."""
+    a, b = Path(a), Path(b)
+    if a.resolve() == b.resolve():
+        return True
+    try:
+        return a.exists() and b.exists() and a.samefile(b)
+    except OSError:
+        return True
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     a = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -406,7 +418,7 @@ def main():
                    help="nichts abrufen: die vorhandene preise.json im gh-pages-Arbeitsbaum committen und pushen")
     a.add_argument("--meldung", help="Datei für den Benachrichtigungstext (wird immer geschrieben, leer = keine Meldung)")
     x = a.parse_args()
-    if x.meldung and Path(x.meldung).resolve() == Path(x.ziel).resolve():   # R3-03: Meldung überschriebe preise.json
+    if x.meldung and dieselbe_datei(x.meldung, x.ziel):   # R3-03, VER-04: Meldung überschriebe preise.json
         raise SystemExit("--meldung und --ziel sind dieselbe Datei, nichts abgerufen oder geschrieben")
     if x.nur_push or x.push:   # vor allem anderen: nur der gh-pages-Arbeitsbaum, nur preise.json
         ziel = Path(x.ziel)

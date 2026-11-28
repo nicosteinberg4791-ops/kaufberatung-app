@@ -362,6 +362,13 @@ class BauMetadaten(unittest.TestCase):
     def fernseher(self, aus):
         return next(k for k in aus["kategorien"] if k["id"] == "fernseher")
 
+    def test_bau_schreibt_lf(self):
+        """VER-03: finder-daten.json endet mit LF und enthält kein CR, auf jeder Plattform (Abnahme vergleicht SHA-256)."""
+        self.bauen(beispiel())
+        roh = self.ziel.read_bytes()
+        self.assertTrue(roh.endswith(b"}\n"))
+        self.assertNotIn(b"\r", roh)
+
     def test_fassung_und_testquelle(self):
         aus = self.bauen(beispiel())
         k = self.fernseher(aus)

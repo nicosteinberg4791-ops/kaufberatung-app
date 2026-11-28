@@ -17,7 +17,7 @@ Bericht: `codex-erst-20261124-084611.json` · Urteil: nicht bestanden (schwer 1,
 
 ## Gestaltungsentscheidung zu P1-01
 
-Die Rangnummer bedeutet jetzt in jeder Sortierung „Platz nach Note“. Unter „Günstigste“ und „Punkte je Euro“ stehen die Nummern deshalb nicht aufsteigend. Alternative wäre, die Nummern dort auszublenden. Gewählt nach Codex-Vorschlag und Fertigkriterium; Nico kann umentscheiden.
+Die Rangnummer bedeutet jetzt in jeder Sortierung „Platz nach Note“. Unter „Günstigste“ und „Punkte je Euro“ stehen die Nummern deshalb nicht aufsteigend. Alternative wäre, die Nummern dort auszublenden. Gewählt nach Codex-Vorschlag und Fertigkriterium; der Besitzer kann umentscheiden.
 
 ## Selbstprüfung nach Korrektur
 

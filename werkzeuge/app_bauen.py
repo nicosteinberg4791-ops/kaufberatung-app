@@ -64,7 +64,8 @@ def uebernehmen(pfad, version):
     herkunft = {"version": version or "unbekannt", "datei": Path(pfad).name,
                 "sha256": hashlib.sha256(f.encode("utf-8")).hexdigest(), "bytes": len(f.encode("utf-8")),
                 "uebernommen": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")}
-    (QUELLE / "herkunft.json").write_text(json.dumps(herkunft, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    (QUELLE / "herkunft.json").write_text(json.dumps(herkunft, ensure_ascii=False, indent=1) + "\n", encoding="utf-8",
+                                          newline="\n")
     print(f"übernommen: {herkunft['version']}, {herkunft['bytes']:,} Bytes")
 
 
@@ -203,9 +204,9 @@ def _baue(daten_herkunft, DIST, anzeige, aufraeumen=False):
     if not (DIST / "finder-preise.json").exists():
         # Leerer Startstand, bis der Preislauf eigene Preise schreibt (vermeidet 404 im Finder); veroeffentlichen.py
         # überschreibt eine vorhandene Datei auf gh-pages nie
-        (DIST / "finder-preise.json").write_text('{"stand": null, "preise": {}}' + chr(10), encoding="utf-8")
+        (DIST / "finder-preise.json").write_text('{"stand": null, "preise": {}}' + chr(10), encoding="utf-8", newline="\n")
     (DIST / "version.json").write_text(json.dumps({"app": v, "inhalt": herkunft["version"], "inhalt_sha256": herkunft["sha256"]},
-                                                  ensure_ascii=False) + "\n", encoding="utf-8")
+                                                  ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     for seite in (ratgeber, finder):
         assert not re.search(r"(api[_-]?key|token|secret)\s*[:=]\s*['\"][A-Za-z0-9_\-]{16,}", seite, re.I), "möglicher Schlüssel im Ergebnis"
     groesse = (DIST / "finder-daten.json").stat().st_size

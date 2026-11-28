@@ -1,6 +1,6 @@
 # Stand – Kaufberatung-App
 
-Stand: 28.11.2026 · Branch main, origin/main (Paket `abruf.py`) lokal gemergt, nicht gepusht · P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Codex-Nachprüfung r3 bestanden mit Hinweisen, Hinweise korrigiert; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
+Stand: 28.11.2026 · Branch main, origin/main (Paket `abruf.py`) lokal gemergt, Prüfpunkt Veröffentlichung r1 bewertet und korrigiert, nicht gepusht · P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Codex-Nachprüfung r3 bestanden mit Hinweisen, Hinweise korrigiert; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
 
 ## Lage
 
@@ -27,11 +27,11 @@ Stand: 28.11.2026 · Branch main, origin/main (Paket `abruf.py`) lokal gemergt, 
 
 ## Nächster Schritt
 
-**Kritische Prüfung vor dem Push** (Prüfpunkt „Veröffentlichung“, Codex high, Skill `pruefschleife`), erst auf Nicos Wort. Umfang: `main` gegen Live-Herkunft 7339711 (Finder G1, Datenbank, UX-P1, P2a-1, P2a-2, Merge `abruf.py`), Schwerpunkt Veröffentlichungsweg (`veroeffentlichen.py`, `freigabe.py`, `finder-daten.yml`) und Merge-Auflösung. Kein Push ohne Nicos Wort.
-**Fertig, wenn** Codex-Prüfung bestanden, Bewertung abgelegt und Nico den Push freigegeben hat.
+**Veröffentlichung bis live** (Besitzer 28.11.: „komplett weiter und fertig bis wir live sind“, Befunde automatisch beheben). Erstprüfung r1 (Codex high): nicht bestanden, VER-01, -03, -04 korrigiert, VER-02 bewusste Entscheidung ([bewertung-r1.md](docs/pruefungen/2026-11-28-veroeffentlichung/bewertung-r1.md)). Nächster Schritt: Nachprüfung r2 (medium), dann Push `main`, `veroeffentlichen.py --stand <HEAD>`, Abnahme live.
+**Fertig, wenn** Nachprüfung ohne offenen kritischen/schweren Befund, origin/main = geprüfter Stand, gh-pages liefert die neue App-Version und `finder-daten.json` mit der neuen Herkunft.
 Offen aus P2a-2: ein einmaliger, nicht reproduzierter Fehlschlag von `test_datei_an_kandidat_gebunden` im Mutantenlauf ([bewertung-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r3.md), Selbstprüfung).
 
-## Offen für Nico
+## Offen für den Besitzer
 
 - Fotos Finder G1 freigeben; P2 GS-1, „gleichauf“ im Vergleich (`docs/pruefungen/2026-11-24-finder-g1/gestaltung-r3.md`).
 - Push und gh-pages nach Merge; Impeccable installieren (D21). Ein Push von `main` mit P2a-2 bringt die Schranke in den Datenworkflow (Auslöser `daten/schema/**`).

@@ -720,7 +720,8 @@ def bauen(ziel, herkunft=None):
     except ValueError as e:
         fehler.append(f"Bau: Ausgabe ist kein strenges JSON ({e}), keine Datei geschrieben")
         return daten, fehler, warnungen
-    Path(ziel).write_text(text, encoding="utf-8")
+    # VER-03: immer LF, damit Windows- und Linux-Bau bytegleich sind (Abnahme im Datenworkflow vergleicht SHA-256)
+    Path(ziel).write_text(text, encoding="utf-8", newline="\n")
     return daten, fehler, warnungen
 
 
