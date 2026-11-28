@@ -1,0 +1,21 @@
+{
+  "urteil": "bestanden_mit_hinweisen",
+  "zusammenfassung": "VER-01 ist in Commit 17d8df73 geschlossen. Die Git-Suchen nach Vorname, Nachname und Benutzerprofilpfaden ergaben jeweils null Treffer. Die ergänzende Suche nach E-Mail-Adressen und Konto-URLs ergab keine persönlichen Angaben des Besitzers. Die Änderung in bewertung-r1.md beschränkt sich auf die Suchmuster. In den vergleichbaren Berichtspassagen fand ich keine weiteren Änderungen.",
+  "befunde": [
+    {
+      "id": "VER-R2-01",
+      "schwere": "gering",
+      "titel": "PowerShell-Aufruf enthält zwei unquotierte Platzhalter",
+      "datei": "docs/pruefungen/2026-11-24-finder-g1/fotos.mjs",
+      "zeile": 2,
+      "beleg": "Die Zuweisung an `$env:CHROME` ist gültig. Beim Parsen des vollständigen Beispiels meldet PowerShell an `<basis-url>` und `<ausgabeordner>` jeweils `RedirectionNotSupported`. Mit beiden Argumenten in Anführungszeichen meldet der Parser null Fehler.",
+      "auswirkung": "Beim wörtlichen Einfügen startet das Skript nicht. Wer den Ausgabeplatzhalter durch einen Pfad mit Leerzeichen ersetzt, muss außerdem selbst Anführungszeichen ergänzen.",
+      "vorschlag": "Die beiden Platzhalter als `\"<basis-url>\"` und `\"<ausgabeordner>\"` schreiben.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "VER-01"
+  ],
+  "pruefgrenzen": "Geprüft wurden der Diff und gezielte Suchen im versionierten Stand. Für die neu hinzugefügten Codex-Dateien gibt es in c168282 keine Vergleichsdateien. Der Vergleich war dort auf die vorliegenden Textpassagen beschränkt. Für VER-R2-01 wurde die genannte Fundstelle geprüft. Eine Fehlerklasse war dafür nicht angegeben. VER-02 bleibt gemäß Besitzerentscheidung außerhalb dieser Nachprüfung. VER-03 und VER-04 wurden in Runde 2 geschlossen. Unversionierte Dateien, der Sammellauf und der Fotoablauf mit Chrome waren nicht Teil der Nachprüfung."
+}

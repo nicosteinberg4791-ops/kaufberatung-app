@@ -8,4 +8,6 @@ Bericht: `codex-nach-20261128-115722.json` · geprüfter Stand c168282 (Basis 48
 | VER-02 | schwer | ungeklärt → Besitzer: Der Prüfer hält die bewusste Entscheidung aus r1 nicht für tragfähig. Ein Push von `main` macht den Dateistand von 0634588 (Benutzerprofilpfad mit Vorname als Windows-Konto) erstmals öffentlich abrufbar. Neue Information entsteht nicht (Vorname und Kontoname stehen schon öffentlich, auch in der Repo-URL), aber die Projektregel ist dem Wortlaut nach verletzt. Auswege ohne Force-Push: (a) so pushen, (b) Veröffentlichungscommit mit dem Baum von HEAD auf origin/main (Feinhistorie bleibt lokal), (c) nur die 58 ungepushten Commits umschreiben (Commit-Bindungen der Prüfberichte brechen). (b) und (c) sind Historienentscheidungen des Besitzers (KERN §7). | – | – | keine | – |
 | VER-R2-01 | gering | bestätigt: Aufrufbeispiel in `fotos.mjs:2` in Bash-Syntax | – | – | PowerShell-Aufruf mit `$env:CHROME` | `node --check` grün (Kommentarzeile) |
 
+**Entscheidung des Besitzers zu VER-02 (28.11.2026):** Variante (a), so pushen, ohne Historienänderung.
+
 **Fehlalarme:** keine. **Rundenstand:** Runde 2 von höchstens 3 (KERN §3).
