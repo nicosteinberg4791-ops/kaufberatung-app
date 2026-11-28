@@ -1,5 +1,5 @@
 // Bildschirmfotos G1 (375 px, hell/dunkel) per Chrome headless und DevTools-Protokoll.
-// Aufruf: CHROME=<pfad zu chrome> node fotos.mjs <basis-url> <ausgabeordner>   (Pfad nur lokal, VER-01)
+// Aufruf (PowerShell): $env:CHROME = "<pfad zu chrome>"; node fotos.mjs <basis-url> <ausgabeordner>   (Pfad nur lokal, VER-01)
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";

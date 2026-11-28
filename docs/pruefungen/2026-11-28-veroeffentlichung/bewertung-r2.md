@@ -1,0 +1,11 @@
+# Bewertung r2 – Veröffentlichung (Codex gpt-6.2-sol medium, nach)
+
+Bericht: `codex-nach-20261128-115722.json` · geprüfter Stand c168282 (Basis 4804a09) · Urteil **nicht bestanden** (schwer 2, gering 1) · 187 s, Eingabe ungecacht 65 171, Ausgabe 5 820. Geschlossen laut Prüfer: VER-03, VER-04 (keine weitere Schreibstelle ohne LF, kein weiterer Pfadvergleich). Bewertet vom Lead (Claude Opus 5.5) am 28.11.2026.
+
+| ID | Schwere | Einordnung | Klasse | Suche | Korrektur | Probe |
+|---|---|---|---|---|---|---|
+| VER-01 | schwer | bestätigt (Teil 1): die Suchbegriffe selbst standen ausgeschrieben in `bewertung-r1.md:7` sowie in `auftrag-r2.md` und den neuen Codex-Berichten. Bewusste Entscheidung (Teil 2): `werkzeuge/browserpruefung/{kurz,pruefe,update}.mjs` und `werkzeuge/symbole.py` nennen nur Standard-Installationsorte unter `Program Files`, ohne Benutzernamen (bestätigt auch der Prüfer); seit 2d057a0 öffentlich, nicht im Diff | persönliche Angaben im versionierten Stand, hier als Suchmuster | Wortsuche Vorname und Suche Nachname (ohne Groß/Klein) über `git grep` und alle unversionierten Berichte dieses Ordners außer `.log` | Suchmuster durch `<vorname>`, `<nachname>` ersetzt (bewertung-r1, auftrag-r2, beide Codex-Auftragskopien, Befund-JSON, stderr) | beide Suchen über Stand und Berichtsordner → 0 Treffer; Suche `users[\/][a-z]` → 0 |
+| VER-02 | schwer | ungeklärt → Besitzer: Der Prüfer hält die bewusste Entscheidung aus r1 nicht für tragfähig. Ein Push von `main` macht den Dateistand von 0634588 (Benutzerprofilpfad mit Vorname als Windows-Konto) erstmals öffentlich abrufbar. Neue Information entsteht nicht (Vorname und Kontoname stehen schon öffentlich, auch in der Repo-URL), aber die Projektregel ist dem Wortlaut nach verletzt. Auswege ohne Force-Push: (a) so pushen, (b) Veröffentlichungscommit mit dem Baum von HEAD auf origin/main (Feinhistorie bleibt lokal), (c) nur die 58 ungepushten Commits umschreiben (Commit-Bindungen der Prüfberichte brechen). (b) und (c) sind Historienentscheidungen des Besitzers (KERN §7). | – | – | keine | – |
+| VER-R2-01 | gering | bestätigt: Aufrufbeispiel in `fotos.mjs:2` in Bash-Syntax | – | – | PowerShell-Aufruf mit `$env:CHROME` | `node --check` grün (Kommentarzeile) |
+
+**Fehlalarme:** keine. **Rundenstand:** Runde 2 von höchstens 3 (KERN §3).

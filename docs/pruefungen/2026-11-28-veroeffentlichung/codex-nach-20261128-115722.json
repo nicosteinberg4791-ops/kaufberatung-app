@@ -1,0 +1,44 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Ein Push von c168282 auf main bleibt blockiert. Er würde den Commit mit dem Benutzerprofilpfad erstmals über main erreichbar machen. Im aktuellen Stand schlagen außerdem beide für VER-01 vereinbarten Namenssuchen an. VER-03 und VER-04 sind nach der Quellprüfung geschlossen.",
+  "befunde": [
+    {
+      "id": "VER-02",
+      "schwere": "schwer",
+      "titel": "Der Push würde einen Benutzerprofilpfad neu veröffentlichen",
+      "datei": "docs/pruefungen/2026-11-24-finder-g1/codex-nach-20261124-155951.stderr.txt",
+      "zeile": 3,
+      "beleg": "Die Projektregel verlangt „keine persönlichen Daten (Namen, E-Mail, lokale Pfade, Konto-URLs) in versionierten Dateien“. Im Dateistand von 0634588 enthält Zeile 3 einen absoluten Benutzerprofilpfad. Die Vorfahrprüfung bestätigt, dass 0634588 von c168282 erreichbar ist und vom lokal vorliegenden origin/main aus außerhalb der erreichbaren Historie liegt.",
+      "auswirkung": "Ein Push von c168282 auf main würde diesen Dateistand öffentlich abrufbar machen. Ähnliche Angaben in älteren öffentlichen Commits ändern die Wirkung dieses Pushs nicht.",
+      "vorschlag": "Einen bereinigten Veröffentlichungszweig auf Basis von origin/main erstellen, die neu erreichbaren Dateistände prüfen und den neuen Commit zur Freigabe vorlegen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "VER-01",
+      "schwere": "schwer",
+      "titel": "Die Bereinigung erfüllt die Namenssuchen und die Pfadklasse noch nicht vollständig",
+      "datei": "docs/pruefungen/2026-11-28-veroeffentlichung/bewertung-r1.md",
+      "zeile": 7,
+      "beleg": "Das Abnahmekriterium lautet „git grep -w -E \"<vorname>s?\" → 0, git grep -i <nachname> → 0“. Beide Suchläufe gegen c168282 liefern je einen Treffer in Zeile 7, weil die Suchbegriffe dort ausgeschrieben sind. Derselbe absolute Chrome-Pfad, der aus fotos.mjs entfernt wurde, steht weiter in werkzeuge/browserpruefung/kurz.mjs:12, pruefe.mjs:15 und update.mjs:12. werkzeuge/symbole.py:15–16 enthält ebenfalls feste Windows-Installationspfade.",
+      "auswirkung": "Die vereinbarten Suchproben melden weiterhin Treffer. Die Browserwerkzeuge bleiben an feste Installationsorte gebunden. Die Pfade unter Program Files sind Standardorte und geben keinen Benutzerprofilnamen preis.",
+      "vorschlag": "Die Suchproben im Bericht ohne ausgeschriebene Namensbestandteile dokumentieren. Die verbleibenden Browserpfade wie in fotos.mjs lokal konfigurieren oder aus der Umgebung ermitteln und die Suchen am neuen Commit wiederholen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "VER-R2-01",
+      "schwere": "gering",
+      "titel": "Der neue Foto-Aufruf verwendet Bash-Syntax ohne Shell-Angabe",
+      "datei": "docs/pruefungen/2026-11-24-finder-g1/fotos.mjs",
+      "zeile": 2,
+      "beleg": "Das Beispiel verwendet `CHROME=… node …`. PowerShell behandelt `CHROME=…` als Befehlsnamen. Das Skript erwartet in Zeile 9 eine gesetzte Umgebungsvariable.",
+      "auswirkung": "Wer das Beispiel in der Projekt-Shell PowerShell ausführt, kann damit das Fotoskript nicht starten.",
+      "vorschlag": "Einen PowerShell-Aufruf mit `$env:CHROME` und anschließendem `node`-Aufruf dokumentieren oder das vorhandene Beispiel als Bash-Aufruf kennzeichnen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "VER-03",
+    "VER-04"
+  ],
+  "pruefgrenzen": "Lesende Nachprüfung von c168282 anhand des Diffs, gezielter Git-Suchen und der lokal vorliegenden Referenz origin/main. Im aktuellen Textstand ergab die Suche keinen absoluten Benutzerprofilpfad und keine URL des aus origin ermittelten GitHub-Kontos. Die geprüften Schreibstellen für gh-pages und die Workflow-Ausgaben ergaben keine weitere plattformabhängige Textausgabe. Die gezielte Suche ergab keinen weiteren Vergleich zur Identität zweier Dateien. Python-Tests, Hardlink-Proben und ein Windows-/Linux-Bytevergleich wurden nicht ausgeführt. Für VER-02 wurde die Erreichbarkeit des benannten Commits geprüft. Die gesamte Historie wurde nicht auf persönliche Angaben untersucht."
+}
