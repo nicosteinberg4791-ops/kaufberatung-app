@@ -1,0 +1,34 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Commit 8bb2ec2c6df50771359820f06cff6814f10e6503 verfehlt das Abnahmekriterium für sichtbare Sperrgründe. Die vier Takt-Dateinamen bleiben bei höchstens 255 Zeichen. Bereits nutzbare Windows-Stempel bleiben erhalten, da der bisherige Schreibpfad oberhalb von 246 Hostzeichen schon an der erforderlichen `.zeit.neu` scheiterte. Die Prozentprüfung greift vor dem Abruf und lässt `%` im Pfad zu.",
+  "befunde": [
+    {
+      "id": "R2-04a",
+      "schwere": "schwer",
+      "titel": "Ein frischer Sperrvermerk kann weiterhin unsichtbar bleiben",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 204,
+      "beleg": "Das Fertigkriterium lautet „Ein frischer Sperrvermerk ohne druckbares, sichtbares Zeichen ergibt „Sperrvermerk ohne Grund“.“ Besteht ein frischer Vermerk nur aus U+FE0F (Variation Selector-16), liefert Zeile 204 das Zeichen selbst. U+FE0F erfüllt `isprintable()` und `not isspace()`, besitzt allein aber kein sichtbares Zeichenbild. BOM und U+200B lösen jetzt den Ersatztext aus. [Python-Dokumentation zu `isprintable()`](https://docs.python.org/3.11/library/stdtypes.html#str.isprintable)",
+      "auswirkung": "Die Domainsperre greift, ihre Meldung kann jedoch ohne sichtbare Begründung erscheinen.",
+      "vorschlag": "Unicode-Zeichen, die bei der Anzeige standardmäßig ignoriert werden, bei der Sichtbarkeitsprüfung ausnehmen. Einen Regressionstest mit U+FE0F als einzigem Inhalt ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R3-01",
+      "schwere": "mittel",
+      "titel": "Unkodierter Nutzerteil wird von robots-Prüfung und HTTP-Client unterschiedlich gelesen",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 396,
+      "beleg": "Bei `https://u:p@h.invalid/a` passiert die Authority die Prozentprüfung. `robots_ursprung` bestimmt `h.invalid:443` (Zeilen 355–360). Der Produktabruf reicht die Original-URL an `urllib.request.Request` weiter (Zeilen 250–253). Dessen `host` bleibt `u:p@h.invalid`. Beim Direktabruf liest `HTTPSConnection` `p@h.invalid` als Port und löst `InvalidURL` aus. [CPython-Authority-Parser](https://github.com/python/cpython/blob/v3.11.9/Lib/urllib/parse.py#L990-L1003), [Request-Parser](https://github.com/python/cpython/blob/v3.11.9/Lib/urllib/request.py#L342-L348), [HTTP-Portparser](https://github.com/python/cpython/blob/v3.11.9/Lib/http/client.py#L822-L839)",
+      "auswirkung": "Bei einer solchen URL kann der Helfer bereits `robots.txt` abrufen und einen Taktstempel setzen, bevor der HTTP-Client den Produktabruf abbricht.",
+      "vorschlag": "Authorities mit Nutzerteil vor `robots_text` ablehnen und für den unkodierten Fall testen, dass `holen` unaufgerufen bleibt.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "R2-01",
+    "R2-02",
+    "R2-03"
+  ],
+  "pruefgrenzen": "Statische Nachprüfung der vier zugeordneten r2-Befunde und ihrer Fehlerklassen. Die Umgebung meldete beim Start des installierten Python-Interpreters „Zugriff verweigert“. Der Lauf der 33 Tests und die Commit-Hook-Ausgabe „Fehler: 0“ bleiben für diesen Stand unabhängig unbestätigt."
+}

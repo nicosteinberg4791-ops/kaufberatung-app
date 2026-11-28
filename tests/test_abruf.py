@@ -131,7 +131,7 @@ class Robots(unittest.TestCase):
                 self.assertTrue(abruf.robots_ok("https://h.invalid/a")[0])
                 self.assertTrue(abruf.robots_ok("https://h.invalid/b")[0])
                 self.assertEqual(h.call_count, 1, "innerhalb von 24 h aus der Ablage")
-            ablage = Path(t) / "https-h.invalid-443.robots.json"
+            ablage = abruf.robots_ablage("https", "h.invalid", 443)
             a = json.loads(ablage.read_text(encoding="utf-8"))
             a["zeit"] = time.time() - 25 * 3600
             ablage.write_text(json.dumps(a), encoding="utf-8")
@@ -157,6 +157,70 @@ class Robots(unittest.TestCase):
                 self.assertEqual(h.call_args[0][0], "http://h.invalid/robots.txt")
             self.assertFalse(abruf.robots_ok("https://h.invalid:99999/a")[0], "ungültiger Port")
 
+    def test_port_null_ist_kein_standardport(self):
+        """R5-05 (r6): Port 0 ist kein fehlender Port. Er wird abgelehnt und nie mit den Regeln von 443 freigegeben;
+        nur ein fehlender (auch leerer) Port heißt Standardport."""
+        teile = abruf.urllib.parse.urlsplit
+        for url in ("https://h.invalid:0/a", "https://h.invalid:00/a", "http://h.invalid:0/a"):
+            with self.subTest(url=url):
+                with self.assertRaises(ValueError):
+                    abruf.robots_ursprung(teile(url))
+        self.assertEqual(abruf.robots_ursprung(teile("https://h.invalid/a")), ("https", "h.invalid", 443))
+        self.assertEqual(abruf.robots_ursprung(teile("https://h.invalid:/a")), ("https", "h.invalid", 443))
+        with unittest.mock.patch.object(abruf, "holen") as h:   # Codex r1: urlsplit entfernt Tab, CR und LF still
+            for url in ("https://h.invalid:" + chr(9) + "/a", "https://h.invalid:" + chr(13) + chr(10) + "/a",
+                        "https://h.inv" + chr(9) + "alid/a", "https://h.invalid/a b", "https://h.invalid/" + chr(127),
+                        "https://h.invalid/a" + chr(10)):
+                with self.subTest(url=url):
+                    self.assertEqual(abruf.robots_ok(url), (False, "URL mit Leer- oder Steuerzeichen"))
+            # Codex r2: urllib dekodiert die Authority, urlsplit nicht (Porttrenner %3A, Host %2d, Zonen-ID %25)
+            for url in ("https://h.invalid%3A8443/a", "https://h%2dNAME.invalid/a", "https://h%2dname.invalid/a",
+                        "https://[fe80::1%25eth0]/a", "https://u%40x@h.invalid/a", "https://h.invalid:8%34/a"):
+                with self.subTest(url=url):
+                    self.assertEqual(abruf.robots_ok(url), (False, "URL mit Prozentkodierung in Host oder Port"))
+            # Codex r3 R3-01: Nutzerteil (urllib liest „p@h.invalid“ als Port)
+            for url in ("https://u:p@h.invalid/a", "https://u@h.invalid/a", "https://@h.invalid/a"):
+                with self.subTest(url=url):
+                    self.assertEqual(abruf.robots_ok(url), (False, "URL mit Nutzerteil (@) in der Authority"))
+            # Codex r4 R4-01: Klammern ohne IPv6 (IPvFuture u. Ä.); hostname verliert die Klammern, urllib nicht
+            for url in ("https://[v1.invalid]/a", "https://[h.invalid]/a", "https://[v1.fe80::1]/a",
+                        "https://[127.0.0.1]/a", "https://[]/a", "https://[2001:db8::1]x/a"):
+                with self.subTest(url=url):
+                    self.assertEqual(abruf.robots_ok(url), (False, "URL mit Klammern ohne gültige IPv6-Adresse"))
+            h.assert_not_called()
+        with unittest.mock.patch.object(abruf, "holen") as h, unittest.mock.patch("builtins.print"):
+            self.assertEqual(abruf.main.__module__, "abruf")
+            with unittest.mock.patch.object(abruf.sys, "argv", ["abruf.py", "https://u:p@h.invalid/a"]):
+                self.assertEqual(abruf.main(), 4, "main bricht vor dem Abruf ab")
+            h.assert_not_called()
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)), \
+                unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nAllow: /\n"):
+            self.assertTrue(abruf.robots_ok("https://h.invalid/a%2Fb")[0], "Prozent im Pfad bleibt erlaubt")
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            with unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nAllow: /\n") as h:
+                self.assertTrue(abruf.robots_ok("https://h.invalid/a")[0])
+                ok, grund = abruf.robots_ok("https://h.invalid:0/a")
+                self.assertFalse(ok, "Port 0 nicht über die Ablage von 443 freigegeben")
+                self.assertIn("Ursprung", grund)
+                self.assertEqual(h.call_count, 1, "für Port 0 nichts abgerufen")
+
+    def test_ablage_eindeutig_je_ursprung(self):
+        """R5-05 (r6): der Ablagename trennt jeden Ursprung, auch IPv6 gegen einen Namen mit Unterstrichen und Schema
+        oder Port gegen Teile des Hostnamens; jeder Name ist unter Windows zulässig."""
+        ursprung = [("https", "2001:db8::1", 443), ("https", "2001_db8__1", 443), ("http", "2001:db8::1", 443),
+                    ("https", "2001:db8::1", 8443), ("https", "a-b", 443), ("https", "a", 443), ("http", "s-a", 443),
+                    ("https", "h.invalid", 443), ("https", "h.invalid", 4430), ("https", "h.invalid4", 43)]
+        namen = [abruf.robots_ablage(*u).name for u in ursprung]
+        self.assertEqual(len(set(namen)), len(namen), namen)
+        for n in namen:
+            self.assertRegex(n, r"\A[a-z0-9.-]+\Z", "nur Windows-taugliche Zeichen")
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            with unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nAllow: /\n"):
+                self.assertTrue(abruf.robots_ok("https://[2001:db8::1]/a")[0])
+            with unittest.mock.patch.object(abruf, "holen", return_value="User-agent: *\nDisallow: /\n") as h:
+                self.assertFalse(abruf.robots_ok("https://2001_db8__1/a")[0], "eigene Regeln, nicht die der IPv6-Adresse")
+                self.assertEqual(h.call_args[0][0], "https://2001_db8__1/robots.txt")
+
     def test_sperre_wird_weitergegeben(self):
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)), \
              unittest.mock.patch.object(abruf, "holen", side_effect=SystemExit(3)):
@@ -177,7 +241,7 @@ class Domainsperre(unittest.TestCase):
                 kind = subprocess.run([sys.executable, "-I", "-c",
                     "import sys; sys.path[:0]=[sys.argv[1], sys.argv[2]]; import abruf; from pathlib import Path; "
                     "abruf.TAKT=Path(sys.argv[3]); sys.exit(0 if abruf.sperre_versuchen('h.invalid') is None else 1)",
-                    str(WURZEL / "werkzeuge" / "datenpflege"), str(WURZEL / "werkzeuge"), t], capture_output=True, text=True)
+                    str(WURZEL / "werkzeuge" / "datenpflege"), str(WURZEL / "werkzeuge"), t], capture_output=True, text=True, encoding="utf-8")
                 self.assertEqual(kind.returncode, 0, kind.stderr)
             finally:
                 abruf.sperre_freigeben(erste)
@@ -414,6 +478,142 @@ class Domainsperre(unittest.TestCase):
                 self.assertEqual(abruf.holen("https://h.invalid/b"), "ok")
         self.assertEqual(len(gesendet), 2)
         self.assertGreaterEqual(gesendet[1] - gesendet[0], abruf.ABSTAND)
+
+    def test_hostschluessel_windows_tauglich_und_eindeutig(self):
+        """R6-02: Sperr-, Zeit- und Sperrvermerkdatei teilen einen Schlüssel je Host. Gewöhnliche Hostnamen behalten
+        ihren Namen (vorhandene Stempel gelten weiter); IPv6, Gerätenamen, Nicht-ASCII, Prozentzeichen und
+        Grenzfälle bekommen einen Hash-Namen, der mit keinem gewöhnlichen Hostnamen zusammenfallen kann."""
+        self.assertEqual(abruf.host_schluessel("h.invalid"), "h.invalid")
+        self.assertEqual(abruf.host_schluessel("www.saturn.de"), "www.saturn.de")
+        hosts = ["2001:db8::1", "2001_db8__1", "2001-db8--1", "[2001:db8::1]", "fe80::1%25eth0", "con", "con.example",
+                 "nul", "lpt1.x", "com¹", "bücher.de", "h.invalid.", ".h", "a..b", "-a", "a-", "x" * 64, "fe80::1%25etha", "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 55,
+                 "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 62, "h.invalid", "h_x", "h--" + "0" * 60]
+        schluessel = [abruf.host_schluessel(h) for h in hosts]
+        self.assertEqual(len(set(schluessel)), len(schluessel), list(zip(hosts, schluessel)))
+        for h, s in zip(hosts, schluessel):
+            with self.subTest(host=h):
+                self.assertRegex(s, r"\A[a-z0-9.-]{1,246}\Z")
+                self.assertNotIn(s.split(".")[0], {"con", "prn", "aux", "nul", "com1", "lpt1"})
+                if h in ("h.invalid", "2001-db8--1", "h--" + "0" * 60):   # gewöhnlicher Hostname (auch mit „--“ wie xn--) bleibt
+                    self.assertEqual(s, h)
+                else:   # Hash-Name: erste Komponente länger als 63 Zeichen, also nie ein gewöhnlicher Hostname
+                    self.assertRegex(s, r"\Ah--[0-9a-f]{64}\Z", h)
+        self.assertEqual(abruf.host_schluessel("H.Invalid"), "h.invalid", "Groß-/Kleinschreibung wie urlsplit")
+        for lang in ("a" * 50 + "." + "b" * 50, "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 54):
+            self.assertEqual(abruf.host_schluessel(lang), lang, "gewöhnlicher Hostname bis 246 Zeichen bleibt (r1/r2)")
+            self.assertLessEqual(len(lang + ".gesperrt"), 255)
+            self.assertLessEqual(len(lang + ".zeit.neu"), 255)
+        for leer in ("", None):
+            with self.assertRaises(ValueError):
+                abruf.host_schluessel(leer)
+
+    def test_ipv6_host_sperre_stempel_und_vermerk(self):
+        """R6-02: ein Abruf über einen IPv6-Host legt Sperr- und Zeitdatei unter dem gemeinsamen Schlüssel an (unter
+        Windows wäre „2001:db8::1.lock“ unzulässig); eine 403 schreibt den Sperrvermerk unter demselben Schlüssel."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            s = abruf.host_schluessel("2001:db8::1")
+            with unittest.mock.patch.object(abruf, "einmal_abrufen", return_value="ok"):
+                self.assertEqual(abruf.holen("https://[2001:db8::1]/a"), "ok")
+            self.assertTrue((Path(t) / (s + ".lock")).exists())
+            self.assertTrue((Path(t) / (s + ".zeit")).exists())
+            with unittest.mock.patch.object(abruf, "einmal_abrufen", side_effect=sa.NichtAbrufbar("HTTP 403")), \
+                    unittest.mock.patch("time.sleep"), unittest.mock.patch("builtins.print"):
+                with self.assertRaises(SystemExit) as e:
+                    abruf.holen("https://[2001:db8::1]/b")
+            self.assertEqual(e.exception.code, 3)
+            self.assertTrue((Path(t) / (s + ".gesperrt")).exists())
+            self.assertEqual(sorted(p.name for p in Path(t).iterdir()), sorted(s + e for e in (".lock", ".zeit", ".gesperrt")))
+            self.assertTrue(abruf.gesperrt_bis("2001:db8::1"))
+
+    def test_sperrvermerk_nur_sicher_fehlend_heisst_frei(self):
+        """R2-04: nur ein sicher fehlender oder ein über 30 min alter, normaler Sperrvermerk (Inhalt egal: abgelaufen) heißt „nicht gesperrt“.
+        Link ohne Ziel (Windows: Junction), Ordner, Prüf- oder Lesefehler, nicht dekodierbarer und leerer Inhalt sperren."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            vermerk = Path(t) / "h.invalid.gesperrt"
+            self.assertIsNone(abruf.gesperrt_bis("h.invalid"), "fehlt = frei")
+            vermerk.write_text("HTTP 403", encoding="utf-8")
+            self.assertEqual(abruf.gesperrt_bis("h.invalid"), "HTTP 403")
+            os.utime(vermerk, (time.time() - 1801, time.time() - 1801))
+            self.assertIsNone(abruf.gesperrt_bis("h.invalid"), "nach 30 min frei")
+            for inhalt in (b"", b"\xff\xfe\x81", b" \n\t", "﻿".encode(), "​".encode(),
+                           "﻿ ​⁠".encode(), "️".encode(), "⃣".encode(),
+                           "ㅤᅟ".encode(), "͏\U000e0100".encode(),   # Codex r3: ohne Zeichenbild
+                           "⠀".encode(), "𝅙".encode(), "⠀ ⠀️".encode()):   # Codex r4: So ohne Zeichenbild
+                with self.subTest(inhalt=inhalt):
+                    vermerk.write_bytes(inhalt)
+                    grund = abruf.gesperrt_bis("h.invalid")
+                    if inhalt != b"\xff\xfe\x81":   # Codex r2 R2-04a: auch unsichtbare Formatzeichen
+                        self.assertEqual(grund, "Sperrvermerk ohne Grund")
+                    self.assertTrue(grund and grund.strip(), "leer, Leerraum oder nicht dekodierbar sperrt sichtbar")
+            echt_lstat, echt_lesen = os.lstat, Path.read_text
+            for fehler in (PermissionError("keine Rechte"), OSError(5, "Ein-/Ausgabefehler")):
+                def lstat(p, *a, **k):
+                    if Path(p) == vermerk:
+                        raise fehler
+                    return echt_lstat(p, *a, **k)
+
+                def lesen(p, *a, **k):
+                    if Path(p) == vermerk:
+                        raise fehler
+                    return echt_lesen(p, *a, **k)
+                vermerk.write_text("HTTP 429", encoding="utf-8")
+                with self.subTest(fehler=type(fehler).__name__, ort="lstat"), \
+                        unittest.mock.patch.object(abruf.os, "lstat", side_effect=lstat):
+                    self.assertTrue(abruf.gesperrt_bis("h.invalid"))
+                os.utime(vermerk, (time.time() - 3600, time.time() - 3600))
+                with self.subTest(fehler=type(fehler).__name__, ort="alt, lstat"), \
+                        unittest.mock.patch.object(abruf.os, "lstat", side_effect=lstat):
+                    self.assertTrue(abruf.gesperrt_bis("h.invalid"), "Alter nicht prüfbar = gesperrt")
+                os.utime(vermerk, None)
+                with self.subTest(fehler=type(fehler).__name__, ort="lesen"), \
+                        unittest.mock.patch.object(Path, "read_text", lesen):
+                    self.assertTrue(abruf.gesperrt_bis("h.invalid"))
+            vermerk.unlink()
+            vermerk.mkdir()
+            os.utime(vermerk, (time.time() - 3600, time.time() - 3600))
+            self.assertTrue(abruf.gesperrt_bis("h.invalid"), "Ordner statt Datei, auch alt")
+            vermerk.rmdir()
+
+    def test_403_mit_fehler_beim_abschlussstempel_schreibt_den_vermerk(self):
+        """Vorprüfung: scheitert der Abschlussstempel nach einer 403, verdrängt sein Fehler die 403 nicht: Exit 3,
+        Sperrvermerk geschrieben, Markierung „laeuft“ bleibt (voller Abstand)."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            echt, aufrufe = abruf.stempel_setzen, []
+
+            def stempel(*a, **k):
+                aufrufe.append(k)
+                if not k.get("laeuft"):
+                    raise OSError(28, "Datenträger voll")
+                return echt(*a, **k)
+            with unittest.mock.patch.object(abruf, "einmal_abrufen", side_effect=sa.NichtAbrufbar("HTTP 403")),                     unittest.mock.patch.object(abruf, "stempel_setzen", side_effect=stempel),                     unittest.mock.patch("builtins.print"):
+                with self.assertRaises(SystemExit) as e:
+                    abruf.holen("https://h.invalid/a")
+            self.assertEqual(e.exception.code, 3)
+            self.assertEqual(len(aufrufe), 2)
+            self.assertEqual(abruf.gesperrt_bis("h.invalid"), "HTTP 403")
+            self.assertTrue((Path(t) / "h.invalid.zeit").read_text(encoding="utf-8").startswith(abruf.LAEUFT))
+
+    def test_sperrvermerk_als_link_ohne_ziel_sperrt(self):
+        """R2-04: ein Sperrvermerk, dessen Ziel fehlt (Link bzw. Junction), gilt als gesperrt; holen() ruft nichts ab."""
+        with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)):
+            vermerk, ziel = Path(t) / "h.invalid.gesperrt", Path(t) / "weg"
+            try:
+                if os.name == "nt":
+                    import _winapi
+                    ziel.mkdir()
+                    _winapi.CreateJunction(str(ziel), str(vermerk))
+                    ziel.rmdir()
+                else:
+                    os.symlink(ziel, vermerk)
+            except (OSError, ImportError, AttributeError) as e:
+                self.skipTest(f"kein Link möglich: {e}")
+            self.assertFalse(vermerk.exists())
+            self.assertTrue(abruf.gesperrt_bis("h.invalid"))
+            with unittest.mock.patch.object(abruf, "einmal_abrufen") as ab, unittest.mock.patch("builtins.print"):
+                with self.assertRaises(SystemExit) as e:
+                    abruf.holen("https://h.invalid/a")
+            self.assertEqual(e.exception.code, 3)
+            ab.assert_not_called()
 
     def test_holen_gibt_die_sperre_frei_und_laesst_die_datei(self):
         with tempfile.TemporaryDirectory() as t, unittest.mock.patch.object(abruf, "TAKT", Path(t)),              unittest.mock.patch.object(abruf, "einmal_abrufen", side_effect=sa.NichtAbrufbar("Netzfehler: x")):

@@ -1,0 +1,57 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "Vier Befunde verletzen die Fertigkriterien. R5-01 ist geschlossen. Die Datenbankprüfung ergab „Fehler 0“.",
+  "befunde": [
+    {
+      "id": "R2-04",
+      "schwere": "schwer",
+      "titel": "Alte beschädigte Sperrvermerke geben den Abruf frei",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 194,
+      "beleg": "Fertigkriterium „gesperrt_bis gibt None nur bei sicher fehlendem oder über 30 min altem, normalem Sperrvermerk zurück“. Der Test beschreibt den abgelaufenen Vermerk ausdrücklich als „lesbar“ (tests/test_abruf.py, Z. 495–497). Mit einem 1801 Sekunden alten regulären Eintrag liefert die Funktion bei leerem Inhalt oder einem Lesefehler `None`, ohne den Inhalt zu prüfen. Ein frischer Eintrag mit nur Leerraum liefert zudem keinen sichtbaren Sperrgrund.",
+      "auswirkung": "Nach 30 Minuten kann `holen()` trotz beschädigtem oder unlesbarem Vermerk wieder abrufen. Bei einem frischen Vermerk aus Leerraum bleibt der Grund in der Meldung leer.",
+      "vorschlag": "Den Inhalt vor der Altersfreigabe auf Lesbarkeit, gültiges UTF-8 und einen Grund mit sichtbaren Zeichen prüfen. Alte leere, ungültig kodierte und unlesbare Vermerke sowie frische Vermerke aus Leerraum testen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R6-02a",
+      "schwere": "schwer",
+      "titel": "IPv6-Zonenkennungen mit unterschiedlicher Großschreibung teilen einen Schlüssel",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 58,
+      "beleg": "Fertigkriterium „Sperr-, Zeit- und Sperrvermerkdatei teilen einen Windows-tauglichen, eindeutigen Schlüssel je Host“. Die lokale Probe ergab für `[fe80::1%25ethA]` und `[fe80::1%25etha]` unterschiedliche Hostwerte aus `urlsplit()` und unterschiedliche Zonenkennungen im HTTP-Client. `host.lower()` erzeugt für beide denselben Dateischlüssel.",
+      "auswirkung": "Verschiedene Schnittstellen mit diesen Zonenkennungen können sich gegenseitig ausbremsen oder sperren.",
+      "vorschlag": "Nur den Hostanteil vor der IPv6-Zonenkennung kleinschreiben und die Kennung unverändert in den Schlüssel einbeziehen. Einen Test mit zwei Zonenkennungen ergänzen, die sich nur in der Großschreibung unterscheiden.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R6-02b",
+      "schwere": "schwer",
+      "titel": "Vorhandene Stempel langer gewöhnlicher Hostnamen werden übergangen",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 59,
+      "beleg": "Fertigkriterium „vorhandene Stempel gewöhnlicher Hostnamen gelten weiter“. Der Host aus 50 `a`, einem Punkt und 50 `b` besteht aus zwei gültigen DNS-Labels. Der bisherige Windows-Dateiname `<host>.zeit` ist 106 Zeichen lang und passt bei einem kurzen Temp-Pfad. Die lokale Probe ergab für diesen Host nun einen Hash-Dateinamen. `sperre_holen()` wertet dessen Fehlen als Wartezeit 0 (Z. 114–119).",
+      "auswirkung": "Der erste Lauf nach dem Wechsel kann den vorgeschriebenen Abstand zu einem unmittelbar vorherigen Abruf unterschreiten. Auch ein vorhandener Sperrvermerk unter dem alten Namen greift für diesen Host nicht mehr.",
+      "vorschlag": "Die bisherigen Dateinamen gewöhnlicher Hosts weiterverwenden, wenn sie unter Windows am konkreten Speicherort zulässig sind. Einen vorhandenen Zeitstempel für einen Host mit mehr als 100 Zeichen in den Übergangstest aufnehmen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R5-05",
+      "schwere": "schwer",
+      "titel": "Ein Tabulator an der Portstelle fällt auf den Standardport zurück",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 388,
+      "beleg": "Fertigkriterium „nur ein fehlender Port heißt Standardport“. Bei `https://h.invalid:\\t/a` mit einem echten Tabulator entfernt `urlsplit()` das Zeichen. `robots_ursprung()` liefert dadurch Port 443 (Z. 354–356). Der HTTP-Client behält den Tabulator im Original und meldete in der lokalen Probe `InvalidURL: nonnumeric port`.",
+      "auswirkung": "Die Robots-Prüfung kann die Regeln von Port 443 abrufen oder aus der Ablage verwenden, obwohl der Port der Original-URL ungültig ist.",
+      "vorschlag": "Tabulator, CR und LF in der rohen URL vor `urlsplit()` ablehnen. Den tatsächlich leeren Port und Port 0 weiterhin getrennt testen.",
+      "im_pruefumfang": true
+    }
+  ],
+  "geschlossen": [
+    "R5-01. `laeuft` steht vor dem HTTP-Versuch im Zeitstempel. Die lesende Simulation eines Abbruchs beim Abschlussstempel bestätigte 61 Sekunden Wartezeit ab Übernahme der Sperre durch den Folgeabruf.",
+    "R5-05, ursprüngliche Fälle. Port 0 wird abgelehnt. Die früher kollidierenden IPv6- und Unterstrich-Hosts sowie die geprüften Schema- und Portvarianten haben getrennte Robots-Ablagen.",
+    "Dateizugriffe im Takt-Ordner. `.lock`, `.zeit` und `.gesperrt` verwenden denselben Schlüssel. `.zeit.neu` wird aus dem Zeitstempelpfad abgeleitet.",
+    "Git-Test-Helfer. `g` und `zeige` dekodieren explizit UTF-8. Die Veröffentlichungstests prüfen den aus Git gelesenen Seiteninhalt mit `geprüft`."
+  ],
+  "pruefgrenzen": "Geprüft wurde Commit 88e026e214579e61aab27df0055f925502fae932. Die Datenbankprüfung lief mit `-B` zur Vermeidung von Bytecode-Dateien und ergab „Fehler 0 · Warnungen 60“. Der PowerShell-Sammellauf mit bereinigter `GIT_*`-Umgebung blieb unbestätigt, da er Dateien löscht und ein Laufprotokoll schreibt. Die gezielten Proben liefen ohne Netzwerk- oder Dateischreibzugriffe."
+}

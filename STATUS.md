@@ -1,10 +1,11 @@
 # Stand – Kaufberatung-App
 
-Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Codex-Nachprüfung r3 bestanden mit Hinweisen, Hinweise korrigiert; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
+Stand: 28.11.2026 · Branch main, origin/main (Paket `abruf.py`) lokal gemergt, nicht gepusht · P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Codex-Nachprüfung r3 bestanden mit Hinweisen, Hinweise korrigiert; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
 
 ## Lage
 
-- **Live auf gh-pages:** App 1045baedfc64 (Herkunft 7339711, Inhalt Artifact-Version 30). Finder G1, Datenbank, UX-P1, P2a-1 und P2a-2 sind auf `main`, nicht gepusht und nicht live. `main` und origin/main (Paket `abruf.py`, 40cf73f) sind auseinandergelaufen; Merge nur mit Auftrag.
+- **Live auf gh-pages:** App 1045baedfc64 (Herkunft 7339711, Inhalt Artifact-Version 30). Finder G1, Datenbank, UX-P1, P2a-1 und P2a-2 sind auf `main`, nicht gepusht und nicht live.
+- **Merge 28.11.2026:** origin/main (Paket `abruf.py`, 40cf73f) ist lokal in `main` gemergt, nicht gepusht. Konflikte nur in `STATUS.md` und `tests/test_app.py` (Helfer `_lauf`: P2a-Schema-Aufbau von `main` plus UTF-8-Probe „geprüft“ von origin/main). Paket `abruf.py`: selbst geprüft, Codex r1–r4 nicht bestanden, r4-Befunde nach O23 = B ohne Runde 5 behoben, R10-01 Restrisiko ([bewertung-r4.md](docs/pruefungen/2026-11-24-abruf/bewertung-r4.md)).
 - **Pilot Bestpreis (D7):** Entscheidung O12 stand am 26.11. an.
 
 ## Erledigt (26.11.2026)
@@ -26,8 +27,8 @@ Stand: 27.11.2026 · Branch main, P2a-2 gebaut, Nachprüfung r1 bewertet und kor
 
 ## Nächster Schritt
 
-**origin/main lokal in `main` mergen, ohne Push** (Nico, 27.11.: „Merge in neuem Chat“). `main` liegt 54 Commits vor, origin/main 9 (Paket `abruf.py`, Basis 7339711). Konflikte erwartet vor allem in `STATUS.md`; Code- und Testkonflikte nach beiden Seiten auflösen. Danach Sammellauf und Schranke gegen Live. Keinen Push ohne Nicos Wort. Vor dem Push auf gh-pages folgt die kritische Prüfung (Prüfpunkt „Veröffentlichung“, Codex high).
-**Fertig, wenn** der Merge-Commit auf `main` liegt, `tests/alle-tests.ps1` Fehler 0 meldet und `python -I werkzeuge/datenbank.py pruefen --gegen` grün ist. Erst dann den Auftrag für die kritische Prüfung vorschlagen. Lesen: `git log --oneline main..origin/main`, [docs/pruefungen/2026-11-24-abruf/](docs/pruefungen/2026-11-24-abruf/) (nur die letzte Bewertung), bei Bedarf [bewertung-r4.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r4.md).
+**Kritische Prüfung vor dem Push** (Prüfpunkt „Veröffentlichung“, Codex high, Skill `pruefschleife`), erst auf Nicos Wort. Umfang: `main` gegen Live-Herkunft 7339711 (Finder G1, Datenbank, UX-P1, P2a-1, P2a-2, Merge `abruf.py`), Schwerpunkt Veröffentlichungsweg (`veroeffentlichen.py`, `freigabe.py`, `finder-daten.yml`) und Merge-Auflösung. Kein Push ohne Nicos Wort.
+**Fertig, wenn** Codex-Prüfung bestanden, Bewertung abgelegt und Nico den Push freigegeben hat.
 Offen aus P2a-2: ein einmaliger, nicht reproduzierter Fehlschlag von `test_datei_an_kandidat_gebunden` im Mutantenlauf ([bewertung-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r3.md), Selbstprüfung).
 
 ## Offen für Nico

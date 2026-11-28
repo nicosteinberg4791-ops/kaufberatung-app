@@ -1,0 +1,32 @@
+{
+  "urteil": "nicht_bestanden",
+  "zusammenfassung": "R2-04a bleibt offen. Ein frischer Sperrvermerk kann weiterhin einen optisch leeren Grund ausgeben.",
+  "befunde": [
+    {
+      "id": "R2-04a",
+      "schwere": "schwer",
+      "titel": "Ein leeres Braille-Muster zählt als sichtbarer Sperrgrund",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 192,
+      "beleg": "Das Fertigkriterium lautet „Ein frischer Sperrvermerk ohne Zeichen mit eigenem Zeichenbild ergibt „Sperrvermerk ohne Grund“.“ Enthält der frische Vermerk ausschließlich U+2800 (BRAILLE PATTERN BLANK), liefert `_sichtbar` wegen der Kategorie `So` und des fehlenden Eintrags in `_FUELLER` den Wert `True`. Zeile 215 gibt deshalb U+2800 aus. Unicode definiert das Zeichen als leeres Braille-Muster ohne Punkte. [Unicode-Standard](https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-21/#G14720)",
+      "auswirkung": "Die Domainsperre greift. In der Meldung erscheint hinter „Domain gesperrt (30 min meiden):“ nur eine leere Stelle.",
+      "vorschlag": "U+2800 bei der Sichtbarkeitsprüfung ausnehmen und einen Regressionstest mit U+2800 als einzigem Inhalt eines frischen Sperrvermerks ergänzen.",
+      "im_pruefumfang": true
+    },
+    {
+      "id": "R4-01",
+      "schwere": "mittel",
+      "titel": "IPvFuture-Klammern führen zu unterschiedlichen HTTP-Host-Headern",
+      "datei": "werkzeuge/datenpflege/abruf.py",
+      "zeile": 388,
+      "beleg": "Bei `https://[v1.invalid]/a` akzeptiert `urlsplit` den geklammerten IPvFuture-Host und liefert als `hostname` den Wert `v1.invalid`. Die `%`- und `@`-Prüfungen greifen hier nicht. Zeile 388 baut die robots-URL ohne Klammern, während Zeile 261 dem HTTP-Client die ursprüngliche URL übergibt. `urllib` übernimmt die jeweilige Authority in den `Host`-Header. Dieser Pfad bestand bereits vor dem Diff. [CPython-URL-Parser](https://github.com/python/cpython/blob/3.11/Lib/urllib/parse.py#L398-L423) [CPython-HTTP-Header](https://github.com/python/cpython/blob/3.11/Lib/urllib/request.py#L1198-L1203)",
+      "auswirkung": "robots.txt und Produktanfrage können trotz desselben Verbindungsziels unterschiedlich behandelt werden. Eine abweichende Serverantwort wurde nicht geprüft.",
+      "vorschlag": "IPvFuture-Authorities vor `robots_text` ablehnen, solange der Abrufpfad sie nicht durchgängig unterstützt.",
+      "im_pruefumfang": false
+    }
+  ],
+  "geschlossen": [
+    "R3-01"
+  ],
+  "pruefgrenzen": "Lesende Nachprüfung von Commit 7dfd108f9e56c288706393a549f59c3bd301a849 gegen 10d405f. Beide Fehlerklassen waren benannt und wurden geprüft. Für R3-01 bestätigt der Code die Ablehnung vor dem Abruf, und die Tests decken Nutzerteile mit Passwort, ohne Passwort und mit leerem Nutzerteil ab. Der Bauer dokumentiert 33 grüne Tests. Der lokale Lauf scheiterte am fehlenden verfügbaren Python-Interpreter. Der Commit-Hook-Sammellauf mit „Fehler: 0“ ließ sich unabhängig nicht bestätigen."
+}

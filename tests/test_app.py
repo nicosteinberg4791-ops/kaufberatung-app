@@ -336,7 +336,7 @@ class Veroeffentlichen(unittest.TestCase):
         t = Path(tempfile.mkdtemp()); self.addCleanup(shutil.rmtree, t, True)
 
         def g(cwd, *a):
-            return subprocess.run(["git", "-C", str(cwd), *a], check=True, capture_output=True, text=True).stdout.strip()
+            return subprocess.run(["git", "-C", str(cwd), *a], check=True, capture_output=True, text=True, encoding="utf-8").stdout.strip()
         ursprung, quelle, seite = t / "ursprung.git", t / "quelle", t / "seite"
         g(t, "init", "-q", "--bare", str(ursprung))
         for r in (quelle, seite):
@@ -346,7 +346,7 @@ class Veroeffentlichen(unittest.TestCase):
         (quelle / ".gitignore").write_text(".veroeffentlichung/\ndist/\n", encoding="utf-8")
         vor_herkunft = vorlauf(quelle, g) if vorlauf else None
         (quelle / "app").mkdir(exist_ok=True)
-        (quelle / "app" / "seite.txt").write_text("geprueft", encoding="utf-8")
+        (quelle / "app" / "seite.txt").write_text("geprüft", encoding="utf-8")
         (quelle / "daten" / "schema").mkdir(parents=True, exist_ok=True)
         (quelle / "daten" / "schema" / "kategorien.json").write_text(
             kandidat_schema if kandidat_schema is not None else (WURZEL / "daten" / "schema" / "kategorien.json")
@@ -383,7 +383,7 @@ class Veroeffentlichen(unittest.TestCase):
                 waehrend_bau(quelle)
             (z / "index.html").write_text("<p>" + (Path(wurzel) / "app" / "seite.txt").read_text(encoding="utf-8")
                                           + "</p>", encoding="utf-8")
-            (quelle / "app" / "seite.txt").write_text("geprueft", encoding="utf-8")   # Arbeitsbaum wieder sauber
+            (quelle / "app" / "seite.txt").write_text("geprüft", encoding="utf-8")   # Arbeitsbaum wieder sauber
             (z / "finder" / "a.js").write_text("// neu", encoding="utf-8")
             (z / "preise.json").write_text('{"lokal": 1}', encoding="utf-8")   # nie aus dem Bau (R2-01)
             (z / "finder-daten.json").write_text(schreibe_daten(daten_herkunft), encoding="utf-8")
@@ -410,10 +410,10 @@ class Veroeffentlichen(unittest.TestCase):
             if vorher:
                 vorher(quelle, head)
             code = self.v.main(["--stand", head] if argv is None else argv)
-        r = subprocess.run(["git", "-C", str(ursprung), "rev-parse", "gh-pages"], capture_output=True, text=True)
+        r = subprocess.run(["git", "-C", str(ursprung), "rev-parse", "gh-pages"], capture_output=True, text=True, encoding="utf-8")
         oben = r.stdout.strip()
         zeige = lambda pfad: subprocess.run(["git", "-C", str(ursprung), "show", f"gh-pages:{pfad}"],
-                                            capture_output=True, text=True)
+                                            capture_output=True, text=True, encoding="utf-8")
         return dict(code=code, ziele=ziele, quelle=quelle, seiten=seiten, head=head, eltern=eltern, oben=oben,
                     zeige=zeige, g=g, ursprung=ursprung)
 
@@ -545,7 +545,7 @@ class Veroeffentlichen(unittest.TestCase):
         """R5-02: ein fremder Vorgang macht index.html vor write-tree zum symbolischen Link mit gleicher Blob-ID."""
         def link(seiten, ursprung, eltern):
             r = lambda *a: subprocess.run(["git", "-C", str(seiten), *a], check=True, capture_output=True,
-                                          text=True).stdout.strip()
+                                          text=True, encoding="utf-8").stdout.strip()
             r("update-index", "--cacheinfo", "120000," + r("rev-parse", ":index.html") + ",index.html")
         e = self._lauf(self._gut, vor={"write-tree": link})
         self.assertEqual(e["code"], 1, "Moduswechsel wird erkannt")
@@ -563,7 +563,7 @@ class Veroeffentlichen(unittest.TestCase):
                 e = self._lauf(self._gut, vor={"push": eingriff})
                 self.assertEqual(e["code"], 1, "Push abgelehnt")
                 r = subprocess.run(["git", "-C", str(e["ursprung"]), "rev-parse", "--verify", "-q", "gh-pages"],
-                                   capture_output=True, text=True)
+                                   capture_output=True, text=True, encoding="utf-8")
                 if name == "geloescht":
                     self.assertNotEqual(r.returncode, 0, "gh-pages nicht neu angelegt")
                 else:
@@ -575,7 +575,7 @@ class Veroeffentlichen(unittest.TestCase):
         def vorher(quelle, head):
             for a in (("config", "push.followTags", "true"), ("fetch", "-q", "origin", "gh-pages"),
                       ("tag", "-a", "-m", "lokal", "lokal-ungeprueft", "FETCH_HEAD")):
-                subprocess.run(["git", "-C", str(quelle), *a], check=True, capture_output=True, text=True)
+                subprocess.run(["git", "-C", str(quelle), *a], check=True, capture_output=True, text=True, encoding="utf-8")
         e = self._lauf(self._gut, vorher=vorher)
         self.assertEqual(e["code"], 0)
         self.assertNotEqual(e["oben"], e["eltern"], "gh-pages gepusht")
@@ -585,7 +585,7 @@ class Veroeffentlichen(unittest.TestCase):
         """R5-04: eine vorübergehende Änderung im Arbeitsbaum während des Baus gelangt nicht auf gh-pages."""
         e = self._lauf(self._gut, waehrend_bau=lambda q: (q / "app" / "seite.txt").write_text("fremd", encoding="utf-8"))
         self.assertEqual(e["code"], 0)
-        self.assertEqual(e["zeige"]("index.html").stdout, "<p>geprueft</p>", "gebaut aus dem geprüften Commit")
+        self.assertEqual(e["zeige"]("index.html").stdout, "<p>geprüft</p>", "gebaut aus dem geprüften Commit")
 
     def test_kopie_holen_entspricht_dem_commit(self):
         """R5-04: die Bauquelle ist genau der Inhalt des Commits (ohne Arbeitsbaumänderung, ohne unversionierte Dateien)."""
@@ -594,7 +594,7 @@ class Veroeffentlichen(unittest.TestCase):
         (e["quelle"] / "app" / "neu.txt").write_text("unversioniert", encoding="utf-8")
         with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
             self.v.kopie_holen(e["head"], k)
-            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprueft")
+            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprüft")
             self.assertFalse((Path(k) / "app" / "neu.txt").exists())
             self.assertFalse((Path(k) / ".veroeffentlichung").exists())
 
@@ -605,7 +605,7 @@ class Veroeffentlichen(unittest.TestCase):
         (info / "attributes").write_text("app/seite.txt export-ignore\n", encoding="utf-8")
         with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
             self.v.kopie_holen(e["head"], k)
-            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprueft")
+            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprüft")
 
     def test_kopie_nur_normale_dateien(self):
         """R5-04: ein Stand mit Link (120000) wird nicht als Bauquelle ausgepackt."""
@@ -671,13 +671,13 @@ class Veroeffentlichen(unittest.TestCase):
         self._ersetzt(e["quelle"], e["head"])
         with tempfile.TemporaryDirectory() as k, mock.patch.object(self.v, "WURZEL", e["quelle"]):
             self.v.kopie_holen(e["head"], k)
-            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprueft")
+            self.assertEqual((Path(k) / "app" / "seite.txt").read_text(encoding="utf-8"), "geprüft")
 
     def test_lauf_ohne_ersetzungsreferenzen(self):
         """R7-01: der ganze Lauf (Stand, Kopie, Seitenbaum) arbeitet mit den Originalobjekten des geprüften Commits."""
         e = self._lauf(self._gut, vorher=self._ersetzt)
         self.assertEqual(e["code"], 0)
-        self.assertEqual(e["zeige"]("index.html").stdout, "<p>geprueft</p>", "gebaut aus dem Originalinhalt")
+        self.assertEqual(e["zeige"]("index.html").stdout, "<p>geprüft</p>", "gebaut aus dem Originalinhalt")
 
     def test_kopie_nicht_ausfuehrbar(self):
         """R7-02: ein Stand mit ausführbarer Datei (100755) wird nicht ausgepackt (das Ausführungsbit ginge verloren)."""
@@ -794,13 +794,13 @@ class Herkunft(unittest.TestCase):
         sauber = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
         with mock.patch.dict(os.environ, sauber, clear=True), tempfile.TemporaryDirectory() as t:
             t = Path(t)
-            g = lambda *a: subprocess.run(["git", "-C", str(t), *a], check=True, capture_output=True, text=True).stdout.strip()
+            g = lambda *a: subprocess.run(["git", "-C", str(t), *a], check=True, capture_output=True, text=True, encoding="utf-8").stdout.strip()
             g("init", "-q"); g("config", "user.name", "Test"); g("config", "user.email", "test@example.invalid")
             g("commit", "-q", "--allow-empty", "-m", "a"); a = g("rev-parse", "HEAD")
             g("commit", "-q", "--allow-empty", "-m", "b"); b = g("rev-parse", "HEAD")
             online = t / "online.json"
             cli = lambda neu: subprocess.run([sys.executable, "-I", str(WURZEL / "werkzeuge" / "herkunft.py"), "pruefen",
-                                              str(online), neu, str(t)], capture_output=True, text=True).returncode
+                                              str(online), neu, str(t)], capture_output=True, text=True, encoding="utf-8").returncode
             self.assertEqual(cli(b), 0, "ohne Online-Datei")
             online.write_text(json.dumps({"herkunft": a}), encoding="utf-8")
             self.assertEqual(cli(b), 0)
@@ -1061,7 +1061,7 @@ class PushSchutz(unittest.TestCase):
         self.git("commit", "-q", "-m", "start")
 
     def git(self, *a):
-        return subprocess.run(["git", "-C", str(self.repo), *a], check=True, capture_output=True, text=True).stdout
+        return subprocess.run(["git", "-C", str(self.repo), *a], check=True, capture_output=True, text=True, encoding="utf-8").stdout
 
     def test_kein_arbeitsbaum(self):
         leer = Path(self.tmp.name) / "leer"

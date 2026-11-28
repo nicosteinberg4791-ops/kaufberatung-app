@@ -14,12 +14,15 @@ Aufruf:  python -I abruf.py <https-URL> [--text N]
 """
 import hashlib
 import html
+import ipaddress
 import json
 import math
 import os
 import re
+import stat
 import sys
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 import urllib.parse
@@ -38,12 +41,40 @@ ABLAGE.mkdir(parents=True, exist_ok=True)
 ABSTAND = 61
 ROBOTS_MAX_ALTER = 24 * 3600
 GESPERRT_PFADE = [r"/de/search", r"/de/list/", r"/de/promo-list/", r"storeId=", r"/rest/", r"\.json(\?|$)"]
+SPERRDAUER = 1800   # Sperrvermerk nach 401/403/429/503/Challenge: Domain 30 min meiden
+
+# Gewöhnlicher Hostname (RFC 1123): Bezeichner aus a-z, 0-9 und -, je 1–63 Zeichen, ohne - am Rand, durch Punkte getrennt
+_HOSTNAME = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*")
+_GERAETE = frozenset(["con", "prn", "aux", "nul", "conin$", "conout$"] + [f"{a}{z}" for a in ("com", "lpt")
+                                                                          for z in "0123456789¹²³"])
+
+
+def host_schluessel(host):
+    """Gemeinsamer Dateischlüssel je Host für Sperr-, Zeit- und Sperrvermerkdatei (R6-02): unter Windows zulässig und
+    eindeutig. Ein gewöhnlicher Hostname bis 246 Zeichen (r2 R2-01: mit der längsten Endung „.gesperrt“ bzw.
+    „.zeit.neu“ höchstens 255 Zeichen je Namenskomponente; längere scheiterten schon vorher an .zeit.neu), dessen erster Bezeichner kein Windows-Gerätename ist, bleibt
+    wie er ist (vorhandene Stempel gelten weiter). Alles andere (IPv6, Zonen-ID, Nicht-ASCII, Gerätenamen, Punkt am
+    Ende, zu lang) wird zu „h--<SHA-256>“: dessen erster Bezeichner ist 67 Zeichen lang und damit nie ein gewöhnlicher
+    Hostname. Klein wie bei urlsplit().hostname; Prozentkodierung in der Authority lehnt robots_ok vorher ab (r2
+    R2-02/R2-03). ValueError bei leerem Host. Ein Pfad über MAX_PATH scheitert beim Öffnen der Sperrdatei, also vor
+    jedem Abruf (fail-closed)."""
+    if not host:
+        raise ValueError("URL ohne Host")
+    host = host.lower()
+    if len(host) <= 246 and _HOSTNAME.fullmatch(host) and host.split(".")[0] not in _GERAETE:
+        return host
+    return "h--" + hashlib.sha256(host.encode("utf-8", "surrogatepass")).hexdigest()
+
+
+def takt_datei(host, endung):
+    """Datei des Domaintakts für host (.lock, .zeit, .gesperrt) unter dem gemeinsamen Schlüssel (R6-02)."""
+    return TAKT / (host_schluessel(host) + endung)
 
 
 def sperre_versuchen(domain):
     """Domainsperre als Betriebssystem-Dateisperre (R3-04) auf der dauerhaft liegenden Datei <domain>.lock: genau ein
     Inhaber, frei beim Prozessende (auch nach Absturz), kein Altern und kein Löschen. Rückgabe Dateiobjekt oder None."""
-    f = open(TAKT / (domain + ".lock"), "a+b")
+    f = open(takt_datei(domain, ".lock"), "a+b")
     try:
         if os.name == "nt":
             import msvcrt
@@ -85,7 +116,7 @@ def sperre_holen(domain):
         if time.time() - start > 1800:
             raise SystemExit("Zeitüberschreitung beim Warten auf " + domain)
         time.sleep(2)
-    stempel = TAKT / (domain + ".zeit")
+    stempel = takt_datei(domain, ".zeit")
     try:
         try:   # Codex A2-01: nur ein sicher fehlender Eintrag heißt „kein Stempel“
             os.lstat(stempel)
@@ -151,11 +182,39 @@ def stempel_setzen(stempel, laeuft=False):
     os.replace(neu, stempel)
 
 
+# Zeichen der Kategorien L/S ohne Zeichenbild: Hangul-Füller (Default_Ignorable_Code_Point, Lo), r4 R2-04a:
+# leeres Braille-Muster U+2800 und MUSICAL SYMBOL NULL NOTEHEAD U+1D159 (So)
+_FUELLER = frozenset((0x115F, 0x1160, 0x3164, 0xFFA0, 0x2800, 0x1D159))
+
+
+def _sichtbar(c):
+    """Zeichen mit eigenem Zeichenbild (r1–r3): nur Buchstaben, Ziffern, Satz- und Sonderzeichen (Kategorien L, N, P,
+    S) ohne die Zeichen in _FUELLER. Leerraum, Steuer- und Formatzeichen (BOM, U+200B), kombinierende Zeichen und
+    Variantenwähler (Mn, Me, z. B. U+FE0F, U+20E3, U+E0100) zählen nicht."""
+    return unicodedata.category(c)[0] in "LNPS" and ord(c) not in _FUELLER
+
+
 def gesperrt_bis(domain):
-    s = TAKT / (domain + ".gesperrt")
-    if s.exists() and time.time() - s.stat().st_mtime < 1800:
-        return s.read_text(encoding="utf-8")
-    return None
+    """Grund der Domainsperre (nicht leerer Text) oder None. R2-04 (fail-closed): None nur, wenn der Sperrvermerk sicher
+    fehlt (FileNotFoundError) oder eine normale Datei ist, die älter als SPERRDAUER ist. Jeder andere Zustand sperrt:
+    Prüffehler (Rechte o. Ä.), Link ohne Ziel bzw. Junction, Ordner oder anderer Eintrag (auch alt; von Hand entfernen),
+    Lesefehler, nicht dekodierbarer oder leerer Inhalt."""
+    s = takt_datei(domain, ".gesperrt")
+    try:
+        st = os.lstat(s)
+    except FileNotFoundError:
+        return None
+    except OSError as e:
+        return f"Sperrvermerk nicht prüfbar ({type(e).__name__})"
+    if not stat.S_ISREG(st.st_mode) or getattr(st, "st_reparse_tag", 0):
+        return "Sperrvermerk ist keine normale Datei (von Hand prüfen und entfernen)"
+    if time.time() - st.st_mtime >= SPERRDAUER:
+        return None
+    try:
+        grund = s.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as e:
+        return f"Sperrvermerk nicht lesbar ({type(e).__name__})"
+    return grund if any(map(_sichtbar, grund)) else "Sperrvermerk ohne Grund"
 
 
 def holen(url):
@@ -174,14 +233,21 @@ def holen(url):
         stempel_setzen(stempel, laeuft=True)   # R4-03/A2: laufenden Versuch markieren, bevor die Anfrage abgeht
         try:
             r = einmal_abrufen(url)
-        finally:
-            stempel_setzen(stempel)   # Ende des Versuchs: der Abstand zählt wie bisher ab dem Ende
+        except BaseException:
+            # Ende des Versuchs. Scheitert der Abschlussstempel, bleibt „laeuft“ (voller Abstand) und die ursprüngliche
+            # Ausnahme geht weiter, damit z. B. eine 403 trotzdem den Sperrvermerk schreibt (Vorprüfung, R5-01-Rand)
+            try:
+                stempel_setzen(stempel)
+            except Exception:
+                pass
+            raise
+        stempel_setzen(stempel)   # Ende des Versuchs: der Abstand zählt wie bisher ab dem Ende
     except sa.Weitergeleitet as e:
         print(json.dumps({"url": url, "fehler": "Weiterleitung, nicht verfolgt: " + str(e)}, ensure_ascii=False))
         raise SystemExit(5)
     except sa.NichtAbrufbar as e:
         if re.search(r"HTTP (401|403|429|503)|Challenge|Bot", str(e)):
-            (TAKT / (domain + ".gesperrt")).write_text(str(e), encoding="utf-8")
+            takt_datei(domain, ".gesperrt").write_text(str(e), encoding="utf-8")
             print(json.dumps({"url": url, "fehler": "gesperrt (nicht umgehen, Domain 30 min meiden): " + str(e)}, ensure_ascii=False))
             raise SystemExit(3)
         print(json.dumps({"url": url, "fehler": "nicht abrufbar: " + str(e)}, ensure_ascii=False))
@@ -297,17 +363,30 @@ STANDARDPORT = {"http": 80, "https": 443}
 
 def robots_ursprung(teile):
     """(Schema, Host, effektiver Port) einer URL: robots.txt gilt je Ursprung (RFC 9309 2.3, R5-05). ValueError bei
-    fehlendem Host, unbekanntem Schema oder ungültigem Port."""
+    fehlendem Host, unbekanntem Schema oder ungültigem Port. Standardport nur ohne Port (auch leer, RFC 3986 3.2.3);
+    Port 0 ist kein Standardport, sondern ungültig (R5-05)."""
     scheme, host = teile.scheme.lower(), teile.hostname
     if not host or scheme not in STANDARDPORT:
         raise ValueError("URL ohne Host oder mit unbekanntem Schema")
-    return scheme, host, teile.port or STANDARDPORT[scheme]   # .port wirft ValueError bei ungültigem Port
+    port = teile.port   # wirft ValueError bei ungültigem Port
+    if port is None:
+        return scheme, host, STANDARDPORT[scheme]
+    if port == 0:
+        raise ValueError("Port 0")
+    return scheme, host, port
+
+
+def robots_ablage(scheme, host, port):
+    """Ablagedatei der robots.txt eines Ursprungs (R5-05): Name aus dem SHA-256 des vollständigen Ursprungs, also
+    eindeutig je (Schema, Host, Port) und unter Windows zulässig."""
+    ursprung = json.dumps([scheme, host, port], ensure_ascii=True)
+    return TAKT / ("robots-" + hashlib.sha256(ursprung.encode("ascii")).hexdigest() + ".json")
 
 
 def robots_text(scheme, host, port):
     """robots.txt des Ursprungs (Schema, Host, Port) aus der Ablage (höchstens ROBOTS_MAX_ALTER alt) oder frisch im Takt.
     None = nicht auswertbar. Die Domainsperre in holen() bleibt je Host."""
-    ablage = TAKT / f"{scheme}-{host.replace(':', '_')}-{port}.robots.json"
+    ablage = robots_ablage(scheme, host, port)
     netz = (f"[{host}]" if ":" in host else host) + ("" if STANDARDPORT[scheme] == port else f":{port}")
     try:
         a = json.loads(ablage.read_text(encoding="utf-8"))
@@ -323,7 +402,25 @@ def robots_text(scheme, host, port):
 
 
 def robots_ok(url):
-    teile = urllib.parse.urlsplit(url)
+    # r1 R5-05: urlsplit entfernt Tabulator, CR und LF still (z. B. „:	“ → Standardport), der HTTP-Client nicht
+    if any(ord(c) <= 32 or ord(c) == 127 for c in url):
+        return False, "URL mit Leer- oder Steuerzeichen"
+    try:
+        teile = urllib.parse.urlsplit(url)
+    except ValueError:   # r4 R4-01: urlsplit lehnt manche Klammer-Hosts selbst ab (z. B. „[h.invalid]“), auch NFKC-Fälle
+        if "[" in url or "]" in url:
+            return False, "URL mit Klammern ohne gültige IPv6-Adresse"
+        return False, "URL nicht lesbar"
+    if "%" in teile.netloc:   # r2 R2-02/R2-03: urllib dekodiert die Authority anders als urlsplit (Host, Port)
+        return False, "URL mit Prozentkodierung in Host oder Port"
+    if "@" in teile.netloc:   # r3 R3-01: urllib liest einen Nutzerteil anders (z. B. „p@h.invalid“ als Port)
+        return False, "URL mit Nutzerteil (@) in der Authority"
+    if "[" in teile.netloc or "]" in teile.netloc:   # r4 R4-01: hostname verliert die Klammern (IPvFuture), urllib nicht
+        klammer = re.fullmatch(r"\[([0-9A-Fa-f:.]+)\](?::[0-9]*)?", teile.netloc)
+        try:
+            ipaddress.IPv6Address(klammer[1] if klammer else "")
+        except ValueError:
+            return False, "URL mit Klammern ohne gültige IPv6-Adresse"
     for m in GESPERRT_PFADE:
         if re.search(m, teile.path + ("?" + teile.query if teile.query else "")):
             return False, "Pfad laut robots-Regel gesperrt: " + m
