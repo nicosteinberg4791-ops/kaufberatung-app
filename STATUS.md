@@ -1,11 +1,12 @@
 # Stand – Kaufberatung-App
 
-Stand: 28.11.2026 · Branch main, origin/main (Paket `abruf.py`) lokal gemergt, Prüfpunkt Veröffentlichung r1 bewertet und korrigiert, nicht gepusht · P2a-2 gebaut, Nachprüfung r1 bewertet und korrigiert (selbst geprüft bis Korrektur r2; Codex-Nachprüfung r3 bestanden mit Hinweisen, Hinweise korrigiert; nicht gepusht) · P2a-1 unabhängig geprüft bis d062392 (Korrektur r3 nur selbst geprüft) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
+Stand: 28.11.2026 · **Live:** gh-pages App cd6f226225dc aus 8a41085 (= origin/main), Prüfpunkt Veröffentlichung bestanden mit Hinweisen (Codex r3) · P2a-2 und P2a-1 mit veröffentlicht (Prüfstufen siehe Verlauf) · Vollständiger Verlauf: [docs/status-verlauf.md](docs/status-verlauf.md).
 
 ## Lage
 
-- **Live auf gh-pages:** App 1045baedfc64 (Herkunft 7339711, Inhalt Artifact-Version 30). Finder G1, Datenbank, UX-P1, P2a-1 und P2a-2 sind auf `main`, nicht gepusht und nicht live.
-- **Merge 28.11.2026:** origin/main (Paket `abruf.py`, 40cf73f) ist lokal in `main` gemergt, nicht gepusht. Konflikte nur in `STATUS.md` und `tests/test_app.py` (Helfer `_lauf`: P2a-Schema-Aufbau von `main` plus UTF-8-Probe „geprüft“ von origin/main). Paket `abruf.py`: selbst geprüft, Codex r1–r4 nicht bestanden, r4-Befunde nach O23 = B ohne Runde 5 behoben, R10-01 Restrisiko ([bewertung-r4.md](docs/pruefungen/2026-11-24-abruf/bewertung-r4.md)).
+- **Live auf gh-pages (28.11.2026):** App cd6f226225dc, Herkunft 8a41085 (Inhalt Artifact-Version 30), Finder-Daten 8a41085. Enthalten: Finder G1, Datenbank, UX-P1, P2a-1, P2a-2, Paket `abruf.py`, Merge a01e7fa.
+- **Prüfstufen Veröffentlichung:** selbst geprüft: Commit-Hook (Sammellauf) an c168282 und 17d8df7 Fehler 0 · Warnungen 0, an 8a41085 ohne Abbruch (Ausgabe gekürzt), Geheimnis-Scan Historie 2070 Dateistände 0 Funde. Unabhängig geprüft: Codex r1 high nicht bestanden, r2 medium nicht bestanden, r3 medium bestanden mit Hinweisen ([bewertung-r3.md](docs/pruefungen/2026-11-28-veroeffentlichung/bewertung-r3.md)). Vom Besitzer freigegeben: Push und Veröffentlichung („bis live“), VER-02 angenommen (Push ohne Historienänderung, [bewertung-r2.md](docs/pruefungen/2026-11-28-veroeffentlichung/bewertung-r2.md)).
+- **Abnahme live:** `version.json` app cd6f226225dc; `finder-daten.json` herkunft 8a41085, SHA-256 gleich gh-pages; Datenworkflow Finder-Daten (Lauf 46148631127) grün mit Pages-Abnahme; Browser: Startseite Finder mit Kategorienkacheln, Ratgeber erreichbar, Cache kb-app-cd6f226225dc, Konsole ohne Fehler. Nicht auf echtem Android-Gerät geprüft.
 - **Pilot Bestpreis (D7):** Entscheidung O12 stand am 26.11. an.
 
 ## Erledigt (26.11.2026)
@@ -27,14 +28,14 @@ Stand: 28.11.2026 · Branch main, origin/main (Paket `abruf.py`) lokal gemergt, 
 
 ## Nächster Schritt
 
-**Veröffentlichung bis live** (Besitzer 28.11.: „komplett weiter und fertig bis wir live sind“, Befunde automatisch beheben). Erstprüfung r1 (Codex high): nicht bestanden, VER-01, -03, -04 korrigiert, VER-02 bewusste Entscheidung ([bewertung-r1.md](docs/pruefungen/2026-11-28-veroeffentlichung/bewertung-r1.md)). Nächster Schritt: Nachprüfung r2 (medium), dann Push `main`, `veroeffentlichen.py --stand <HEAD>`, Abnahme live.
-**Fertig, wenn** Nachprüfung ohne offenen kritischen/schweren Befund, origin/main = geprüfter Stand, gh-pages liefert die neue App-Version und `finder-daten.json` mit der neuen Herkunft.
+Veröffentlichung abgeschlossen (siehe Lage). Nächste Entscheidungen beim Besitzer (unten), u. a. Pilot Bestpreis O12.
 Offen aus P2a-2: ein einmaliger, nicht reproduzierter Fehlschlag von `test_datei_an_kandidat_gebunden` im Mutantenlauf ([bewertung-r3.md](docs/pruefungen/2026-11-26-p2a2-bau/bewertung-r3.md), Selbstprüfung).
 
 ## Offen für den Besitzer
 
 - Fotos Finder G1 freigeben; P2 GS-1, „gleichauf“ im Vergleich (`docs/pruefungen/2026-11-24-finder-g1/gestaltung-r3.md`).
-- Push und gh-pages nach Merge; Impeccable installieren (D21). Ein Push von `main` mit P2a-2 bringt die Schranke in den Datenworkflow (Auslöser `daten/schema/**`).
+- Impeccable installieren (D21).
+- VER-02: Historie enthält lokale Pfade mit Vorname (öffentlich seit 28.11.); eine Bereinigung der ganzen Historie wäre ein eigenes Paket.
 - P2: F-2 (Maße), F-3 (Testquelle), F-5 (Umfang der Projektion; gebaut nach Vorschlag „ja“: Kurven und Abschlag gehören dazu).
 - O12, O13, O10, O5, O6, O7: Wortlaut im Verlauf.
 - Nicht auf echtem Android-Handy geprüft: Icons, Push-Zustellung, Besitzer-Merker.
